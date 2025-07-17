@@ -342,21 +342,24 @@ export const AiAdviceCard = () => {
   return (
     <Card className="glass-card border-0">
       <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="gradient-text flex items-center gap-2">
-            <Brain className="h-5 w-5" />
-            AI Learning Intelligence
-          </CardTitle>
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center">
+            <Brain className="h-6 w-6 text-black" />
+          </div>
+          <div>
+            <div className="gradient-text text-xl font-bold">AI Learning Intelligence</div>
+            <span className="text-muted-foreground/80 text-sm">Personalized insights powered by AI</span>
+          </div>
           <Button 
             onClick={generateAdvice} 
             disabled={loading}
-            className="btn-primary"
+            className="btn-primary ml-auto"
             size="sm"
           >
             {loading ? (
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
             ) : (
-              <Sparkles className="h-4 w-4" />
+              <Sparkles className="h-4 w-4 mr-2" />
             )}
             {loading ? 'Analyzing...' : 'Get Smart Insights'}
           </Button>

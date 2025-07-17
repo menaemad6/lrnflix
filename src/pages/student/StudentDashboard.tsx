@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,6 +16,7 @@ import { useToast } from '@/hooks/use-toast';
 import { BookOpen, Play, Target, Zap, GraduationCap, Users, TrendingUp, Calendar } from 'lucide-react';
 import type { RootState } from '@/store/store';
 import { useTenant } from '@/contexts/TenantContext';
+import { PremiumCourseCard } from '@/components/courses/PremiumCourseCard';
 
 interface EnrolledCourse {
   id: string;
@@ -25,11 +26,17 @@ interface EnrolledCourse {
     description: string;
     category: string;
     price: number;
+    instructor_id: string;
+    instructor_name?: string;
+    enrollment_code?: string;
+    cover_image_url?: string;
+    created_at?: string;
   };
   enrolled_at: string;
   progress?: number;
   totalLessons?: number;
   completedLessons?: number;
+  enrollment_count?: number;
 }
 
 export const StudentDashboard = () => {
@@ -47,6 +54,7 @@ export const StudentDashboard = () => {
     totalStudyTime: 0
   });
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchDashboardData();
@@ -146,7 +154,7 @@ export const StudentDashboard = () => {
         totalStudyTime: Math.floor(Math.random() * 50) + 10 // Placeholder for now
       });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching dashboard data:', error);
       toast({
         title: 'Error',
@@ -182,13 +190,20 @@ export const StudentDashboard = () => {
 
         {/* Main Dashboard Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Main Content (left) */}
           <div className="lg:col-span-2 space-y-8">
             {/* Continue Learning */}
             <Card className="glass-card border-0">
               <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="gradient-text">Continue Learning</CardTitle>
-                  <Link to="/courses">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-2xl flex items-center justify-center">
+                    <BookOpen className="h-6 w-6 text-black" />
+                  </div>
+                  <div>
+                    <div className="gradient-text text-xl font-bold">Continue Learning</div>
+                    <span className="text-muted-foreground/80 text-sm">Pick up where you left off</span>
+                  </div>
+                  <Link to="/courses" className="ml-auto">
                     <Button className="btn-secondary" size="sm">
                       <Target className="h-4 w-4 mr-2" />
                       Explore More
@@ -198,40 +213,41 @@ export const StudentDashboard = () => {
               </CardHeader>
               <CardContent>
                 {enrolledCourses.length > 0 ? (
-                  <div className="space-y-4">
-                    {enrolledCourses.slice(0, 3).map((enrollment) => (
-                      <div key={enrollment.id} className="flex items-center gap-4 p-4 rounded-xl hover:bg-white/5 transition-colors group">
-                        <div className="w-12 h-12 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-xl flex items-center justify-center">
-                          <BookOpen className="h-6 w-6 text-emerald-400" />
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="font-medium group-hover:text-emerald-400 transition-colors">
-                            {enrollment.course.title}
-                          </h3>
-                          <div className="flex items-center gap-2 mt-1">
-                            <Progress value={enrollment.progress} className="h-1 flex-1" />
-                            <span className="text-xs text-muted-foreground">{enrollment.progress}%</span>
-                          </div>
-                          <div className="text-xs text-muted-foreground mt-1">
-                            {enrollment.completedLessons} / {enrollment.totalLessons} lessons completed
-                          </div>
-                        </div>
-                        <Link to={`/courses/${enrollment.course.id}`}>
-                          <Button size="sm" className="btn-secondary">
-                            <Play className="h-4 w-4" />
+                  <>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {enrolledCourses.slice(0, 2).map((enrollment) => (
+                        <PremiumCourseCard
+                          key={enrollment.id}
+                          id={enrollment.course.id}
+                          title={enrollment.course.title}
+                          description={enrollment.course.description}
+                          category={enrollment.course.category}
+                          status="Active"
+                          instructor_name={enrollment.course.instructor_name || 'Course Instructor'}
+                          enrollment_count={enrollment.enrollment_count || 0}
+                          is_enrolled={true}
+                          enrollment_code={enrollment.course.enrollment_code || ''}
+                          cover_image_url={enrollment.course.cover_image_url}
+                          created_at={enrollment.course.created_at}
+                          price={enrollment.course.price}
+                          progress={enrollment.progress}
+                          isHovering={true}
+                          onPreview={() => {}}
+                          onEnroll={() => {}}
+                          onContinue={() => navigate(`/courses/${enrollment.course.id}`)}
+                        />
+                      ))}
+                    </div>
+                    {enrolledCourses.length > 2 && (
+                      <div className="flex justify-center mt-4">
+                        <Link to="/student/courses">
+                          <Button className="btn-primary" size="sm">
+                            View All
                           </Button>
                         </Link>
                       </div>
-                    ))}
-                    <div className="mt-4">
-                      <Link to="/student/courses">
-                        <Button className="w-full btn-secondary">
-                          <GraduationCap className="h-4 w-4 mr-2" />
-                          View All My Courses
-                        </Button>
-                      </Link>
-                    </div>
-                  </div>
+                    )}
+                  </>
                 ) : (
                   <div className="text-center py-8">
                     <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
@@ -250,10 +266,27 @@ export const StudentDashboard = () => {
               </CardContent>
             </Card>
 
+            {/* WalletCard: show after courses on small/medium, hide on lg+ */}
+            <div className="block lg:hidden">
+              <WalletCard />
+            </div>
+
             {/* Goals Section */}
             <StudentGoals stats={stats} />
 
-            {/* Quick Actions */}
+            {/* Activity & Achievements: stacked on mobile, only Achievements on lg+ */}
+            <div className="grid grid-cols-1 gap-6">
+              {/* On mobile: Activity then Achievements. On lg+: only Achievements. */}
+              <div className="block lg:hidden">
+                <StudentActivity stats={stats} />
+              </div>
+              <StudentAchievements stats={stats} />
+            </div>
+          </div>
+
+          {/* Sidebar: only on lg+ */}
+          <div className="space-y-6 hidden lg:block">
+            <WalletCard />
             <Card className="glass-card border-0">
               <CardHeader>
                 <CardTitle className="gradient-text">Quick Actions</CardTitle>
@@ -281,12 +314,6 @@ export const StudentDashboard = () => {
                 </div>
               </CardContent>
             </Card>
-          </div>
-
-          {/* Sidebar */}
-          <div className="space-y-6">
-            <WalletCard />
-            <StudentAchievements stats={stats} />
             <StudentActivity stats={stats} />
           </div>
         </div>

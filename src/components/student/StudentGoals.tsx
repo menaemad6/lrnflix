@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -89,12 +89,15 @@ export const StudentGoals = ({ stats }: StudentGoalsProps) => {
   return (
     <Card className="glass-card border-0">
       <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="gradient-text flex items-center gap-2">
-            <Target className="h-5 w-5" />
-            Learning Goals
-          </CardTitle>
-          <Button size="sm" className="btn-secondary">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center">
+            <Target className="h-6 w-6 text-black" />
+          </div>
+          <div>
+            <div className="gradient-text text-xl font-bold">Learning Goals</div>
+            <CardDescription className="text-muted-foreground/80">Track and achieve your learning goals</CardDescription>
+          </div>
+          <Button size="sm" className="btn-secondary ml-auto">
             <Plus className="h-4 w-4 mr-2" />
             Add Goal
           </Button>
@@ -105,18 +108,18 @@ export const StudentGoals = ({ stats }: StudentGoalsProps) => {
           {goals.map((goal) => (
             <div
               key={goal.id}
-              className={`group p-4 rounded-xl border transition-all duration-300 hover:border-white/20 ${
+              className={`group p-4 rounded-xl border transition-all duration-300 hover:border-emerald-400/30 ${
                 isCompleted(goal.current, goal.target)
-                  ? 'bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border-emerald-500/30'
-                  : 'bg-white/5 border-white/10'
+                  ? 'bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border-emerald-500/30 dark:bg-gradient-to-br dark:from-emerald-500/10 dark:to-teal-500/10'
+                  : 'bg-white/80 border-gray-200 dark:bg-white/5 dark:border-white/10'
               }`}
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-start gap-3">
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110 ${
                     isCompleted(goal.current, goal.target)
-                      ? 'bg-gradient-to-br from-emerald-500/20 to-teal-500/20'
-                      : 'bg-gradient-to-br from-purple-500/20 to-pink-500/20'
+                      ? 'bg-gradient-to-br from-emerald-500/20 to-teal-500/20 dark:from-emerald-500/20 dark:to-teal-500/20'
+                      : 'bg-gradient-to-br from-purple-500/10 to-pink-500/10 dark:from-purple-500/20 dark:to-pink-500/20'
                   }`}>
                     {isCompleted(goal.current, goal.target) ? (
                       <CheckCircle2 className="h-4 w-4 text-emerald-400" />
@@ -126,7 +129,9 @@ export const StudentGoals = ({ stats }: StudentGoalsProps) => {
                   </div>
                   <div className="flex-1">
                     <h4 className={`font-medium mb-1 ${
-                      isCompleted(goal.current, goal.target) ? 'text-emerald-400' : 'text-white'
+                      isCompleted(goal.current, goal.target)
+                        ? 'text-emerald-500 dark:text-emerald-400'
+                        : 'text-gray-900 dark:text-white'
                     }`}>
                       {goal.title}
                     </h4>
@@ -134,10 +139,8 @@ export const StudentGoals = ({ stats }: StudentGoalsProps) => {
                       {goal.description}
                     </p>
                     <div className="flex items-center gap-2">
-                      <Badge className={`text-xs ${getPriorityColor(goal.priority)}`}>
-                        {goal.priority} priority
-                      </Badge>
-                      <Badge className="text-xs bg-gray-500/20 text-gray-400 border-gray-500/30 flex items-center gap-1">
+                      <Badge className={`text-xs ${getPriorityColor(goal.priority)}`}>{goal.priority} priority</Badge>
+                      <Badge className="text-xs bg-gray-200 text-gray-600 border-gray-300 dark:bg-gray-500/20 dark:text-gray-400 dark:border-gray-500/30 flex items-center gap-1">
                         <Clock className="h-3 w-3" />
                         {goal.deadline}
                       </Badge>
@@ -150,12 +153,13 @@ export const StudentGoals = ({ stats }: StudentGoalsProps) => {
                   </div>
                 )}
               </div>
-              
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Progress</span>
                   <span className={`font-medium ${
-                    isCompleted(goal.current, goal.target) ? 'text-emerald-400' : 'text-white'
+                    isCompleted(goal.current, goal.target)
+                      ? 'text-emerald-500 dark:text-emerald-400'
+                      : 'text-gray-900 dark:text-white'
                   }`}>
                     {goal.current} / {goal.target}
                   </span>
@@ -166,7 +170,9 @@ export const StudentGoals = ({ stats }: StudentGoalsProps) => {
                 />
                 <div className="text-right">
                   <span className={`text-xs font-medium ${
-                    isCompleted(goal.current, goal.target) ? 'text-emerald-400' : 'text-purple-400'
+                    isCompleted(goal.current, goal.target)
+                      ? 'text-emerald-500 dark:text-emerald-400'
+                      : 'text-purple-600 dark:text-purple-400'
                   }`}>
                     {Math.round(calculateProgress(goal.current, goal.target))}% Complete
                   </span>
