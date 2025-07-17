@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Users, Plus, MessageCircle, Calendar, Hash, Search, UserMinus, Share2 } from 'lucide-react';
 import { useRandomBackground } from "../../hooks/useRandomBackground";
 import { useTenant } from '@/contexts/TenantContext';
+import DashboardModernHeader from '@/components/ui/DashboardModernHeader';
 
 interface Group {
   id: string;
@@ -195,17 +196,12 @@ export const StudentGroups = () => {
     <div className={bgClass + " min-h-screen"}>
       <DashboardLayout>
         <div className="container mx-auto p-6 space-y-6">
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold">My Study Groups</h1>
-              <p className="text-muted-foreground">Connect and collaborate with your classmates</p>
-            </div>
-            <Button onClick={() => setShowJoinModal(true)}>
-              <Plus className="w-4 h-4 mr-2" />
-              Join Group
-            </Button>
-          </div>
+          <DashboardModernHeader
+            title="My Study Groups"
+            subtitle="Connect and collaborate with your classmates"
+            buttonText="Join Group"
+            onButtonClick={() => setShowJoinModal(true)}
+          />
 
           {/* Search Bar */}
           <div className="relative max-w-md">

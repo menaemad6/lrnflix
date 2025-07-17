@@ -13,6 +13,15 @@ import { useToast } from '@/hooks/use-toast';
 import { BookOpen, Trophy, Play, Sparkles } from 'lucide-react';
 import type { RootState } from '@/store/store';
 import { useTenant } from '@/contexts/TenantContext';
+import DashboardModernHeader from '@/components/ui/DashboardModernHeader';
+import { Input } from '@/components/ui/input';
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from '@/components/ui/dropdown-menu';
+import { ChevronDown } from 'lucide-react';
 
 interface EnrolledCourse {
   id: string;
@@ -40,7 +49,14 @@ export const StudentCoursesPage = () => {
   const { teacher } = useTenant();
   const [enrolledCourses, setEnrolledCourses] = useState<EnrolledCourse[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [searchFocused, setSearchFocused] = useState(false);
   const navigate = useNavigate();
+
+  // Dynamically get unique categories from enrolledCourses
+  const courseCategories = Array.from(new Set(enrolledCourses.map(e => e.course.category).filter(Boolean)));
+  const categories = ['All', ...courseCategories];
 
   useEffect(() => {
     fetchEnrolledCourses();
@@ -139,35 +155,89 @@ export const StudentCoursesPage = () => {
     }
   };
 
+  // Filter logic for search and category
+  const filteredCourses = enrolledCourses.filter((enrollment) => {
+    const course = enrollment.course;
+    const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (course.description || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (course.enrollment_code || '').toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === 'All' || course.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
+
   return (
     <DashboardLayout>
+      <DashboardModernHeader
+        title="My Learning Journey"
+        subtitle="Continue your progress and discover new skills"
+        buttonText="Explore Courses"
+        onButtonClick={() => navigate('/courses')}
+      />
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold gradient-text">My Learning Journey</h2>
-            <p className="text-muted-foreground mt-1">Continue your progress and discover new skills</p>
-          </div>
-          <Link to="/courses">
-            <Button className="btn-primary">
-              <BookOpen className="h-4 w-4 mr-2" />
-              Explore Courses
-            </Button>
-          </Link>
-        </div>
-
+        {/* Search and Filters as a row with dropdown */}
+        <Card className="glass-card w-full max-w-full">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex flex-row gap-4 w-full items-center">
+              {/* Search input */}
+              <div className="flex-1 min-w-0 w-full">
+                <div className="relative">
+                  <BookOpen className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    type="text"
+                    placeholder="Search by course name or description"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 glass"
+                    onFocus={() => setSearchFocused(true)}
+                    onBlur={() => setSearchFocused(false)}
+                  />
+                </div>
+              </div>
+              {/* Dropdown for categories */}
+              <div className={`${searchFocused ? 'hidden sm:block' : ''}`}>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="flex items-center gap-2 min-w-[140px] justify-between"
+                    >
+                      <span>{selectedCategory}</span>
+                      <ChevronDown className="h-4 w-4 opacity-60" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start">
+                    {categories.map((category) => (
+                      <DropdownMenuItem
+                        key={category}
+                        onSelect={() => setSelectedCategory(category)}
+                        className={
+                          selectedCategory === category
+                            ? 'bg-emerald-500 text-white font-semibold'
+                            : ''
+                        }
+                      >
+                        {category}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
         {loading ? (
           <div className="flex items-center justify-center min-h-[40vh]">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
           </div>
-        ) : enrolledCourses.length === 0 ? (
+        ) : filteredCourses.length === 0 ? (
           <Card className="glass-card border-0 hover-glow">
             <CardContent className="text-center py-16">
               <div className="w-20 h-20 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-glow-pulse">
                 <BookOpen className="h-10 w-10 text-emerald-400" />
               </div>
-              <h3 className="text-xl font-semibold mb-3 gradient-text">Start Your Learning Adventure</h3>
+              <h3 className="text-xl font-semibold mb-3 gradient-text">No courses found</h3>
               <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                Unlock your potential with our AI-powered courses designed to accelerate your growth.
+                Try adjusting your search criteria or explore different categories.
               </p>
               <Link to="/courses">
                 <Button className="btn-primary">
@@ -179,7 +249,7 @@ export const StudentCoursesPage = () => {
           </Card>
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {enrolledCourses.map((enrollment) => (
+            {filteredCourses.map((enrollment) => (
               <PremiumCourseCard
                 key={enrollment.id}
                 id={enrollment.course.id}

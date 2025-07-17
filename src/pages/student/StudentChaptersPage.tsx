@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { BookOpen, Trophy, Play, Sparkles } from 'lucide-react';
 import type { RootState } from '@/store/store';
 import { useTenant } from '@/contexts/TenantContext';
+import DashboardModernHeader from '@/components/ui/DashboardModernHeader';
 
 interface EnrolledChapter {
   id: string;
@@ -33,6 +34,7 @@ export const StudentChaptersPage = () => {
   const { teacher } = useTenant();
   const [enrolledChapters, setEnrolledChapters] = useState<EnrolledChapter[]>([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchEnrolledChapters();
@@ -110,20 +112,13 @@ export const StudentChaptersPage = () => {
 
   return (
     <DashboardLayout>
+      <DashboardModernHeader
+        title="My Chapters"
+        subtitle="Track your progress through comprehensive learning paths"
+        buttonText="Explore Chapters"
+        onButtonClick={() => navigate('/chapters')}
+      />
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold gradient-text">My Chapters</h2>
-            <p className="text-muted-foreground mt-1">Track your progress through comprehensive learning paths</p>
-          </div>
-          <Link to="/chapters">
-            <Button className="btn-primary">
-              <BookOpen className="h-4 w-4 mr-2" />
-              Explore Chapters
-            </Button>
-          </Link>
-        </div>
-
         {loading ? (
           <div className="flex items-center justify-center min-h-[40vh]">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>

@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { History, Search, TrendingUp, TrendingDown, CreditCard, Gift, ShoppingCart, RotateCcw, Calendar } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
+import DashboardModernHeader from '@/components/ui/DashboardModernHeader';
 
 interface Transaction {
   id: string;
@@ -150,13 +151,14 @@ export const StudentTransactions = () => {
 
   return (
     <DashboardLayout>
+      <DashboardModernHeader
+        title="Transaction History"
+        subtitle="Track all your wallet transactions"
+      />
       <div className="container mx-auto p-6 space-y-6">
-        {/* Header */}
+        {/* Wallet Balance Card */}
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold gradient-text">Transaction History</h1>
-            <p className="text-muted-foreground">Track all your wallet transactions</p>
-          </div>
+          <div></div>
           <div className="text-center p-4 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-2xl border border-emerald-500/30">
             <div className="text-2xl font-bold gradient-text">{wallet}</div>
             <div className="text-sm text-emerald-400">Current Balance</div>

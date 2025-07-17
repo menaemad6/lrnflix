@@ -56,10 +56,6 @@ export const StudentProfileStats = ({ stats, user }: StudentProfileStatsProps) =
                 <svg className="absolute top-0 left-0 w-full h-full" viewBox="0 0 120 120">
                   <circle
                     cx="60" cy="60" r="54"
-                    stroke="#e5e7eb" strokeWidth="8" fill="none"
-                  />
-                  <circle
-                    cx="60" cy="60" r="54"
                     stroke="#10b981"
                     strokeWidth="8"
                     fill="none"

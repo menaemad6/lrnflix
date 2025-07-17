@@ -76,7 +76,8 @@ export const StudentDashboard = () => {
             description,
             category,
             price,
-            instructor_id
+            instructor_id,
+            cover_image_url
           )
         `)
         .eq('student_id', user.id)
