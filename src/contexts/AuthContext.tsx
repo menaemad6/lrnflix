@@ -38,31 +38,54 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (session?.user && mounted) {
           console.log('Session found, setting user:', session.user.id);
           
-          // Try to get profile data with wallet and minutes
-          const { data: profile, error: profileError } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .maybeSingle();
+          // Use setTimeout to prevent potential deadlocks when fetching profile data
+          setTimeout(async () => {
+            if (!mounted) return;
+            
+            try {
+              const { data: profile, error: profileError } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', session.user.id)
+                .maybeSingle();
 
-          if (profileError) {
-            console.error('Error fetching profile:', profileError);
-          }
+              if (profileError) {
+                console.error('Error fetching profile:', profileError);
+              }
 
-          // Set user data (with or without profile)
-          const userData: User = {
-            id: session.user.id,
-            email: session.user.email || '',
-            full_name: profile?.full_name || session.user.user_metadata?.full_name || null,
-            role: profile?.role || 'student',
-            avatar_url: profile?.avatar_url || null,
-            wallet: profile?.wallet || 0,
-            minutes: profile?.minutes || 0,
-            daily_free_minutes_used: profile?.daily_free_minutes_used || 0,
-            last_free_minutes_reset: profile?.last_free_minutes_reset || null,
-          };
+              // Set user data (with or without profile)
+              const userData: User = {
+                id: session.user.id,
+                email: session.user.email || '',
+                full_name: profile?.full_name || session.user.user_metadata?.full_name || null,
+                role: profile?.role || 'student',
+                avatar_url: profile?.avatar_url || null,
+                wallet: profile?.wallet || 0,
+                minutes: profile?.minutes || 0,
+                daily_free_minutes_used: profile?.daily_free_minutes_used || 0,
+                last_free_minutes_reset: profile?.last_free_minutes_reset || null,
+              };
 
-          dispatch(setUser(userData));
+              if (mounted) {
+                dispatch(setUser(userData));
+              }
+            } catch (err) {
+              console.error('Error in profile fetch timeout:', err);
+              if (mounted) {
+                dispatch(setUser({
+                  id: session.user.id,
+                  email: session.user.email || '',
+                  full_name: session.user.user_metadata?.full_name || null,
+                  role: 'student',
+                  avatar_url: null,
+                  wallet: 0,
+                  minutes: 0,
+                  daily_free_minutes_used: 0,
+                  last_free_minutes_reset: null,
+                }));
+              }
+            }
+          }, 0);
         } else if (mounted) {
           console.log('No session found');
           dispatch(setUser(null));
@@ -89,13 +112,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (!mounted) return;
         
         if (event === 'SIGNED_IN' && session?.user) {
-          // Fetch profile data for signed in user
-          supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .maybeSingle()
-            .then(({ data: profile, error: profileError }) => {
+          // Use setTimeout to prevent deadlocks with Supabase calls
+          setTimeout(async () => {
+            if (!mounted) return;
+            
+            try {
+              const { data: profile, error: profileError } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', session.user.id)
+                .maybeSingle();
+
               if (profileError) {
                 console.error('Error fetching profile on sign in:', profileError);
               }
@@ -112,9 +139,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 last_free_minutes_reset: profile?.last_free_minutes_reset || null,
               };
 
-              dispatch(setUser(userData));
-              dispatch(setLoading(false));
-            });
+              if (mounted) {
+                dispatch(setUser(userData));
+                dispatch(setLoading(false));
+              }
+            } catch (err) {
+              console.error('Error in auth state change timeout:', err);
+              if (mounted) {
+                dispatch(setUser({
+                  id: session.user.id,
+                  email: session.user.email || '',
+                  full_name: session.user.user_metadata?.full_name || null,
+                  role: 'student',
+                  avatar_url: null,
+                  wallet: 0,
+                  minutes: 0,
+                  daily_free_minutes_used: 0,
+                  last_free_minutes_reset: null,
+                }));
+                dispatch(setLoading(false));
+              }
+            }
+          }, 0);
         } else if (event === 'SIGNED_OUT') {
           dispatch(setUser(null));
           dispatch(setLoading(false));

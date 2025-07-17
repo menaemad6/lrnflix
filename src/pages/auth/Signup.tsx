@@ -13,7 +13,6 @@ import type { RootState } from '@/store/store';
 import { AuthHero } from "@/components/auth/AuthHero";
 import { AuthFooter } from "@/components/auth/AuthFooter";
 
-// More glassy/floating backgrounds + stunning premium theme
 export const Signup = () => {
   const [formData, setFormData] = useState({
     email: '',
@@ -35,12 +34,25 @@ export const Signup = () => {
     setSuccess('');
 
     try {
+      // Validate inputs
+      if (!formData.email.trim() || !formData.password || !formData.fullName.trim()) {
+        throw new Error('All fields are required');
+      }
+      
+      if (formData.password.length < 6) {
+        throw new Error('Password must be at least 6 characters long');
+      }
+
+      // Use window.location.origin to ensure secure redirect
+      const redirectTo = `${window.location.origin}/auth/callback`;
+
       const { error } = await supabase.auth.signUp({
-        email: formData.email,
+        email: formData.email.trim(),
         password: formData.password,
         options: {
+          emailRedirectTo: redirectTo,
           data: {
-            full_name: formData.fullName,
+            full_name: formData.fullName.trim(),
             role: formData.role,
           },
         },
@@ -50,16 +62,15 @@ export const Signup = () => {
 
       setSuccess('Account created successfully! Please check your email to verify your account.');
     } catch (error: any) {
-      setError(error.message);
+      console.error('Signup error:', error);
+      setError(error.message || 'An error occurred during signup');
     } finally {
       setLoading(false);
     }
   };
 
   if (isAuthenticated && user) {
-    const redirectPath = user.role === 'teacher' ? '/teacher/dashboard' : 
-                        user.role === 'admin' ? '/admin/dashboard' : 
-                        '/student/dashboard';
+    const redirectPath = user.role === 'teacher' || user.role === 'admin' ? '/teacher/dashboard' : '/student/dashboard';
     return <Navigate to={redirectPath} replace />;
   }
 
@@ -72,7 +83,6 @@ export const Signup = () => {
         <div className="absolute left-1/3 top-1/2 w-48 h-48 bg-teal-400/15 blur-2xl rounded-full animate-pulse" />
         <div className="absolute left-20 bottom-1/3 w-32 h-32 bg-emerald-400/10 rounded-full blur-2xl animate-float" style={{ animationDelay: "1.7s" }} />
         <div className="absolute right-48 top-12 w-40 h-40 bg-cyan-700/20 rounded-full blur-3xl animate-float" style={{ animationDelay: ".9s" }} />
-        {/* Glass slice */}
         <div className="absolute top-40 right-64 w-48 h-20 bg-white/7 rounded-3xl blur-2xl rotate-6 animate-float" style={{ animationDelay: "3s" }} />
       </div>
       {/* Left - Hero Panel */}
@@ -81,7 +91,7 @@ export const Signup = () => {
         highlight="Elite Learner's Community"
         subtitle="Create your account and unlock premium resources, mentorship, and more."
       />
-      {/* Right - Signup Form - modern glass look */}
+      {/* Right - Signup Form */}
       <div className="w-full lg:w-1/2 min-h-screen flex items-center justify-center p-8 z-10 relative">
         <div className="absolute top-0 right-0 w-60 h-60 bg-teal-700/20 rounded-full blur-2xl animate-float pointer-events-none" style={{ animationDuration: "7s" }} />
         <Card className="w-full max-w-md glass-card border border-emerald-500/10 shadow-cyan-900/40 bg-slate-950/90 backdrop-blur-2xl animate-fade-in">
@@ -117,6 +127,7 @@ export const Signup = () => {
                       setFormData({ ...formData, fullName: e.target.value })
                     }
                     required
+                    disabled={loading}
                     className="pl-12 h-14 bg-slate-950 border-slate-800 rounded-xl text-emerald-100 placeholder:text-slate-500 focus:border-emerald-400 focus:ring-emerald-700/40 transition-all"
                   />
                 </div>
@@ -132,6 +143,7 @@ export const Signup = () => {
                       setFormData({ ...formData, email: e.target.value })
                     }
                     required
+                    disabled={loading}
                     className="pl-12 h-14 bg-slate-950 border-slate-800 rounded-xl text-emerald-100 placeholder:text-slate-500 focus:border-emerald-400 focus:ring-emerald-700/40 transition-all"
                   />
                 </div>
@@ -141,19 +153,22 @@ export const Signup = () => {
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-emerald-400 w-5 h-5" />
                   <Input
                     type={showPassword ? "text" : "password"}
-                    placeholder="Password"
+                    placeholder="Password (min. 6 characters)"
                     value={formData.password}
                     onChange={(e) =>
                       setFormData({ ...formData, password: e.target.value })
                     }
                     required
+                    disabled={loading}
+                    minLength={6}
                     className="pl-12 pr-12 h-14 bg-slate-950 border-slate-800 rounded-xl text-emerald-100 placeholder:text-slate-500 focus:border-emerald-400 focus:ring-emerald-700/40 transition-all"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
+                    disabled={loading}
                     aria-label="toggle password visibility"
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-emerald-300 transition-colors"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-emerald-300 transition-colors disabled:opacity-50"
                   >
                     {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                   </button>
@@ -166,6 +181,7 @@ export const Signup = () => {
                     (value: "student" | "teacher") =>
                       setFormData({ ...formData, role: value })
                   }
+                  disabled={loading}
                 >
                   <SelectTrigger className="h-14 bg-slate-950 border-slate-800 text-emerald-100 focus:border-emerald-400 focus:ring-emerald-700/40 rounded-xl transition-all flex items-center">
                     <div className="flex items-center space-x-2">

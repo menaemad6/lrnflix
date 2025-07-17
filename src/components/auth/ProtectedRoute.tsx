@@ -31,8 +31,14 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   // Check role permissions if specified
-  if (requiredRole && requiredRole.length > 0 && !requiredRole.includes(user.role)) {
-    return <Navigate to="/unauthorized" replace />;
+  if (requiredRole && requiredRole.length > 0) {
+    if (!requiredRole.includes(user.role)) {
+      // Redirect to appropriate dashboard instead of unauthorized page
+      const redirectPath = user.role === 'teacher' || user.role === 'admin' 
+        ? '/teacher/dashboard' 
+        : '/student/dashboard';
+      return <Navigate to={redirectPath} replace />;
+    }
   }
 
   return <>{children}</>;

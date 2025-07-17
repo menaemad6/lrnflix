@@ -9,6 +9,7 @@ export const AuthCallback = () => {
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
+        // Handle the auth callback from URL hash
         const { data, error } = await supabase.auth.getSession();
         
         if (error) {
@@ -18,26 +19,37 @@ export const AuthCallback = () => {
         }
 
         if (data.session?.user) {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', data.session.user.id)
-            .single();
+          console.log('Auth callback successful for user:', data.session.user.id);
+          
+          // Get user profile to determine redirect
+          try {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('role')
+              .eq('id', data.session.user.id)
+              .maybeSingle();
 
-          if (profile) {
-            const redirectPath = profile.role === 'teacher' ? '/teacher/dashboard' : 
-                               profile.role === 'admin' ? '/admin/dashboard' : 
-                               '/student/dashboard';
-            navigate(redirectPath);
-          } else {
-            navigate('/student/dashboard');
+            if (profile) {
+              const redirectPath = profile.role === 'teacher' || profile.role === 'admin' 
+                ? '/teacher/dashboard' 
+                : '/student/dashboard';
+              navigate(redirectPath, { replace: true });
+            } else {
+              // Default to student dashboard if profile not found
+              navigate('/student/dashboard', { replace: true });
+            }
+          } catch (profileError) {
+            console.error('Error fetching user profile:', profileError);
+            // Default to student dashboard on profile fetch error
+            navigate('/student/dashboard', { replace: true });
           }
         } else {
-          navigate('/auth/login');
+          console.log('No session found in auth callback');
+          navigate('/auth/login', { replace: true });
         }
       } catch (error) {
-        console.error('Error in auth callback:', error);
-        navigate('/auth/login');
+        console.error('Critical error in auth callback:', error);
+        navigate('/auth/login', { replace: true });
       }
     };
 

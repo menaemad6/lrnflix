@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Eye, EyeOff, Mail, Lock, LogIn, BookOpen, Users, Award, TrendingUp } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, LogIn } from 'lucide-react';
 import type { RootState } from '@/store/store';
 import { AuthHero } from "@/components/auth/AuthHero";
 import { AuthFooter } from "@/components/auth/AuthFooter";
@@ -30,8 +30,14 @@ export const Login = () => {
 
     try {
       console.log('Attempting login...');
+      
+      // Validate inputs
+      if (!email.trim() || !password) {
+        throw new Error('Email and password are required');
+      }
+
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
+        email: email.trim(),
         password,
       });
 
@@ -40,7 +46,7 @@ export const Login = () => {
       console.log('Login successful, session created');
     } catch (error: any) {
       console.error('Login error:', error);
-      setError(error.message);
+      setError(error.message || 'An error occurred during login');
     } finally {
       setLoading(false);
     }
@@ -48,15 +54,19 @@ export const Login = () => {
 
   const handleGoogleLogin = async () => {
     try {
+      // Use window.location.origin to ensure secure redirect
+      const redirectTo = `${window.location.origin}/auth/callback`;
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`
+          redirectTo
         }
       });
       if (error) throw error;
     } catch (error: any) {
-      setError(error.message);
+      console.error('Google login error:', error);
+      setError(error.message || 'An error occurred during Google login');
     }
   };
 
@@ -74,7 +84,9 @@ export const Login = () => {
   if (isAuthenticated && user) {
     console.log('User is authenticated, redirecting...');
     const from = location.state?.from?.pathname;
-    if (from && from !== '/auth/login') {
+    
+    // Validate redirect path to prevent open redirects
+    if (from && from !== '/auth/login' && from.startsWith('/')) {
       return <Navigate to={from} replace />;
     }
     
@@ -135,6 +147,7 @@ export const Login = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
+                    disabled={loading}
                     className="pl-12 h-14 bg-slate-950 border-slate-800 rounded-xl text-emerald-100 placeholder:text-slate-500 focus:border-emerald-400 focus:ring-emerald-700/30 transition-all"
                   />
                 </div>
@@ -148,13 +161,15 @@ export const Login = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
+                    disabled={loading}
                     className="pl-12 pr-12 h-14 bg-slate-950 border-slate-800 rounded-xl text-emerald-100 placeholder:text-slate-500 focus:border-emerald-400 focus:ring-emerald-700/30 transition-all"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
+                    disabled={loading}
                     aria-label="toggle password visibility"
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-emerald-400 transition-colors"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-emerald-400 transition-colors disabled:opacity-50"
                   >
                     {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                   </button>
@@ -188,10 +203,10 @@ export const Login = () => {
             <Button
               variant="outline"
               onClick={handleGoogleLogin}
-              className="w-full h-14 border-slate-800 bg-slate-950 hover:bg-slate-900 text-emerald-100 rounded-xl font-medium transition-all shadow animate-fade-in"
+              disabled={loading}
+              className="w-full h-14 border-slate-800 bg-slate-950 hover:bg-slate-900 text-emerald-100 rounded-xl font-medium transition-all shadow animate-fade-in disabled:opacity-50"
             >
               <svg className="mr-3 h-5 w-5" viewBox="0 0 24 24">
-                {/* gray Google icon (not blue, no yellow) */}
                 <path
                   d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
                   fill="#34d399"
