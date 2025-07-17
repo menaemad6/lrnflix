@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
@@ -40,6 +40,7 @@ export const StudentCoursesPage = () => {
   const { teacher } = useTenant();
   const [enrolledCourses, setEnrolledCourses] = useState<EnrolledCourse[]>([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchEnrolledCourses();
@@ -198,7 +199,7 @@ export const StudentCoursesPage = () => {
                 onPreview={() => {}}
                 onEnroll={() => {}}
                 onContinue={() => {
-                  window.location.href = `/courses/${enrollment.course.id}`;
+                  navigate(`/courses/${enrollment.course.id}`);
                 }}
               />
             ))}

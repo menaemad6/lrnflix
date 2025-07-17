@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Trophy, Star, Zap, Target, BookOpen, Clock, Award, Crown } from 'lucide-react';
 
@@ -115,56 +115,57 @@ export const StudentAchievements = ({ stats }: StudentAchievementsProps) => {
   return (
     <Card className="glass-card border-0">
       <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="gradient-text flex items-center gap-2">
-            <Award className="h-5 w-5" />
-            Achievements
-          </CardTitle>
-          <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30">
-            {unlockedCount}/{totalCount} Unlocked
-          </Badge>
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 bg-gradient-to-br from-yellow-400 to-orange-400 rounded-2xl flex items-center justify-center">
+            <Award className="h-6 w-6 text-black" />
+          </div>
+          <div>
+            <div className="gradient-text text-xl font-bold">Achievements</div>
+            <CardDescription className="text-muted-foreground/80">Unlock badges as you learn</CardDescription>
+          </div>
+          <div className="ml-auto">
+            <Badge variant="default" className="bg-primary/20 text-primary border-primary/30">
+              {unlockedCount}/{totalCount} Unlocked
+            </Badge>
+          </div>
         </div>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {achievements.map((achievement) => (
             <div
               key={achievement.id}
-              className={`group relative p-4 rounded-xl border transition-all duration-300 ${
+              className={`group relative p-4 rounded-xl border transition-all duration-300 min-w-0 ${
                 achievement.earned
-                  ? 'bg-gradient-to-br ' + getRarityGradient(achievement.rarity) + ' border-white/20 hover:border-white/30 hover:scale-[1.02]'
-                  : 'bg-white/5 border-white/10 hover:border-white/20 opacity-60'
+                  ? 'bg-gradient-to-br from-primary/10 to-secondary/10 border-primary/20 hover:border-primary/30 hover:scale-[1.02]'
+                  : 'bg-background border-border hover:border-muted opacity-60'
               }`}
             >
-              <div className="flex items-start gap-3">
+              <div className="flex items-start gap-3 min-w-0">
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110 ${
                   achievement.earned
-                    ? 'bg-gradient-to-br ' + getRarityGradient(achievement.rarity)
-                    : 'bg-white/10'
+                    ? 'bg-gradient-to-br from-primary/20 to-secondary/20'
+                    : 'bg-muted'
                 }`}>
                   {achievement.icon}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h4 className={`font-medium text-sm ${achievement.earned ? 'text-white' : 'text-muted-foreground'}`}>
-                      {achievement.title}
-                    </h4>
-                    <Badge className={`text-xs ${getRarityColor(achievement.rarity)}`}>
+                  <div className="flex items-center gap-2 mb-1 min-w-0">
+                    <h4 className={`font-medium text-sm truncate ${achievement.earned ? 'text-foreground' : 'text-muted-foreground'}`}>{achievement.title}</h4>
+                    <Badge variant="secondary" className="capitalize truncate">
                       {achievement.rarity}
                     </Badge>
                   </div>
-                  <p className={`text-xs leading-relaxed ${achievement.earned ? 'text-gray-300' : 'text-muted-foreground'}`}>
-                    {achievement.description}
-                  </p>
+                  <p className={`text-xs leading-relaxed break-words ${achievement.earned ? 'text-muted-foreground' : 'text-muted-foreground'}`}>{achievement.description}</p>
                   {!achievement.earned && achievement.progress !== undefined && (
                     <div className="mt-2">
                       <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
                         <span>Progress</span>
                         <span>{Math.round(achievement.progress)}%</span>
                       </div>
-                      <div className="w-full bg-white/10 rounded-full h-1.5">
+                      <div className="w-full bg-muted rounded-full h-1.5">
                         <div
-                          className="bg-gradient-to-r from-emerald-500 to-teal-500 h-1.5 rounded-full transition-all duration-1000"
+                          className="bg-gradient-to-r from-primary to-secondary h-1.5 rounded-full transition-all duration-1000"
                           style={{ width: `${achievement.progress}%` }}
                         />
                       </div>
@@ -174,8 +175,8 @@ export const StudentAchievements = ({ stats }: StudentAchievementsProps) => {
               </div>
               {achievement.earned && (
                 <div className="absolute top-2 right-2">
-                  <div className="w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center">
-                    <Trophy className="h-3 w-3 text-white" />
+                  <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center">
+                    <Trophy className="h-3 w-3 text-primary-foreground" />
                   </div>
                 </div>
               )}
