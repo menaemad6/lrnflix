@@ -1,9 +1,8 @@
-
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useSelector } from 'react-redux';
 import type { RootState } from '@/store/store';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Navigate } from 'react-router-dom';
 
 // Login form logic
 export function useLoginForm() {
@@ -21,13 +20,12 @@ export function useLoginForm() {
     setError('');
     try {
       const { error } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
+        email,
         password,
       });
       if (error) throw error;
     } catch (error: any) {
-      console.error('Login error:', error);
-      setError(error.message || 'An error occurred during login');
+      setError(error.message);
     } finally {
       setLoading(false);
     }
@@ -35,19 +33,15 @@ export function useLoginForm() {
 
   const handleGoogleLogin = async () => {
     try {
-      // Use window.location.origin to ensure secure redirect
-      const redirectTo = `${window.location.origin}/auth/callback`;
-      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo
+          redirectTo: `${window.location.origin}/auth/callback`
         }
       });
       if (error) throw error;
     } catch (error: any) {
-      console.error('Google login error:', error);
-      setError(error.message || 'An error occurred during Google login');
+      setError(error.message);
     }
   };
 
@@ -81,25 +75,12 @@ export function useSignupForm() {
     setError('');
     setSuccess('');
     try {
-      // Validate inputs
-      if (!formData.email.trim() || !formData.password || !formData.fullName.trim()) {
-        throw new Error('All fields are required');
-      }
-      
-      if (formData.password.length < 6) {
-        throw new Error('Password must be at least 6 characters long');
-      }
-
-      // Use window.location.origin to ensure secure redirect
-      const redirectTo = `${window.location.origin}/auth/callback`;
-      
       const { error } = await supabase.auth.signUp({
-        email: formData.email.trim(),
+        email: formData.email,
         password: formData.password,
         options: {
-          emailRedirectTo: redirectTo,
           data: {
-            full_name: formData.fullName.trim(),
+            full_name: formData.fullName,
             role: formData.role,
           },
         },
@@ -107,8 +88,7 @@ export function useSignupForm() {
       if (error) throw error;
       setSuccess('Account created successfully! Please check your email to verify your account.');
     } catch (error: any) {
-      console.error('Signup error:', error);
-      setError(error.message || 'An error occurred during signup');
+      setError(error.message);
     } finally {
       setLoading(false);
     }
@@ -121,4 +101,4 @@ export function useSignupForm() {
     isAuthenticated, user,
     handleSignup,
   };
-}
+} 
