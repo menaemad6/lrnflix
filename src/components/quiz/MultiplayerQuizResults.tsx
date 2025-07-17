@@ -1,0 +1,273 @@
+import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { 
+  Trophy, 
+  Crown, 
+  Medal, 
+  Star,
+  Zap,
+  Target,
+  RotateCcw,
+  Home
+} from 'lucide-react';
+import { motion } from 'framer-motion';
+import confetti from 'canvas-confetti';
+import type { Player } from '@/hooks/useMultiplayerQuiz';
+
+interface MultiplayerQuizResultsProps {
+  players: Player[];
+  onPlayAgain: () => void;
+  onLeaveRoom: () => Promise<void>;
+  currentUserId: string;
+}
+
+export const MultiplayerQuizResults = ({
+  players,
+  onPlayAgain,
+  onLeaveRoom,
+  currentUserId
+}: MultiplayerQuizResultsProps) => {
+  const sortedPlayers = [...players].sort((a, b) => b.score - a.score);
+  const currentPlayer = players.find(p => p.user_id === currentUserId);
+  const userRank = sortedPlayers.findIndex(p => p.user_id === currentUserId) + 1;
+  const userScore = currentPlayer?.score || 0;
+
+  // Trigger confetti for top 3
+  React.useEffect(() => {
+    if (userRank <= 3) {
+      confetti({
+        particleCount: 150,
+        spread: 60,
+        origin: { y: 0.7 }
+      });
+    }
+  }, [userRank]);
+
+  const getRankIcon = (rank: number) => {
+    switch (rank) {
+      case 1: return <Crown className="h-6 w-6 text-yellow-400" />;
+      case 2: return <Medal className="h-6 w-6 text-gray-400" />;
+      case 3: return <Medal className="h-6 w-6 text-amber-600" />;
+      default: return <Trophy className="h-6 w-6 text-gray-500" />;
+    }
+  };
+
+  const getRankBadge = (rank: number) => {
+    switch (rank) {
+      case 1: return { emoji: '🥇', color: 'bg-yellow-500/20 text-yellow-300' };
+      case 2: return { emoji: '🥈', color: 'bg-gray-500/20 text-gray-300' };
+      case 3: return { emoji: '🥉', color: 'bg-amber-600/20 text-amber-300' };
+      default: return { emoji: '🏅', color: 'bg-gray-600/20 text-gray-300' };
+    }
+  };
+
+  const handleLeaveRoom = async () => {
+    try {
+      await onLeaveRoom();
+    } catch (error) {
+      console.error('Error leaving room:', error);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-violet-950 via-purple-900 to-indigo-900 flex items-center justify-center p-4">
+      <div className="max-w-4xl w-full">
+        
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-8"
+        >
+          <h1 className="text-4xl font-bold text-white mb-2">Game Complete!</h1>
+          <p className="text-gray-300">Here's how everyone performed</p>
+        </motion.div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          {/* Leaderboard */}
+          <div className="lg:col-span-2 space-y-4">
+            <Card className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border-white/20">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center">
+                  <Trophy className="h-5 w-5 mr-2 text-yellow-400" />
+                  Final Rankings
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {sortedPlayers.map((player, index) => {
+                  const rank = index + 1;
+                  const badge = getRankBadge(rank);
+                  
+                  return (
+                    <motion.div
+                      key={player.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      className={`
+                        flex items-center space-x-4 p-4 rounded-xl
+                        ${rank === 1 ? 'bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/30' :
+                          rank === 2 ? 'bg-gradient-to-r from-gray-400/20 to-gray-600/20 border border-gray-400/30' :
+                          rank === 3 ? 'bg-gradient-to-r from-amber-600/20 to-amber-800/20 border border-amber-600/30' :
+                          'bg-white/5 border border-white/10'
+                        }
+                      `}
+                    >
+                      {/* Rank */}
+                      <div className="flex items-center space-x-2">
+                        {getRankIcon(rank)}
+                        <span className="text-2xl">{badge.emoji}</span>
+                      </div>
+
+                      {/* Player Info */}
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-2">
+                          <span className="text-white font-bold text-lg">
+                            {player.username}
+                          </span>
+                          {rank === 1 && (
+                            <Badge className="bg-yellow-500/20 text-yellow-300">
+                              Winner!
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="flex items-center space-x-3 text-sm">
+                          <span className="text-green-300 font-medium">
+                            {player.score} points
+                          </span>
+                          {player.streak > 0 && (
+                            <span className="text-orange-300 flex items-center">
+                              <Zap className="h-3 w-3 mr-1" />
+                              {player.streak} streak
+                            </span>
+                          )}
+                          <span className="text-purple-300 flex items-center">
+                            <Star className="h-3 w-3 mr-1" />
+                            +{player.xp_earned} XP
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Position */}
+                      <div className="text-right">
+                        <div className={`
+                          text-2xl font-bold
+                          ${rank === 1 ? 'text-yellow-400' :
+                            rank === 2 ? 'text-gray-400' :
+                            rank === 3 ? 'text-amber-600' :
+                            'text-gray-500'
+                          }
+                        `}>
+                          #{rank}
+                        </div>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Player Summary & Actions */}
+          <div className="space-y-6">
+            
+            {/* Your Performance */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.3 }}
+            >
+              <Card className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border-white/20">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center">
+                    <Target className="h-5 w-5 mr-2" />
+                    Your Performance
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="text-center">
+                    <div className="text-4xl mb-2">
+                      {getRankBadge(userRank).emoji}
+                    </div>
+                    <div className="text-2xl font-bold text-white mb-1">
+                      Rank #{userRank}
+                    </div>
+                    <div className="text-gray-300">
+                      out of {players.length} players
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 pt-4">
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-green-400">
+                        {userScore}
+                      </div>
+                      <div className="text-xs text-gray-400">Total Score</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-purple-400">
+                        +{Math.floor(userScore / 10)}
+                      </div>
+                      <div className="text-xs text-gray-400">XP Earned</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* Actions */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="space-y-3"
+            >
+              <Button
+                onClick={onPlayAgain}
+                className="w-full h-12 bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 text-white font-semibold"
+              >
+                <RotateCcw className="h-4 w-4 mr-2" />
+                Play Again
+              </Button>
+              
+              <Button
+                onClick={handleLeaveRoom}
+                variant="outline"
+                className="w-full h-12 border-white/20 bg-white/5 hover:bg-white/10 text-white"
+              >
+                <Home className="h-4 w-4 mr-2" />
+                Back to Lobby
+              </Button>
+            </motion.div>
+
+            {/* Quick Stats */}
+            <Card className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border-white/20">
+              <CardHeader>
+                <CardTitle className="text-white text-sm">Game Summary</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2 text-sm">
+                <div className="flex justify-between text-gray-300">
+                  <span>Questions:</span>
+                  <span className="text-white">10/10</span>
+                </div>
+                <div className="flex justify-between text-gray-300">
+                  <span>Accuracy:</span>
+                  <span className="text-green-300">
+                    {Math.round((userScore / 1000) * 100)}%
+                  </span>
+                </div>
+                <div className="flex justify-between text-gray-300">
+                  <span>Avg. Speed:</span>
+                  <span className="text-blue-300">2.3s</span>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};

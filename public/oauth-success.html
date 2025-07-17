@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Google OAuth Success</title>
+    <meta charset="utf-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+        .success-icon {
+            width: 60px;
+            height: 60px;
+            background: #10b981;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+        .success-icon::before {
+            content: "✓";
+            color: white;
+            font-size: 30px;
+            font-weight: bold;
+        }
+        h2 {
+            color: #1f2937;
+            margin-bottom: 10px;
+        }
+        p {
+            color: #6b7280;
+            margin-bottom: 20px;
+        }
+        .close-btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        .close-btn:hover {
+            background: #2563eb;
+        }
+        .loading {
+            display: none;
+            margin-top: 20px;
+        }
+        .spinner {
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="success-icon"></div>
+        <h2>Authorization Successful!</h2>
+        <p>Your Google account has been connected successfully.</p>
+        <p>This window will close automatically in a moment.</p>
+        <button class="close-btn" onclick="closeWindow()">Close Window</button>
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Processing...</p>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        console.log('OAuth success page loaded');
+        
+        // Get tokens from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const tokensParam = urlParams.get('tokens');
+        const errorParam = urlParams.get('error');
+        
+        if (errorParam) {
+            console.log('OAuth error:', errorParam);
+            if (window.opener) {
+                try {
+                    window.opener.postMessage({
+                        type: 'GOOGLE_OAUTH_ERROR',
+                        error: decodeURIComponent(errorParam)
+                    }, '*');
+                    console.log('Error message sent to parent window');
+                } catch (error) {
+                    console.error('Error sending error message:', error);
+                }
+            }
+            setTimeout(() => {
+                window.close();
+            }, 2000);
+        } else if (tokensParam) {
+            console.log('Processing OAuth success with tokens');
+            document.getElementById('loading').style.display = 'block';
+            
+            try {
+                const tokens = JSON.parse(decodeURIComponent(tokensParam));
+                console.log('Token data:', tokens);
+                
+                if (window.opener) {
+                    try {
+                        window.opener.postMessage({
+                            type: 'GOOGLE_OAUTH_SUCCESS',
+                            tokens: tokens
+                        }, '*');
+                        console.log('Success message sent to parent window');
+                        
+                        // Close window after a short delay
+                        setTimeout(() => {
+                            window.close();
+                        }, 1500);
+                    } catch (error) {
+                        console.error('Error sending success message:', error);
+                        setTimeout(() => {
+                            window.close();
+                        }, 2000);
+                    }
+                } else {
+                    console.error('No opener window found');
+                    setTimeout(() => {
+                        window.close();
+                    }, 2000);
+                }
+            } catch (error) {
+                console.error('Error parsing tokens:', error);
+                if (window.opener) {
+                    window.opener.postMessage({
+                        type: 'GOOGLE_OAUTH_ERROR',
+                        error: 'Failed to parse token data'
+                    }, '*');
+                }
+                setTimeout(() => {
+                    window.close();
+                }, 2000);
+            }
+        } else {
+            console.error('No tokens or error found in URL parameters');
+            if (window.opener) {
+                window.opener.postMessage({
+                    type: 'GOOGLE_OAUTH_ERROR',
+                    error: 'No token data received'
+                }, '*');
+            }
+            setTimeout(() => {
+                window.close();
+            }, 2000);
+        }
+        
+        function closeWindow() {
+            window.close();
+        }
+        
+        // Fallback: close window after 5 seconds if still open
+        setTimeout(() => {
+            if (!window.closed) {
+                console.log('Auto-closing window after timeout');
+                window.close();
+            }
+        }, 5000);
+    </script>
+</body>
+</html> 
