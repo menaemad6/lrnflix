@@ -6,9 +6,11 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { BookOpen, Search, Star, Users, Clock, CheckCircle } from 'lucide-react';
+import { BookOpen, Search, Star, Users, Clock, CheckCircle, Sparkles } from 'lucide-react';
 import { useRandomBackground } from "../../hooks/useRandomBackground";
 import { useTenant } from '@/contexts/TenantContext';
+import AuroraHeroHeader from '@/components/ui/AuroraHeroHeader';
+import ChapterCard from '@/components/chapters/ChapterCard';
 
 interface Chapter {
   id: string;
@@ -37,7 +39,6 @@ export const ChaptersPage = () => {
   const fetchChapters = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      
       // Get published chapters
       let chaptersQuery = supabase
         .from('chapters')
@@ -47,9 +48,7 @@ export const ChaptersPage = () => {
         chaptersQuery = chaptersQuery.eq('instructor_id', teacher.user_id);
       }
       const { data: chaptersData, error: chaptersError } = await chaptersQuery;
-
       if (chaptersError) throw chaptersError;
-
       // Get user's chapter enrollments
       let enrolledChapterIds: string[] = [];
       if (user) {
@@ -57,28 +56,33 @@ export const ChaptersPage = () => {
           .from('chapter_enrollments')
           .select('chapter_id')
           .eq('student_id', user.id);
-
         if (enrollmentError) throw enrollmentError;
         enrolledChapterIds = enrollments?.map((e) => e.chapter_id) || [];
       }
-
-      // Get course counts for each chapter
+      // Get course counts for each chapter using chapter_objects
       const chaptersWithDetails = await Promise.all(
         (chaptersData || []).map(async (chapter) => {
-          const { count } = await supabase
-            .from('courses')
-            .select('*', { count: 'exact', head: true })
+          // Count published courses linked via chapter_objects
+          const { count: objectsCount, error: objectsError } = await supabase
+            .from('chapter_objects')
+            .select('object_id', { count: 'exact', head: true })
             .eq('chapter_id', chapter.id)
-            .eq('status', 'published');
-
+            .eq('object_type', 'course')
+            .not('object_id', 'is', null);
+          if (objectsError) throw objectsError;
+          // Optionally, also count direct courses with chapter_id (legacy)
+          // const { count: directCount } = await supabase
+          //   .from('courses')
+          //   .select('*', { count: 'exact', head: true })
+          //   .eq('chapter_id', chapter.id)
+          //   .eq('status', 'published');
           return {
             ...chapter,
-            course_count: count || 0,
+            course_count: objectsCount || 0,
             is_enrolled: enrolledChapterIds.includes(chapter.id)
           };
         })
       );
-
       setChapters(chaptersWithDetails);
     } catch (error: unknown) {
       const err = error as Error;
@@ -104,17 +108,22 @@ export const ChaptersPage = () => {
 
       if (result.error) throw result.error;
 
-      const response = result.data as any;
-      if (response?.success) {
+      const response = result.data as unknown;
+      if (
+        response &&
+        typeof response === 'object' &&
+        'success' in response &&
+        (response as { success: boolean }).success
+      ) {
         toast({
           title: 'Success',
-          description: response.message,
+          description: (response as { message?: string }).message,
         });
         fetchChapters();
       } else {
         toast({
           title: 'Error',
-          description: response?.error || 'Failed to enroll',
+          description: (response && typeof response === 'object' && 'error' in response) ? (response as { error?: string }).error : 'Failed to enroll',
           variant: 'destructive',
         });
       }
@@ -146,16 +155,12 @@ export const ChaptersPage = () => {
   return (
     <div className={bgClass + " min-h-screen bg-gradient-to-br from-background via-background to-primary/5 p-2 sm:p-4 "}>
       <div className="container mx-auto px-2 sm:px-4 space-y-8 pt-[100px]">
-        {/* Header */}
-        <div className="text-center space-y-4 px-2">
-          <h1 className="text-4xl md:text-5xl font-bold">
-            Explore <span className="gradient-text">Chapters</span>
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Discover comprehensive learning paths with curated course collections
-          </p>
-        </div>
-
+        {/* Modern Premium Header */}
+        <AuroraHeroHeader
+          title={<span>Explore <span className="gradient-text">Chapters</span></span>}
+          subtitle="Discover comprehensive learning paths with curated course collections. Unlock premium chapters and accelerate your growth!"
+          
+        />
         {/* Search */}
         <Card className="glass-card w-full max-w-full">
           <CardContent className="p-4 sm:p-6">
@@ -170,90 +175,33 @@ export const ChaptersPage = () => {
             </div>
           </CardContent>
         </Card>
-
         {/* Chapters Grid */}
         <div className="w-full overflow-x-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 w-full max-w-full">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-full">
             {filteredChapters.map((chapter) => (
-              <Card key={chapter.id} className="glass-card hover-glow group cursor-pointer w-full max-w-full min-w-0">
-                <CardHeader>
-                  <div className="flex justify-between items-start mb-2 gap-2 flex-wrap min-w-0">
-                    <div className="flex gap-2">
-                      <Badge variant={chapter.status === 'published' ? 'default' : 'secondary'}>
-                        {chapter.status}
-                      </Badge>
-                    </div>
-                    {chapter.is_enrolled && (
-                      <Badge className="bg-primary/20 text-primary border-primary/30">
-                        <CheckCircle className="h-3 w-3 mr-1" />
-                        Enrolled
-                      </Badge>
-                    )}
-                  </div>
-                  <CardTitle className="group-hover:text-primary transition-colors">
-                    {chapter.title}
-                  </CardTitle>
-                  <p className="text-muted-foreground text-sm line-clamp-3">
-                    {chapter.description}
-                  </p>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between text-sm text-muted-foreground gap-2 sm:gap-0">
-                      <div className="flex items-center gap-1">
-                        <BookOpen className="h-4 w-4" />
-                        <span>{chapter.course_count} courses</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Star className="h-4 w-4 text-yellow-400" />
-                        <span>4.8</span>
-                      </div>
-                    </div>
-                    
-                    <div className="text-lg font-semibold gradient-text">
-                      {chapter.price} credits
-                    </div>
-                  </div>
-                  <div className="flex flex-col sm:flex-row gap-2 w-full">
-                    {chapter.is_enrolled ? (
-                      <Button 
-                        className="flex-1 hover-glow min-w-0 mt-4"
-                        onClick={() => navigate(`/chapters/${chapter.id}`)}
-                      >
-                        <BookOpen className="h-4 w-4 mr-2" />
-                        View Chapter
-                      </Button>
-                    ) : (
-                      <>
-                        <Button 
-                          variant="outline" 
-                          className="flex-1 glass hover-glow min-w-0 mt-4"
-                          onClick={() => navigate(`/chapters/${chapter.id}`)}
-                        >
-                          Preview
-                        </Button>
-                        <Button 
-                          className="flex-1 hover-glow min-w-0 mt-4"
-                          onClick={() => enrollInChapter(chapter.id)}
-                        >
-                          Enroll Now
-                        </Button>
-                      </>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+              <ChapterCard
+                key={chapter.id}
+                id={chapter.id}
+                title={chapter.title}
+                description={chapter.description}
+                price={chapter.price}
+                courseCount={chapter.course_count}
+                isEnrolled={chapter.is_enrolled}
+                coverImageUrl={chapter.cover_image_url}
+                onPreview={() => navigate(`/chapters/${chapter.id}`)}
+                onEnroll={() => enrollInChapter(chapter.id)}
+                onContinue={() => navigate(`/chapters/${chapter.id}`)}
+              />
             ))}
           </div>
         </div>
-
         {filteredChapters.length === 0 && (
           <Card className="glass-card w-full max-w-full">
             <CardContent className="text-center py-12">
               <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-xl font-semibold mb-2">No chapters found</h3>
               <p className="text-muted-foreground">
-                Try adjusting your search criteria.
+                Try adjusting your search criteria or explore different chapters.
               </p>
             </CardContent>
           </Card>

@@ -19,9 +19,10 @@ interface PremiumCourseCardProps {
   price?: number;
   progress?: number;
   isHovering?: boolean;
-  onPreview: () => void;
-  onEnroll: () => void;
+  onPreview?: () => void;
+  onEnroll?: () => void;
   onContinue?: () => void;
+  avatar_url?: string; // NEW
 }
 
 export const PremiumCourseCard: React.FC<PremiumCourseCardProps> = ({
@@ -41,6 +42,7 @@ export const PremiumCourseCard: React.FC<PremiumCourseCardProps> = ({
   onPreview,
   onEnroll,
   onContinue,
+  avatar_url, // NEW
 }) => {
   return (
     <Card className={`relative overflow-hidden bg-transparent border-0 ${isHovering ? 'group cursor-pointer transition-transform hover:scale-[1.025]' : ''} min-w-0 rounded-2xl`}>
@@ -80,8 +82,6 @@ export const PremiumCourseCard: React.FC<PremiumCourseCardProps> = ({
             </Badge>
           </div>
         )}
-        {/* Overlay for blending */}
-        <div className={`absolute inset-0 bg-gradient-to-t from-card/90 via-card/60 to-transparent pointer-events-none transition-all duration-500 ${isHovering ? 'group-hover:from-card/80' : ''}`} />
         {/* Title and Badges Overlay */}
         <div className="absolute bottom-0 left-0 w-full px-4 pb-8 z-10 flex flex-col gap-2 pointer-events-none">
           <h2 className="text-2xl font-extrabold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent drop-shadow-lg flex items-center gap-2">
@@ -94,10 +94,20 @@ export const PremiumCourseCard: React.FC<PremiumCourseCardProps> = ({
         <div className="rounded-2xl bg-card/80 dark:bg-card/70 backdrop-blur-md p-5 -mt-2 border border-border/60">
           <div className="flex flex-col gap-2">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-              
-              
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                Instructor: <span className="text-foreground font-semibold">{instructor_name}</span>
+              {/* Modern Instructor Row */}
+              <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                {avatar_url ? (
+                  <img
+                    src={avatar_url}
+                    alt={instructor_name}
+                    className="h-8 w-8 rounded-full object-cover border border-primary/30 shadow"
+                  />
+                ) : (
+                  <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-base font-bold text-primary-foreground border border-primary/30 shadow">
+                    {instructor_name?.charAt(0) || '?'}
+                  </div>
+                )}
+                <span className="text-foreground font-semibold">{instructor_name}</span>
               </div>
             </div>
             {/* Date and Price Row */}
@@ -151,19 +161,23 @@ export const PremiumCourseCard: React.FC<PremiumCourseCardProps> = ({
                 </Button>
               ) : (
                 <>
-                  <Button 
-                    variant="outline" 
-                    className="flex-1 border-primary/40 text-primary hover:bg-primary/10 min-w-0"
-                    onClick={onPreview}
-                  >
-                    Preview
-                  </Button>
-                  <Button 
-                    className="flex-1 bg-gradient-to-r from-primary to-secondary text-white font-bold min-w-0"
-                    onClick={onEnroll}
-                  >
-                    Enroll Now
-                  </Button>
+                  {onPreview && (
+                    <Button 
+                      variant="outline" 
+                      className="flex-1 border-primary/40 text-primary hover:bg-primary/10 min-w-0"
+                      onClick={onPreview}
+                    >
+                      Preview
+                    </Button>
+                  )}
+                  {onEnroll && (
+                    <Button 
+                      className="flex-1 bg-gradient-to-r from-primary to-secondary text-white font-bold min-w-0"
+                      onClick={onEnroll}
+                    >
+                      Enroll Now
+                    </Button>
+                  )}
                 </>
               )}
             </div>

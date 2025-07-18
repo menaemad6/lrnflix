@@ -32,6 +32,7 @@ import type { RootState } from '@/store/store';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ObjectSharingModal } from '@/components/groups/ObjectSharingModal';
 import { SharedObjectsList } from '@/components/groups/SharedObjectsList';
+import { Switch } from '@/components/ui/switch';
 
 interface GroupDetails {
   id: string;
@@ -42,6 +43,8 @@ interface GroupDetails {
   created_by: string;
   max_members: number | null;
   is_public: boolean;
+  is_code_visible?: boolean;
+  is_members_visible?: boolean;
 }
 
 interface GroupMember {
@@ -100,7 +103,9 @@ export const GroupDetailPage = () => {
     name: '',
     description: '',
     max_members: '',
-    is_public: false
+    is_public: false,
+    is_code_visible: true,
+    is_members_visible: true
   });
 
   useEffect(() => {
@@ -444,7 +449,9 @@ export const GroupDetailPage = () => {
         name: groupData.name,
         description: groupData.description || '',
         max_members: groupData.max_members?.toString() || '',
-        is_public: groupData.is_public || false
+        is_public: groupData.is_public || false,
+        is_code_visible: groupData.is_code_visible !== false,
+        is_members_visible: groupData.is_members_visible !== false
       });
 
       // Fetch group members
@@ -544,6 +551,12 @@ export const GroupDetailPage = () => {
           title: 'Success',
           description: `Joined group: ${group.name}`,
         });
+        // Remove ?code=... from the URL if present
+        if (joinCode) {
+          const url = new URL(window.location.href);
+          url.searchParams.delete('code');
+          window.history.replaceState({}, '', url.pathname + url.search);
+        }
         fetchGroupDetails();
       } else {
         toast({
@@ -601,7 +614,9 @@ export const GroupDetailPage = () => {
           name: groupSettings.name,
           description: groupSettings.description || null,
           max_members: groupSettings.max_members ? parseInt(groupSettings.max_members) : null,
-          is_public: groupSettings.is_public
+          is_public: groupSettings.is_public,
+          is_code_visible: groupSettings.is_code_visible,
+          is_members_visible: groupSettings.is_members_visible
         })
         .eq('id', groupId);
 
@@ -675,7 +690,7 @@ export const GroupDetailPage = () => {
   };
 
   // Determine what to show based on user role
-  const showMembersSection = userRole === 'teacher' || isOwner;
+  const showMembersSection = (userRole === 'teacher' || isOwner) || (group?.is_members_visible !== false);
   const showObjectSharingButton = userRole === 'teacher' || isOwner;
   const showGroupCodeAndShare = (group?.is_public || userRole === 'teacher' || isOwner) && isMember;
   const showSharedObjects = isMember; // Students can see shared objects
@@ -746,7 +761,7 @@ export const GroupDetailPage = () => {
                 ) : (
                   <UserCheck className="w-5 h-5 text-primary" />
                 )}
-                <Badge variant={group.is_public ? 'default' : 'secondary'}>
+                <Badge variant={group.is_public ? 'default' : undefined} className={group.is_public ? '' : 'bg-yellow-400 text-yellow-900 font-bold rounded-full shadow px-3 py-1 border border-yellow-300 hover:bg-yellow-300 hover:border-yellow-500 transition-colors'}>
                   {group.is_public ? 'Public Group' : 'Private Group'}
                 </Badge>
               </div>
@@ -756,7 +771,7 @@ export const GroupDetailPage = () => {
                   <Users className="w-4 h-4" />
                   <span>{members.length} members</span>
                 </div>
-                {showGroupCodeAndShare && (
+                {showGroupCodeAndShare && (userRole === 'teacher' || isOwner || group.is_code_visible) && (
                   <div className="flex items-center gap-2">
                     <Hash className="w-4 h-4" />
                     <span>{group.group_code}</span>
@@ -802,7 +817,7 @@ export const GroupDetailPage = () => {
                 )}
                 
                 <div className="grid grid-cols-2 gap-4">
-                  {showGroupCodeAndShare && (
+                  {showGroupCodeAndShare && (userRole === 'teacher' || isOwner || group.is_code_visible) && (
                     <div>
                       <h4 className="font-semibold mb-2">Group Code</h4>
                       <Badge 
@@ -836,7 +851,7 @@ export const GroupDetailPage = () => {
                 </div>
 
                 <div className="flex gap-3 pt-4">
-                  {showGroupCodeAndShare && (
+                  {showGroupCodeAndShare && (userRole === 'teacher' || isOwner || group.is_code_visible) && (
                     <Button onClick={copyGroupLink}>
                       <LinkIcon className="w-4 w-4 mr-2" />
                       Share Link
@@ -1080,15 +1095,31 @@ export const GroupDetailPage = () => {
                   min="1"
                 />
               </div>
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
+              <div className="flex items-center gap-3">
+                <Switch
                   id="is_public_setting"
                   checked={groupSettings.is_public}
-                  onChange={(e) => setGroupSettings({ ...groupSettings, is_public: e.target.checked })}
-                  className="rounded"
+                  onCheckedChange={(checked) => setGroupSettings({ ...groupSettings, is_public: checked })}
                 />
                 <label htmlFor="is_public_setting" className="text-sm font-medium">Make group public</label>
+              </div>
+              <div className="flex items-center gap-3">
+                <Switch
+                  id="is_code_visible_setting"
+                  checked={groupSettings.is_code_visible}
+                  onCheckedChange={(checked) => setGroupSettings({ ...groupSettings, is_code_visible: checked })}
+                />
+                <label htmlFor="is_code_visible_setting" className="text-sm font-medium">Show group code to students</label>
+              </div>
+              <div className="flex items-center gap-3">
+                <Switch
+                  id="is_members_visible_setting"
+                  checked={groupSettings.is_members_visible}
+                  onCheckedChange={(checked) => setGroupSettings({ ...groupSettings, is_members_visible: checked })}
+                />
+                <label htmlFor="is_members_visible_setting" className="text-sm font-medium">
+                  Show members to students
+                </label>
               </div>
               <div className="flex gap-3 pt-4">
                 <Button onClick={handleUpdateGroup}>

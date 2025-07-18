@@ -17,6 +17,7 @@ import {
   Calendar
 } from 'lucide-react';
 import { useRandomBackground } from "../../hooks/useRandomBackground";
+import { PremiumCourseCard } from '@/components/courses/PremiumCourseCard';
 
 interface Chapter {
   id: string;
@@ -40,6 +41,29 @@ interface Course {
   };
 }
 
+// Add a type for chapterCourses
+interface ChapterCourse {
+  id: string;
+  course?: {
+    id: string;
+    title: string;
+    description: string;
+    category: string;
+    price: number;
+    instructor_id: string;
+    cover_image_url?: string;
+    created_at?: string;
+    profiles?: {
+      full_name?: string;
+      avatar_url?: string;
+    };
+    avatar_url?: string;
+    instructor_name?: string; // NEW
+  };
+  title?: string;
+  description?: string;
+}
+
 export const ChapterDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const { toast } = useToast();
@@ -50,7 +74,8 @@ export const ChapterDetailPage = () => {
   const [userWallet, setUserWallet] = useState(0);
   const navigate = useNavigate();
   const bgClass = useRandomBackground();
-  const [chapterCourses, setChapterCourses] = useState<any[]>([]);
+  const [chapterCourses, setChapterCourses] = useState<ChapterCourse[]>([]);
+  const [instructorAvatars, setInstructorAvatars] = useState<Record<string, string | undefined>>({});
 
   useEffect(() => {
     if (id) {
@@ -103,14 +128,25 @@ export const ChapterDetailPage = () => {
         setIsEnrolled(!!enrollment);
       }
 
-      // Fetch courses for this chapter using chapter_objects
+      // Fetch courses for this chapter using chapter_objects, including instructor profile
       const { data: objectsData, error: objectsError } = await supabase
         .from('chapter_objects')
-        .select('*, course:courses!object_id(*)')
+        .select('*, course:courses!object_id(*, profiles:profiles!courses_instructor_id_fkey(full_name, avatar_url))')
         .eq('chapter_id', id)
         .eq('object_type', 'course');
       if (objectsError) throw objectsError;
-      setChapterCourses(objectsData || []);
+      const chapterCoursesData = objectsData as ChapterCourse[] || [];
+      // Attach avatar_url and instructor_name to each course from the joined profile
+      setChapterCourses(
+        chapterCoursesData.map(obj => obj.course ? {
+          ...obj,
+          course: {
+            ...obj.course,
+            instructor_name: obj.course.profiles?.full_name || 'Course Instructor',
+            avatar_url: obj.course.profiles?.avatar_url || undefined,
+          }
+        } : obj)
+      );
 
     } catch (error: unknown) {
       console.error('Error fetching chapter:', error);
@@ -135,11 +171,11 @@ export const ChapterDetailPage = () => {
 
       if (result.error) throw result.error;
 
-      const response = result.data as any;
-      if (response?.success) {
+      const response = result.data as unknown;
+      if (response && typeof response === 'object' && 'success' in response && (response as { success: boolean }).success) {
         toast({
           title: 'Success',
-          description: response.message,
+          description: (response as { message?: string }).message,
         });
         setIsEnrolled(true);
         fetchChapterData();
@@ -147,7 +183,7 @@ export const ChapterDetailPage = () => {
       } else {
         toast({
           title: 'Error',
-          description: response?.error || 'Failed to enroll',
+          description: (response && typeof response === 'object' && 'error' in response) ? (response as { error?: string }).error : 'Failed to enroll',
           variant: 'destructive',
         });
       }
@@ -257,42 +293,31 @@ export const ChapterDetailPage = () => {
               {/* Courses List */}
               <div className="space-y-6">
                 <h2 className="text-2xl font-bold">Courses in this Chapter</h2>
-                <div className="space-y-4">
-                  {chapterCourses.map((obj, index) => (
-                    <Card key={obj.id} className="glass-card hover-glow group">
-                      <CardContent className="p-6">
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center text-lg font-bold">
-                            {index + 1}
-                          </div>
-                          <div className="flex-1">
-                            <h3 className="text-lg font-semibold group-hover:text-primary transition-colors">
-                              {obj.course?.title || obj.title || 'Unknown Course'}
-                            </h3>
-                            <p className="text-muted-foreground text-sm mt-1">
-                              {obj.course?.description || obj.description || ''}
-                            </p>
-                            <div className="flex items-center gap-4 mt-2">
-                              {obj.course?.category && (
-                                <Badge variant="outline" className="text-xs">
-                                  {obj.course.category}
-                                </Badge>
-                              )}
-                              <span className="text-xs text-muted-foreground">
-                                by {obj.course?.profiles?.full_name || 'Unknown'}
-                              </span>
-                            </div>
-                          </div>
-                          {isEnrolled && obj.course?.id && (
-                            <Link to={`/courses/${obj.course.id}`}>
-                              <Button variant="outline" className="glass">
-                                <ArrowRight className="h-4 w-4" />
-                              </Button>
-                            </Link>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {chapterCourses.map((obj) => (
+                    obj.course ? (
+                      <PremiumCourseCard
+                        key={obj.course.id}
+                        id={obj.course.id}
+                        title={obj.course.title}
+                        description={obj.course.description}
+                        category={obj.course.category}
+                        status="published"
+                        instructor_name={obj.course.instructor_name}
+                        enrollment_count={0}
+                        is_enrolled={isEnrolled}
+                        enrollment_code={''}
+                        cover_image_url={obj.course.cover_image_url}
+                        created_at={obj.course.created_at}
+                        price={obj.course.price}
+                        avatar_url={obj.course.avatar_url}
+                        {...(isEnrolled ? {
+                          onPreview: () => navigate(`/courses/${obj.course.id}`),
+                          onEnroll: () => {},
+                          onContinue: () => navigate(`/courses/${obj.course.id}`)
+                        } : {})}
+                      />
+                    ) : null
                   ))}
                 </div>
               </div>

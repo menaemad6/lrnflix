@@ -189,6 +189,7 @@ const Auth: React.FC = () => {
                 isHovering={false}
                 onPreview={() => {}}
                 onEnroll={() => {}}
+                avatar_url={undefined}
               />
             ))}
           </div>
@@ -218,6 +219,7 @@ const Auth: React.FC = () => {
                 isHovering={false}
                 onPreview={() => {}}
                 onEnroll={() => {}}
+                avatar_url={undefined}
               />
             ))}
           </div>

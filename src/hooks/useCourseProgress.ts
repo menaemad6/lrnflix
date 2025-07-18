@@ -75,7 +75,7 @@ export function useCourseProgress(courseId: string | undefined, userId: string |
           totalQuizzes,
           completedLessons,
           completedQuizzes,
-          progressPercentage,
+          progressPercentage: Math.round(progressPercentage),
         });
       }
     }

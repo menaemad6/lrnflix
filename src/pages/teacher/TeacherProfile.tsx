@@ -343,6 +343,7 @@ export const TeacherProfile = () => {
                         onPreview={() => navigate(`/courses/${course.id}`)}
                         onEnroll={() => navigate(`/courses/${course.id}`)}
                         onContinue={() => navigate(`/courses/${course.id}`)}
+                        avatar_url={teacher.profile_image_url}
                       />
                     ))}
                   </div>

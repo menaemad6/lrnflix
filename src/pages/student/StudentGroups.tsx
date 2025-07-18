@@ -117,7 +117,7 @@ export const StudentGroups = () => {
               .eq('group_id', group.id);
             if (countError) return { ...group, member_count: 0 } as Group;
             return { ...group, member_count: count || 0 } as Group;
-          } catch (error) {
+          } catch (error: unknown) {
             return { ...group, member_count: 0 } as Group;
           }
         })
@@ -153,18 +153,18 @@ export const StudentGroups = () => {
       });
 
       fetchStudentGroups();
-    } catch (error: any) {
-      console.error('Error leaving group:', error);
+    } catch (error: unknown) {
+      console.error('Error leaving group:', error instanceof Error ? error.message : error);
       toast({
         title: 'Error',
-        description: error.message,
+        description: error instanceof Error ? error.message : String(error),
         variant: 'destructive',
       });
     }
   };
 
   const shareGroup = (group: Group) => {
-    const shareLink = `${window.location.origin}/groups/${group.id}?code=${group.group_code}`;
+    const shareLink = `${window.location.origin}/groups/${group.id}`;
     if (navigator.share) {
       navigator.share({
         title: `Join ${group.name}`,
@@ -204,15 +204,24 @@ export const StudentGroups = () => {
           />
 
           {/* Search Bar */}
-          <div className="relative max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-            <Input
-              placeholder="Search groups..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
+          <Card className="glass-card w-full max-w-full">
+            <CardContent className="p-4 sm:p-6">
+              <div className="flex flex-row gap-4 w-full items-center">
+                <div className="flex-1 min-w-0 w-full">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      type="text"
+                      placeholder="Search by group name, description, or code"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-10 glass"
+                    />
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Groups Grid */}
           {filteredGroups.length === 0 ? (
@@ -238,93 +247,82 @@ export const StudentGroups = () => {
             </Card>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredGroups.map((group) => (
-                <Card key={group.id} className="hover:shadow-lg transition-shadow">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <CardTitle className="text-lg line-clamp-2">{group.name}</CardTitle>
-                        {group.description && (
-                          <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{group.description}</p>
-                        )}
-                      </div>
-                      <Badge variant="outline" className="ml-2 flex-shrink-0">
-                        <Users className="w-3 h-3 mr-1" />
-                        {group.member_count}
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  
-                  <CardContent className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <Badge 
-                        variant="outline" 
-                        className="cursor-pointer hover:bg-muted"
-                        onClick={() => {
-                          navigator.clipboard.writeText(group.group_code);
-                          toast({ title: 'Code copied!' });
-                        }}
-                      >
-                        <Hash className="w-3 h-3 mr-1" />
-                        {group.group_code}
-                      </Badge>
-                      <div className="flex items-center gap-2">
-                        <Badge variant={group.is_public ? 'default' : 'secondary'}>
-                          {group.is_public ? 'Public' : 'Private'}
+              {filteredGroups.map((group) => {
+                const isPublic = group.is_public;
+                const borderColor = isPublic ? 'border-l-8 border-emerald-500' : 'border-l-8 border-yellow-400';
+                const badgeColor = isPublic ? 'bg-emerald-500 text-white' : 'bg-yellow-400 text-yellow-900 font-bold rounded-full shadow px-3 py-1 border border-yellow-300 hover:bg-yellow-300 hover:border-yellow-500 transition-colors';
+                const badgeLabel = isPublic ? 'Public' : 'Private';
+                return (
+                  <Card
+                    key={group.id}
+                    className={`glass-card ${borderColor} rounded-2xl shadow-lg hover:shadow-emerald-500/30 hover:scale-[1.02] transition-all duration-200 group-card w-full`}
+                  >
+                    <CardHeader className="pb-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <CardTitle className="text-xl font-extrabold gradient-text mb-1 break-words whitespace-normal">
+                            {group.name}
+                          </CardTitle>
+                          {group.description && (
+                            <p className="text-sm text-muted-foreground mb-2 line-clamp-3 break-words whitespace-normal">{group.description}</p>
+                          )}
+                        </div>
+                        <Badge className={`ml-2 flex-shrink-0 px-3 py-1 rounded-full text-base font-bold ${badgeColor} shadow-md`}>
+                          <Users className="w-4 h-4 mr-1" />
+                          {group.member_count}
                         </Badge>
-                        {group.max_members && (
-                          <span className="text-xs text-muted-foreground">
-                            Max: {group.max_members}
-                          </span>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex items-center gap-2">
+                          
+                          <Badge className={`px-2 py-1 rounded-lg text-xs font-semibold ${badgeColor}`}>{badgeLabel}</Badge>
+                          {group.max_members && (
+                            <span className="text-xs text-muted-foreground ml-2">Max: {group.max_members}</span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground mt-2 sm:mt-0">
+                          <Calendar className="w-4 h-4" />
+                          <span>Joined {new Date(group.created_at).toLocaleDateString()}</span>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        <Button 
+                          onClick={() => navigate(`/groups/${group.id}`)}
+                          className="rounded-xl font-semibold flex-1 min-w-[100px]"
+                          size="sm"
+                        >
+                          <MessageCircle className="w-4 h-4 mr-2" />
+                          Open
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          className="rounded-xl"
+                          onClick={() => shareGroup(group)}
+                          title="Share group"
+                        >
+                          <Share2 className="w-4 h-4" />
+                        </Button>
+                        
+                        {/* Leave button: only show if student is a member of the group */}
+                        {memberGroupIds.includes(group.id) && (
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            className="rounded-xl text-destructive hover:text-destructive"
+                            onClick={() => handleLeaveGroup(group.id, group.name)}
+                            title="Leave group"
+                          >
+                            <UserMinus className="w-4 h-4" />
+                          </Button>
                         )}
                       </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <Calendar className="w-3 h-3" />
-                      <span>Joined {new Date(group.created_at).toLocaleDateString()}</span>
-                    </div>
-                    
-                    <div className="flex gap-2">
-                      <Button 
-                        onClick={() => navigate(`/groups/${group.id}`)}
-                        className="flex-1"
-                        size="sm"
-                      >
-                        <MessageCircle className="w-4 h-4 mr-2" />
-                        Open
-                      </Button>
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        onClick={() => shareGroup(group)}
-                        title="Share group"
-                      >
-                        <Share2 className="w-4 h-4" />
-                      </Button>
-                      {group.is_public && !memberGroupIds.includes(group.id) && (
-                        <Button
-                          size="sm"
-                          variant="secondary"
-                          onClick={() => setShowJoinModal(true)}
-                          title="Join group"
-                        >
-                          Join
-                        </Button>
-                      )}
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        onClick={() => handleLeaveGroup(group.id, group.name)}
-                        className="text-destructive hover:text-destructive"
-                        title="Leave group"
-                      >
-                        <UserMinus className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           )}
 

@@ -31,6 +31,7 @@ interface EnrolledCourse {
     enrollment_code?: string;
     cover_image_url?: string;
     created_at?: string;
+    avatar_url?: string; // NEW
   };
   enrolled_at: string;
   progress?: number;
@@ -55,6 +56,7 @@ export const StudentDashboard = () => {
   });
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const [instructorAvatars, setInstructorAvatars] = useState<Record<string, string | undefined>>({});
 
   useEffect(() => {
     fetchDashboardData();
@@ -91,6 +93,27 @@ export const StudentDashboard = () => {
 
       if (enrollmentsError) throw enrollmentsError;
 
+      // Fetch all unique instructor_ids
+      const instructorIds = Array.from(new Set((enrollmentsData as EnrolledCourse[] || [])
+        .map(e => e.course?.instructor_id)
+        .filter(Boolean)));
+      // Fetch all names and avatars in one go
+      const names: Record<string, string | undefined> = {};
+      const avatars: Record<string, string | undefined> = {};
+      if (instructorIds.length > 0) {
+        const { data: teachersData } = await supabase
+          .from('teachers')
+          .select('user_id, display_name, profile_image_url')
+          .in('user_id', instructorIds);
+        if (teachersData) {
+          (teachersData as Array<{ user_id: string; display_name?: string; profile_image_url?: string }>).forEach((t) => {
+            names[t.user_id] = t.display_name;
+            avatars[t.user_id] = t.profile_image_url;
+          });
+        }
+      }
+      setInstructorAvatars(avatars);
+
       // Fetch progress for each course
       const coursesWithProgress = await Promise.all(
         (enrollmentsData || [])
@@ -119,6 +142,11 @@ export const StudentDashboard = () => {
 
             return {
               ...enrollment,
+              course: {
+                ...enrollment.course,
+                instructor_name: names[enrollment.course.instructor_id] || 'Course Instructor',
+                avatar_url: avatars[enrollment.course.instructor_id] || undefined // Ensure avatar_url is always present
+              },
               progress,
               totalLessons: totalLessons || 0,
               completedLessons: completedLessons || 0
@@ -236,6 +264,7 @@ export const StudentDashboard = () => {
                           onPreview={() => {}}
                           onEnroll={() => {}}
                           onContinue={() => navigate(`/courses/${enrollment.course.id}`)}
+                          avatar_url={enrollment.course.avatar_url}
                         />
                       ))}
                     </div>

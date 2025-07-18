@@ -25,6 +25,8 @@ interface Course {
   cover_image_url?: string;
   created_at?: string;
   price?: number;
+  instructor_id?: string;
+  avatar_url?: string; // NEW
 }
 
 interface RawCourse {
@@ -50,8 +52,11 @@ export const Courses = () => {
   const [loading, setLoading] = useState(true);
   const bgClass = useRandomBackground();
   const { teacher } = useTenant();
+  const [instructorAvatars, setInstructorAvatars] = useState<Record<string, string | undefined>>({});
 
-  const categories = ['All', 'Technology', 'Business', 'Design', 'Marketing', 'Development'];
+  // Dynamic categories from course data
+  const courseCategories = Array.from(new Set(courses.map(c => c.category).filter(Boolean)));
+  const categories = ['All', ...courseCategories];
 
   useEffect(() => {
     fetchCourses();
@@ -82,6 +87,23 @@ export const Courses = () => {
         throw coursesError;
       }
 
+      // Get all unique instructor_ids
+      const instructorIds = Array.from(new Set((coursesData || []).map((c: any) => c.instructor_id).filter(Boolean)));
+      // Fetch all avatars in one go
+      const avatars: Record<string, string | undefined> = {};
+      if (instructorIds.length > 0) {
+        const { data: teachersData } = await supabase
+          .from('teachers')
+          .select('user_id, profile_image_url')
+          .in('user_id', instructorIds);
+        if (teachersData) {
+          (teachersData as Array<{ user_id: string; profile_image_url?: string }>).forEach((t) => {
+            avatars[t.user_id] = t.profile_image_url;
+          });
+        }
+      }
+      setInstructorAvatars(avatars);
+
       // Get user's enrollments
       const { data: enrollments, error: enrollmentError } = await supabase
         .from('enrollments')
@@ -108,6 +130,7 @@ export const Courses = () => {
             cover_image_url: course.cover_image_url || undefined,
             created_at: course.created_at,
             price: course.price,
+            avatar_url: avatars[course.instructor_id] // NEW
           };
         })
       );
@@ -191,7 +214,7 @@ export const Courses = () => {
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
-                    placeholder="Search by course name, description, or enrollment code..."
+                    placeholder="Search by course name or description"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10 glass"
@@ -202,11 +225,13 @@ export const Courses = () => {
                 {categories.map((category) => (
                   <Button
                     key={category}
-                    variant={selectedCategory === category ? "default" : "outline"}
                     onClick={() => setSelectedCategory(category)}
-                    className={`glass hover-glow ${
-                      selectedCategory === category ? 'glow' : ''
-                    }`}
+                    className={
+                      selectedCategory === category
+                        ? 'bg-primary text-white font-bold border-2 border-primary shadow-lg px-5 py-2 rounded-full transition-all duration-200 hover:bg-primary/80 hover:text-white'
+                        : 'bg-background text-foreground border border-border hover:bg-primary/10 hover:text-primary px-5 py-2 rounded-full transition-all duration-200'
+                    }
+                    variant="ghost"
                   >
                     {category}
                   </Button>
@@ -234,6 +259,7 @@ export const Courses = () => {
                 cover_image_url={course.cover_image_url}
                 created_at={course.created_at}
                 price={course.price}
+                avatar_url={course.avatar_url}
                 onPreview={() => navigate(`/courses/${course.id}`)}
                 onEnroll={() => enrollInCourse(course.id)}
                 onContinue={() => navigate(`/courses/${course.id}`)}

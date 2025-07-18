@@ -68,6 +68,14 @@ interface Lesson {
   duration_minutes?: number;
 }
 
+interface TeacherProfile {
+  display_name: string;
+  profile_image_url?: string;
+  bio?: string;
+  specialization?: string;
+  experience_years?: number;
+}
+
 export const CourseView = () => {
   const { id } = useParams<{ id: string }>();
   const { toast } = useToast();
@@ -83,6 +91,7 @@ export const CourseView = () => {
   const navigate = useNavigate();
   const [showShareModal, setShowShareModal] = useState(false);
   const bgClass = useRandomBackground();
+  const [teacherProfile, setTeacherProfile] = useState<TeacherProfile | null>(null);
 
   useEffect(() => {
     async function fetchUser() {
@@ -134,6 +143,17 @@ export const CourseView = () => {
 
       if (courseError) throw courseError;
       setCourse(courseData);
+
+      // Fetch teacher profile from teachers table
+      if (courseData?.instructor_id) {
+        const { data: teacherData } = await supabase
+          .from('teachers')
+          .select('display_name,profile_image_url,bio,specialization,experience_years')
+          .eq('user_id', courseData.instructor_id)
+          .eq('is_active', true)
+          .single();
+        if (teacherData) setTeacherProfile(teacherData);
+      }
 
       // Check enrollment
       const { data: { user } } = await supabase.auth.getUser();
@@ -598,13 +618,22 @@ export const CourseView = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-start gap-6">
-                    <div className="h-20 w-20 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-2xl font-bold text-primary-foreground">
-                      {course.profiles?.full_name?.charAt(0) || 'I'}
-                    </div>
+                    {teacherProfile?.profile_image_url ? (
+                      <img
+                        src={teacherProfile.profile_image_url}
+                        alt={teacherProfile.display_name}
+                        className="h-20 w-20 rounded-full object-cover border border-primary/30 shadow"
+                      />
+                    ) : (
+                      <div className="h-20 w-20 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-2xl font-bold text-primary-foreground">
+                        {teacherProfile?.display_name?.charAt(0) || 'I'}
+                      </div>
+                    )}
                     <div className="flex-1 space-y-3">
                       <div>
-                        <h3 className="text-xl font-semibold">{course.profiles?.full_name || 'Unknown Instructor'}</h3>
-                        <p className="text-muted-foreground">Senior Developer & Educator</p>
+                        <h3 className="text-xl font-semibold">{teacherProfile?.display_name || 'Unknown Instructor'}</h3>
+                        {teacherProfile?.specialization && <p className="text-muted-foreground">{teacherProfile.specialization}</p>}
+                        {teacherProfile?.bio && <p className="text-muted-foreground text-sm mt-1">{teacherProfile.bio}</p>}
                       </div>
                       <div className="flex items-center gap-6 text-sm">
                         <div className="flex items-center gap-2">
@@ -620,9 +649,6 @@ export const CourseView = () => {
                           <span>12 Courses</span>
                         </div>
                       </div>
-                      <p className="text-sm text-muted-foreground leading-relaxed">
-                        Expert in modern development with 10+ years of experience. Passionate about teaching and helping students achieve their goals through practical, hands-on learning.
-                      </p>
                     </div>
                   </div>
                 </CardContent>

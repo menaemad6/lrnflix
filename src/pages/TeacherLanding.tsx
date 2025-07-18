@@ -623,6 +623,7 @@ const TeacherLanding = () => {
                     price={course.price}
                     onPreview={() => navigate(`/courses/${course.id}`)}
                     onEnroll={() => navigate(`/courses/${course.id}`)}
+                    avatar_url={teacher.profile_image_url}
                   />
                 </div>
               ))}
