@@ -23,6 +23,7 @@ interface PremiumCourseCardProps {
   onEnroll?: () => void;
   onContinue?: () => void;
   avatar_url?: string; // NEW
+  continueButtonLabel?: string; // NEW
 }
 
 export const PremiumCourseCard: React.FC<PremiumCourseCardProps> = ({
@@ -43,6 +44,7 @@ export const PremiumCourseCard: React.FC<PremiumCourseCardProps> = ({
   onEnroll,
   onContinue,
   avatar_url, // NEW
+  continueButtonLabel, // NEW
 }) => {
   return (
     <Card className={`relative overflow-hidden bg-transparent border-0 ${isHovering ? 'group cursor-pointer transition-transform hover:scale-[1.025]' : ''} min-w-0 rounded-2xl`}>
@@ -157,7 +159,7 @@ export const PremiumCourseCard: React.FC<PremiumCourseCardProps> = ({
                   onClick={onContinue}
                 >
                   <BookOpen className="h-4 w-4 mr-2" />
-                  Continue Learning
+                  {continueButtonLabel || 'Continue Learning'}
                 </Button>
               ) : (
                 <>

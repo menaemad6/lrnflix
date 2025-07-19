@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { BookOpen, Plus, Sparkles } from 'lucide-react';
+import { BookOpen, Plus, Sparkles, Search } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { CreateChapterModal } from '@/components/chapters/CreateChapterModal';
+import { TeacherPageHeader } from '@/components/teacher/TeacherPageHeader';
+import { Input } from '@/components/ui/input';
 
 interface Chapter {
   id: string;
@@ -19,10 +21,13 @@ interface Chapter {
   enrollment_count?: number;
 }
 
+const ChapterCardSkeleton = React.lazy(() => import('@/components/student/skeletons/ChapterCardSkeleton').then(m => ({ default: m.ChapterCardSkeleton })));
+
 export const TeacherChaptersPage = () => {
   const [chapters, setChapters] = useState<Chapter[]>([]);
   const [loading, setLoading] = useState(true);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     fetchChapters();
@@ -76,28 +81,42 @@ export const TeacherChaptersPage = () => {
     fetchChapters();
   };
 
+  // Filter chapters by search term
+  const filteredChapters = chapters.filter((chapter) =>
+    chapter.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (chapter.description || '').toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold gradient-text">Chapter Management</h2>
-            <p className="text-muted-foreground mt-1">Create and manage your educational chapters</p>
-          </div>
-          <Button 
-            className="btn-primary"
-            onClick={() => setIsCreateModalOpen(true)}
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            New Chapter
-          </Button>
+        <TeacherPageHeader
+          title="Chapter Management"
+          subtitle="Create and manage your educational chapters"
+          actionLabel="New Chapter"
+          onAction={() => setIsCreateModalOpen(true)}
+          actionIcon={<Plus className="h-4 w-4 mr-2" />}
+          actionButtonProps={{ className: 'btn-primary' }}
+        />
+        {/* Search Bar */}
+        <div className="relative max-w-md">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+          <Input
+            placeholder="Search chapters..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
         </div>
-
         {loading ? (
-          <div className="flex items-center justify-center min-h-[40vh]">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Suspense fallback={<div className='glass-card border-0 p-6'><div className='h-40 w-full rounded-xl mb-2 bg-muted animate-pulse' /></div>} key={i}>
+                <ChapterCardSkeleton />
+              </Suspense>
+            ))}
           </div>
-        ) : chapters.length === 0 ? (
+        ) : filteredChapters.length === 0 ? (
           <Card className="glass-card border-0 hover-glow">
             <CardContent className="text-center py-16">
               <div className="w-20 h-20 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-glow-pulse">
@@ -118,7 +137,7 @@ export const TeacherChaptersPage = () => {
           </Card>
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {chapters.map((chapter) => (
+            {filteredChapters.map((chapter) => (
               <Card key={chapter.id} className="glass-card border-0 hover-glow group">
                 <CardHeader>
                   <div className="flex items-center gap-3 mb-2">
