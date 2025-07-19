@@ -1,5 +1,6 @@
 import React from 'react';
 import { Home } from '@/pages/Home';
+import UltraModernLanding from '@/components/landing/UltraModernLanding';
 import { useRandomBackground } from "../hooks/useRandomBackground";
 import { useTenant } from '@/contexts/TenantContext';
 import TeacherLanding from './TeacherLanding';
@@ -14,12 +15,8 @@ const Index = () => {
     return <TeacherLanding />;
   }
 
-  // Otherwise show the regular home page
-  return (
-    <div className={bgClass + " min-h-screen"}>
-      <Home />
-    </div>
-  );
+  // Show the ultra-modern landing page instead of the regular home page
+  return <UltraModernLanding />;
 };
 
 export default Index;
