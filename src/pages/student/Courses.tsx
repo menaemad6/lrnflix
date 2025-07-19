@@ -11,6 +11,7 @@ import { useRandomBackground } from "../../hooks/useRandomBackground";
 import { PremiumCourseCard } from '@/components/courses/PremiumCourseCard';
 import AuroraHeroHeader from '@/components/ui/AuroraHeroHeader';
 import { useTenant } from '@/contexts/TenantContext';
+import { CourseCardSkeleton } from '@/components/student/skeletons/CourseCardSkeleton';
 
 interface Course {
   id: string;
@@ -188,14 +189,6 @@ export const Courses = () => {
     return matchesSearch && matchesCategory;
   });
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
   return (
     <div className={bgClass + " min-h-screen bg-gradient-to-br from-background via-background to-primary/5 p-2 sm:p-4 "}>
       <div className="container mx-auto px-2 sm:px-4 space-y-8  pt-[100px]">
@@ -241,32 +234,40 @@ export const Courses = () => {
           </CardContent>
         </Card>
 
-        {/* Courses Grid */}
-        <div className="w-full overflow-x-auto">
+        {/* Courses Grid or Skeletons */}
+        {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 w-full max-w-full">
-            {filteredCourses.map((course: Course) => (
-              <PremiumCourseCard
-                key={course.id}
-                id={course.id}
-                title={course.title}
-                description={course.description}
-                category={course.category}
-                status={course.status}
-                instructor_name={course.instructor_name}
-                enrollment_count={course.enrollment_count}
-                is_enrolled={course.is_enrolled}
-                enrollment_code={course.enrollment_code}
-                cover_image_url={course.cover_image_url}
-                created_at={course.created_at}
-                price={course.price}
-                avatar_url={course.avatar_url}
-                onPreview={() => navigate(`/courses/${course.id}`)}
-                onEnroll={() => enrollInCourse(course.id)}
-                onContinue={() => navigate(`/courses/${course.id}`)}
-              />
+            {[...Array(6)].map((_, i) => (
+              <CourseCardSkeleton key={i} />
             ))}
           </div>
-        </div>
+        ) : (
+          <div className="w-full overflow-x-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 w-full max-w-full">
+              {filteredCourses.map((course: Course) => (
+                <PremiumCourseCard
+                  key={course.id}
+                  id={course.id}
+                  title={course.title}
+                  description={course.description}
+                  category={course.category}
+                  status={course.status}
+                  instructor_name={course.instructor_name}
+                  enrollment_count={course.enrollment_count}
+                  is_enrolled={course.is_enrolled}
+                  enrollment_code={course.enrollment_code}
+                  cover_image_url={course.cover_image_url}
+                  created_at={course.created_at}
+                  price={course.price}
+                  avatar_url={course.avatar_url}
+                  onPreview={() => navigate(`/courses/${course.id}`)}
+                  onEnroll={() => enrollInCourse(course.id)}
+                  onContinue={() => navigate(`/courses/${course.id}`)}
+                />
+              ))}
+            </div>
+          </div>
+        )}
 
         {filteredCourses.length === 0 && (
           <Card className="glass-card w-full max-w-full">

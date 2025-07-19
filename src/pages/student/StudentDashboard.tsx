@@ -1,22 +1,28 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect , Suspense } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { WalletCard } from '@/components/wallet/WalletCard';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
-import { StudentProfileStats } from '@/components/student/StudentProfileStats';
-import { AiAdviceCard } from '@/components/student/AiAdviceCard';
-import { StudentAchievements } from '@/components/student/StudentAchievements';
-import { StudentActivity } from '@/components/student/StudentActivity';
-import { StudentGoals } from '@/components/student/StudentGoals';
 import { useToast } from '@/hooks/use-toast';
 import { BookOpen, Play, Target, Zap, GraduationCap, Users, TrendingUp, Calendar } from 'lucide-react';
 import type { RootState } from '@/store/store';
 import { useTenant } from '@/contexts/TenantContext';
 import { PremiumCourseCard } from '@/components/courses/PremiumCourseCard';
+import { Skeleton } from '@/components/ui/skeleton';
+
+const StudentProfileStats = React.lazy(() => import('@/components/student/StudentProfileStats').then(m => ({ default: m.StudentProfileStats })));
+const ProfileStatsSkeleton = React.lazy(() => import('@/components/student/skeletons/ProfileStatsSkeleton').then(m => ({ default: m.ProfileStatsSkeleton })));
+const AiAdviceCard = React.lazy(() => import('@/components/student/AiAdviceCard').then(m => ({ default: m.AiAdviceCard })));
+const AiAdviceCardSkeleton = React.lazy(() => import('@/components/student/skeletons/AiAdviceCardSkeleton').then(m => ({ default: m.AiAdviceCardSkeleton })));
+const ContinueLearningSection = React.lazy(() => import('@/components/student/ContinueLearningSection').then(m => ({ default: m.ContinueLearningSection })));
+const ContinueLearningSkeleton = React.lazy(() => import('@/components/student/skeletons/ContinueLearningSkeleton').then(m => ({ default: m.ContinueLearningSkeleton })));
+const WalletCard = React.lazy(() => import('@/components/wallet/WalletCard').then(m => ({ default: m.WalletCard })));
+const StudentGoals = React.lazy(() => import('@/components/student/StudentGoals').then(m => ({ default: m.StudentGoals })));
+const StudentAchievements = React.lazy(() => import('@/components/student/StudentAchievements').then(m => ({ default: m.StudentAchievements })));
+const StudentActivity = React.lazy(() => import('@/components/student/StudentActivity').then(m => ({ default: m.StudentActivity })));
 
 interface EnrolledCourse {
   id: string;
@@ -195,128 +201,62 @@ export const StudentDashboard = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <DashboardLayout>
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="flex items-center gap-3">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
-            <span className="text-muted-foreground">Loading your profile...</span>
-          </div>
-        </div>
-      </DashboardLayout>
-    );
-  }
-
   return (
     <DashboardLayout>
       <div className="space-y-8">
         {/* Profile Header */}
-        <StudentProfileStats stats={stats} user={user!} />
+        <Suspense fallback={<ProfileStatsSkeleton />}>
+          <StudentProfileStats stats={stats} user={user!} />
+        </Suspense>
 
         {/* AI Intelligence Section */}
-        <AiAdviceCard />
+        <Suspense fallback={<AiAdviceCardSkeleton />}>
+          <AiAdviceCard />
+        </Suspense>
 
         {/* Main Dashboard Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content (left) */}
           <div className="lg:col-span-2 space-y-8">
             {/* Continue Learning */}
-            <Card className="glass-card border-0">
-              <CardHeader>
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-2xl flex items-center justify-center">
-                    <BookOpen className="h-6 w-6 text-black" />
-                  </div>
-                  <div>
-                    <div className="gradient-text text-xl font-bold">Continue Learning</div>
-                    <span className="text-muted-foreground/80 text-sm">Pick up where you left off</span>
-                  </div>
-                  <Link to="/courses" className="ml-auto">
-                    <Button className="btn-secondary" size="sm">
-                      <Target className="h-4 w-4 mr-2" />
-                      Explore More
-                    </Button>
-                  </Link>
-                </div>
-              </CardHeader>
-              <CardContent>
-                {enrolledCourses.length > 0 ? (
-                  <>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {enrolledCourses.slice(0, 2).map((enrollment) => (
-                        <PremiumCourseCard
-                          key={enrollment.id}
-                          id={enrollment.course.id}
-                          title={enrollment.course.title}
-                          description={enrollment.course.description}
-                          category={enrollment.course.category}
-                          status="Active"
-                          instructor_name={enrollment.course.instructor_name || 'Course Instructor'}
-                          enrollment_count={enrollment.enrollment_count || 0}
-                          is_enrolled={true}
-                          enrollment_code={enrollment.course.enrollment_code || ''}
-                          cover_image_url={enrollment.course.cover_image_url}
-                          created_at={enrollment.course.created_at}
-                          price={enrollment.course.price}
-                          progress={enrollment.progress}
-                          isHovering={true}
-                          onPreview={() => {}}
-                          onEnroll={() => {}}
-                          onContinue={() => navigate(`/courses/${enrollment.course.id}`)}
-                          avatar_url={enrollment.course.avatar_url}
-                        />
-                      ))}
-                    </div>
-                    {enrolledCourses.length > 2 && (
-                      <div className="flex justify-center mt-4">
-                        <Link to="/student/courses">
-                          <Button className="btn-primary" size="sm">
-                            View All
-                          </Button>
-                        </Link>
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <div className="text-center py-8">
-                    <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
-                    <h3 className="text-lg font-medium mb-2">No Courses Yet</h3>
-                    <p className="text-muted-foreground mb-4">
-                      Start your learning journey by enrolling in a course.
-                    </p>
-                    <Link to="/courses">
-                      <Button className="btn-primary">
-                        <Target className="h-4 w-4 mr-2" />
-                        Browse Courses
-                      </Button>
-                    </Link>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+            <Suspense fallback={<ContinueLearningSkeleton />}>
+              <ContinueLearningSection
+                enrolledCourses={enrolledCourses}
+                onContinue={(courseId) => navigate(`/courses/${courseId}`)}
+              />
+            </Suspense>
 
             {/* WalletCard: show after courses on small/medium, hide on lg+ */}
             <div className="block lg:hidden">
-              <WalletCard />
+              <Suspense fallback={null}>
+                <WalletCard />
+              </Suspense>
             </div>
 
             {/* Goals Section */}
-            <StudentGoals stats={stats} />
+            <Suspense fallback={null}>
+              <StudentGoals stats={stats} />
+            </Suspense>
 
             {/* Activity & Achievements: stacked on mobile, only Achievements on lg+ */}
             <div className="grid grid-cols-1 gap-6">
               {/* On mobile: Activity then Achievements. On lg+: only Achievements. */}
               <div className="block lg:hidden">
-                <StudentActivity stats={stats} />
+                <Suspense fallback={null}>
+                  <StudentActivity stats={stats} />
+                </Suspense>
               </div>
-              <StudentAchievements stats={stats} />
+              <Suspense fallback={null}>
+                <StudentAchievements stats={stats} />
+              </Suspense>
             </div>
           </div>
 
           {/* Sidebar: only on lg+ */}
           <div className="space-y-6 hidden lg:block">
-            <WalletCard />
+            <Suspense fallback={null}>
+              <WalletCard />
+            </Suspense>
             <Card className="glass-card border-0">
               <CardHeader>
                 <CardTitle className="gradient-text">Quick Actions</CardTitle>
@@ -344,7 +284,9 @@ export const StudentDashboard = () => {
                 </div>
               </CardContent>
             </Card>
-            <StudentActivity stats={stats} />
+            <Suspense fallback={null}>
+              <StudentActivity stats={stats} />
+            </Suspense>
           </div>
         </div>
       </div>

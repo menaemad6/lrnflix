@@ -1,0 +1,86 @@
+import React from "react";
+import { PremiumCourseCard } from "@/components/courses/PremiumCourseCard";
+import { Card } from "@/components/ui/card";
+import { CardHeader } from "@/components/ui/card";
+import { CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { BookOpen, Target } from "lucide-react";
+import { Link } from "react-router-dom";
+
+export function ContinueLearningSection({ enrolledCourses, onContinue }) {
+  return (
+    <Card className="glass-card border-0">
+      <CardHeader>
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-2xl flex items-center justify-center">
+            <BookOpen className="h-6 w-6 text-black" />
+          </div>
+          <div>
+            <div className="gradient-text text-xl font-bold">Continue Learning</div>
+            <span className="text-muted-foreground/80 text-sm">Pick up where you left off</span>
+          </div>
+          <Link to="/courses" className="ml-auto">
+            <Button className="btn-secondary" size="sm">
+              <Target className="h-4 w-4 mr-2" />
+              Explore More
+            </Button>
+          </Link>
+        </div>
+      </CardHeader>
+      <CardContent>
+        {enrolledCourses.length > 0 ? (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {enrolledCourses.slice(0, 2).map((enrollment) => (
+                <PremiumCourseCard
+                  key={enrollment.id}
+                  id={enrollment.course.id}
+                  title={enrollment.course.title}
+                  description={enrollment.course.description}
+                  category={enrollment.course.category}
+                  status="Active"
+                  instructor_name={enrollment.course.instructor_name || 'Course Instructor'}
+                  enrollment_count={enrollment.enrollment_count || 0}
+                  is_enrolled={true}
+                  enrollment_code={enrollment.course.enrollment_code || ''}
+                  cover_image_url={enrollment.course.cover_image_url}
+                  created_at={enrollment.course.created_at}
+                  price={enrollment.course.price}
+                  progress={enrollment.progress}
+                  isHovering={true}
+                  onPreview={() => {}}
+                  onEnroll={() => {}}
+                  onContinue={() => onContinue(enrollment.course.id)}
+                  avatar_url={enrollment.course.avatar_url}
+                />
+              ))}
+            </div>
+            {enrolledCourses.length > 2 && (
+              <div className="flex justify-center mt-4">
+                <Link to="/student/courses">
+                  <Button className="btn-primary" size="sm">
+                    View All
+                  </Button>
+                </Link>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="text-center py-8">
+            <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
+            <h3 className="text-lg font-medium mb-2">No Courses Yet</h3>
+            <p className="text-muted-foreground mb-4">
+              Start your learning journey by enrolling in a course.
+            </p>
+            <Link to="/courses">
+              <Button className="btn-primary">
+                <Target className="h-4 w-4 mr-2" />
+                Browse Courses
+              </Button>
+            </Link>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+} 

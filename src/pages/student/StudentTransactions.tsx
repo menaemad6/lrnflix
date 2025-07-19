@@ -12,6 +12,7 @@ import { RootState } from '@/store/store';
 import DashboardModernHeader from '@/components/ui/DashboardModernHeader';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem, SelectLabel } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+import { TransactionCardSkeleton } from '@/components/student/skeletons/TransactionCardSkeleton';
 
 interface Transaction {
   id: string;
@@ -174,16 +175,6 @@ export const StudentTransactions = () => {
   const numTransactions = transactions.length;
   const lastTransactionDate = transactions[0]?.created_at ? new Date(transactions[0].created_at).toLocaleString() : 'N/A';
 
-  if (loading) {
-    return (
-      <DashboardLayout>
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-        </div>
-      </DashboardLayout>
-    );
-  }
-
   return (
     <DashboardLayout>
       <DashboardModernHeader
@@ -291,19 +282,22 @@ export const StudentTransactions = () => {
           </div>
         </div>
 
-        {/* Transactions */}
-        {filteredTransactions.length === 0 ? (
-          <Card className="glass-card border-0 w-full">
-            <CardContent className="text-center py-12">
-              <History className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-xl font-semibold mb-2">
-                {searchTerm ? 'No matching transactions found' : 'No transactions yet'}
-              </h3>
-              <p className="text-muted-foreground">
-                {searchTerm 
-                  ? 'Try adjusting your search terms' 
-                  : 'Your transaction history will appear here once you start using your wallet'
-                }
+        {/* Transactions List or Skeletons */}
+        {loading ? (
+          <div className="space-y-2">
+            {[...Array(8)].map((_, i) => (
+              <TransactionCardSkeleton key={i} />
+            ))}
+          </div>
+        ) : filteredTransactions.length === 0 ? (
+          <Card className="glass-card border-0">
+            <CardContent className="text-center py-16">
+              <div className="w-20 h-20 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-glow-pulse">
+                <History className="h-10 w-10 text-emerald-400" />
+              </div>
+              <h3 className="text-xl font-semibold mb-3 gradient-text">No transactions found</h3>
+              <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                Try adjusting your search criteria or filters.
               </p>
             </CardContent>
           </Card>

@@ -12,6 +12,7 @@ import { Users, Plus, MessageCircle, Calendar, Hash, Search, UserMinus, Share2 }
 import { useRandomBackground } from "../../hooks/useRandomBackground";
 import { useTenant } from '@/contexts/TenantContext';
 import DashboardModernHeader from '@/components/ui/DashboardModernHeader';
+import { GroupCardSkeleton } from '@/components/student/skeletons/GroupCardSkeleton';
 
 interface Group {
   id: string;
@@ -180,17 +181,7 @@ export const StudentGroups = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className={bgClass + " min-h-screen"}>
-        <DashboardLayout>
-          <div className="flex items-center justify-center min-h-[400px]">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-          </div>
-        </DashboardLayout>
-      </div>
-    );
-  }
+
 
   return (
     <div className={bgClass + " min-h-screen"}>
@@ -223,8 +214,14 @@ export const StudentGroups = () => {
             </CardContent>
           </Card>
 
-          {/* Groups Grid */}
-          {filteredGroups.length === 0 ? (
+          {/* Groups Grid or Skeletons */}
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 min-h-[400px]">
+              {[...Array(6)].map((_, i) => (
+                <GroupCardSkeleton key={i} />
+              ))}
+            </div>
+          ) : filteredGroups.length === 0 ? (
             <Card>
               <CardContent className="text-center py-12">
                 <Users className="w-12 h-12 mx-auto text-muted-foreground mb-4" />

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { supabase } from '@/integrations/supabase/client';
@@ -42,6 +42,8 @@ interface EnrolledChapter {
   enrolledCourses?: number;
   chapterCourses?: ChapterCourse[];
 }
+
+const ChapterCardSkeleton = React.lazy(() => import('@/components/student/skeletons/ChapterCardSkeleton').then(m => ({ default: m.ChapterCardSkeleton })));
 
 export const StudentChaptersPage = () => {
   const { toast } = useToast();
@@ -188,8 +190,12 @@ export const StudentChaptersPage = () => {
         </Card>
         {/* End Search Bar */}
         {loading ? (
-          <div className="flex items-center justify-center min-h-[40vh]">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => (
+              <Suspense fallback={<div className='h-64' />} key={i}>
+                <ChapterCardSkeleton />
+              </Suspense>
+            ))}
           </div>
         ) : filteredChapters.length === 0 ? (
           <Card className="glass-card border-0 hover-glow">

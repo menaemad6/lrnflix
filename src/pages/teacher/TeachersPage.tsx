@@ -12,6 +12,7 @@ import { useRandomBackground } from '@/hooks/useRandomBackground';
 import AuroraHeroHeader from '@/components/ui/AuroraHeroHeader';
 import { Button } from '@/components/ui/button';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
+import { TeacherCardSkeleton } from '@/components/student/skeletons/TeacherCardSkeleton';
 
 interface Teacher {
   id: string;
@@ -155,23 +156,6 @@ export const TeachersPage = () => {
     return ['All', ...Array.from(new Set(specs))];
   }, [teachers]);
 
-  if (loading) {
-    return (
-      <div className={`min-h-screen ${bgClass} flex items-center justify-center`}>
-        <div className="max-w-7xl w-full px-4 sm:px-6 lg:px-8 py-12">
-          <div className="animate-pulse">
-            <div className="h-8 bg-muted rounded w-1/4 mb-8 mx-auto"></div>
-            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-              {[...Array(6)].map((_, i) => (
-                <div key={i} className="h-64 bg-muted rounded-2xl"></div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className={`min-h-screen ${bgClass} pt-14`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -189,8 +173,14 @@ export const TeachersPage = () => {
           onSpecializationChange={setSelectedSpecialization}
           specializations={specializations}
         />
-        {/* Teachers Grid */}
-        {filteredTeachers.length === 0 ? (
+        {/* Teachers Grid or Skeletons */}
+        {loading ? (
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {[...Array(6)].map((_, i) => (
+              <TeacherCardSkeleton key={i} />
+            ))}
+          </div>
+        ) : filteredTeachers.length === 0 ? (
           <div className="text-center py-16">
             <p className="text-muted-foreground text-lg">
               {searchTerm ? 'No teachers found matching your search.' : 'No teachers available yet.'}

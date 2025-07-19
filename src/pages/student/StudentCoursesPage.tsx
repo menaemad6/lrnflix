@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { supabase } from '@/integrations/supabase/client';
@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
-import { PremiumCourseCard } from '@/components/courses/PremiumCourseCard';
 import { useToast } from '@/hooks/use-toast';
 import { BookOpen, Trophy, Play, Sparkles } from 'lucide-react';
 import type { RootState } from '@/store/store';
@@ -23,6 +22,9 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { ChevronDown } from 'lucide-react';
 import { useCourseProgress } from '@/hooks/useCourseProgress';
+  
+const PremiumCourseCard = React.lazy(() => import('@/components/courses/PremiumCourseCard').then(m => ({ default: m.PremiumCourseCard })));
+const CourseCardSkeleton = React.lazy(() => import('@/components/student/skeletons/CourseCardSkeleton').then(m => ({ default: m.CourseCardSkeleton })));
 
 interface EnrolledCourse {
   id: string;
@@ -194,29 +196,31 @@ export const StudentCoursesPage = () => {
   const StudentCourseCardWithProgress = ({ enrollment, userId }: { enrollment: EnrolledCourse, userId: string }) => {
     const progress = useCourseProgress(enrollment.course.id, userId);
     return (
-      <PremiumCourseCard
-        key={enrollment.id}
-        id={enrollment.course.id}
-        title={enrollment.course.title}
-        description={enrollment.course.description}
-        category={enrollment.course.category}
-        status="Active"
-        instructor_name={enrollment.course.instructor_name}
-        enrollment_count={enrollment.enrollment_count || 0}
-        is_enrolled={true}
-        enrollment_code={enrollment.course.enrollment_code || ""}
-        cover_image_url={enrollment.course.cover_image_url}
-        created_at={enrollment.course.created_at}
-        price={enrollment.course.price}
-        progress={progress.progressPercentage}
-        isHovering={true}
-        avatar_url={enrollment.course.avatar_url}
-        onPreview={() => {}}
-        onEnroll={() => {}}
-        onContinue={() => {
-          navigate(`/courses/${enrollment.course.id}`);
-        }}
-      />
+      <Suspense fallback={<CourseCardSkeleton />}>
+        <PremiumCourseCard
+          key={enrollment.id}
+          id={enrollment.course.id}
+          title={enrollment.course.title}
+          description={enrollment.course.description}
+          category={enrollment.course.category}
+          status="Active"
+          instructor_name={enrollment.course.instructor_name}
+          enrollment_count={enrollment.enrollment_count || 0}
+          is_enrolled={true}
+          enrollment_code={enrollment.course.enrollment_code || ""}
+          cover_image_url={enrollment.course.cover_image_url}
+          created_at={enrollment.course.created_at}
+          price={enrollment.course.price}
+          progress={progress.progressPercentage}
+          isHovering={true}
+          avatar_url={enrollment.course.avatar_url}
+          onPreview={() => {}}
+          onEnroll={() => {}}
+          onContinue={() => {
+            navigate(`/courses/${enrollment.course.id}`);
+          }}
+        />
+      </Suspense>
     );
   };
 
@@ -281,8 +285,10 @@ export const StudentCoursesPage = () => {
           </CardContent>
         </Card>
         {loading ? (
-          <div className="flex items-center justify-center min-h-[40vh]">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {[...Array(6)].map((_, i) => (
+              <CourseCardSkeleton key={i} />
+            ))}
           </div>
         ) : filteredCourses.length === 0 ? (
           <Card className="glass-card border-0 hover-glow">

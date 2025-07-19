@@ -15,6 +15,8 @@ import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { Navbar } from './components/layout/Navbar';
 import { GlobalChatbotSidebar } from './components/chatbot/GlobalChatbotSidebar';
 import { MessageSquare } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Suspense } from 'react';
 
 // Pages
 import Index from "./pages/Index";
@@ -199,9 +201,15 @@ const App = () => (
               <Toaster />
               <Sonner />
               <TenantProvider>
-                <BrowserRouter>
-                  <AppRoutesWithTenant />
-                </BrowserRouter>
+                <Suspense fallback={
+                  <div className="min-h-screen flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500"></div>
+                  </div>
+                  }>
+                  <BrowserRouter>
+                    <AppRoutesWithTenant />
+                  </BrowserRouter>
+                </Suspense>
               </TenantProvider>
             </TooltipProvider>
           </ChatbotProvider>

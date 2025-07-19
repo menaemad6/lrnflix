@@ -11,6 +11,7 @@ import { useRandomBackground } from "../../hooks/useRandomBackground";
 import { useTenant } from '@/contexts/TenantContext';
 import AuroraHeroHeader from '@/components/ui/AuroraHeroHeader';
 import ChapterCard from '@/components/chapters/ChapterCard';
+import { ChapterCardSkeleton } from '@/components/student/skeletons/ChapterCardSkeleton';
 
 interface Chapter {
   id: string;
@@ -144,14 +145,6 @@ export const ChaptersPage = () => {
     return matchesSearch;
   });
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
   return (
     <div className={bgClass + " min-h-screen bg-gradient-to-br from-background via-background to-primary/5 p-2 sm:p-4 "}>
       <div className="container mx-auto px-2 sm:px-4 space-y-8 pt-[100px]">
@@ -175,26 +168,34 @@ export const ChaptersPage = () => {
             </div>
           </CardContent>
         </Card>
-        {/* Chapters Grid */}
-        <div className="w-full overflow-x-auto">
+        {/* Chapters Grid or Skeletons */}
+        {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-full">
-            {filteredChapters.map((chapter) => (
-              <ChapterCard
-                key={chapter.id}
-                id={chapter.id}
-                title={chapter.title}
-                description={chapter.description}
-                price={chapter.price}
-                courseCount={chapter.course_count}
-                isEnrolled={chapter.is_enrolled}
-                coverImageUrl={chapter.cover_image_url}
-                onPreview={() => navigate(`/chapters/${chapter.id}`)}
-                onEnroll={() => enrollInChapter(chapter.id)}
-                onContinue={() => navigate(`/chapters/${chapter.id}`)}
-              />
+            {[...Array(6)].map((_, i) => (
+              <ChapterCardSkeleton key={i} />
             ))}
           </div>
-        </div>
+        ) : (
+          <div className="w-full overflow-x-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-full">
+              {filteredChapters.map((chapter) => (
+                <ChapterCard
+                  key={chapter.id}
+                  id={chapter.id}
+                  title={chapter.title}
+                  description={chapter.description}
+                  price={chapter.price}
+                  courseCount={chapter.course_count}
+                  isEnrolled={chapter.is_enrolled}
+                  coverImageUrl={chapter.cover_image_url}
+                  onPreview={() => navigate(`/chapters/${chapter.id}`)}
+                  onEnroll={() => enrollInChapter(chapter.id)}
+                  onContinue={() => navigate(`/chapters/${chapter.id}`)}
+                />
+              ))}
+            </div>
+          </div>
+        )}
         {filteredChapters.length === 0 && (
           <Card className="glass-card w-full max-w-full">
             <CardContent className="text-center py-12">
