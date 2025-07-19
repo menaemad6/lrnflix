@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
-import { BookOpen, Layout, LogOut, Home, Search, Store, Menu, Sidebar, MessageCircleQuestion, Gamepad2, Users, Gift, Bell, PieChart, DollarSign, CircleDollarSign } from 'lucide-react';
+import { BookOpen, Layout, LogOut, Home, Search, Store, Menu, Sidebar, MessageCircleQuestion, Gamepad2, Users, Gift, Bell, PieChart, DollarSign, CircleDollarSign, GraduationCap } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import type { RootState } from '@/store/store';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Card, CardContent } from '@/components/ui/card';
 import { ModernScrollbar } from '@/components/ui/modern-scrollbar';
+import type { User } from '@/store/slices/authSlice';
 
 // NavLink must be above NavbarSidebarContent for scope
 const NavLink = ({ to, children, icon: Icon, onClick, className = "", isActive }: { to: string; children: React.ReactNode; icon: React.ComponentType<{ className?: string }>; onClick?: () => void; className?: string; isActive: (path: string) => boolean }) => (
@@ -88,11 +89,12 @@ export const Navbar = ({ extraXSpacing = false }: { extraXSpacing?: boolean }) =
   ];
 
     // NAVIGATION LINKS FOR SIDENAVBAR
-    const sideNavLinks = [
+    let sideNavLinks = [
       { to: '/', label: 'Home', icon: Home },
       ...(userRole === 'student'
         ? [
           { to: '/student/dashboard', label: 'Dashboard', icon: Layout },
+          { to: '/teachers', label: 'Teachers', icon: GraduationCap },
           { to: '/courses', label: 'Courses', icon: Search },
           { to: '/student/store', label: 'Store', icon: CircleDollarSign },
           { to: '/chapters', label: 'Chapters', icon: BookOpen },
@@ -116,6 +118,11 @@ export const Navbar = ({ extraXSpacing = false }: { extraXSpacing?: boolean }) =
           ]
         : []),
     ];
+
+  // Hide the Teachers link (second in the student links) if there is a teacher in the tenant
+  if (userRole === 'student' && teacher) {
+    sideNavLinks = sideNavLinks.filter((link, idx) => !(idx === 2 && link.to === '/teachers'));
+  }
 
   // UNAUTHENTICATED NAVBAR
   if (!isAuthenticated) {
@@ -332,7 +339,13 @@ function ThemeSegmentedToggle() {
 }
 
 // Reusable sidebar content for Navbar (move above Navbar for scope)
-function NavbarSidebarContent({ user, navLinks, handleLogout, setSheetOpen, isActive }: { user: any, navLinks: any[], handleLogout: () => void, setSheetOpen?: (open: boolean) => void, isActive: (path: string) => boolean }) {
+interface NavLinkItem {
+  to: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+}
+
+function NavbarSidebarContent({ user, navLinks, handleLogout, setSheetOpen, isActive }: { user: User | null, navLinks: NavLinkItem[], handleLogout: () => void, setSheetOpen?: (open: boolean) => void, isActive: (path: string) => boolean }) {
   const { teacher } = useTenant();
   return (
     <div className="flex flex-col h-full">
