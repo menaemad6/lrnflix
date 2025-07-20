@@ -19,8 +19,8 @@ interface GroupDetails {
   created_by: string;
   max_members: number;
   is_public: boolean;
-  is_code_visible?: boolean;
-  is_members_visible?: boolean;
+  is_code_visible: boolean;
+  is_members_visible: boolean;
 }
 
 interface Member {
@@ -75,8 +75,8 @@ const GroupDetailPage = () => {
         created_by: data.created_by,
         max_members: data.max_members,
         is_public: data.is_public,
-        is_code_visible: true, // Default value
-        is_members_visible: true // Default value
+        is_code_visible: data.is_code_visible ?? true,
+        is_members_visible: data.is_members_visible ?? true
       };
 
       setGroup(groupWithDefaults);
@@ -88,39 +88,50 @@ const GroupDetailPage = () => {
 
   const fetchGroupMembers = async () => {
     try {
-      const { data, error } = await supabase
+      // First get the group members
+      const { data: groupMembersData, error: membersError } = await supabase
         .from('group_members')
-        .select(`
-          id,
-          group_id,
-          student_id,
-          joined_at,
-          profiles!student_id (
-            id, 
-            email, 
-            full_name,
-            avatar_url
-          )
-        `)
+        .select('id, group_id, student_id, joined_at')
         .eq('group_id', id);
 
-      if (error) throw error;
-      
-      // Transform the data to match the expected Member interface
-      const transformedMembers: Member[] = data?.map(member => ({
-        id: member.id,
-        user_id: member.student_id,
-        group_id: member.group_id,
-        joined_at: member.joined_at,
-        user: {
-          id: member.profiles?.id || '',
-          email: member.profiles?.email || '',
-          user_metadata: {
-            avatar_url: member.profiles?.avatar_url || '',
-            full_name: member.profiles?.full_name || ''
+      if (membersError) throw membersError;
+
+      if (!groupMembersData || groupMembersData.length === 0) {
+        setMembers([]);
+        setLoading(false);
+        return;
+      }
+
+      // Get the student IDs
+      const studentIds = groupMembersData.map(member => member.student_id);
+
+      // Fetch profiles for these students
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, email, full_name, avatar_url')
+        .in('id', studentIds);
+
+      if (profilesError) throw profilesError;
+
+      // Combine the data
+      const transformedMembers: Member[] = groupMembersData.map(member => {
+        const profile = profilesData?.find(p => p.id === member.student_id);
+        
+        return {
+          id: member.id,
+          user_id: member.student_id,
+          group_id: member.group_id,
+          joined_at: member.joined_at,
+          user: {
+            id: profile?.id || '',
+            email: profile?.email || '',
+            user_metadata: {
+              avatar_url: profile?.avatar_url || '',
+              full_name: profile?.full_name || ''
+            }
           }
-        }
-      })) || [];
+        };
+      });
 
       setMembers(transformedMembers);
     } catch (err) {
