@@ -17,6 +17,7 @@ import { GlobalChatbotSidebar } from './components/chatbot/GlobalChatbotSidebar'
 import { MessageSquare } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Suspense } from 'react';
+import { SparkLoader } from "@/components/ui/SparkLoader";
 
 // Pages
 import Index from "./pages/Index";
@@ -171,8 +172,8 @@ const AppRoutesWithTenant = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500"></div>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <SparkLoader text="It all starts with a spark" color="#1de9b6" size={56} />
       </div>
     );
   }
@@ -202,10 +203,10 @@ const App = () => (
               <Sonner />
               <TenantProvider>
                 <Suspense fallback={
-                  <div className="min-h-screen flex items-center justify-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500"></div>
+                  <div className="min-h-screen flex items-center justify-center bg-background">
+                    <SparkLoader text="It all starts with a spark" color="#1de9b6" size={56} />
                   </div>
-                  }>
+                }>
                   <BrowserRouter>
                     <AppRoutesWithTenant />
                   </BrowserRouter>

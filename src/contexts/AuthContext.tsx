@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux';
 import { supabase } from '@/integrations/supabase/client';
 import { setUser, setLoading } from '@/store/slices/authSlice';
 import type { User } from '@/store/slices/authSlice';
+import SparkLoader from '@/components/ui/SparkLoader';
 
 const AuthContext = createContext({});
 
@@ -139,7 +140,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     console.log('Auth not yet initialized, showing loading...');
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500"></div>
+<SparkLoader text="It all starts with a spark" color="#1de9b6" />
       </div>
     );
   }

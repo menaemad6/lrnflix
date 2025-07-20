@@ -3,15 +3,83 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>EduPlatform - AI-Powered Learning</title>
+    <title>Learnify - AI-Powered Learning Platform</title>
+    <meta name="description" content="Learnify is a modern, AI-powered educational platform for students and teachers. Create, manage, and experience interactive courses, quizzes, and more." />
+    <link rel="canonical" href="https://learnify.app/" />
+    <meta name="robots" content="index, follow" />
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Learnify - AI-Powered Learning Platform" />
+    <meta property="og:description" content="Learnify is a modern, AI-powered educational platform for students and teachers. Create, manage, and experience interactive courses, quizzes, and more." />
+    <meta property="og:url" content="https://learnify.app/" />
+    <meta property="og:site_name" content="Learnify" />
+    <meta property="og:image" content="https://learnify.app/og-image.png" />
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Learnify - AI-Powered Learning Platform" />
+    <meta name="twitter:description" content="Learnify is a modern, AI-powered educational platform for students and teachers. Create, manage, and experience interactive courses, quizzes, and more." />
+    <meta name="twitter:image" content="https://learnify.app/og-image.png" />
+    <!-- Schema.org Organization -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "EducationalOrganization",
+        "name": "Learnify",
+        "url": "https://learnify.app/",
+        "logo": "https://learnify.app/og-image.png",
+        "description": "Learnify is a modern, AI-powered educational platform for students and teachers. Create, manage, and experience interactive courses, quizzes, and more."
+      }
+    </script>
+    <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   </head>
   <body>
+    <!-- Spark Loader Preloader: shows instantly while JS loads -->
+    <div id="spark-preloader" style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:#071818;width:100vw;height:100vh;">
+      <div style="display:flex;align-items:center;gap:2.5rem;min-width:220px;">
+        <span style="position:relative;display:block;width:24px;height:60px;">
+          <span style="position:absolute;left:50%;top:0;transform:translateX(-50%);width:12px;height:12px;background:#1de9b6;border-radius:50%;box-shadow:0 0 24px #1de9b666,0 0 12px #1de9b699;animation:spark-bounce-updown-pre 1.2s cubic-bezier(.7,0,.3,1) infinite;"></span>
+        </span>
+        <span style="color:#10b981;font-size:1.25rem;font-weight:500;letter-spacing:0.03em;animation:spark-text-fade-pre 1.2s cubic-bezier(.7,0,.3,1) infinite;">It all starts with a spark</span>
+      </div>
+      <style>
+        @keyframes spark-bounce-updown-pre {
+          0% { transform: translate(-50%, 30px); }
+          15% { transform: translate(-50%, -30px); }
+          30% { transform: translate(-50%, 30px); }
+          45% { transform: translate(-50%, -15px); }
+          60% { transform: translate(-50%, 30px); }
+          100% { transform: translate(-50%, 30px); }
+        }
+        @keyframes spark-text-fade-pre {
+          0% { opacity: 0.5; }
+          10% { opacity: 1; }
+          60% { opacity: 1; }
+          80% { opacity: 0.7; }
+          100% { opacity: 0.5; }
+        }
+      </style>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      // Remove spark preloader when React mounts
+      window.addEventListener('DOMContentLoaded', function() {
+        var root = document.getElementById('root');
+        if (!root) return;
+        var observer = new MutationObserver(function() {
+          var pre = document.getElementById('spark-preloader');
+          if (pre && root.childNodes.length > 0) {
+            pre.style.opacity = '0';
+            setTimeout(function() { pre.remove(); }, 350);
+            observer.disconnect();
+          }
+        });
+        observer.observe(root, { childList: true });
+      });
+    </script>
   </body>
 </html>
