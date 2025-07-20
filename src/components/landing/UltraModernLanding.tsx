@@ -1,6 +1,6 @@
 
 import React, { useEffect, useRef, useState } from 'react';
-import { motion, useAnimation, useInView, useScroll, useTransform, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion, useAnimation, useInView, useScroll, useTransform } from 'framer-motion';
 import { useInView as useInViewHook } from 'react-intersection-observer';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -39,6 +39,7 @@ import {
   Crown,
   Infinity
 } from 'lucide-react';
+import ModernLayoutHero from './ModernLayoutHero';
 
 // Floating geometric elements
 const FloatingGeometry = () => {
@@ -632,7 +633,7 @@ const StudentImpact = () => {
     }
   }, [inView]);
 
-  const statItems = [
+  const statItems: { label: string; value: number; suffix: string; icon: React.ElementType }[] = [
     { label: "Courses Completed", value: counters.courses, suffix: "+", icon: CheckCircle2 },
     { label: "Active Students", value: counters.students, suffix: "+", icon: Users },
     { label: "Certificates Earned", value: counters.certificates, suffix: "+", icon: Award },
@@ -729,7 +730,7 @@ const StudentImpact = () => {
 const InteractiveDemo = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
 
-  const demoTabs = [
+  const demoTabs: { id: string; label: string; icon: React.ElementType }[] = [
     { id: 'dashboard', label: 'Dashboard', icon: Target },
     { id: 'course', label: 'Course View', icon: BookOpen },
     { id: 'quiz', label: 'Quiz Mode', icon: Gamepad2 },
@@ -938,7 +939,13 @@ const FinalCTA = () => {
 const UltraModernLanding = () => {
   return (
     <div className="min-h-screen bg-background text-foreground relative overflow-hidden">
-      <HeroSection />
+      {/* Show ModernLayoutHero on large screens and up, HeroSection on smaller screens */}
+      <div className="hidden lg:block">
+        <ModernLayoutHero />
+      </div>
+      <div className="block lg:hidden">
+        <HeroSection />
+      </div>
       <FeatureShowcase />
       <TeachersSpotlight />
       <CoursesDiscovery />

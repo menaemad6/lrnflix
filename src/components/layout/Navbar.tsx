@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { supabase } from '@/integrations/supabase/client';
@@ -8,7 +8,7 @@ import { BookOpen, Layout, LogOut, Home, Search, Store, Menu, Sidebar, MessageCi
 import { Separator } from '@/components/ui/separator';
 import type { RootState } from '@/store/store';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useIsMobile, useIsLargeScreen } from '@/hooks/use-mobile';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useTenant } from '@/contexts/TenantContext';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -22,6 +22,7 @@ import {
 import { Card, CardContent } from '@/components/ui/card';
 import { ModernScrollbar } from '@/components/ui/modern-scrollbar';
 import type { User } from '@/store/slices/authSlice';
+import WalletCardDesign from '@/components/student/WalletCardDesign'
 
 // NavLink must be above NavbarSidebarContent for scope
 const NavLink = ({ to, children, icon: Icon, onClick, className = "", isActive }: { to: string; children: React.ReactNode; icon: React.ComponentType<{ className?: string }>; onClick?: () => void; className?: string; isActive: (path: string) => boolean }) => (
@@ -41,26 +42,60 @@ export const Navbar = ({ extraXSpacing = false }: { extraXSpacing?: boolean }) =
   const location = useLocation();
   const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
   const isMobile = useIsMobile();
+  const isLargeScreen = useIsLargeScreen();
   const [hidden, setHidden] = useState(false);
-  const [lastScrollY, setLastScrollY] = useState(0);
+  const lastScrollY = useRef(0);
   const { teacher } = useTenant();
   const [sheetOpen, setSheetOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   useEffect(() => {
-    if (isMobile) return;
+    if (isMobile) {
+      setHidden(false);
+      return;
+    }
+    let ticking = false;
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      if (currentScrollY > lastScrollY && currentScrollY > 64) {
-        setHidden(true);
-      } else {
-        setHidden(false);
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const currentScrollY = window.scrollY;
+          // Home page: hide until scrolled past hero, then use scroll direction logic
+          if (location.pathname === '/' && isLargeScreen) {
+            if (currentScrollY < window.innerHeight) {
+              setHidden(true);
+            } else {
+              // After hero: hide on scroll down, show on scroll up
+              if (currentScrollY === 0) {
+                setHidden(false);
+              } else if (currentScrollY > lastScrollY.current) {
+                setHidden(true);
+              } else if (currentScrollY < lastScrollY.current) {
+                setHidden(false);
+              }
+            }
+          } else if (isLargeScreen) {
+            // Other pages: hide on scroll down, show on scroll up
+            if (currentScrollY === 0) {
+              setHidden(false);
+            } else if (currentScrollY > lastScrollY.current) {
+              setHidden(true);
+            } else if (currentScrollY < lastScrollY.current) {
+              setHidden(false);
+            }
+          } else {
+            // On mobile, always show
+            setHidden(false);
+          }
+          lastScrollY.current = currentScrollY;
+          ticking = false;
+        });
+        ticking = true;
       }
-      setLastScrollY(currentScrollY);
     };
     window.addEventListener('scroll', handleScroll);
+    handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [lastScrollY, isMobile]);
+  }, [isMobile, isLargeScreen, location.pathname]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -253,6 +288,7 @@ export const Navbar = ({ extraXSpacing = false }: { extraXSpacing?: boolean }) =
                     <div className="min-w-0">
                       <div className="font-semibold text-base truncate text-foreground">{user?.full_name || 'User'}</div>
                       <div className="text-[11px] text-muted-foreground truncate">{user?.email}</div>
+                      { userRole === 'student' && <div className="mt-2"><WalletCardDesign wallet={user?.wallet} /></div> }
                     </div>
                   </div>
                   <DropdownMenuSeparator />

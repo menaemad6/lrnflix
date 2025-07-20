@@ -186,7 +186,7 @@ export const DashboardSidebar = () => {
         </Button>
       )}
 
-      <Sidebar className="glass-card border-r border-white/10 bg-gradient-to-b from-background/95 to-background/80 backdrop-blur-xl pt-20">
+      <Sidebar className="glass-card border-r border-white/10 bg-gradient-to-b from-background/95 to-background/80 backdrop-blur-xl">
         <SidebarHeader className="p-6 border-b border-white/5 relative">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-2xl flex items-center justify-center animate-glow-pulse shadow-lg shadow-emerald-500/25">
