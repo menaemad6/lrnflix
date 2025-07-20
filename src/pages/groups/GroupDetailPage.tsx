@@ -43,8 +43,8 @@ interface GroupDetails {
   created_by: string;
   max_members: number | null;
   is_public: boolean;
-  is_code_visible?: boolean;
-  is_members_visible?: boolean;
+  is_code_visible: boolean;
+  is_members_visible: boolean;
 }
 
 interface GroupMember {
