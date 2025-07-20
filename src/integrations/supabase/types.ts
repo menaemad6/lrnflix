@@ -571,6 +571,8 @@ export type Database = {
           description: string | null
           group_code: string
           id: string
+          is_code_visible: boolean
+          is_members_visible: boolean
           is_public: boolean | null
           max_members: number | null
           name: string
@@ -582,6 +584,8 @@ export type Database = {
           description?: string | null
           group_code: string
           id?: string
+          is_code_visible?: boolean
+          is_members_visible?: boolean
           is_public?: boolean | null
           max_members?: number | null
           name: string
@@ -593,6 +597,8 @@ export type Database = {
           description?: string | null
           group_code?: string
           id?: string
+          is_code_visible?: boolean
+          is_members_visible?: boolean
           is_public?: boolean | null
           max_members?: number | null
           name?: string
