@@ -1,10 +1,13 @@
 
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
-import { Card } from '@/components/ui/card';
+import { supabase } from '@/integrations/supabase/client';
+import { Copy, Users, Settings, ArrowLeft, UserPlus } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface GroupDetails {
   id: string;
@@ -14,10 +17,10 @@ interface GroupDetails {
   created_at: string;
   updated_at: string;
   created_by: string;
-  max_members: number | null;
+  max_members: number;
   is_public: boolean;
-  is_code_visible: boolean;
-  is_members_visible: boolean;
+  is_code_visible?: boolean;
+  is_members_visible?: boolean;
 }
 
 interface Member {
@@ -36,102 +39,123 @@ interface Member {
 }
 
 const GroupDetailPage = () => {
-  const { groupId } = useParams<{ groupId: string }>();
-  const [groupDetails, setGroupDetails] = useState<GroupDetails | null>(null);
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [group, setGroup] = useState<GroupDetails | null>(null);
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchGroupDetails = async () => {
-      if (!groupId) return;
+    if (id) {
+      fetchGroupDetails();
+      fetchGroupMembers();
+    }
+  }, [id]);
+
+  const fetchGroupDetails = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('groups')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (error) throw error;
       
-      try {
-        const { data, error } = await supabase
-          .from('groups')
-          .select('*')
-          .eq('id', groupId)
-          .single();
+      // Set default values for missing properties
+      const groupWithDefaults: GroupDetails = {
+        id: data.id,
+        name: data.name,
+        description: data.description,
+        group_code: data.group_code,
+        created_at: data.created_at,
+        updated_at: data.updated_at,
+        created_by: data.created_by,
+        max_members: data.max_members,
+        is_public: data.is_public,
+        is_code_visible: true, // Default value
+        is_members_visible: true // Default value
+      };
 
-        if (error) throw error;
-        
-        // Set default values for missing properties
-        const groupWithDefaults: GroupDetails = {
-          id: data.id,
-          name: data.name,
-          description: data.description,
-          group_code: data.group_code,
-          created_at: data.created_at,
-          updated_at: data.updated_at,
-          created_by: data.created_by,
-          max_members: data.max_members,
-          is_public: data.is_public,
-          is_code_visible: data.is_code_visible ?? true,
-          is_members_visible: data.is_members_visible ?? true
-        };
-        
-        setGroupDetails(groupWithDefaults);
-      } catch (error) {
-        console.error('Error fetching group details:', error);
-        toast.error('Failed to load group details');
-      }
-    };
+      setGroup(groupWithDefaults);
+    } catch (err) {
+      console.error('Error fetching group:', err);
+      setError('Failed to load group details');
+    }
+  };
 
-    const fetchGroupMembers = async () => {
-      if (!groupId) return;
+  const fetchGroupMembers = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('group_members')
+        .select(`
+          id,
+          group_id,
+          student_id,
+          joined_at,
+          profiles!student_id (
+            id, 
+            email, 
+            full_name,
+            avatar_url
+          )
+        `)
+        .eq('group_id', id);
 
-      try {
-        const { data, error } = await supabase
-          .from('group_members')
-          .select(`
-            id,
-            group_id,
-            student_id,
-            joined_at,
-            profiles!student_id (
-              id, 
-              email, 
-              full_name,
-              avatar_url
-            )
-          `)
-          .eq('group_id', groupId);
-
-        if (error) throw error;
-        
-        // Transform the data to match the expected Member interface
-        const transformedMembers: Member[] = data?.map(member => ({
-          id: member.id,
-          user_id: member.student_id,
-          group_id: member.group_id,
-          joined_at: member.joined_at,
-          user: {
-            id: member.profiles?.id || '',
-            email: member.profiles?.email || '',
-            user_metadata: {
-              avatar_url: member.profiles?.avatar_url || '',
-              full_name: member.profiles?.full_name || ''
-            }
+      if (error) throw error;
+      
+      // Transform the data to match the expected Member interface
+      const transformedMembers: Member[] = data?.map(member => ({
+        id: member.id,
+        user_id: member.student_id,
+        group_id: member.group_id,
+        joined_at: member.joined_at,
+        user: {
+          id: member.profiles?.id || '',
+          email: member.profiles?.email || '',
+          user_metadata: {
+            avatar_url: member.profiles?.avatar_url || '',
+            full_name: member.profiles?.full_name || ''
           }
-        })) || [];
-        
-        setMembers(transformedMembers);
-      } catch (error) {
-        console.error('Error fetching group members:', error);
-        toast.error('Failed to load group members');
-      } finally {
-        setLoading(false);
-      }
-    };
+        }
+      })) || [];
 
-    fetchGroupDetails();
-    fetchGroupMembers();
-  }, [groupId]);
+      setMembers(transformedMembers);
+    } catch (err) {
+      console.error('Error fetching members:', err);
+      setError('Failed to load group members');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const copyGroupCode = () => {
+    if (group?.group_code) {
+      navigator.clipboard.writeText(group.group_code);
+      toast({
+        title: "Code copied!",
+        description: "Group code copied to clipboard",
+      });
+    }
+  };
 
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="p-6">
-          <h2 className="text-2xl font-semibold mb-4">Loading group details...</h2>
+        <div className="flex justify-center items-center h-64">
+          <div className="text-lg">Loading group details...</div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (error || !group) {
+    return (
+      <DashboardLayout>
+        <div className="flex justify-center items-center h-64">
+          <div className="text-lg text-red-500">{error || 'Group not found'}</div>
         </div>
       </DashboardLayout>
     );
@@ -139,69 +163,114 @@ const GroupDetailPage = () => {
 
   return (
     <DashboardLayout>
-      <div className="p-6">
-        <h2 className="text-3xl font-semibold mb-6">{groupDetails?.name}</h2>
-        
-        {/* Group Information */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <Card className="p-6">
-            <h2 className="text-xl font-semibold mb-4">Group Information</h2>
-            <div className="space-y-4">
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/groups')}
+              className="flex items-center space-x-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              <span>Back to Groups</span>
+            </Button>
+            <h1 className="text-2xl font-bold">{group.name}</h1>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Badge variant={group.is_public ? "default" : "secondary"}>
+              {group.is_public ? "Public" : "Private"}
+            </Badge>
+            <Button variant="outline" size="sm">
+              <Settings className="h-4 w-4 mr-2" />
+              Settings
+            </Button>
+          </div>
+        </div>
+
+        {/* Group Info */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <Users className="h-5 w-5" />
+              <span>Group Information</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <h3 className="font-semibold">Description</h3>
+              <p className="text-muted-foreground">{group.description}</p>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium text-gray-600">Group Name</label>
-                <p className="text-lg font-semibold">{groupDetails?.name}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-600">Description</label>
-                <p className="text-gray-700">{groupDetails?.description}</p>
-              </div>
-              {groupDetails?.is_code_visible && (
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Group Code</label>
-                  <p className="text-lg font-mono bg-gray-100 px-2 py-1 rounded">{groupDetails?.group_code}</p>
+                <h3 className="font-semibold">Group Code</h3>
+                <div className="flex items-center space-x-2">
+                  <code className="bg-muted px-2 py-1 rounded text-sm">
+                    {group.group_code}
+                  </code>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={copyGroupCode}
+                  >
+                    <Copy className="h-4 w-4" />
+                  </Button>
                 </div>
-              )}
-              <div>
-                <label className="text-sm font-medium text-gray-600">Created</label>
-                <p className="text-gray-700">{groupDetails?.created_at ? new Date(groupDetails.created_at).toLocaleDateString() : 'Unknown'}</p>
               </div>
+              
               <div>
-                <label className="text-sm font-medium text-gray-600">Max Members</label>
-                <p className="text-gray-700">{groupDetails?.max_members ?? 'Unlimited'}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-600">Visibility</label>
-                <p className="text-gray-700">{groupDetails?.is_public ? 'Public' : 'Private'}</p>
+                <h3 className="font-semibold">Members</h3>
+                <p className="text-muted-foreground">
+                  {members.length} / {group.max_members} members
+                </p>
               </div>
             </div>
-          </Card>
+          </CardContent>
+        </Card>
 
-          {/* Members List */}
-          {groupDetails?.is_members_visible && (
-            <Card className="p-6">
-              <h2 className="text-xl font-semibold mb-4">Members</h2>
-              <ul>
-                {members.map((member) => (
-                  <li key={member.id} className="py-2 border-b last:border-b-0">
-                    <div className="flex items-center space-x-3">
-                      {member.user.user_metadata.avatar_url && (
-                        <img
-                          src={member.user.user_metadata.avatar_url}
-                          alt={member.user.user_metadata.full_name}
-                          className="w-8 h-8 rounded-full"
-                        />
-                      )}
-                      <div>
-                        <p className="font-medium">{member.user.user_metadata.full_name || member.user.email}</p>
-                        <p className="text-gray-500 text-sm">{member.user.email}</p>
-                      </div>
+        {/* Members List */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <span>Members ({members.length})</span>
+              <Button size="sm">
+                <UserPlus className="h-4 w-4 mr-2" />
+                Invite Members
+              </Button>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {members.map((member) => (
+                <div
+                  key={member.id}
+                  className="flex items-center justify-between p-3 border rounded-lg"
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                      <span className="text-white font-semibold text-sm">
+                        {member.user.user_metadata.full_name?.charAt(0) || 'U'}
+                      </span>
                     </div>
-                  </li>
-                ))}
-              </ul>
-            </Card>
-          )}
-        </div>
+                    <div>
+                      <p className="font-medium">
+                        {member.user.user_metadata.full_name || 'Unknown User'}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {member.user.email}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Joined {new Date(member.joined_at).toLocaleDateString()}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </DashboardLayout>
   );
