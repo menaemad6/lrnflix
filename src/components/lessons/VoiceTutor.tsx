@@ -289,9 +289,9 @@ export const VoiceTutor: React.FC<VoiceTutorProps> = ({
             </div>
             
             {/* Premium Badge */}
-            <Badge variant="secondary" className="px-4 py-2 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border-yellow-500/30">
-              <Zap className="h-4 w-4 text-yellow-500 mr-2" />
-              <span className="text-yellow-600 dark:text-yellow-400 font-semibold">Premium Feature</span>
+            <Badge variant="primary" className="px-4 py-2 bg-gradient-to-r from-emerald-500/20 to-emerald-400/20 border-emerald-500/30">
+              <Zap className="h-4 w-4 text-emerald-500 mr-2" />
+              <span className="text-emerald-600 dark:text-emerald-400 font-semibold">Premium Feature</span>
             </Badge>
           </div>
 

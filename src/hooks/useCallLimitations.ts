@@ -205,6 +205,29 @@ export const useCallLimitations = (lessonId: string) => {
     }
   };
 
+  const updateCallDuration = async (callId: string, durationMinutes: number) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return false;
+
+      const { error } = await supabase
+        .from('student_call_history')
+        .update({
+          call_duration_minutes: durationMinutes
+        })
+        .eq('id', callId);
+
+      if (error) {
+        console.error('Error updating call duration:', error);
+        return false;
+      }
+      return true;
+    } catch (error) {
+      console.error('Error in updateCallDuration:', error);
+      return false;
+    }
+  };
+
   const getMaxCallDuration = (requestedMinutes: number): number => {
     return Math.min(requestedMinutes, data.totalAvailableMinutes);
   };
@@ -213,6 +236,7 @@ export const useCallLimitations = (lessonId: string) => {
     ...data,
     recordCallStart,
     recordCallEnd,
+    updateCallDuration,
     getMaxCallDuration,
     refreshLimitations: fetchCallLimitations
   };

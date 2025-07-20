@@ -1,6 +1,6 @@
 
 export const generateQuestionTitle = async (content: string): Promise<string> => {
-  const apiKey = localStorage.getItem('GEMINI_API_KEY');
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
   if (!apiKey) {
     throw new Error('Gemini API key not found. Please set it in the settings.');
   }

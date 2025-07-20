@@ -12,7 +12,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Plus, Trash2, Save, Sparkles, Zap, Upload, FileJson } from 'lucide-react';
 import { PdfQuestionExtractor } from '@/components/quizzes/PdfQuestionExtractor';
-import { GeminiApiKeyInput } from '@/components/quizzes/GeminiApiKeyInput';
 import { answerSingleQuestion, answerAllQuestions } from '@/utils/geminiApi';
 
 interface Quiz {
@@ -423,8 +422,6 @@ export const QuizEditor = () => {
           </Button>
         </div>
       </div>
-
-      <GeminiApiKeyInput />
 
       <Card>
         <CardHeader>

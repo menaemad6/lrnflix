@@ -46,7 +46,7 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
   }
 
   return (
-    <div className="fixed inset-0 bg-gradient-to-br from-gray-900 via-black to-gray-800 backdrop-blur-sm z-50 flex flex-col h-screen">
+    <div className="fixed inset-0 bg-gradient-to-br from-gray-900 via-black to-gray-800 backdrop-blur-sm z-[9999] pointer-events-auto flex flex-col h-screen">
       {/* Animated background particles */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl animate-pulse"></div>

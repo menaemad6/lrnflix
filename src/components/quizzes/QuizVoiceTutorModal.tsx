@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useCallLimitations } from '@/hooks/useCallLimitations';
 import { useVapiCall } from '@/hooks/useVapiCall';
-import { CallInterface } from '@/components/lessons/CallInterface';
 import { MinutesPurchaseModal } from '@/components/lessons/MinutesPurchaseModal';
 import { MessageCircle, Clock, Brain, AlertCircle, CreditCard, ShoppingCart, Sparkles } from 'lucide-react';
 
@@ -18,6 +17,14 @@ interface QuizVoiceTutorModalProps {
   };
   userAnswer: string;
   lessonId: string;
+  onStartCall: (duration: number) => void;
+  onEndCall: () => void;
+  isCallActive: boolean;
+  isConnecting: boolean;
+  isUserSpeaking: boolean;
+  isAssistantSpeaking: boolean;
+  selectedDuration: number;
+  setSelectedDuration: (duration: number) => void;
 }
 
 export const QuizVoiceTutorModal = ({ 
@@ -25,16 +32,21 @@ export const QuizVoiceTutorModal = ({
   onOpenChange, 
   question, 
   userAnswer, 
-  lessonId 
+  lessonId, 
+  onStartCall,
+  onEndCall,
+  isCallActive,
+  isConnecting,
+  isUserSpeaking,
+  isAssistantSpeaking,
+  selectedDuration,
+  setSelectedDuration
 }: QuizVoiceTutorModalProps) => {
-  const [selectedDuration, setSelectedDuration] = useState<number>(5);
-  const [showCallInterface, setShowCallInterface] = useState(false);
+  // Local modal open state for decoupling from call interface
+  const [modalOpen, setModalOpen] = useState(open);
+  useEffect(() => { setModalOpen(open); }, [open]);
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
-  const [callTimer, setCallTimer] = useState<NodeJS.Timeout | null>(null);
   const [remainingTime, setRemainingTime] = useState(0);
-  const [currentCallId, setCurrentCallId] = useState<string | null>(null);
-  const [callStartTime, setCallStartTime] = useState<Date | null>(null);
-  const { startCall, endCall, isCallActive, isConnecting, isUserSpeaking, isAssistantSpeaking } = useVapiCall();
   const {
     dailyMinutesLimit,
     minutesUsedToday,
@@ -62,17 +74,13 @@ export const QuizVoiceTutorModal = ({
   // Cleanup timer on unmount
   React.useEffect(() => {
     return () => {
-      if (callTimer) {
-        clearInterval(callTimer);
-      }
+      // No callTimer to clear here as it's managed by parent
     };
-  }, [callTimer]);
+  }, []);
 
   // End call when timer reaches zero
   React.useEffect(() => {
-    if (remainingTime <= 0 && isCallActive) {
-      handleEndCall();
-    }
+    // No callTimer to manage remainingTime here as it's managed by parent
   }, [remainingTime, isCallActive]);
 
   const formatTime = (seconds: number) => {
@@ -81,74 +89,26 @@ export const QuizVoiceTutorModal = ({
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const handleStartCall = async () => {
-    const maxDuration = getMaxCallDuration(selectedDuration);
-    
-    try {
-      // Record call start in database
-      const callId = await recordCallStart(lessonId);
-      if (!callId) {
-        console.error('Failed to start call. Please try again.');
-        return;
-      }
-
-      setCurrentCallId(callId);
-      setCallStartTime(new Date());
-
-      startCall({
-        agentId: '0c9bf22f-c4bb-4365-93a1-1a2e62016686',
-        publicKey: '671e1651-92fb-4bd5-952a-75ea7b42eb8a',
-        question: question?.question_text || 'No question available',
-        studentAnswer: userAnswer || 'Not answered',
-        correctAnswer: question?.correct_answer || 'No correct answer',
-        callLength: `${maxDuration} minutes`
-      });
-
-      setShowCallInterface(true);
-      
-      // Start countdown timer with the actual allowed minutes
-      setRemainingTime(maxDuration * 60); // Convert to seconds
-      const timer = setInterval(() => {
-        setRemainingTime(prev => Math.max(0, prev - 1));
-      }, 1000);
-      setCallTimer(timer);
-      
-    } catch (error) {
-      console.error('Failed to start call:', error);
-      setCurrentCallId(null);
-      setCallStartTime(null);
-    }
-  };
-
   const handleEndCall = async () => {
     // Clear timer
-    if (callTimer) {
-      clearInterval(callTimer);
-      setCallTimer(null);
-    }
+    // No callTimer to clear here
     
     // Calculate actual duration
-    const actualDurationMinutes = callStartTime 
-      ? Math.ceil((Date.now() - callStartTime.getTime()) / (1000 * 60))
-      : Math.ceil((selectedDuration * 60 - remainingTime) / 60);
+    // No callStartTime to calculate actual duration here
     
     // Record call end in database
-    if (currentCallId) {
-      await recordCallEnd(currentCallId, actualDurationMinutes);
-      setCurrentCallId(null);
-    }
+    // No currentCallId to record here
     
-    endCall();
+    onEndCall();
     setRemainingTime(0);
-    setCallStartTime(null);
-    setShowCallInterface(false);
+    // No callStartTime to set here
   };
 
   // Don't render if question is null or invalid
   if (!question || !question.question_text) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md z-[10000]">
           <div className="text-center p-8">
             <AlertCircle className="h-12 w-12 text-orange-500 mx-auto mb-3" />
             <h3 className="font-semibold text-lg mb-2">Question Not Available</h3>
@@ -165,7 +125,7 @@ export const QuizVoiceTutorModal = ({
   if (loading) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md z-[10000]">
           <div className="flex items-center justify-center p-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
           </div>
@@ -174,10 +134,22 @@ export const QuizVoiceTutorModal = ({
     );
   }
 
+
   return (
     <>
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-2xl">
+      {/* Always render CallInterface if isCallActive, before the modal so the modal is on top */}
+      {/* Remove all rendering of <CallInterface ... /> from this file.
+          // Only keep modal and modalOpen logic. */}
+      <Dialog open={modalOpen} onOpenChange={isOpen => {
+        if (!isCallActive) {
+          onOpenChange(isOpen);
+          setModalOpen(isOpen);
+        } else if (!isOpen) {
+          // Only hide the modal, do not end the call
+          setModalOpen(false);
+        }
+      }}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto scrollbar-thin scrollbar-thumb-emerald-500 scrollbar-track-background z-[10000]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-3 text-xl">
               <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
@@ -196,7 +168,7 @@ export const QuizVoiceTutorModal = ({
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div>
                     <span className="font-medium">Your Answer: </span>
-                    <span className="text-orange-600">{userAnswer || 'Not answered'}</span>
+                    <span className={userAnswer === question.correct_answer ? 'text-emerald-500' : 'text-destructive'}>{userAnswer || 'Not answered'}</span>
                   </div>
                   <div>
                     <span className="font-medium">Correct Answer: </span>
@@ -251,7 +223,7 @@ export const QuizVoiceTutorModal = ({
                 </Card>
 
                 {/* Purchased Minutes Display */}
-                {purchasedMinutes > 0 && (
+                {remainingMinutes === 0 && purchasedMinutes > 0 && (
                   <Card className="bg-card/50 backdrop-blur-sm border-border/50 rounded-xl">
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between mb-3">
@@ -400,7 +372,7 @@ export const QuizVoiceTutorModal = ({
               </Button>
               {!isCallActive && canStartCall && (
                 <Button 
-                  onClick={handleStartCall}
+                  onClick={() => onStartCall(selectedDuration)}
                   disabled={isConnecting || isCallActive}
                   className="flex-1"
                 >
@@ -421,17 +393,6 @@ export const QuizVoiceTutorModal = ({
           </div>
         </DialogContent>
       </Dialog>
-
-      {/* Call Interface Modal */}
-      <CallInterface
-        onEndCall={handleEndCall}
-        isCallActive={isCallActive}
-        isConnecting={isConnecting}
-        isUserSpeaking={isUserSpeaking}
-        isAssistantSpeaking={isAssistantSpeaking}
-        remainingTime={remainingTime}
-      />
-
       {/* Minutes Purchase Modal */}
       <MinutesPurchaseModal
         isOpen={showPurchaseModal}

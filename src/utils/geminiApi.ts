@@ -19,7 +19,7 @@ interface BulkAnswerResponse {
 }
 
 export const answerSingleQuestion = async (question: QuestionData): Promise<AnswerResponse> => {
-  const apiKey = localStorage.getItem('GEMINI_API_KEY');
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
   if (!apiKey) {
     throw new Error('Gemini API key not found. Please set it in the settings.');
   }
@@ -88,7 +88,7 @@ Always be confident and provide the most accurate answer possible.`;
 };
 
 export const answerAllQuestions = async (questions: QuestionData[]): Promise<BulkAnswerResponse> => {
-  const apiKey = localStorage.getItem('GEMINI_API_KEY');
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
   if (!apiKey) {
     throw new Error('Gemini API key not found. Please set it in the settings.');
   }

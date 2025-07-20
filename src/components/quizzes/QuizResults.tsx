@@ -3,7 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, XCircle, Award, ArrowLeft, Brain, Sparkles } from 'lucide-react';
-import { QuizVoiceTutorModal } from './QuizVoiceTutorModal';
 import { QuizChoiceModal } from './QuizChoiceModal';
 import { useVapiCall } from '@/hooks/useVapiCall';
 import { useChatbot } from '@/contexts/ChatbotContext';
@@ -39,6 +38,8 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
   const { openChatbot, sendSystemMessage } = useChatbot();
   const [selectedQuestion, setSelectedQuestion] = useState<any>(null);
   const [showVoiceModal, setShowVoiceModal] = useState(false);
+  // Remove showCallInterface, handleStartCall, handleEndCall, and related state/logic from QuizResults
+  // Only pass open, onOpenChange, question, userAnswer, lessonId to QuizTutor
   const [showChoiceModal, setShowChoiceModal] = useState(false);
 
   const getAnswerStatus = (questionId: string) => {
@@ -89,12 +90,26 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
   };
 
   const handleVoiceCallSelected = () => {
-    // Open the voice tutor modal
     setShowVoiceModal(true);
   };
+  // Remove handleStartCall and handleEndCall from QuizResults
+  // const handleStartCall = () => {
+  //   setShowCallInterface(true);
+  // };
+  // const handleEndCall = () => {
+  //   setShowCallInterface(false);
+  // };
+
+  const correctCount = questions.filter(q => getAnswerStatus(q.id)).length;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background p-6">
+      {/* Always render CallInterface at the root if isCallActive */}
+      {isCallActive && (
+        <div className="fixed inset-0 z-[100]">
+          {/* QuizTutor component is removed, so this block is no longer needed */}
+        </div>
+      )}
       <div className="max-w-4xl mx-auto space-y-8">
         {/* Results Header */}
         <Card className={`relative overflow-hidden shadow-2xl ${
@@ -137,7 +152,7 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
                 <div className="text-muted-foreground font-medium">Answered</div>
               </div>
               <div className="p-6 bg-card/80 backdrop-blur-sm rounded-2xl border shadow-lg">
-                <div className="text-3xl font-bold text-primary mb-2">{score}</div>
+                <div className="text-3xl font-bold text-primary mb-2">{correctCount}</div>
                 <div className="text-muted-foreground font-medium">Correct</div>
               </div>
             </div>
@@ -301,15 +316,7 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
       )}
 
       {/* Voice Tutor Modal */}
-      {showVoiceModal && selectedQuestion && (
-        <QuizVoiceTutorModal
-          open={showVoiceModal}
-          onOpenChange={setShowVoiceModal}
-          question={selectedQuestion}
-          userAnswer={selectedQuestion.userAnswer || ''}
-          lessonId={selectedQuestion.id || ''}
-        />
-      )}
+      {/* QuizTutor component is removed, so this block is no longer needed */}
     </div>
   );
 };

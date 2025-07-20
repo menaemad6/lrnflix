@@ -70,6 +70,7 @@ export const StudentQuizTaker = ({ quiz, courseId, onBackToCourse }: StudentQuiz
   const [autoSaveInterval, setAutoSaveInterval] = useState<NodeJS.Timeout | null>(null);
   const [autoSaveStatus, setAutoSaveStatus] = useState<'saved' | 'saving' | 'error'>('saved');
   const [isResuming, setIsResuming] = useState(false);
+  const [submitDisabled, setSubmitDisabled] = useState(false);
 
   // Auto-save answers every 20 seconds
   const autoSaveAnswers = useCallback(async () => {
@@ -333,21 +334,22 @@ export const StudentQuizTaker = ({ quiz, courseId, onBackToCourse }: StudentQuiz
 
   const handleAnswerChange = (questionId: string, answer: string) => {
     setAnswers(prev => ({ ...prev, [questionId]: answer }));
-    
-    // Auto-save immediately when answer changes
     if (currentAttempt) {
+      setSubmitDisabled(true);
       setTimeout(() => {
         autoSaveAnswers();
         saveToLocalStorage();
-      }, 1000); // Debounce for 1 second
+        setSubmitDisabled(false);
+      }, 500); // Debounce for 0.5s
     }
   };
 
   const handleSubmit = async () => {
-    if (!currentAttempt) return;
-
+    if (!currentAttempt || submitDisabled) return;
     setSubmitting(true);
     try {
+      // Flush any pending answer state
+      await new Promise(resolve => setTimeout(resolve, 10));
       // Calculate score
       let score = 0;
       questions.forEach(question => {
@@ -356,7 +358,6 @@ export const StudentQuizTaker = ({ quiz, courseId, onBackToCourse }: StudentQuiz
           score += question.points;
         }
       });
-
       const { error } = await supabase
         .from('quiz_attempts')
         .update({
@@ -365,24 +366,21 @@ export const StudentQuizTaker = ({ quiz, courseId, onBackToCourse }: StudentQuiz
           submitted_at: new Date().toISOString()
         })
         .eq('id', currentAttempt.id);
-
       if (error) throw error;
-
-      // Clear localStorage immediately after successful submission
       clearLocalStorage();
-
+      setAnswers({});
+      setCurrentAttempt(null);
+      setIsResuming(false);
       setQuizResults({
         score,
         maxScore: currentAttempt.max_score,
         questions,
         userAnswers: answers
       });
-
       if (autoSaveInterval) {
         clearInterval(autoSaveInterval);
         setAutoSaveInterval(null);
       }
-
       if (quiz.show_results) {
         setShowResults(true);
       } else {
@@ -392,8 +390,6 @@ export const StudentQuizTaker = ({ quiz, courseId, onBackToCourse }: StudentQuiz
         });
         onBackToCourse();
       }
-
-      setCurrentAttempt(null);
       setTimeLeft(null);
       fetchQuizData();
     } catch (error: any) {
@@ -637,7 +633,7 @@ export const StudentQuizTaker = ({ quiz, courseId, onBackToCourse }: StudentQuiz
                   {currentQuestionIndex === questions.length - 1 ? (
                     <Button 
                       onClick={handleSubmit} 
-                      disabled={submitting}
+                      disabled={submitting || submitDisabled}
                       className="px-8"
                     >
                       <Send className="h-4 w-4 mr-2" />

@@ -9,10 +9,12 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Plus, Trash2, Save, Sparkles, Zap, FileJson } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Save, Sparkles, Zap, FileJson, ArrowDown, ArrowUp } from 'lucide-react';
 import { PdfQuestionExtractor } from './PdfQuestionExtractor';
-import { GeminiApiKeyInput } from './GeminiApiKeyInput';
 import { answerSingleQuestion, answerAllQuestions } from '@/utils/geminiApi';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Link } from 'react-router-dom';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 
 interface Quiz {
   id: string;
@@ -68,6 +70,22 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
     question_navigation: true
   });
 
+  const [attempts, setAttempts] = useState<any[]>([]);
+  const [attemptsLoading, setAttemptsLoading] = useState(false);
+  const [attemptsSearch, setAttemptsSearch] = useState('');
+  const [searchField, setSearchField] = useState<'name' | 'email' | 'score'>('name');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'submitted' | 'not_submitted'>('all');
+  const [scoreMin, setScoreMin] = useState('');
+  const [scoreMax, setScoreMax] = useState('');
+  const [sortField, setSortField] = useState<'name' | 'email' | 'score' | 'started_at' | 'submitted_at'>('submitted_at');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [openAnswersModal, setOpenAnswersModal] = useState(false);
+  const [modalAnswers, setModalAnswers] = useState<any>(null);
+  const [modalAttempt, setModalAttempt] = useState<any>(null);
+  const [modalQuestions, setModalQuestions] = useState<any[]>([]);
+  const [modalScore, setModalScore] = useState<number | null>(null);
+  const [modalSort, setModalSort] = useState<'none' | 'correct' | 'incorrect'>('none');
+
   const isNewQuiz = quizId === 'new';
 
   useEffect(() => {
@@ -79,6 +97,60 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
       }
     }
   }, [courseId, quizId]);
+
+  useEffect(() => {
+    const fetchAttempts = async () => {
+      setAttemptsLoading(true);
+      try {
+        const { data: attemptsData, error: attemptsError } = await supabase
+          .from('quiz_attempts')
+          .select('*')
+          .eq('quiz_id', quizId)
+          .order('submitted_at', { ascending: false });
+        if (attemptsError) throw attemptsError;
+        // Fetch student profiles
+        const studentIds = Array.from(new Set((attemptsData || []).map(a => a.student_id)));
+        let profilesMap: Record<string, { full_name: string; email: string }> = {};
+        if (studentIds.length > 0) {
+          const { data: profilesData } = await supabase
+            .from('profiles')
+            .select('id, full_name, email')
+            .in('id', studentIds);
+          profilesMap = (profilesData || []).reduce((acc, p) => {
+            acc[p.id] = { full_name: p.full_name, email: p.email };
+            return acc;
+          }, {} as Record<string, { full_name: string; email: string }>);
+        }
+        setAttempts((attemptsData || []).map(a => ({
+          ...a,
+          student_name: profilesMap[a.student_id]?.full_name || 'Unknown',
+          student_email: profilesMap[a.student_id]?.email || '',
+        })));
+      } catch (error) {
+        setAttempts([]);
+      } finally {
+        setAttemptsLoading(false);
+      }
+    };
+    fetchAttempts();
+  }, [quizId]);
+
+  useEffect(() => {
+    if (openAnswersModal && modalAttempt) {
+      setModalScore(typeof modalAttempt.score === 'number' ? modalAttempt.score : null);
+      // Fetch questions for this quiz
+      (async () => {
+        const { data: questionsData } = await supabase
+          .from('quiz_questions')
+          .select('id, question_text, correct_answer')
+          .eq('quiz_id', quizId)
+          .order('order_index');
+        setModalQuestions(questionsData || []);
+      })();
+    } else if (!openAnswersModal) {
+      setModalQuestions([]);
+    }
+  }, [openAnswersModal, modalAttempt, quizId]);
 
   const fetchQuizData = async () => {
     try {
@@ -410,6 +482,68 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
     );
   }
 
+  const getFilteredAttempts = () => {
+    let filtered = attempts.filter(a => {
+      const q = attemptsSearch.toLowerCase();
+      if (q) {
+        if (searchField === 'name' && !a.student_name?.toLowerCase().includes(q)) return false;
+        if (searchField === 'email' && !a.student_email?.toLowerCase().includes(q)) return false;
+        if (searchField === 'score' && !(typeof a.score === 'number' && a.score.toString().includes(q))) return false;
+      }
+      if (statusFilter === 'submitted' && !a.submitted_at) return false;
+      if (statusFilter === 'not_submitted' && a.submitted_at) return false;
+      if (scoreMin && (typeof a.score !== 'number' || a.score < Number(scoreMin))) return false;
+      if (scoreMax && (typeof a.score !== 'number' || a.score > Number(scoreMax))) return false;
+      return true;
+    });
+    filtered = filtered.sort((a, b) => {
+      let aVal, bVal;
+      switch (sortField) {
+        case 'name':
+          aVal = a.student_name?.toLowerCase() || '';
+          bVal = b.student_name?.toLowerCase() || '';
+          break;
+        case 'email':
+          aVal = a.student_email?.toLowerCase() || '';
+          bVal = b.student_email?.toLowerCase() || '';
+          break;
+        case 'score':
+          aVal = typeof a.score === 'number' ? a.score : -Infinity;
+          bVal = typeof b.score === 'number' ? b.score : -Infinity;
+          break;
+        case 'started_at':
+          aVal = a.started_at || '';
+          bVal = b.started_at || '';
+          break;
+        case 'submitted_at':
+          aVal = a.submitted_at || '';
+          bVal = b.submitted_at || '';
+          break;
+        default:
+          aVal = '';
+          bVal = '';
+      }
+      if (aVal < bVal) return sortOrder === 'asc' ? -1 : 1;
+      if (aVal > bVal) return sortOrder === 'asc' ? 1 : -1;
+      return 0;
+    });
+    return filtered;
+  };
+  const filteredAttempts = getFilteredAttempts();
+
+  function normalizeAnswers(answers: any): Record<string, string> {
+    if (!answers) return {};
+    if (typeof answers === 'string') {
+      try {
+        return JSON.parse(answers);
+      } catch {
+        return {};
+      }
+    }
+    if (typeof answers === 'object') return answers;
+    return {};
+  }
+
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center gap-4">
@@ -429,8 +563,6 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
           </Button>
         </div>
       </div>
-
-      <GeminiApiKeyInput />
 
       <Card>
         <CardHeader>
@@ -531,161 +663,384 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Add Questions</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Tabs defaultValue="manual" className="space-y-4">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="manual">Manual Entry</TabsTrigger>
-              <TabsTrigger value="json">JSON Import</TabsTrigger>
-              <TabsTrigger value="pdf">PDF Extraction</TabsTrigger>
-            </TabsList>
+      <Tabs defaultValue="questions" className="space-y-6 mt-8">
+        <TabsList className="card border border-border bg-card p-2">
+          <TabsTrigger value="questions" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-500/20 data-[state=active]:to-teal-500/20 data-[state=active]:text-emerald-300 data-[state=active]:border data-[state=active]:border-emerald-500/30 transition-all duration-300">
+            Questions
+          </TabsTrigger>
+          <TabsTrigger value="attempts" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-500/20 data-[state=active]:to-teal-500/20 data-[state=active]:text-emerald-300 data-[state=active]:border data-[state=active]:border-emerald-500/30 transition-all duration-300">
+            Attempts
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent value="questions" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Add Questions</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Tabs defaultValue="manual" className="space-y-4">
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="manual">Manual Entry</TabsTrigger>
+                  <TabsTrigger value="json">JSON Import</TabsTrigger>
+                  <TabsTrigger value="pdf">PDF Extraction</TabsTrigger>
+                </TabsList>
 
-            <TabsContent value="manual" className="space-y-4">
-              <div className="flex justify-between items-center">
-                <p className="text-muted-foreground">Add questions manually</p>
-                <div className="flex gap-2">
-                  <Button
-                    onClick={handleAnswerAllQuestions}
-                    disabled={answeringAll || questions.length === 0}
-                    variant="outline"
-                    className="bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0 hover:from-purple-600 hover:to-pink-600"
-                  >
-                    <Zap className="h-4 w-4 mr-2" />
-                    {answeringAll ? 'Answering All...' : 'Answer All with AI'}
-                  </Button>
-                  <Button onClick={addQuestion}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Question
-                  </Button>
-                </div>
-              </div>
-            </TabsContent>
+                <TabsContent value="manual" className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <p className="text-muted-foreground">Add questions manually</p>
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={handleAnswerAllQuestions}
+                        disabled={answeringAll || questions.length === 0}
+                        variant="outline"
+                        className="bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0 hover:from-purple-600 hover:to-pink-600"
+                      >
+                        <Zap className="h-4 w-4 mr-2" />
+                        {answeringAll ? 'Answering All...' : 'Answer All with AI'}
+                      </Button>
+                      <Button onClick={addQuestion}>
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Question
+                      </Button>
+                    </div>
+                  </div>
+                </TabsContent>
 
-            <TabsContent value="json" className="space-y-4">
-              <div className="space-y-2">
-                <Label>JSON Format: [{`{question, correctAnswer, choice_1, choice_2, choice_3, choice_4}`}, ...]</Label>
-                <Textarea
-                  placeholder='[{"question": "What is 2+2?", "correctAnswer": "4", "choice_1": "3", "choice_2": "4", "choice_3": "5", "choice_4": "6"}]'
-                  value={jsonInput}
-                  onChange={(e) => setJsonInput(e.target.value)}
-                  rows={8}
-                />
-                <Button onClick={handleJsonImport} disabled={!jsonInput.trim()}>
-                  <FileJson className="h-4 w-4 mr-2" />
-                  Import Questions
-                </Button>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="pdf" className="space-y-4">
-              <PdfQuestionExtractor onQuestionsExtracted={handleExtractedQuestions} />
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Questions ({questions.length})</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {questions.map((question, index) => (
-            <Card key={index}>
-              <CardContent className="p-4 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h4 className="font-medium">Question {index + 1}</h4>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleAnswerSingleQuestion(index)}
-                      disabled={answeringQuestion === index || !question.question_text.trim()}
-                      className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white border-0 hover:from-blue-600 hover:to-cyan-600"
-                    >
-                      <Sparkles className="h-4 w-4 mr-1" />
-                      {answeringQuestion === index ? 'AI Answering...' : 'AI Answer'}
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => removeQuestion(index)}
-                    >
-                      <Trash2 className="h-4 w-4" />
+                <TabsContent value="json" className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>JSON Format: [{`{question, correctAnswer, choice_1, choice_2, choice_3, choice_4}`}, ...]</Label>
+                    <Textarea
+                      placeholder='[{"question": "What is 2+2?", "correctAnswer": "4", "choice_1": "3", "choice_2": "4", "choice_3": "5", "choice_4": "6"}]'
+                      value={jsonInput}
+                      onChange={(e) => setJsonInput(e.target.value)}
+                      rows={8}
+                    />
+                    <Button onClick={handleJsonImport} disabled={!jsonInput.trim()}>
+                      <FileJson className="h-4 w-4 mr-2" />
+                      Import Questions
                     </Button>
                   </div>
-                </div>
+                </TabsContent>
 
-                <Textarea
-                  placeholder="Question text"
-                  value={question.question_text}
-                  onChange={(e) => updateQuestion(index, 'question_text', e.target.value)}
-                />
+                <TabsContent value="pdf" className="space-y-4">
+                  <PdfQuestionExtractor onQuestionsExtracted={handleExtractedQuestions} />
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
 
-                <div className="grid grid-cols-3 gap-4">
-                  <Select
-                    value={question.question_type}
-                    onValueChange={(value) => updateQuestion(index, 'question_type', value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="mcq">Multiple Choice</SelectItem>
-                      <SelectItem value="written">Written Answer</SelectItem>
-                    </SelectContent>
-                  </Select>
-
-                  <Input
-                    type="number"
-                    placeholder="Points"
-                    value={question.points}
-                    onChange={(e) => updateQuestion(index, 'points', parseInt(e.target.value))}
-                  />
-                </div>
-
-                {question.question_type === 'mcq' && (
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Options:</label>
-                    {question.options?.map((option, optIndex) => (
-                      <div key={optIndex} className="flex gap-2">
-                        <Input
-                          placeholder={`Option ${optIndex + 1}`}
-                          value={option}
-                          onChange={(e) => updateOption(index, optIndex, e.target.value)}
-                        />
+          <Card>
+            <CardHeader>
+              <CardTitle>Questions ({questions.length})</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {questions.map((question, index) => (
+                <Card key={index}>
+                  <CardContent className="p-4 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-medium">Question {index + 1}</h4>
+                      <div className="flex gap-2">
                         <Button
-                          type="button"
-                          variant={question.correct_answer === option ? "default" : "outline"}
-                          onClick={() => updateQuestion(index, 'correct_answer', option)}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleAnswerSingleQuestion(index)}
+                          disabled={answeringQuestion === index || !question.question_text.trim()}
+                          className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white border-0 hover:from-blue-600 hover:to-cyan-600"
                         >
-                          Correct
+                          <Sparkles className="h-4 w-4 mr-1" />
+                          {answeringQuestion === index ? 'AI Answering...' : 'AI Answer'}
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => removeQuestion(index)}
+                        >
+                          <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
+                    </div>
+
+                    <Textarea
+                      placeholder="Question text"
+                      value={question.question_text}
+                      onChange={(e) => updateQuestion(index, 'question_text', e.target.value)}
+                    />
+
+                    <div className="grid grid-cols-3 gap-4">
+                      <Select
+                        value={question.question_type}
+                        onValueChange={(value) => updateQuestion(index, 'question_type', value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="mcq">Multiple Choice</SelectItem>
+                          <SelectItem value="written">Written Answer</SelectItem>
+                        </SelectContent>
+                      </Select>
+
+                      <Input
+                        type="number"
+                        placeholder="Points"
+                        value={question.points}
+                        onChange={(e) => updateQuestion(index, 'points', parseInt(e.target.value))}
+                      />
+                    </div>
+
+                    {question.question_type === 'mcq' && (
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Options:</label>
+                        {question.options?.map((option, optIndex) => (
+                          <div key={optIndex} className="flex gap-2">
+                            <Input
+                              placeholder={`Option ${optIndex + 1}`}
+                              value={option}
+                              onChange={(e) => updateOption(index, optIndex, e.target.value)}
+                            />
+                            <Button
+                              type="button"
+                              variant={question.correct_answer === option ? "default" : "outline"}
+                              onClick={() => updateQuestion(index, 'correct_answer', option)}
+                            >
+                              Correct
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {question.question_type === 'written' && (
+                      <Input
+                        placeholder="Expected answer/keywords"
+                        value={question.correct_answer}
+                        onChange={(e) => updateQuestion(index, 'correct_answer', e.target.value)}
+                      />
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+
+              {questions.length === 0 && (
+                <div className="text-center py-8 text-muted-foreground">
+                  <p>No questions added yet. Use the tabs above to add questions.</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent value="attempts" className="space-y-6">
+          <Card className="card border border-border bg-card">
+            <CardHeader>
+              <CardTitle className="text-xl text-emerald-400">Student Attempts</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="mb-4 flex items-center gap-2">
+                <Select value={searchField} onValueChange={v => setSearchField(v as 'name' | 'email' | 'score')}>
+                  <SelectTrigger className="w-36 text-emerald-200 focus:ring-emerald-400">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="name">Name</SelectItem>
+                    <SelectItem value="email">Email</SelectItem>
+                    <SelectItem value="score">Score</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Input
+                  type="text"
+                  className="w-full  text-emerald-200 placeholder:text-emerald-300/60 focus:ring-emerald-400"
+                  placeholder={`Search by ${searchField}...`}
+                  value={attemptsSearch}
+                  onChange={e => setAttemptsSearch(e.target.value)}
+                />
+              </div>
+              {/* Filters and sorting row */}
+              <div className="mb-4 flex flex-col md:flex-row flex-wrap items-stretch gap-2 w-full">
+                <Select value={statusFilter} onValueChange={v => setStatusFilter(v as 'all' | 'submitted' | 'not_submitted')}>
+                  <SelectTrigger className="w-full md:w-36 text-emerald-200 focus:ring-emerald-400 flex-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Statuses</SelectItem>
+                    <SelectItem value="submitted">Submitted</SelectItem>
+                    <SelectItem value="not_submitted">Not Submitted</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Input
+                  type="number"
+                  min=""
+                  className="w-full md:w-24  text-emerald-200 placeholder:text-emerald-300/60 focus:ring-emerald-400 flex-1"
+                  placeholder="Min Score"
+                  value={scoreMin}
+                  onChange={e => setScoreMin(e.target.value)}
+                />
+                <Input
+                  type="number"
+                  min=""
+                  className="w-full md:w-24  text-emerald-200 placeholder:text-emerald-300/60 focus:ring-emerald-400 flex-1"
+                  placeholder="Max Score"
+                  value={scoreMax}
+                  onChange={e => setScoreMax(e.target.value)}
+                />
+                <Select value={sortField} onValueChange={v => setSortField(v as typeof sortField)}>
+                  <SelectTrigger className="w-full md:w-40 text-emerald-200 focus:ring-emerald-400 flex-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="name">Sort by Name</SelectItem>
+                    <SelectItem value="email">Sort by Email</SelectItem>
+                    <SelectItem value="score">Sort by Score</SelectItem>
+                    <SelectItem value="started_at">Sort by Started At</SelectItem>
+                    <SelectItem value="submitted_at">Sort by Submitted At</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className=" text-emerald-400 px-2 py-2 h-10 w-full md:w-auto flex-1"
+                  onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                  title={sortOrder === 'asc' ? 'Ascending' : 'Descending'}
+                >
+                  {sortOrder === 'asc' ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />}
+                </Button>
+              </div>
+              {attemptsLoading ? (
+                <div className="text-muted-foreground">Loading attempts...</div>
+              ) : filteredAttempts.length === 0 ? (
+                <div className="text-muted-foreground">No attempts found for this quiz.</div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Student</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Score</TableHead>
+                      <TableHead>Max Score</TableHead>
+                      <TableHead>Started At</TableHead>
+                      <TableHead>Submitted At</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredAttempts.map((a) => (
+                      <TableRow key={a.id}>
+                        <TableCell>
+                          <Link
+                            to={`/profile/${a.student_id}`}
+                            className="text-emerald-400 hover:underline hover:text-emerald-300 transition-colors"
+                          >
+                            {a.student_name}
+                          </Link>
+                        </TableCell>
+                        <TableCell>{a.student_email}</TableCell>
+                        <TableCell>
+                          {a.submitted_at && typeof a.score === 'number' ? a.score : <span className="text-destructive">Not submitted yet</span>}
+                        </TableCell>
+                        <TableCell>{a.max_score ?? '-'}</TableCell>
+                        <TableCell>{a.started_at ? new Date(a.started_at).toLocaleString() : '-'}</TableCell>
+                        <TableCell>
+                          {a.submitted_at ? new Date(a.submitted_at).toLocaleString() : <span className="text-destructive">Not submitted yet</span>}
+                        </TableCell>
+                        <TableCell>
+                          {a.answers && Object.keys(a.answers || {}).length > 0 ? (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-emerald-400"
+                              onClick={() => {
+                                setModalAnswers(normalizeAnswers(a.answers));
+                                setModalAttempt(a);
+                                setOpenAnswersModal(true);
+                              }}
+                            >
+                              View Answers
+                            </Button>
+                          ) : (
+                            <span className="text-destructive">No answers</span>
+                          )}
+                        </TableCell>
+                      </TableRow>
                     ))}
-                  </div>
+                  </TableBody>
+                </Table>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+      <Dialog open={openAnswersModal} onOpenChange={setOpenAnswersModal}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto scrollbar-thin scrollbar-thumb-emerald-500 scrollbar-track-background">
+          <DialogHeader>
+            <DialogTitle>Student Answers</DialogTitle>
+            <DialogDescription>
+              {modalAttempt && (
+                <div className="mb-2 text-sm text-muted-foreground">
+                  {modalAttempt.student_name} ({modalAttempt.student_email})
+                </div>
+              )}
+              {modalScore !== null && (
+                <div className="mb-2 text-lg font-semibold text-emerald-400">Score: {modalScore} / {modalAttempt?.max_score ?? '-'}</div>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          {/* Sorting dropdown */}
+          <div className="mb-4">
+            <Select value={modalSort} onValueChange={v => setModalSort(v as 'none' | 'correct' | 'incorrect')}>
+              <SelectTrigger className="w-full text-emerald-200 focus:ring-emerald-400">
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">No Sorting</SelectItem>
+                <SelectItem value="correct">Correct First</SelectItem>
+                <SelectItem value="incorrect">Incorrect First</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            {modalAnswers && typeof modalAnswers === 'object' && Object.keys(modalAnswers).length > 0 ? (
+              <ul className="space-y-2">
+                {modalQuestions.length > 0 ? (
+                  [...modalQuestions].sort((a, b) => {
+                    if (modalSort === 'none') return 0;
+                    const aCorrect = modalAnswers[a.id] === a.correct_answer;
+                    const bCorrect = modalAnswers[b.id] === b.correct_answer;
+                    if (modalSort === 'correct') return aCorrect === bCorrect ? 0 : aCorrect ? -1 : 1;
+                    if (modalSort === 'incorrect') return aCorrect === bCorrect ? 0 : aCorrect ? 1 : -1;
+                    return 0;
+                  }).map((q) => {
+                    const studentAnswer = modalAnswers[q.id];
+                    const correct = studentAnswer === q.correct_answer;
+                    return (
+                      <li key={q.id} className="border-b border-border pb-2">
+                        <div className="font-medium text-emerald-300">{q.question_text}</div>
+                        <div className="text-sm text-muted-foreground">Correct Answer: <span className="text-emerald-400">{q.correct_answer ?? '-'}</span></div>
+                        <div className="text-sm">Student Answer: <span className={correct ? 'text-emerald-400' : 'text-destructive'}>{studentAnswer ?? '-'}</span></div>
+                        <div className="text-xs mt-1">
+                          {studentAnswer == null ? (
+                            <span className="text-destructive">No answer</span>
+                          ) : correct ? (
+                            <span className="text-emerald-400 font-semibold">Correct</span>
+                          ) : (
+                            <span className="text-destructive font-semibold">Incorrect</span>
+                          )}
+                        </div>
+                      </li>
+                    );
+                  })
+                ) : (
+                  Object.entries(modalAnswers).map(([q, ans]) => (
+                    <li key={q} className="border-b border-border pb-2">
+                      <div className="font-medium text-emerald-300">Question ID: {q}</div>
+                      <div className="text-emerald-100">Answer: {typeof ans === 'string' ? ans : JSON.stringify(ans)}</div>
+                    </li>
+                  ))
                 )}
-
-                {question.question_type === 'written' && (
-                  <Input
-                    placeholder="Expected answer/keywords"
-                    value={question.correct_answer}
-                    onChange={(e) => updateQuestion(index, 'correct_answer', e.target.value)}
-                  />
-                )}
-              </CardContent>
-            </Card>
-          ))}
-
-          {questions.length === 0 && (
-            <div className="text-center py-8 text-muted-foreground">
-              <p>No questions added yet. Use the tabs above to add questions.</p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+              </ul>
+            ) : (
+              <div className="text-muted-foreground">No answers found for this attempt.</div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
