@@ -58,7 +58,7 @@ const GroupDetailPage = () => {
     try {
       const { data, error } = await supabase
         .from('groups')
-        .select('*')
+        .select('id, name, description, group_code, created_at, updated_at, created_by, max_members, is_public, is_code_visible, is_members_visible')
         .eq('id', id)
         .single();
 
