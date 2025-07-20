@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
-import DashboardLayout from '@/components/layout/DashboardLayout';
+import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card } from '@/components/ui/card';
 
 interface GroupDetails {
@@ -35,27 +35,10 @@ interface Member {
   };
 }
 
-interface Post {
-  id: string;
-  content: string;
-  created_at: string;
-  user_id: string;
-  group_id: string;
-  user: {
-    id: string;
-    email: string;
-    user_metadata: {
-      avatar_url: string;
-      full_name: string;
-    };
-  };
-}
-
 const GroupDetailPage = () => {
   const { groupId } = useParams<{ groupId: string }>();
   const [groupDetails, setGroupDetails] = useState<GroupDetails | null>(null);
   const [members, setMembers] = useState<Member[]>([]);
-  const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -91,32 +74,39 @@ const GroupDetailPage = () => {
       try {
         const { data, error } = await supabase
           .from('group_members')
-          .select('*, user:user_id (id, email, user_metadata)')
+          .select(`
+            *,
+            user:profiles!student_id (
+              id, 
+              email, 
+              full_name,
+              avatar_url
+            )
+          `)
           .eq('group_id', groupId);
 
         if (error) throw error;
-        setMembers(data as Member[]);
+        
+        // Transform the data to match the expected Member interface
+        const transformedMembers = data?.map(member => ({
+          id: member.id,
+          user_id: member.student_id,
+          group_id: member.group_id,
+          joined_at: member.joined_at,
+          user: {
+            id: member.user?.id || '',
+            email: member.user?.email || '',
+            user_metadata: {
+              avatar_url: member.user?.avatar_url || '',
+              full_name: member.user?.full_name || ''
+            }
+          }
+        })) || [];
+        
+        setMembers(transformedMembers);
       } catch (error) {
         console.error('Error fetching group members:', error);
         toast.error('Failed to load group members');
-      }
-    };
-
-    const fetchGroupPosts = async () => {
-      if (!groupId) return;
-
-      try {
-        const { data, error } = await supabase
-          .from('posts')
-          .select('*, user:user_id (id, email, user_metadata)')
-          .eq('group_id', groupId)
-          .order('created_at', { ascending: false });
-
-        if (error) throw error;
-        setPosts(data as Post[]);
-      } catch (error) {
-        console.error('Error fetching group posts:', error);
-        toast.error('Failed to load group posts');
       } finally {
         setLoading(false);
       }
@@ -124,7 +114,6 @@ const GroupDetailPage = () => {
 
     fetchGroupDetails();
     fetchGroupMembers();
-    fetchGroupPosts();
   }, [groupId]);
 
   if (loading) {
@@ -184,13 +173,15 @@ const GroupDetailPage = () => {
                 {members.map((member) => (
                   <li key={member.id} className="py-2 border-b last:border-b-0">
                     <div className="flex items-center space-x-3">
-                      <img
-                        src={member.user.user_metadata.avatar_url}
-                        alt={member.user.user_metadata.full_name}
-                        className="w-8 h-8 rounded-full"
-                      />
+                      {member.user.user_metadata.avatar_url && (
+                        <img
+                          src={member.user.user_metadata.avatar_url}
+                          alt={member.user.user_metadata.full_name}
+                          className="w-8 h-8 rounded-full"
+                        />
+                      )}
                       <div>
-                        <p className="font-medium">{member.user.user_metadata.full_name}</p>
+                        <p className="font-medium">{member.user.user_metadata.full_name || member.user.email}</p>
                         <p className="text-gray-500 text-sm">{member.user.email}</p>
                       </div>
                     </div>
@@ -200,27 +191,6 @@ const GroupDetailPage = () => {
             </Card>
           )}
         </div>
-        
-        {/* Posts List */}
-        <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-4">Posts</h2>
-          {posts.map((post) => (
-            <div key={post.id} className="py-4 border-b last:border-b-0">
-              <div className="flex items-start space-x-3">
-                <img
-                  src={post.user.user_metadata.avatar_url}
-                  alt={post.user.user_metadata.full_name}
-                  className="w-8 h-8 rounded-full"
-                />
-                <div>
-                  <p className="font-medium">{post.user.user_metadata.full_name}</p>
-                  <p className="text-gray-500 text-sm">{new Date(post.created_at).toLocaleString()}</p>
-                  <p className="mt-1">{post.content}</p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </Card>
       </div>
     </DashboardLayout>
   );
