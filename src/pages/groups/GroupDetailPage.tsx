@@ -55,8 +55,16 @@ const GroupDetailPage = () => {
         if (error) throw error;
         
         // Set default values for missing properties
-        const groupWithDefaults = {
-          ...data,
+        const groupWithDefaults: GroupDetails = {
+          id: data.id,
+          name: data.name,
+          description: data.description,
+          group_code: data.group_code,
+          created_at: data.created_at,
+          updated_at: data.updated_at,
+          created_by: data.created_by,
+          max_members: data.max_members,
+          is_public: data.is_public,
           is_code_visible: data.is_code_visible ?? true,
           is_members_visible: data.is_members_visible ?? true
         };
@@ -75,8 +83,11 @@ const GroupDetailPage = () => {
         const { data, error } = await supabase
           .from('group_members')
           .select(`
-            *,
-            user:profiles!student_id (
+            id,
+            group_id,
+            student_id,
+            joined_at,
+            profiles!student_id (
               id, 
               email, 
               full_name,
@@ -88,17 +99,17 @@ const GroupDetailPage = () => {
         if (error) throw error;
         
         // Transform the data to match the expected Member interface
-        const transformedMembers = data?.map(member => ({
+        const transformedMembers: Member[] = data?.map(member => ({
           id: member.id,
           user_id: member.student_id,
           group_id: member.group_id,
           joined_at: member.joined_at,
           user: {
-            id: member.user?.id || '',
-            email: member.user?.email || '',
+            id: member.profiles?.id || '',
+            email: member.profiles?.email || '',
             user_metadata: {
-              avatar_url: member.user?.avatar_url || '',
-              full_name: member.user?.full_name || ''
+              avatar_url: member.profiles?.avatar_url || '',
+              full_name: member.profiles?.full_name || ''
             }
           }
         })) || [];
