@@ -1,8 +1,9 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { toast } from 'react-hot-toast';
-import { supabase } from '@/lib/supabase';
-import DashboardLayout from '@/layouts/DashboardLayout';
+import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
+import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Card } from '@/components/ui/card';
 
 interface GroupDetails {

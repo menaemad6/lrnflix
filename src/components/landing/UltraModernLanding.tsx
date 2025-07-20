@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, useAnimation, useInView, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import { useInView as useInViewHook } from 'react-intersection-observer';
@@ -314,63 +313,66 @@ const FeatureTimeline = () => {
         </motion.div>
 
         <div className="space-y-40">
-          {features.map((feature, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, x: index % 2 === 0 ? -200 : 200 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 1.5, delay: index * 0.2 }}
-              viewport={{ once: true }}
-              className={`flex ${index % 2 === 0 ? 'flex-row' : 'flex-row-reverse'} items-center gap-20`}
-            >
-              {/* Feature Icon */}
+          {features.map((feature, index) => {
+            const IconComponent = feature.icon;
+            return (
               <motion.div
-                whileHover={{ scale: 1.1, rotateY: 15 }}
-                className={`w-80 h-80 rounded-3xl bg-gradient-to-br ${feature.bgColor} backdrop-blur-xl border border-white/10 flex items-center justify-center shadow-2xl`}
+                key={index}
+                initial={{ opacity: 0, x: index % 2 === 0 ? -200 : 200 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 1.5, delay: index * 0.2 }}
+                viewport={{ once: true }}
+                className={`flex ${index % 2 === 0 ? 'flex-row' : 'flex-row-reverse'} items-center gap-20`}
               >
-                <div className={`w-32 h-32 rounded-2xl bg-gradient-to-r ${feature.gradient} flex items-center justify-center shadow-2xl`}>
-                  <feature.icon className="h-16 w-16 text-white" />
+                {/* Feature Icon */}
+                <motion.div
+                  whileHover={{ scale: 1.1, rotateY: 15 }}
+                  className={`w-80 h-80 rounded-3xl bg-gradient-to-br ${feature.bgColor} backdrop-blur-xl border border-white/10 flex items-center justify-center shadow-2xl`}
+                >
+                  <div className={`w-32 h-32 rounded-2xl bg-gradient-to-r ${feature.gradient} flex items-center justify-center shadow-2xl`}>
+                    <IconComponent className="h-16 w-16 text-white" />
+                  </div>
+                </motion.div>
+
+                {/* Feature Content */}
+                <div className="flex-1 text-white">
+                  <motion.h3
+                    className="text-5xl md:text-6xl font-bold mb-8 tracking-tight"
+                    whileInView={{ opacity: 1, y: 0 }}
+                    initial={{ opacity: 0, y: 50 }}
+                    transition={{ duration: 1, delay: 0.3 }}
+                    viewport={{ once: true }}
+                  >
+                    {feature.title}
+                  </motion.h3>
+                  <motion.p
+                    className="text-xl md:text-2xl text-white/80 leading-relaxed font-light mb-8"
+                    whileInView={{ opacity: 1, y: 0 }}
+                    initial={{ opacity: 0, y: 50 }}
+                    transition={{ duration: 1, delay: 0.5 }}
+                    viewport={{ once: true }}
+                  >
+                    {feature.description}
+                  </motion.p>
+                  <motion.div
+                    whileInView={{ opacity: 1, y: 0 }}
+                    initial={{ opacity: 0, y: 50 }}
+                    transition={{ duration: 1, delay: 0.7 }}
+                    viewport={{ once: true }}
+                  >
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      className="border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/10 px-8 py-4 text-lg rounded-full backdrop-blur-sm"
+                    >
+                      Experience Now
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Button>
+                  </motion.div>
                 </div>
               </motion.div>
-
-              {/* Feature Content */}
-              <div className="flex-1 text-white">
-                <motion.h3
-                  className="text-5xl md:text-6xl font-bold mb-8 tracking-tight"
-                  whileInView={{ opacity: 1, y: 0 }}
-                  initial={{ opacity: 0, y: 50 }}
-                  transition={{ duration: 1, delay: 0.3 }}
-                  viewport={{ once: true }}
-                >
-                  {feature.title}
-                </motion.h3>
-                <motion.p
-                  className="text-xl md:text-2xl text-white/80 leading-relaxed font-light mb-8"
-                  whileInView={{ opacity: 1, y: 0 }}
-                  initial={{ opacity: 0, y: 50 }}
-                  transition={{ duration: 1, delay: 0.5 }}
-                  viewport={{ once: true }}
-                >
-                  {feature.description}
-                </motion.p>
-                <motion.div
-                  whileInView={{ opacity: 1, y: 0 }}
-                  initial={{ opacity: 0, y: 50 }}
-                  transition={{ duration: 1, delay: 0.7 }}
-                  viewport={{ once: true }}
-                >
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    className="border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/10 px-8 py-4 text-lg rounded-full backdrop-blur-sm"
-                  >
-                    Experience Now
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Button>
-                </motion.div>
-              </div>
-            </motion.div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>
@@ -926,26 +928,29 @@ const GlobalImpactCounter = () => {
 
         {/* Impact Statistics */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-20">
-          {stats.map((stat, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, scale: 0.5 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              transition={{ delay: index * 0.2, duration: 0.8 }}
-              viewport={{ once: true }}
-              className="text-center"
-            >
-              <Card className="backdrop-blur-xl bg-white/5 border-white/10 p-8 shadow-2xl hover:shadow-emerald-500/20 transition-all duration-500">
-                <div className="text-emerald-400 mb-6 flex justify-center">
-                  <stat.icon className="h-12 w-12" />
-                </div>
-                <div className="text-5xl md:text-6xl font-black mb-4 bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
-                  {stat.value.toLocaleString()}{stat.suffix}
-                </div>
-                <div className="text-white/70 font-medium text-lg">{stat.label}</div>
-              </Card>
-            </motion.div>
-          ))}
+          {stats.map((stat, index) => {
+            const IconComponent = stat.icon;
+            return (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, scale: 0.5 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                transition={{ delay: index * 0.2, duration: 0.8 }}
+                viewport={{ once: true }}
+                className="text-center"
+              >
+                <Card className="backdrop-blur-xl bg-white/5 border-white/10 p-8 shadow-2xl hover:shadow-emerald-500/20 transition-all duration-500">
+                  <div className="text-emerald-400 mb-6 flex justify-center">
+                    <IconComponent className="h-12 w-12" />
+                  </div>
+                  <div className="text-5xl md:text-6xl font-black mb-4 bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+                    {stat.value.toLocaleString()}{stat.suffix}
+                  </div>
+                  <div className="text-white/70 font-medium text-lg">{stat.label}</div>
+                </Card>
+              </motion.div>
+            );
+          })}
         </div>
 
         {/* Global Visualization */}

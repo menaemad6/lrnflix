@@ -57,7 +57,7 @@ import { StudentChaptersPage } from './pages/student/StudentChaptersPage';
 import MultiplayerQuiz from './pages/student/MultiplayerQuiz';
 
 // Shared Pages
-import { GroupDetailPage } from './pages/groups/GroupDetailPage';
+import GroupDetailPage from './pages/groups/GroupDetailPage';
 import { ChaptersPage } from './pages/chapters/ChaptersPage';
 import { ChapterDetailPage } from './pages/chapters/ChapterDetailPage';
 
