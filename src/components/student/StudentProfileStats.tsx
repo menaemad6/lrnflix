@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Trophy, BookOpen, Clock, Zap, Calendar, TrendingUp, Flame } from 'lucide-react';
 import Aurora from '@/components/react-bits/backgrounds/Aurora/Aurora';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface StudentProfileStatsProps {
   stats: {
@@ -28,6 +29,7 @@ interface StudentProfileStatsProps {
 export const StudentProfileStats = ({ stats, user }: StudentProfileStatsProps) => {
   const completionRate = stats.totalCourses > 0 ? Math.round((stats.completedCourses / stats.totalCourses) * 100) : 0;
   const studyLevel = Math.floor(stats.completedCourses / 3) + 1; // Simple level calculation
+  const { theme } = useTheme();
 
   return (
     <div className="space-y-8">
@@ -36,7 +38,9 @@ export const StudentProfileStats = ({ stats, user }: StudentProfileStatsProps) =
         {/* Aurora animated background */}
         <div className="absolute inset-0 w-full h-full z-0 pointer-events-none">
           <Aurora amplitude={1.2} blend={0.6} colorStops={["#5227FF", "#7cff67", "#5227FF"]} />
-          <div className="absolute inset-0 bg-black/60" /> {/* Overlay for contrast */}
+          {theme === 'dark' && (
+            <div className="absolute inset-0 bg-black/60" />
+          )}
         </div>
         <CardContent className="relative z-10 px-4 py-8 sm:p-8">
           <div className="flex flex-col sm:flex-row items-center sm:items-stretch gap-6">

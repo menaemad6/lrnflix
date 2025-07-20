@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { ChevronDown, Home, Grid3X3, FileText, Users, Bell, Play, Instagram, Linkedin, Youtube, ArrowRight, Book, HelpCircle, LogIn, UserPlus, Video, LogOut } from 'lucide-react';
+import { ChevronDown, Home, Grid3X3, FileText, Users, Bell, Play, Instagram, Linkedin, Youtube, ArrowRight, Book, HelpCircle, LogIn, UserPlus, Video, LogOut, LayoutDashboard } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, Variants } from 'framer-motion';
 import { useSelector } from 'react-redux';
@@ -167,9 +167,9 @@ const ModernLayoutHero: React.FC = () => {
     ]);
   } else if (userRole === 'student') {
     rightNav = rightNav.concat([
+      { to: '/student/dashboard', icon: <LayoutDashboard className="w-5 h-5 text-muted-foreground" />, className: 'w-16 h-16 hover:bg-muted rounded-full flex items-center justify-center cursor-pointer' },
       { to: '/courses', icon: <Video className="w-5 h-5 text-muted-foreground" />, className: 'w-16 h-16 hover:bg-muted rounded-full flex items-center justify-center cursor-pointer' },
       { to: '/chapters', icon: <FileText className="w-5 h-5 text-muted-foreground" />, className: 'w-16 h-16 hover:bg-muted rounded-full flex items-center justify-center cursor-pointer' },
-      { to: '/student/groups', icon: <Users className="w-5 h-5 text-muted-foreground" />, className: 'w-16 h-16 hover:bg-muted rounded-full flex items-center justify-center cursor-pointer' },
       { to: '/questions', icon: <HelpCircle className="w-5 h-5 text-muted-foreground" />, className: 'w-16 h-16 hover:bg-muted rounded-full flex items-center justify-center cursor-pointer' },
     ]);
   } else if (userRole === 'teacher') {

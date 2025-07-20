@@ -307,7 +307,7 @@ const TeachersSpotlight = () => {
     {
       name: "Dr. Sarah Chen",
       subject: "Machine Learning",
-      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=200",
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200",
       rating: 4.9,
       students: "15.2k",
       quote: "Making AI accessible to everyone"

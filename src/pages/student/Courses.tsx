@@ -9,7 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { BookOpen, Search, Star, Users, Clock, CheckCircle } from 'lucide-react';
 import { useRandomBackground } from "../../hooks/useRandomBackground";
 import { PremiumCourseCard } from '@/components/courses/PremiumCourseCard';
-import AuroraHeroHeader from '@/components/ui/AuroraHeroHeader';
+import WavesHeroHeader from '@/components/ui/WavesHeroHeader';
 import { useTenant } from '@/contexts/TenantContext';
 import { CourseCardSkeleton } from '@/components/student/skeletons/CourseCardSkeleton';
 
@@ -190,17 +190,15 @@ export const Courses = () => {
   });
 
   return (
-    <div className={bgClass + " min-h-screen bg-gradient-to-br from-background via-background to-primary/5 p-2 sm:p-4 "}>
-      <div className="container mx-auto px-2 sm:px-4 space-y-8  pt-[100px]">
-        {/* Header */}
-        <AuroraHeroHeader
-          title={<span>Explore <span className="gradient-text">Courses</span></span>}
-          subtitle="Discover amazing courses and expand your knowledge with expert instructors"
-          
-        />
-
-        {/* Filters */}
-        <Card className="glass-card w-full max-w-full">
+    <div className={bgClass + " min-h-screen bg-gradient-to-br from-background via-background to-primary/5 "}>
+      {/* Header - full width, top of page */}
+      <WavesHeroHeader
+        title={<span>Explore <span className="text-primary">Courses</span></span>}
+        description="Discover amazing courses and expand your knowledge with expert instructors"
+      />
+      <div className="container mx-auto px-2 sm:px-4 space-y-8">
+        {/* Filters - overlap header */}
+        <Card className="glass-card w-full max-w-full -mt-12">
           <CardContent className="p-4 sm:p-6">
             <div className="flex flex-col md:flex-row gap-4 w-full">
               <div className="flex-1 min-w-0">
@@ -269,7 +267,7 @@ export const Courses = () => {
           </div>
         )}
 
-        {filteredCourses.length === 0 && (
+        {!loading && filteredCourses.length === 0 && (
           <Card className="glass-card w-full max-w-full">
             <CardContent className="text-center py-12">
               <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />

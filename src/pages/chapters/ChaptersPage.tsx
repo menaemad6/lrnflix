@@ -9,7 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { BookOpen, Search, Star, Users, Clock, CheckCircle, Sparkles } from 'lucide-react';
 import { useRandomBackground } from "../../hooks/useRandomBackground";
 import { useTenant } from '@/contexts/TenantContext';
-import AuroraHeroHeader from '@/components/ui/AuroraHeroHeader';
+import WavesHeroHeader from '@/components/ui/WavesHeroHeader';
 import ChapterCard from '@/components/chapters/ChapterCard';
 import { ChapterCardSkeleton } from '@/components/student/skeletons/ChapterCardSkeleton';
 
@@ -146,16 +146,15 @@ export const ChaptersPage = () => {
   });
 
   return (
-    <div className={bgClass + " min-h-screen bg-gradient-to-br from-background via-background to-primary/5 p-2 sm:p-4 "}>
-      <div className="container mx-auto px-2 sm:px-4 space-y-8 pt-[100px]">
-        {/* Modern Premium Header */}
-        <AuroraHeroHeader
-          title={<span>Explore <span className="gradient-text">Chapters</span></span>}
-          subtitle="Discover comprehensive learning paths with curated course collections. Unlock premium chapters and accelerate your growth!"
-          
-        />
+    <div className={bgClass + " min-h-screen bg-gradient-to-br from-background via-background to-primary/5 "}>
+      {/* Modern Premium Header - full width */}
+      <WavesHeroHeader
+        title={<span>Explore <span className="text-primary">Chapters</span></span>}
+        description="Discover comprehensive learning paths with curated course collections. Unlock premium chapters and accelerate your growth!"
+      />
+      <div className="container mx-auto px-2 sm:px-4 space-y-8">
         {/* Search */}
-        <Card className="glass-card w-full max-w-full">
+        <Card className="glass-card w-full max-w-full -mt-12">
           <CardContent className="p-4 sm:p-6">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />

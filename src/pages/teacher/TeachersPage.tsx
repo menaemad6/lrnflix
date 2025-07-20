@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Search, Calendar, BookOpen } from 'lucide-react';
 import { toast } from 'sonner';
 import { useRandomBackground } from '@/hooks/useRandomBackground';
-import AuroraHeroHeader from '@/components/ui/AuroraHeroHeader';
+import WavesHeroHeader from '@/components/ui/WavesHeroHeader';
 import { Button } from '@/components/ui/button';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { TeacherCardSkeleton } from '@/components/student/skeletons/TeacherCardSkeleton';
@@ -157,22 +157,24 @@ export const TeachersPage = () => {
   }, [teachers]);
 
   return (
-    <div className={`min-h-screen ${bgClass} pt-14`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <AuroraHeroHeader
-          title={<>
-            Meet Our <span className="text-emerald-500 dark:text-emerald-400">Expert Teachers</span>
-          </>}
-          subtitle="Discover passionate educators, their specializations, and the courses they offer. Learn from the best and unlock your potential."
-          
-        />
-        <TeachersFilterBar
-          searchTerm={searchTerm}
-          onSearchTermChange={setSearchTerm}
-          selectedSpecialization={selectedSpecialization}
-          onSpecializationChange={setSelectedSpecialization}
-          specializations={specializations}
-        />
+    <div className={`min-h-screen ${bgClass}`}>
+      {/* Full-width header */}
+      <WavesHeroHeader
+        title={<>
+          Meet Our <span className="text-emerald-500 dark:text-emerald-400">Expert Teachers</span>
+        </>}
+        description="Discover passionate educators, their specializations, and the courses they offer. Learn from the best and unlock your potential."
+      />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="-mt-12">
+          <TeachersFilterBar
+            searchTerm={searchTerm}
+            onSearchTermChange={setSearchTerm}
+            selectedSpecialization={selectedSpecialization}
+            onSpecializationChange={setSelectedSpecialization}
+            specializations={specializations}
+          />
+        </div>
         {/* Teachers Grid or Skeletons */}
         {loading ? (
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">

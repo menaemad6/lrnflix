@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useMemo } from "react";
 import { Renderer, Program, Mesh, Color, Triangle } from "ogl";
 
 const VERT = `#version 300 es
@@ -108,21 +108,40 @@ void main() {
 `;
 
 interface AuroraProps {
-  colorStops?: string[];
   amplitude?: number;
   blend?: number;
   time?: number;
   speed?: number;
 }
 
+const getThemeColors = () => {
+  if (typeof window === 'undefined') return ["#10b981", "#14b8a6", "#06b6d4"];
+  const style = getComputedStyle(document.documentElement);
+  const primary = style.getPropertyValue('--primary') || '152 72% 47%';
+  const secondary = style.getPropertyValue('--secondary') || '0 0% 64%';
+  const accent = style.getPropertyValue('--accent') || '152 72% 47%';
+  // Convert HSL to hex
+  function hslToHex(hsl) {
+    const [h, s, l] = hsl.split(/\s|%/).filter(Boolean).map(Number);
+    const a = s / 100;
+    const b = l / 100;
+    const k = n => (n + h / 30) % 12;
+    const f = n => b - a * Math.min(b, 1 - b) * Math.max(Math.min(k(n) - 3, 9 - k(n), 1), -1);
+    const rgb = [f(0), f(8), f(4)].map(x => Math.round(255 * x));
+    return `#${rgb.map(x => x.toString(16).padStart(2, '0')).join('')}`;
+  }
+  return [primary, secondary, accent].map(hslToHex);
+};
+
 export default function Aurora(props: AuroraProps) {
   const {
-    colorStops = ["#5227FF", "#7cff67", "#5227FF"],
     amplitude = 1.0,
     blend = 0.5,
   } = props;
   const propsRef = useRef<AuroraProps>(props);
   propsRef.current = props;
+
+  const colorStops = useMemo(() => getThemeColors(), []);
 
   const ctnDom = useRef<HTMLDivElement>(null);
 
@@ -141,16 +160,27 @@ export default function Aurora(props: AuroraProps) {
     gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     gl.canvas.style.backgroundColor = "transparent";
 
-    let program: Program | undefined;
+    const program: Program = new Program(gl, {
+      vertex: VERT,
+      fragment: FRAG,
+      uniforms: {
+        uTime: { value: 0 },
+        uAmplitude: { value: amplitude },
+        uColorStops: { value: colorStops.map((hex) => {
+          const c = new Color(hex);
+          return [c.r, c.g, c.b];
+        }) },
+        uResolution: { value: [ctn.offsetWidth, ctn.offsetHeight] },
+        uBlend: { value: blend },
+      },
+    });
 
     function resize() {
       if (!ctn) return;
       const width = ctn.offsetWidth;
       const height = ctn.offsetHeight;
       renderer.setSize(width, height);
-      if (program) {
-        program.uniforms.uResolution.value = [width, height];
-      }
+      program.uniforms.uResolution.value = [width, height];
     }
     window.addEventListener("resize", resize);
 
@@ -164,18 +194,6 @@ export default function Aurora(props: AuroraProps) {
       return [c.r, c.g, c.b];
     });
 
-    program = new Program(gl, {
-      vertex: VERT,
-      fragment: FRAG,
-      uniforms: {
-        uTime: { value: 0 },
-        uAmplitude: { value: amplitude },
-        uColorStops: { value: colorStopsArray },
-        uResolution: { value: [ctn.offsetWidth, ctn.offsetHeight] },
-        uBlend: { value: blend },
-      },
-    });
-
     const mesh = new Mesh(gl, { geometry, program });
     ctn.appendChild(gl.canvas);
 
@@ -187,7 +205,8 @@ export default function Aurora(props: AuroraProps) {
         program.uniforms.uTime.value = time * speed * 0.1;
         program.uniforms.uAmplitude.value = propsRef.current.amplitude ?? 1.0;
         program.uniforms.uBlend.value = propsRef.current.blend ?? blend;
-        const stops = propsRef.current.colorStops ?? colorStops;
+        // Always use theme colors
+        const stops = colorStops;
         program.uniforms.uColorStops.value = stops.map((hex: string) => {
           const c = new Color(hex);
           return [c.r, c.g, c.b];
