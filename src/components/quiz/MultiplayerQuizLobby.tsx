@@ -64,11 +64,11 @@ export const MultiplayerQuizLobby = ({
   };
 
   return (
-    <div className="min-h-screen bg-background particle-bg p-4">
+    <div className="min-h-screen bg-background particle-bg p-4 pt-28">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold gradient-text mb-2">Quiz Battle Arena</h1>
-          <p className="text-muted-foreground text-lg">Test your knowledge against players worldwide</p>
+          <h1 className="text-4xl font-bold text-primary mb-2">Quiz Battle Arena</h1>
+          <p className="text-muted-foreground text-lg">Test your knowledge against other players</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

@@ -72,7 +72,7 @@ export const MultiplayerQuizResults = ({
   };
 
   return (
-    <div className="min-h-screen bg-background particle-bg flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background particle-bg flex items-center justify-center p-4 pt-24">
       <div className="max-w-4xl w-full">
         
         {/* Header */}
@@ -81,7 +81,7 @@ export const MultiplayerQuizResults = ({
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-8"
         >
-          <h1 className="text-4xl font-bold gradient-text mb-2">Game Complete!</h1>
+          <h1 className="text-4xl font-bold text-primary mb-2">Game Complete!</h1>
           <p className="text-muted-foreground">Here's how everyone performed</p>
         </motion.div>
 

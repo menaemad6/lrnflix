@@ -89,7 +89,7 @@ export const MultiplayerQuizWaitingRoom = ({
   const isRoomCreator = room.created_by === currentUserId;
 
   return (
-    <div className="min-h-screen bg-background particle-bg relative overflow-hidden">
+    <div className="min-h-screen bg-background particle-bg relative overflow-hidden pt-24">
       {/* Decorative Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-pink-400/20 rounded-full blur-3xl"></div>
@@ -97,52 +97,65 @@ export const MultiplayerQuizWaitingRoom = ({
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-400/10 rounded-full blur-3xl"></div>
       </div>
 
-      {/* Header */}
-      <div className="relative z-10 flex items-center justify-between p-6 glass-card border-b border-border">
-        <div className="flex items-center space-x-4">
-          <h1 className="text-3xl font-bold gradient-text">Quiz Lobby</h1>
-          {room.room_code && (
-            <div className="flex items-center space-x-2">
-              <div className="bg-card/80 backdrop-blur-sm px-4 py-2 rounded-xl border border-border">
-                <span className="text-foreground font-mono text-lg font-bold">
-                  PIN: {room.room_code}
-                </span>
-              </div>
-              <Button
-                onClick={copyRoomCode}
-                variant="ghost"
-                size="icon"
-                className="text-foreground hover:bg-muted/20"
-              >
-                <Copy className="h-5 w-5" />
-              </Button>
-            </div>
-          )}
-        </div>
-
-        <div className="flex items-center space-x-4">
-          <div className="bg-card/80 backdrop-blur-sm px-4 py-2 rounded-xl border border-border text-foreground">
-            <div className="flex items-center space-x-2">
-              <Users className="h-5 w-5" />
-              <span className="font-semibold">{players.length}/{room.max_players}</span>
-            </div>
+      {/* Modern Header with Animated Elements */}
+      <div className="relative z-10 p-6 mb-8">
+        <div className="bg-transparent backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 overflow-hidden">
+          <div className="absolute inset-0 overflow-hidden opacity-20">
+            <div className="absolute top-0 left-0 w-full h-full bg-grid-white/10"></div>
+            <div className="absolute -top-10 -right-10 w-40 h-40 bg-pink-500/30 rounded-full blur-2xl"></div>
+            <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-blue-500/30 rounded-full blur-2xl"></div>
           </div>
           
-          <div className="bg-card/80 backdrop-blur-sm px-4 py-2 rounded-xl border border-border text-foreground">
-            <div className="flex items-center space-x-2">
-              {room.is_public ? <Eye className="h-5 w-5" /> : <EyeOff className="h-5 w-5" />}
-              <span className="text-sm">{room.is_public ? 'Public' : 'Private'}</span>
+          <div className="relative z-10 flex flex-col md:flex-row items-center justify-between p-6 gap-4">
+            <div className="flex flex-col md:flex-row items-center md:space-x-6 w-full md:w-auto">
+              <h1 className="text-4xl font-extrabold text-white mb-4 md:mb-0 text-center md:text-left">
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-200">QUIZ BATTLE</span>
+                <div className="text-sm font-normal text-blue-200 mt-1 animate-pulse">Get ready to compete!</div>
+              </h1>
+              
+              {room.room_code && (
+                <div className="flex items-center space-x-3 bg-white/10 backdrop-blur-sm px-4 py-3 rounded-xl border border-white/20 w-full md:w-auto">
+                  <div className="flex flex-col">
+                    <span className="text-blue-100 text-xs font-semibold uppercase tracking-wider">Room Code</span>
+                    <span className="text-white font-mono text-2xl font-bold tracking-widest">{room.room_code}</span>
+                  </div>
+                  <Button
+                    onClick={copyRoomCode}
+                    variant="ghost"
+                    size="icon"
+                    className="text-white hover:bg-white/20 transition-all duration-300 hover:scale-110"
+                  >
+                    <Copy className="h-5 w-5" />
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center space-x-3 w-full md:w-auto justify-center md:justify-end">
+              <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-xl border border-white/20 text-white">
+                <div className="flex items-center space-x-2">
+                  <Users className="h-5 w-5" />
+                  <span className="font-semibold">{players.length}/{room.max_players}</span>
+                </div>
+              </div>
+              
+              <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-xl border border-white/20 text-white">
+                <div className="flex items-center space-x-2">
+                  {room.is_public ? <Eye className="h-5 w-5" /> : <EyeOff className="h-5 w-5" />}
+                  <span className="text-sm">{room.is_public ? 'Public' : 'Private'}</span>
+                </div>
+              </div>
+
+              <Button
+                onClick={handleLeaveRoom}
+                variant="ghost"
+                className="text-white hover:bg-red-500/30 border border-white/20 transition-all duration-300"
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Leave
+              </Button>
             </div>
           </div>
-
-          <Button
-            onClick={handleLeaveRoom}
-            variant="ghost"
-            className="text-foreground hover:bg-destructive/20 border border-border"
-          >
-            <LogOut className="h-4 w-4 mr-2" />
-            Leave
-          </Button>
         </div>
       </div>
 
@@ -152,10 +165,10 @@ export const MultiplayerQuizWaitingRoom = ({
           {/* Players Grid */}
           <div className="mb-8">
             <h2 className="text-2xl font-bold text-foreground mb-6 text-center">
-              Players in the Game
+              <span className="inline-block bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent pb-1 border-b-2 border-primary/30 px-4">Players in the Game</span>
             </h2>
             
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 max-w-6xl mx-auto">
+            <div className="flex flex-wrap justify-center gap-4 max-w-6xl mx-auto">
               <AnimatePresence>
                 {players.map((player, index) => (
                   <motion.div
@@ -164,7 +177,7 @@ export const MultiplayerQuizWaitingRoom = ({
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.8, y: -20 }}
                     transition={{ delay: index * 0.1 }}
-                    className="relative"
+                    className="relative w-[160px]"
                   >
                     <div className={`
                       ${playerColors[index % playerColors.length]}
@@ -216,7 +229,7 @@ export const MultiplayerQuizWaitingRoom = ({
                   key={`empty-${index}`}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="bg-muted/10 backdrop-blur-sm p-4 rounded-2xl border-2 border-dashed border-border"
+                  className="relative w-[160px] bg-muted/10 backdrop-blur-sm p-4 rounded-2xl border-2 border-dashed border-border"
                 >
                   <div className="flex justify-center mb-3">
                     <div className="w-16 h-16 bg-muted/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-border">
