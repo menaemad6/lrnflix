@@ -89,7 +89,7 @@ export const MultiplayerQuizWaitingRoom = ({
   const isRoomCreator = room.created_by === currentUserId;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-600 via-purple-600 to-blue-600 relative overflow-hidden">
+    <div className="min-h-screen bg-background particle-bg relative overflow-hidden">
       {/* Decorative Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-pink-400/20 rounded-full blur-3xl"></div>
@@ -98,13 +98,13 @@ export const MultiplayerQuizWaitingRoom = ({
       </div>
 
       {/* Header */}
-      <div className="relative z-10 flex items-center justify-between p-6 bg-white/10 backdrop-blur-sm border-b border-white/20">
+      <div className="relative z-10 flex items-center justify-between p-6 glass-card border-b border-border">
         <div className="flex items-center space-x-4">
-          <h1 className="text-3xl font-bold text-white">Quiz Lobby</h1>
+          <h1 className="text-3xl font-bold gradient-text">Quiz Lobby</h1>
           {room.room_code && (
             <div className="flex items-center space-x-2">
-              <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-xl border border-white/30">
-                <span className="text-white font-mono text-lg font-bold">
+              <div className="bg-card/80 backdrop-blur-sm px-4 py-2 rounded-xl border border-border">
+                <span className="text-foreground font-mono text-lg font-bold">
                   PIN: {room.room_code}
                 </span>
               </div>
@@ -112,7 +112,7 @@ export const MultiplayerQuizWaitingRoom = ({
                 onClick={copyRoomCode}
                 variant="ghost"
                 size="icon"
-                className="text-white hover:bg-white/20"
+                className="text-foreground hover:bg-muted/20"
               >
                 <Copy className="h-5 w-5" />
               </Button>
@@ -121,14 +121,14 @@ export const MultiplayerQuizWaitingRoom = ({
         </div>
 
         <div className="flex items-center space-x-4">
-          <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-xl border border-white/30 text-white">
+          <div className="bg-card/80 backdrop-blur-sm px-4 py-2 rounded-xl border border-border text-foreground">
             <div className="flex items-center space-x-2">
               <Users className="h-5 w-5" />
               <span className="font-semibold">{players.length}/{room.max_players}</span>
             </div>
           </div>
           
-          <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-xl border border-white/30 text-white">
+          <div className="bg-card/80 backdrop-blur-sm px-4 py-2 rounded-xl border border-border text-foreground">
             <div className="flex items-center space-x-2">
               {room.is_public ? <Eye className="h-5 w-5" /> : <EyeOff className="h-5 w-5" />}
               <span className="text-sm">{room.is_public ? 'Public' : 'Private'}</span>
@@ -138,7 +138,7 @@ export const MultiplayerQuizWaitingRoom = ({
           <Button
             onClick={handleLeaveRoom}
             variant="ghost"
-            className="text-white hover:bg-red-500/20 border border-white/30"
+            className="text-foreground hover:bg-destructive/20 border border-border"
           >
             <LogOut className="h-4 w-4 mr-2" />
             Leave
@@ -151,7 +151,7 @@ export const MultiplayerQuizWaitingRoom = ({
         <div className="max-w-7xl mx-auto">
           {/* Players Grid */}
           <div className="mb-8">
-            <h2 className="text-2xl font-bold text-white mb-6 text-center">
+            <h2 className="text-2xl font-bold text-foreground mb-6 text-center">
               Players in the Game
             </h2>
             
@@ -168,34 +168,34 @@ export const MultiplayerQuizWaitingRoom = ({
                   >
                     <div className={`
                       ${playerColors[index % playerColors.length]}
-                      p-4 rounded-2xl shadow-lg border-2 border-white/30
-                      ${player.user_id === currentUserId ? 'ring-4 ring-yellow-400' : ''}
+                      p-4 rounded-2xl shadow-lg border-2 border-border
+                      ${player.user_id === currentUserId ? 'ring-4 ring-primary' : ''}
                       transition-all duration-300 hover:scale-105 hover:shadow-xl
                     `}>
                       {/* Crown for room creator */}
                       {player.user_id === room.created_by && (
                         <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                          <div className="bg-yellow-400 p-1 rounded-full">
-                            <Crown className="h-4 w-4 text-yellow-800" />
+                          <div className="bg-primary p-1 rounded-full">
+                            <Crown className="h-4 w-4 text-primary-foreground" />
                           </div>
                         </div>
                       )}
                       
                       {/* Avatar */}
                       <div className="flex justify-center mb-3">
-                        <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center text-2xl backdrop-blur-sm border border-white/30">
+                        <div className="w-16 h-16 bg-card/20 rounded-full flex items-center justify-center text-2xl backdrop-blur-sm border border-border">
                           {avatarEmojis[index % avatarEmojis.length]}
                         </div>
                       </div>
                       
                       {/* Player Name */}
                       <div className="text-center">
-                        <p className="text-white font-bold text-sm truncate">
+                        <p className="text-foreground font-bold text-sm truncate">
                           {player.username}
                           {player.user_id === currentUserId && ' (You)'}
                         </p>
                         {player.user_id === room.created_by && (
-                          <Badge className="bg-yellow-500/20 text-yellow-200 border-yellow-500/40 text-xs mt-1">
+                          <Badge className="bg-primary/20 text-primary border-primary/40 text-xs mt-1">
                             Host
                           </Badge>
                         )}
@@ -203,7 +203,7 @@ export const MultiplayerQuizWaitingRoom = ({
 
                       {/* Online indicator */}
                       <div className="absolute top-2 right-2">
-                        <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse shadow-lg"></div>
+                        <div className="w-3 h-3 bg-primary rounded-full animate-pulse shadow-lg"></div>
                       </div>
                     </div>
                   </motion.div>
@@ -216,15 +216,15 @@ export const MultiplayerQuizWaitingRoom = ({
                   key={`empty-${index}`}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="bg-white/10 backdrop-blur-sm p-4 rounded-2xl border-2 border-dashed border-white/30"
+                  className="bg-muted/10 backdrop-blur-sm p-4 rounded-2xl border-2 border-dashed border-border"
                 >
                   <div className="flex justify-center mb-3">
-                    <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/20">
-                      <Users className="h-6 w-6 text-white/60" />
+                    <div className="w-16 h-16 bg-muted/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-border">
+                      <Users className="h-6 w-6 text-muted-foreground" />
                     </div>
                   </div>
                   <div className="text-center">
-                    <p className="text-white/60 text-sm">Waiting...</p>
+                    <p className="text-muted-foreground text-sm">Waiting...</p>
                   </div>
                 </motion.div>
               ))}
@@ -239,12 +239,12 @@ export const MultiplayerQuizWaitingRoom = ({
                 animate={{ opacity: 1, scale: 1 }}
                 className="text-center"
               >
-                <div className="bg-green-500/20 backdrop-blur-sm border border-green-500/40 rounded-2xl p-6 mb-6">
+                <div className="bg-primary/20 backdrop-blur-sm border border-primary/40 rounded-2xl p-6 mb-6">
                   <div className="text-4xl mb-4">🎉</div>
-                  <h3 className="text-2xl font-bold text-green-300 mb-2">
+                  <h3 className="text-2xl font-bold text-primary mb-2">
                     Room is Full!
                   </h3>
-                  <p className="text-green-200">
+                  <p className="text-primary/80">
                     All players have joined. Ready to start the quiz!
                   </p>
                 </div>
@@ -253,7 +253,7 @@ export const MultiplayerQuizWaitingRoom = ({
                   <Button
                     onClick={handleStartGame}
                     size="lg"
-                    className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold px-12 py-4 text-xl rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300"
+                    className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground font-bold px-12 py-4 text-xl rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300"
                   >
                     <Play className="h-6 w-6 mr-3" />
                     Start Game
@@ -261,8 +261,8 @@ export const MultiplayerQuizWaitingRoom = ({
                 )}
                 
                 {!isRoomCreator && (
-                  <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-4">
-                    <p className="text-white text-lg">
+                  <div className="bg-card/50 backdrop-blur-sm border border-border rounded-2xl p-4">
+                    <p className="text-foreground text-lg">
                       Waiting for host to start the game...
                     </p>
                   </div>
@@ -270,35 +270,35 @@ export const MultiplayerQuizWaitingRoom = ({
               </motion.div>
             ) : (
               <div className="text-center">
-                <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-6 mb-6">
+                <div className="bg-card/50 backdrop-blur-sm border border-border rounded-2xl p-6 mb-6">
                   <div className="text-4xl mb-4">⏳</div>
-                  <h3 className="text-2xl font-bold text-white mb-2">
+                  <h3 className="text-2xl font-bold text-foreground mb-2">
                     Waiting for More Players
                   </h3>
-                  <p className="text-white/80 text-lg mb-4">
+                  <p className="text-muted-foreground text-lg mb-4">
                     Need {room.max_players - players.length} more player{room.max_players - players.length !== 1 ? 's' : ''} to join
                   </p>
                   
                   {room.room_code && (
-                    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-                      <p className="text-white/80 text-sm mb-2">Share this PIN with your friends:</p>
+                    <div className="bg-card/50 backdrop-blur-sm rounded-xl p-4 border border-border">
+                      <p className="text-muted-foreground text-sm mb-2">Share this PIN with your friends:</p>
                       <div className="flex items-center justify-center space-x-2">
-                        <span className="text-3xl font-mono font-bold text-white">{room.room_code}</span>
-                        <QrCode className="h-6 w-6 text-white/60" />
+                        <span className="text-3xl font-mono font-bold text-foreground">{room.room_code}</span>
+                        <QrCode className="h-6 w-6 text-muted-foreground" />
                       </div>
                     </div>
                   )}
                 </div>
                 
                 {isRoomCreator && players.length >= 2 && (
-                  <div className="bg-yellow-500/20 backdrop-blur-sm border border-yellow-500/40 rounded-2xl p-4">
-                    <p className="text-yellow-200 mb-3">
+                  <div className="bg-accent/20 backdrop-blur-sm border border-accent/40 rounded-2xl p-4">
+                    <p className="text-accent mb-3">
                       You can start the game early with {players.length} players
                     </p>
                     <Button
                       onClick={handleStartGame}
                       variant="outline"
-                      className="border-yellow-500/50 bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-300 hover:text-yellow-200"
+                      className="border-accent/50 bg-accent/10 hover:bg-accent/20 text-accent"
                     >
                       <Play className="h-4 w-4 mr-2" />
                       Start Game Now

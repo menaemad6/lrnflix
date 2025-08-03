@@ -72,7 +72,7 @@ export const MultiplayerQuizResults = ({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-950 via-purple-900 to-indigo-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background particle-bg flex items-center justify-center p-4">
       <div className="max-w-4xl w-full">
         
         {/* Header */}
@@ -81,18 +81,18 @@ export const MultiplayerQuizResults = ({
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-8"
         >
-          <h1 className="text-4xl font-bold text-white mb-2">Game Complete!</h1>
-          <p className="text-gray-300">Here's how everyone performed</p>
+          <h1 className="text-4xl font-bold gradient-text mb-2">Game Complete!</h1>
+          <p className="text-muted-foreground">Here's how everyone performed</p>
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
           {/* Leaderboard */}
           <div className="lg:col-span-2 space-y-4">
-            <Card className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border-white/20">
+            <Card className="glass-card border-border">
               <CardHeader>
-                <CardTitle className="text-white flex items-center">
-                  <Trophy className="h-5 w-5 mr-2 text-yellow-400" />
+                <CardTitle className="text-foreground flex items-center">
+                  <Trophy className="h-5 w-5 mr-2 text-primary" />
                   Final Rankings
                 </CardTitle>
               </CardHeader>
@@ -109,10 +109,10 @@ export const MultiplayerQuizResults = ({
                       transition={{ delay: index * 0.1 }}
                       className={`
                         flex items-center space-x-4 p-4 rounded-xl
-                        ${rank === 1 ? 'bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/30' :
-                          rank === 2 ? 'bg-gradient-to-r from-gray-400/20 to-gray-600/20 border border-gray-400/30' :
-                          rank === 3 ? 'bg-gradient-to-r from-amber-600/20 to-amber-800/20 border border-amber-600/30' :
-                          'bg-white/5 border border-white/10'
+                        ${rank === 1 ? 'bg-gradient-to-r from-primary/20 to-accent/20 border border-primary/30' :
+                          rank === 2 ? 'bg-gradient-to-r from-muted/20 to-muted/30 border border-muted/30' :
+                          rank === 3 ? 'bg-gradient-to-r from-secondary/20 to-secondary/30 border border-secondary/30' :
+                          'bg-card/50 border border-border'
                         }
                       `}
                     >
@@ -125,11 +125,11 @@ export const MultiplayerQuizResults = ({
                       {/* Player Info */}
                       <div className="flex-1">
                         <div className="flex items-center space-x-2">
-                          <span className="text-white font-bold text-lg">
+                          <span className="text-foreground font-bold text-lg">
                             {player.username}
                           </span>
                           {rank === 1 && (
-                            <Badge className="bg-yellow-500/20 text-yellow-300">
+                            <Badge className="bg-primary/20 text-primary">
                               Winner!
                             </Badge>
                           )}

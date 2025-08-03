@@ -87,27 +87,27 @@ export const EnhancedMultiplayerQuizGame = ({
     
     if (showCorrectAnswer) {
       if (option === question.correct_answer) {
-        return `${baseClass} bg-emerald-500/30 border-emerald-400 text-emerald-300 shadow-lg shadow-emerald-500/25`;
+        return `${baseClass} bg-primary/30 border-primary text-primary shadow-lg shadow-primary/25`;
       } else if (option === selectedAnswer) {
-        return `${baseClass} bg-red-500/30 border-red-400 text-red-300 shadow-lg shadow-red-500/25`;
+        return `${baseClass} bg-destructive/30 border-destructive text-destructive shadow-lg shadow-destructive/25`;
       }
       return `${baseClass} bg-muted/20 border-border text-muted-foreground`;
     }
     
     if (selectedAnswer === option) {
-      return `${baseClass} bg-gradient-to-r from-emerald-500/30 to-teal-500/30 border-emerald-400 text-emerald-300 shadow-lg shadow-emerald-500/25 scale-105`;
+      return `${baseClass} bg-gradient-to-r from-primary/30 to-accent/30 border-primary text-primary shadow-lg shadow-primary/25 scale-105`;
     }
     
     if (isAnswered) {
       return `${baseClass} bg-muted/20 border-border text-muted-foreground opacity-50`;
     }
     
-    return `${baseClass} bg-card/80 border-border hover:border-emerald-400/50 hover:bg-emerald-500/10 hover:shadow-lg hover:shadow-emerald-500/20 hover:scale-105 text-foreground`;
+    return `${baseClass} bg-card/80 border-border hover:border-primary/50 hover:bg-primary/10 hover:shadow-lg hover:shadow-primary/20 hover:scale-105 text-foreground`;
   };
 
   if (gameState === 'countdown') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-violet-950 via-purple-900 to-indigo-900 flex items-center justify-center">
+      <div className="min-h-screen bg-background particle-bg flex items-center justify-center">
         <motion.div
           initial={{ scale: 0.5, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -116,18 +116,18 @@ export const EnhancedMultiplayerQuizGame = ({
           <motion.div
             animate={{ scale: [1, 1.2, 1] }}
             transition={{ duration: 1, repeat: Infinity }}
-            className="text-8xl font-bold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent"
+            className="text-8xl font-bold gradient-text"
           >
             3
           </motion.div>
-          <p className="text-2xl text-white/80">Get Ready!</p>
+          <p className="text-2xl text-muted-foreground">Get Ready!</p>
         </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-950 via-purple-900 to-indigo-900 p-4 pt-[100px]">
+    <div className="min-h-screen bg-background particle-bg p-4 pt-[100px]">
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Header with Timer and Players */}
         <div className="flex justify-between items-center">
@@ -136,24 +136,24 @@ export const EnhancedMultiplayerQuizGame = ({
               animate={{ rotate: timeLeft <= 5 ? [0, -10, 10, 0] : 0 }}
               transition={{ duration: 0.5, repeat: timeLeft <= 5 ? Infinity : 0 }}
               className={`flex items-center space-x-2 px-4 py-2 rounded-2xl ${
-                timeLeft <= 5 ? 'bg-red-500/20 border border-red-400' : 'bg-cyan-500/20 border border-cyan-400'
+                timeLeft <= 5 ? 'bg-destructive/20 border border-destructive' : 'bg-primary/20 border border-primary'
               }`}
             >
-              <Clock className={`h-5 w-5 ${timeLeft <= 5 ? 'text-red-300' : 'text-cyan-300'}`} />
-              <span className={`font-bold text-lg ${timeLeft <= 5 ? 'text-red-300' : 'text-cyan-300'}`}>
+              <Clock className={`h-5 w-5 ${timeLeft <= 5 ? 'text-destructive' : 'text-primary'}`} />
+              <span className={`font-bold text-lg ${timeLeft <= 5 ? 'text-destructive' : 'text-primary'}`}>
                 {timeLeft}s
               </span>
             </motion.div>
             
             <Progress 
               value={timePercentage} 
-              className={`w-48 h-3 ${timeLeft <= 5 ? '[&>div]:bg-red-500' : '[&>div]:bg-cyan-500'}`}
+              className={`w-48 h-3 ${timeLeft <= 5 ? '[&>div]:bg-destructive' : '[&>div]:bg-primary'}`}
             />
 
             {/* Question Counter */}
-            <div className="flex items-center space-x-2 px-4 py-2 rounded-2xl bg-purple-500/20 border border-purple-400">
-              <Target className="h-5 w-5 text-purple-300" />
-              <span className="text-purple-300 font-bold">
+            <div className="flex items-center space-x-2 px-4 py-2 rounded-2xl bg-accent/20 border border-accent">
+              <Target className="h-5 w-5 text-accent" />
+              <span className="text-accent font-bold">
                 {currentQuestionIndex + 1} / {totalQuestions}
               </span>
             </div>
@@ -163,17 +163,17 @@ export const EnhancedMultiplayerQuizGame = ({
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                className="flex items-center space-x-2 px-4 py-2 rounded-2xl bg-emerald-500/20 border border-emerald-400"
+                className="flex items-center space-x-2 px-4 py-2 rounded-2xl bg-primary/20 border border-primary"
               >
-                <CheckCircle className="h-5 w-5 text-emerald-300" />
-                <span className="text-emerald-300 font-bold">All Answered!</span>
+                <CheckCircle className="h-5 w-5 text-primary" />
+                <span className="text-primary font-bold">All Answered!</span>
               </motion.div>
             )}
           </div>
 
           <div className="flex items-center space-x-2">
-            <Users className="h-5 w-5 text-purple-300" />
-            <span className="text-purple-300 font-medium">{players.length} Players</span>
+            <Users className="h-5 w-5 text-accent" />
+            <span className="text-accent font-medium">{players.length} Players</span>
           </div>
         </div>
 
@@ -183,11 +183,11 @@ export const EnhancedMultiplayerQuizGame = ({
           animate={{ y: 0, opacity: 1 }}
           className="relative"
         >
-          <Card className="bg-card/80 backdrop-blur-xl border-border shadow-2xl">
+          <Card className="glass-card border-border shadow-2xl">
             <CardContent className="p-8">
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
-                  <Badge className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-300 border-purple-500/40 px-4 py-2">
+                  <Badge className="bg-gradient-to-r from-accent/20 to-primary/20 text-accent border-accent/40 px-4 py-2">
                     <Target className="h-4 w-4 mr-2" />
                     {question.difficulty}
                   </Badge>
@@ -196,10 +196,10 @@ export const EnhancedMultiplayerQuizGame = ({
                     <motion.div
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
-                      className="flex items-center space-x-1 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/40 rounded-full px-3 py-1"
+                      className="flex items-center space-x-1 bg-gradient-to-r from-primary/20 to-accent/20 border border-primary/40 rounded-full px-3 py-1"
                     >
-                      <Zap className="h-4 w-4 text-yellow-300" />
-                      <span className="text-yellow-300 font-bold">{streak} Streak!</span>
+                      <Zap className="h-4 w-4 text-primary" />
+                      <span className="text-primary font-bold">{streak} Streak!</span>
                     </motion.div>
                   )}
                 </div>
@@ -232,7 +232,7 @@ export const EnhancedMultiplayerQuizGame = ({
                   <div className="flex items-center space-x-4">
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${
                       showCorrectAnswer && option === question.correct_answer 
-                        ? 'bg-emerald-400 text-black'
+                        ? 'bg-primary text-primary-foreground'
                         : selectedAnswer === option
                         ? 'bg-current text-background'
                         : 'bg-muted text-muted-foreground'
@@ -248,8 +248,8 @@ export const EnhancedMultiplayerQuizGame = ({
                       animate={{ scale: 1 }}
                       className="absolute top-2 right-2"
                     >
-                      <div className="w-6 h-6 rounded-full bg-emerald-400 flex items-center justify-center">
-                        <Star className="h-3 w-3 text-black" fill="currentColor" />
+                      <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+                        <Star className="h-3 w-3 text-primary-foreground" fill="currentColor" />
                       </div>
                     </motion.div>
                   )}
@@ -260,10 +260,10 @@ export const EnhancedMultiplayerQuizGame = ({
         </div>
 
         {/* Live Leaderboard */}
-        <Card className="bg-card/80 backdrop-blur-xl border-border">
+        <Card className="glass-card border-border">
           <CardContent className="p-6">
             <div className="flex items-center space-x-2 mb-4">
-              <Trophy className="h-5 w-5 text-yellow-400" />
+              <Trophy className="h-5 w-5 text-primary" />
               <h3 className="text-lg font-bold text-foreground">Live Leaderboard</h3>
             </div>
             
@@ -276,29 +276,29 @@ export const EnhancedMultiplayerQuizGame = ({
                   transition={{ delay: index * 0.1 }}
                   className={`flex items-center justify-between p-3 rounded-xl ${
                     index === 0 
-                      ? 'bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/40'
+                      ? 'bg-gradient-to-r from-primary/20 to-accent/20 border border-primary/40'
                       : 'bg-muted/30 border border-border'
                   }`}
                 >
                   <div className="flex items-center space-x-3">
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${
-                      index === 0 ? 'bg-yellow-400 text-black' : 'bg-muted text-muted-foreground'
+                      index === 0 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
                     }`}>
                       {index === 0 ? <Crown className="h-4 w-4" /> : index + 1}
                     </div>
-                    <span className={`font-medium ${index === 0 ? 'text-yellow-300' : 'text-foreground'}`}>
+                    <span className={`font-medium ${index === 0 ? 'text-primary' : 'text-foreground'}`}>
                       {player.username}
                     </span>
                   </div>
                   
                   <div className="flex items-center space-x-4">
                     {player.streak > 0 && (
-                      <Badge className="bg-orange-500/20 text-orange-300 border-orange-500/40">
+                      <Badge className="bg-accent/20 text-accent border-accent/40">
                         <Zap className="h-3 w-3 mr-1" />
                         {player.streak}
                       </Badge>
                     )}
-                    <span className={`font-bold text-lg ${index === 0 ? 'text-yellow-300' : 'text-emerald-300'}`}>
+                    <span className={`font-bold text-lg ${index === 0 ? 'text-primary' : 'text-accent'}`}>
                       {player.score}
                     </span>
                   </div>
