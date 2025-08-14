@@ -22,6 +22,7 @@ import { CourseCodesManager } from '@/components/courses/CourseCodesManager';
 import { StudentManager } from '@/components/students/StudentManager';
 import { DiscussionForum } from '@/components/discussions/DiscussionForum';
 import { useToast } from '@/hooks/use-toast';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { 
   ArrowLeft, 
@@ -43,8 +44,10 @@ import {
   ChevronRight,
   Cog,
   Trash2,
-  AlertTriangle
+  AlertTriangle,
+  X
 } from 'lucide-react';
+import { useIsLargeScreen } from '@/hooks/use-mobile';
 
 interface Course {
   id: string;
@@ -82,6 +85,7 @@ export const CourseDetails = () => {
     category: '',
     price: 0
   });
+  
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -104,6 +108,15 @@ export const CourseDetails = () => {
     }
   }, [course]);
 
+  const islarge = useIsLargeScreen();
+  useEffect(() => {
+    if (islarge) {
+      setSidebarCollapsed(false);
+    } else {
+      setSidebarCollapsed(true);
+    }
+  }, [islarge])
+
   const fetchCourseDetails = async () => {
     try {
       const { data, error } = await supabase
@@ -114,11 +127,11 @@ export const CourseDetails = () => {
 
       if (error) throw error;
       setCourse(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching course:', error);
       toast({
         title: 'Error',
-        description: 'Failed to load course details',
+        description: error instanceof Error ? error.message : 'Failed to load course details',
         variant: 'destructive',
       });
     } finally {
@@ -135,7 +148,7 @@ export const CourseDetails = () => {
 
       if (error) throw error;
       setEnrollmentCount(count || 0);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching enrollment count:', error);
     }
   };
@@ -150,7 +163,7 @@ export const CourseDetails = () => {
 
       if (error) throw error;
       setQuizzes(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching quizzes:', error);
     }
   };
@@ -169,11 +182,11 @@ export const CourseDetails = () => {
         title: 'Success',
         description: `Course ${status === 'published' ? 'published' : 'saved as draft'}!`,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error updating course status:', error);
       toast({
         title: 'Error',
-        description: error.message,
+        description: error instanceof Error ? error.message : 'Failed to update course status',
         variant: 'destructive',
       });
     }
@@ -205,11 +218,11 @@ export const CourseDetails = () => {
         title: 'Success',
         description: 'Course details updated successfully!',
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error updating course:', error);
       toast({
         title: 'Error',
-        description: error.message,
+        description: error instanceof Error ? error.message : 'Failed to update course',
         variant: 'destructive',
       });
     }
@@ -257,11 +270,11 @@ export const CourseDetails = () => {
 
       // Navigate back to teacher dashboard
       navigate('/teacher/courses');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error deleting course:', error);
       toast({
         title: 'Error',
-        description: 'Failed to delete course. Please try again.',
+        description: error instanceof Error ? error.message : 'Failed to delete course. Please try again.',
         variant: 'destructive',
       });
     } finally {
@@ -304,9 +317,9 @@ export const CourseDetails = () => {
     switch (activeTab) {
       case 'overview':
         return (
-          <div className="space-y-8">
+          <div className="space-y-6 md:space-y-8">
             {/* Hero Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
               <Card className="glass-card border-white/10 bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border-emerald-500/20">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
@@ -363,60 +376,7 @@ export const CourseDetails = () => {
                 </CardContent>
               </Card>
             </div>
-
-            {/* Course Info Card */}
-            <Card className="glass-card border-white/10">
-              <CardHeader className="pb-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
-                      {course.title}
-                    </CardTitle>
-                    <div className="flex items-center gap-2 mt-2">
-                      <Badge variant={course.status === 'published' ? 'default' : 'secondary'} className="px-3 py-1">
-                        {course.status || 'draft'}
-                      </Badge>
-                      {course.category && <Badge variant="outline">{course.category}</Badge>}
-                      <Badge variant="outline">{course.price} Credits</Badge>
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button asChild variant="outline" size="sm">
-                      <Link to={`/courses/${courseId}`}>
-                        <Eye className="h-4 w-4 mr-2" />
-                        Preview
-                      </Link>
-                    </Button>
-                    {course.status !== 'published' ? (
-                      <Button onClick={() => updateCourseStatus('published')} className="btn-primary">
-                        <Sparkles className="h-4 w-4 mr-2" />
-                        Publish Course
-                      </Button>
-                    ) : (
-                      <Button variant="outline" onClick={() => updateCourseStatus('draft')}>
-                        Unpublish
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground leading-relaxed">
-                  {course.description || 'No description available'}
-                </p>
-                <div className="flex items-center gap-6 mt-4 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4" />
-                    <span>Created {new Date(course.created_at).toLocaleDateString()}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Globe className="h-4 w-4" />
-                    <span>Code: {course.enrollment_code || 'None'}</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
+            {/* Course header moved above tabs; removed here to avoid duplication */}
             {/* Course Discussions */}
             <Card className="glass-card border-white/10">
               <CardHeader>
@@ -644,17 +604,15 @@ export const CourseDetails = () => {
 
   return (
     <DashboardLayout>
-      <div className="flex min-h-[calc(100vh-6rem)] bg-background">
-        {/* Left Sidebar */}
-        <div className={`transition-all duration-300 ease-in-out border-r border-white/10 bg-gradient-to-b from-background/95 to-background/80 backdrop-blur-xl relative ${
-          sidebarCollapsed ? 'w-20' : 'w-80'
-        }`}>
-          {/* Collapse/Expand Button */}
+      <div className="flex flex-col md:flex-row min-h-[calc(100vh-6rem)] bg-background relative overflow-hidden">
+        {/* Left Sidebar - hidden on mobile, collapsible on desktop */}
+        <div className={`hidden md:block transition-all duration-300 ease-in-out border-r border-white/10 bg-gradient-to-b from-background/95 to-background/80 backdrop-blur-xl ${sidebarCollapsed ? 'md:w-20' : 'md:w-80'} md:relative z-30 shrink-0`}>
+          {/* Collapse/Expand Button - Only visible on desktop */}
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className="absolute -right-4 top-8 z-50 h-8 w-8 rounded-full bg-background border border-border shadow-lg hover:shadow-xl transition-all duration-200"
+            className="hidden md:block absolute -right-4 top-8 z-50 h-8 w-8 rounded-full bg-background border border-border shadow-lg hover:shadow-xl transition-all duration-200"
           >
             {sidebarCollapsed ? (
               <ChevronRight className="h-4 w-4" />
@@ -662,22 +620,22 @@ export const CourseDetails = () => {
               <ChevronLeft className="h-4 w-4" />
             )}
           </Button>
+          
+          {/* Mobile close button removed since sidebar is hidden on mobile */}
 
-          <div className="p-6 space-y-6">
+          <div className="p-4 md:p-6 space-y-4 md:space-y-6">
             {/* Header */}
             <div className="space-y-4">
               <Link to="/teacher/dashboard">
-                <Button variant="outline" size="sm" className={`glass-card transition-all duration-200 ${
-                  sidebarCollapsed ? 'w-8 h-8 p-0' : ''
-                }`}>
+                <Button variant="outline" size="sm" className={`glass-card transition-all duration-200 ${sidebarCollapsed ? 'w-8 h-8 p-0' : ''}`}>
                   <ArrowLeft className="h-4 w-4" />
                   {!sidebarCollapsed && <span className="ml-2">Back to Dashboard</span>}
                 </Button>
               </Link>
               
               {!sidebarCollapsed && (
-                <div className="p-6 rounded-2xl bg-gradient-to-br from-primary/10 to-secondary/10 border border-primary/20">
-                  <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2">
+                <div className="p-4 md:p-6 rounded-2xl bg-gradient-to-br from-primary/10 to-secondary/10 border border-primary/20">
+                  <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2">
                     Course Management
                   </h1>
                   <p className="text-sm text-muted-foreground">
@@ -689,10 +647,12 @@ export const CourseDetails = () => {
 
             {/* Navigation */}
             <nav className="space-y-2">
+              
+
               {sidebarItems.map((item) => {
                 if (item.isLink) {
                   return (
-                    <Link key={item.id} to={item.href!}>
+                    <Link key={item.id} to={item.href!} onClick={() => setSidebarCollapsed(true)}>
                       <button
                         className={`w-full group flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 relative overflow-hidden hover:bg-white/10 hover:text-primary hover-glow hover:shadow-lg hover:shadow-white/10 ${
                           sidebarCollapsed ? 'justify-center' : ''
@@ -716,7 +676,10 @@ export const CourseDetails = () => {
                 return (
                   <button
                     key={item.id}
-                    onClick={() => setActiveTab(item.id)}
+                    onClick={() => {
+                      setActiveTab(item.id);
+                      setSidebarCollapsed(true);
+                    }}
                     className={`w-full group flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 relative overflow-hidden ${
                       activeTab === item.id
                         ? 'bg-gradient-to-r from-primary/20 to-secondary/20 text-primary glow border border-primary/30 shadow-lg shadow-primary/20'
@@ -748,9 +711,92 @@ export const CourseDetails = () => {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 p-8">
-          <div className="max-w-6xl mx-auto">
-            {renderContent()}
+        <div className="flex-1 p-4 md:p-8 min-w-0 min-h-0 overflow-y-auto">
+          <div className="w-full max-w-6xl mx-auto space-y-4">
+            {/* Course Header - persistent on all tabs */}
+            <Card className="glass-card border-white/10">
+              <CardHeader className="pb-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <CardTitle className="text-xl md:text-2xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+                      {course.title}
+                    </CardTitle>
+                    <div className="flex flex-wrap items-center gap-2 mt-2">
+                      <Badge variant={course.status === 'published' ? 'default' : 'secondary'} className="px-3 py-1">
+                        {course.status || 'draft'}
+                      </Badge>
+                      {course.category && <Badge variant="outline">{course.category}</Badge>}
+                      <Badge variant="outline">{course.price} Credits</Badge>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <Button asChild variant="default" size="sm">
+                      <Link to={`/teacher/courses/${courseId}/manage`}>
+                        <Cog className="h-4 w-4 mr-2" />
+                        Manage
+                      </Link>
+                    </Button>
+                    <Button asChild variant="outline" size="sm">
+                      <Link to={`/courses/${courseId}`}>
+                        <Eye className="h-4 w-4 mr-2" />
+                        Preview
+                      </Link>
+                    </Button>
+                    {course.status !== 'published' ? (
+                      <Button onClick={() => updateCourseStatus('published')}>
+                        <Sparkles className="h-4 w-4 mr-2" />
+                        Publish Course
+                      </Button>
+                    ) : (
+                      <Button variant="outline" onClick={() => updateCourseStatus('draft')}>
+                        Unpublish
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground leading-relaxed">
+                  {course.description || 'No description available'}
+                </p>
+                <div className="flex flex-wrap items-center gap-4 md:gap-6 mt-4 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4" />
+                    <span>Created {new Date(course.created_at).toLocaleDateString()}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Globe className="h-4 w-4" />
+                    <span>Code: {course.enrollment_code || 'None'}</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Mobile Tabs - under header, replaces sidebar on small screens */}
+            <div className="md:hidden">
+              <Tabs value={activeTab} onValueChange={(v) => {
+                if (v === 'manage') {
+                  navigate(`/teacher/courses/${courseId}/manage`);
+                  return;
+                }
+                setActiveTab(v);
+              }}>
+                <div className="w-full overflow-x-auto">
+                  <TabsList className="flex p-1 gap-1 whitespace-nowrap">
+                    <TabsTrigger className="shrink-0" value="overview">Overview</TabsTrigger>
+                    <TabsTrigger className="shrink-0" value="students">Students</TabsTrigger>
+                    <TabsTrigger className="shrink-0" value="codes">Codes</TabsTrigger>
+                    <TabsTrigger className="shrink-0" value="settings">Settings</TabsTrigger>
+                    
+                  </TabsList>
+                </div>
+              </Tabs>
+            </div>
+
+            {/* Tab Content */}
+            <div>
+              {renderContent()}
+            </div>
           </div>
         </div>
       </div>

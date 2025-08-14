@@ -8,6 +8,7 @@ import AuthForm from './AuthForm';
 import AuthModal from '@/components/ui/AuthModal';
 import { useRandomBackground } from "../../hooks/useRandomBackground";
 import { PremiumCourseCard } from '@/components/courses/PremiumCourseCard';
+import { PLATFORM_NAME } from '@/data/constants';
 
 const cards = [
   {
@@ -111,7 +112,7 @@ const Auth: React.FC = () => {
           {/* Logo */}
           <Link to="/">
           <div className="flex items-center mb-8">
-            <span className="text-4xl font-extrabold tracking-tight text-primary">LEARN</span>
+            <span className="text-4xl font-extrabold tracking-tight text-primary">{PLATFORM_NAME}</span>
             <span className="text-4xl font-extrabold tracking-tight text-primary">.</span>
           </div>
           </Link>
@@ -159,7 +160,7 @@ const Auth: React.FC = () => {
             <span>|</span>
             <button onClick={() => handleLegalLink('contact')} className="hover:underline hover:text-primary">Contact</button>
           </div>
-          <div className="text-xs text-muted-foreground text-center w-full">©2025 LearnX LMS</div>
+          <div className="text-xs text-muted-foreground text-center w-full">©2025 {PLATFORM_NAME} LMS</div>
         </footer>
       </div>
       {/* Right Column: Two vertical carousels */}
@@ -244,15 +245,15 @@ const Auth: React.FC = () => {
                 <h3 className="text-xl font-semibold">Terms of Service</h3>
                 <p className="text-sm text-muted-foreground">Last updated: January 2025</p>
                 <div className="space-y-3 text-sm">
-                  <p>Welcome to LearnX LMS. By accessing our platform, you agree to these terms of service.</p>
+                  <p>Welcome to {PLATFORM_NAME} LMS. By accessing our platform, you agree to these terms of service.</p>
                   <h4 className="font-semibold">1. Acceptance of Terms</h4>
-                  <p>By using LearnX LMS, you accept and agree to be bound by these Terms of Service and all applicable laws and regulations.</p>
+                  <p>By using {PLATFORM_NAME} LMS, you accept and agree to be bound by these Terms of Service and all applicable laws and regulations.</p>
                   <h4 className="font-semibold">2. User Accounts</h4>
                   <p>You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account.</p>
                   <h4 className="font-semibold">3. Acceptable Use</h4>
                   <p>You agree not to use the service for any unlawful purpose or to violate any applicable laws or regulations.</p>
                   <h4 className="font-semibold">4. Intellectual Property</h4>
-                  <p>All content on LearnX LMS is protected by copyright and other intellectual property laws.</p>
+                  <p>All content on {PLATFORM_NAME} LMS is protected by copyright and other intellectual property laws.</p>
                   <h4 className="font-semibold">5. Termination</h4>
                   <p>We reserve the right to terminate or suspend your account at any time for violations of these terms.</p>
                 </div>
@@ -278,7 +279,7 @@ const Auth: React.FC = () => {
                 <h3 className="text-xl font-semibold">Help Center</h3>
                 <div className="space-y-3 text-sm">
                   <h4 className="font-semibold">Getting Started</h4>
-                  <p>Welcome to LearnX LMS! Here's how to get started with your learning journey.</p>
+                  <p>Welcome to {PLATFORM_NAME} LMS! Here's how to get started with your learning journey.</p>
                   <h4 className="font-semibold">Creating an Account</h4>
                   <p>Click "Create Account" on the homepage and follow the simple registration process.</p>
                   <h4 className="font-semibold">Enrolling in Courses</h4>

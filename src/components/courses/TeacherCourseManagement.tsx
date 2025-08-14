@@ -10,6 +10,9 @@ import { QuizEditor } from '@/components/quizzes/QuizEditor';
 import { LessonEditor } from '@/components/lessons/LessonEditor';
 import { TeacherCourseOverview } from './TeacherCourseOverview';
 import { GoogleMeetIntegration } from '../lectures/GoogleMeetIntegration';
+import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent } from '@/components/ui/sheet';
+import { Menu } from 'lucide-react';
 
 interface Course {
   id: string;
@@ -50,11 +53,13 @@ export const TeacherCourseManagement = () => {
   const [currentItem, setCurrentItem] = useState<{ type: 'lesson' | 'quiz' | null; id: string | null }>({ type: null, id: null });
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<ViewMode>('overview');
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   useEffect(() => {
     if (id) {
       fetchCourseData();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const fetchCourseData = async () => {
@@ -88,7 +93,7 @@ export const TeacherCourseManagement = () => {
 
       if (quizzesError) throw quizzesError;
       setQuizzes(quizzesData || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching course data:', error);
       toast({
         title: 'Error',
@@ -121,11 +126,11 @@ export const TeacherCourseManagement = () => {
       });
 
       fetchCourseData();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error deleting lesson:', error);
       toast({
         title: 'Error',
-        description: error.message,
+        description: error instanceof Error ? error.message : 'Failed to delete lesson',
         variant: 'destructive',
       });
     }
@@ -148,11 +153,11 @@ export const TeacherCourseManagement = () => {
       });
 
       fetchCourseData();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error deleting quiz:', error);
       toast({
         title: 'Error',
-        description: error.message,
+        description: error instanceof Error ? error.message : 'Failed to delete quiz',
         variant: 'destructive',
       });
     }
@@ -243,23 +248,66 @@ export const TeacherCourseManagement = () => {
   }
 
   return (
-    <div className="min-h-screen flex bg-background pt-20">
-      <TeacherCourseSidebar
-        course={course}
-        lessons={lessons}
-        quizzes={quizzes}
-        currentItem={currentItem}
-        onItemSelect={handleItemSelect}
-        onDeleteLesson={handleDeleteLesson}
-        onDeleteQuiz={handleDeleteQuiz}
-        onContentUpdate={fetchCourseData}
-        onViewModeChange={handleViewModeChange}
-        viewMode={viewMode}
-      />
-      
-      <div className="flex-1 p-6">
-        {renderMainContent()}
+    <div className="min-h-screen bg-background pt-20 flex lg:flex-row">
+      {/* Static sidebar on large screens */}
+      <div className="hidden lg:flex w-80 shrink-0 border-r h-[calc(100vh-5rem)] bg-card/30 sticky top-20 self-start">
+        <TeacherCourseSidebar
+          course={course}
+          lessons={lessons}
+          quizzes={quizzes}
+          currentItem={currentItem}
+          onItemSelect={(type, id) => {
+            handleItemSelect(type, id);
+          }}
+          onDeleteLesson={handleDeleteLesson}
+          onDeleteQuiz={handleDeleteQuiz}
+          onContentUpdate={fetchCourseData}
+          onViewModeChange={(mode) => {
+            handleViewModeChange(mode);
+          }}
+          viewMode={viewMode}
+        />
       </div>
+
+      {/* Main content area */}
+      <div className="flex-1 p-3 sm:p-6 min-w-0 overflow-x-hidden">
+        <div className="max-w-full">
+          {renderMainContent()}
+        </div>
+      </div>
+
+      {/* Floating mobile toggle button */}
+      <Button
+        onClick={() => setMobileSidebarOpen(true)}
+        className="lg:hidden fixed bottom-4 left-4 z-[60] rounded-full w-12 h-12 p-0 shadow-lg shadow-emerald-500/25 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600"
+        aria-label="Open course management sidebar"
+      >
+        <Menu className="h-5 w-5 text-black" />
+      </Button>
+
+      {/* Mobile sidebar sheet */}
+      <Sheet open={mobileSidebarOpen} onOpenChange={setMobileSidebarOpen}>
+        <SheetContent side="left" className="p-0 w-[80vw] max-w-sm">
+          <TeacherCourseSidebar
+            course={course}
+            lessons={lessons}
+            quizzes={quizzes}
+            currentItem={currentItem}
+            onItemSelect={(type, id) => {
+              handleItemSelect(type, id);
+              setMobileSidebarOpen(false);
+            }}
+            onDeleteLesson={handleDeleteLesson}
+            onDeleteQuiz={handleDeleteQuiz}
+            onContentUpdate={fetchCourseData}
+            onViewModeChange={(mode) => {
+              handleViewModeChange(mode);
+              setMobileSidebarOpen(false);
+            }}
+            viewMode={viewMode}
+          />
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };

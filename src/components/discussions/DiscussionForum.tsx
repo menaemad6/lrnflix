@@ -266,9 +266,9 @@ export const DiscussionForum = ({ courseId }: DiscussionForumProps) => {
     return (
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>{discussion.title}</CardTitle>
-            <Button variant="outline" onClick={() => setSelectedDiscussion(null)}>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <CardTitle className="text-base sm:text-lg md:text-xl break-words">{discussion.title}</CardTitle>
+            <Button variant="outline" size="sm" onClick={() => setSelectedDiscussion(null)}>
               Back to Discussions
             </Button>
           </div>
@@ -281,14 +281,14 @@ export const DiscussionForum = ({ courseId }: DiscussionForumProps) => {
                   {discussion.author_name.charAt(0)}
                 </AvatarFallback>
               </Avatar>
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2">
+              <div className="flex-1 min-w-0">
+                <div className="flex flex-wrap items-center gap-2 mb-2">
                   <span className="font-medium">{discussion.author_name}</span>
                   <span className="text-sm text-muted-foreground">
                     {new Date(discussion.created_at).toLocaleDateString()}
                   </span>
                 </div>
-                <p className="text-gray-700">{discussion.content}</p>
+                <p className="text-gray-700 break-words whitespace-pre-wrap">{discussion.content}</p>
               </div>
             </div>
           </div>
@@ -302,14 +302,14 @@ export const DiscussionForum = ({ courseId }: DiscussionForumProps) => {
                     {reply.author_name.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-wrap items-center gap-2 mb-1">
                     <span className="font-medium text-sm">{reply.author_name}</span>
                     <span className="text-xs text-muted-foreground">
                       {new Date(reply.created_at).toLocaleDateString()}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-700">{reply.content}</p>
+                  <p className="text-sm text-gray-700 break-words whitespace-pre-wrap">{reply.content}</p>
                 </div>
               </div>
             ))}
@@ -335,9 +335,9 @@ export const DiscussionForum = ({ courseId }: DiscussionForumProps) => {
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle>Course Discussions</CardTitle>
-          <Button onClick={() => setShowNewDiscussion(true)}>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <CardTitle className="text-lg sm:text-xl">Course Discussions</CardTitle>
+          <Button onClick={() => setShowNewDiscussion(true)} size="sm">
             <Plus className="h-4 w-4 mr-2" />
             New Discussion
           </Button>
@@ -363,9 +363,9 @@ export const DiscussionForum = ({ courseId }: DiscussionForumProps) => {
                   onChange={(e) => setNewDiscussion({ ...newDiscussion, content: e.target.value })}
                   required
                 />
-                <div className="flex gap-2">
-                  <Button type="submit">Create Discussion</Button>
-                  <Button type="button" variant="outline" onClick={() => setShowNewDiscussion(false)}>
+                <div className="flex gap-2 flex-wrap">
+                  <Button type="submit" size="sm">Create Discussion</Button>
+                  <Button type="button" variant="outline" size="sm" onClick={() => setShowNewDiscussion(false)}>
                     Cancel
                   </Button>
                 </div>
@@ -396,12 +396,12 @@ export const DiscussionForum = ({ courseId }: DiscussionForumProps) => {
                         {discussion.author_name.charAt(0)}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="flex-1">
-                      <h4 className="font-medium mb-1">{discussion.title}</h4>
-                      <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-medium mb-1 break-words">{discussion.title}</h4>
+                      <p className="text-sm text-muted-foreground mb-2 line-clamp-2 break-words">
                         {discussion.content}
                       </p>
-                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                      <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
                         <span>By {discussion.author_name}</span>
                         <span>{new Date(discussion.created_at).toLocaleDateString()}</span>
                         <div className="flex items-center gap-1">

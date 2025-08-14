@@ -23,6 +23,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { ModernScrollbar } from '@/components/ui/modern-scrollbar';
 import type { User } from '@/store/slices/authSlice';
 import WalletCardDesign from '@/components/student/WalletCardDesign'
+import { PLATFORM_NAME } from '@/data/constants';
 
 // NavLink must be above NavbarSidebarContent for scope
 const NavLink = ({ to, children, icon: Icon, onClick, className = "", isActive }: { to: string; children: React.ReactNode; icon: React.ComponentType<{ className?: string }>; onClick?: () => void; className?: string; isActive: (path: string) => boolean }) => (
@@ -167,7 +168,7 @@ export const Navbar = ({ extraXSpacing = false }: { extraXSpacing?: boolean }) =
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center space-x-2">
               <BookOpen className="h-8 w-8 text-primary" />
-              <span className="text-2xl font-bold gradient-text">{teacher?.display_name || 'EduPlatform'}</span>
+              <span className="text-2xl font-bold gradient-text">{teacher?.display_name || PLATFORM_NAME}</span>
             </Link>
             {isMobile ? (
               <Sheet>
@@ -182,7 +183,7 @@ export const Navbar = ({ extraXSpacing = false }: { extraXSpacing?: boolean }) =
                     <div className="flex flex-col gap-2 pt-8 pb-2 px-6 border-b border-border/10">
                       <div className="flex flex-col items-center justify-center w-full">
                         <BookOpen className="h-8 w-8 text-primary mb-1" />
-                        <span className="text-2xl font-bold gradient-text text-center w-full">{teacher?.display_name || 'EduPlatform'}</span>
+                        <span className="text-2xl font-bold gradient-text text-center w-full">{teacher?.display_name || PLATFORM_NAME}</span>
                       </div>
                       <div className="mt-4">
                         <ThemeSegmentedToggle />
@@ -237,7 +238,7 @@ export const Navbar = ({ extraXSpacing = false }: { extraXSpacing?: boolean }) =
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center space-x-2">
             <BookOpen className="h-8 w-8 text-primary" />
-            <span className="text-2xl font-bold gradient-text">{teacher?.display_name || 'EduPlatform'}</span>
+            <span className="text-2xl font-bold gradient-text">{teacher?.display_name || PLATFORM_NAME}</span>
           </Link>
           {/* Sidebar Trigger and Profile Dropdown */}
           {isMobile ? (
@@ -389,7 +390,7 @@ function NavbarSidebarContent({ user, navLinks, handleLogout, setSheetOpen, isAc
       <div className="flex flex-col gap-2 pt-8 pb-2 px-6 border-b border-border/10">
         <div className="flex flex-col items-center justify-center w-full">
           <BookOpen className="h-8 w-8 text-primary mb-1" />
-          <span className="text-2xl font-bold gradient-text text-center w-full">{teacher?.display_name || 'EduPlatform'}</span>
+          <span className="text-2xl font-bold gradient-text text-center w-full">{teacher?.display_name || PLATFORM_NAME}</span>
         </div>
         <div className="mt-4">
           <ThemeSegmentedToggle />

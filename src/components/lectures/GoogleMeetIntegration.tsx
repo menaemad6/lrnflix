@@ -262,11 +262,11 @@ export const GoogleMeetIntegration = ({ courseId, onBack }: GoogleMeetIntegratio
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
-      <div className="space-y-8 relative z-10 p-8">
+      <div className="space-y-6 sm:space-y-8 relative z-10 p-4 sm:p-8">
         {/* Header */}
-        <div className="card p-8 border border-border bg-card">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-6">
+        <div className="card p-4 sm:p-8 border border-border bg-card">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3 sm:gap-6">
               {onBack && (
                 <Button 
                   variant="outline" 
@@ -277,21 +277,23 @@ export const GoogleMeetIntegration = ({ courseId, onBack }: GoogleMeetIntegratio
                   Back
                 </Button>
               )}
-              <div className="space-y-2">
-                <h3 className="text-4xl font-bold bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent">
+              <div className="space-y-1 sm:space-y-2">
+                <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent">
                   Live Lecture Management
                 </h3>
-                <p className="text-muted-foreground text-lg">Create and manage your course's live Google Meet lectures</p>
+                <p className="text-muted-foreground text-sm sm:text-base lg:text-lg">Create and manage your course's live Google Meet lectures</p>
               </div>
             </div>
-            <CreateLectureModal 
-              courseId={courseId} 
-              onLectureCreated={handleLectureCreated}
-            />
+            <div className="flex">
+              <CreateLectureModal 
+                courseId={courseId} 
+                onLectureCreated={handleLectureCreated}
+              />
+            </div>
           </div>
         </div>
         {/* Google Account Status Card */}
-        <div className="card border border-border bg-card p-6 flex items-center gap-4">
+        <div className="card border border-border bg-card p-4 sm:p-6 flex items-center gap-3 sm:gap-4">
           {isConnected ? (
             <>
               <Badge className="bg-green-500">Connected</Badge>
@@ -331,7 +333,7 @@ export const GoogleMeetIntegration = ({ courseId, onBack }: GoogleMeetIntegratio
                 </div>
               ) : (
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <div className="flex items-center gap-2">
                       <h4 className="font-semibold flex items-center gap-2">
                         <Calendar className="h-4 w-4" />
@@ -350,10 +352,10 @@ export const GoogleMeetIntegration = ({ courseId, onBack }: GoogleMeetIntegratio
                           return (
                             <Card key={lecture.id} className="card border border-border bg-card">
                               <CardContent className="p-4">
-                                <div className="flex items-start justify-between">
-                                  <div className="space-y-2 flex-1">
+                                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                                  <div className="space-y-2 flex-1 min-w-0">
                                     <div className="flex items-center gap-2">
-                                      <h5 className="font-medium">{lecture.title}</h5>
+                                      <h5 className="font-medium break-words">{lecture.title}</h5>
                                       <Badge 
                                         variant={statusInfo.badgeVariant} 
                                         className={statusInfo.badgeColor}
@@ -362,11 +364,11 @@ export const GoogleMeetIntegration = ({ courseId, onBack }: GoogleMeetIntegratio
                                       </Badge>
                                     </div>
                                     {lecture.description && (
-                                      <p className="text-sm text-muted-foreground">
+                                      <p className="text-sm text-muted-foreground break-words">
                                         {lecture.description}
                                       </p>
                                     )}
-                                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                                    <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
                                       <div className="flex items-center gap-1">
                                         <Calendar className="h-3 w-3" />
                                         {timeInfo.date}

@@ -124,11 +124,11 @@ export const QuizManager = ({ courseId, onBack, editingQuizId }: QuizManagerProp
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
-      <div className="space-y-8 relative z-10 p-8">
+      <div className="space-y-6 sm:space-y-8 relative z-10 p-4 sm:p-8">
         {/* Header */}
-        <div className="card p-8 border border-border bg-card">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-6">
+        <div className="card p-4 sm:p-8 border border-border bg-card">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3 sm:gap-6">
               {onBack && (
                 <Button 
                   variant="outline" 
@@ -139,11 +139,11 @@ export const QuizManager = ({ courseId, onBack, editingQuizId }: QuizManagerProp
                   Back
                 </Button>
               )}
-              <div className="space-y-2">
-                <h3 className="text-4xl font-bold bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent">
+              <div className="space-y-1 sm:space-y-2">
+                <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent">
                   Quiz Management
                 </h3>
-                <p className="text-muted-foreground text-lg">Create and manage your course assessments</p>
+                <p className="text-muted-foreground text-sm sm:text-base lg:text-lg">Create and manage your course assessments</p>
               </div>
             </div>
             <Button 
@@ -167,11 +167,11 @@ export const QuizManager = ({ courseId, onBack, editingQuizId }: QuizManagerProp
         )}
 
         {/* Quizzes Grid */}
-        <div className="grid gap-6">
+        <div className="grid gap-4 sm:gap-6">
           {quizzes.map((quiz) => (
             <Card key={quiz.id} className="card border border-border bg-card group">
               <CardHeader className="pb-4">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div className="space-y-3 flex-1">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center group-hover:shadow-lg group-hover:shadow-emerald-500/25 transition-all duration-300">
@@ -182,12 +182,12 @@ export const QuizManager = ({ courseId, onBack, editingQuizId }: QuizManagerProp
                       </CardTitle>
                     </div>
                     {quiz.description && (
-                      <p className="text-sm text-muted-foreground ml-13 leading-relaxed">
+                      <p className="text-sm text-muted-foreground leading-relaxed sm:ml-13">
                         {quiz.description}
                       </p>
                     )}
                   </div>
-                  <div className="flex gap-3">
+                  <div className="flex gap-2 sm:gap-3">
                     <Button 
                       variant="outline" 
                       size="sm"
@@ -208,7 +208,7 @@ export const QuizManager = ({ courseId, onBack, editingQuizId }: QuizManagerProp
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="flex gap-3 flex-wrap">
+                <div className="flex gap-2 sm:gap-3 flex-wrap">
                   <Badge 
                     className={
                       quiz.type === 'quiz' 

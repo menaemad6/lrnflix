@@ -33,7 +33,7 @@ const HeroSection: React.FC = () => {
       <div className="w-full max-w-4xl mx-auto flex flex-col items-center justify-center text-center px-4 pt-24 pb-12 z-10 relative">
         <h1 className="text-4xl md:text-6xl font-extrabold leading-tight mb-4 text-gray-900 dark:text-white">
           Unlock Modern Learning<br className="hidden md:block" />
-          <span className="text-emerald-500 dark:text-emerald-400">with Learnify LMS</span>
+          <span className="text-emerald-500 dark:text-emerald-400">with {PLATFORM_NAME} LMS</span>
         </h1>
         <p className="text-lg md:text-2xl text-gray-700 dark:text-gray-300 mb-8 max-w-2xl mx-auto">
           Empower your students and educators with AI-driven personalized learning, real-time analytics, interactive courses, and seamless collaboration—all in one beautiful, intuitive platform. <span className="text-emerald-600 dark:text-emerald-300 font-semibold">Experience the future of education today.</span>

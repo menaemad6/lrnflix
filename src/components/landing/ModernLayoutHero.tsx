@@ -26,6 +26,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { supabase } from '@/integrations/supabase/client';
 import WalletCard from '@/components/student/WalletCardDesign';
+import { PLATFORM_NAME } from '@/data/constants';
 
 const HERO_ANIMATION_DELAY = 1.2; // seconds, matches hero image animation
 const NAVBAR_EXTRA_DELAY = 0.5;
@@ -189,7 +190,7 @@ const ModernLayoutHero: React.FC = () => {
         Transforming Online Learning
       </h3>
       <p className="text-white/80 text-sm mb-6 leading-relaxed">
-        Interactive courses, real-time feedback, and a vibrant community. Learnify LMS brings together students and educators for a seamless digital learning experience.
+        Interactive courses, real-time feedback, and a vibrant community. {PLATFORM_NAME} LMS brings together students and educators for a seamless digital learning experience.
       </p>
       <Button
         variant="outline"
@@ -275,7 +276,7 @@ const ModernLayoutHero: React.FC = () => {
             >
               <div className="text-white z-10">
                 <h1 className="text-6xl font-bold leading-tight mb-4">
-                  Learnify LMS<br />
+                  {PLATFORM_NAME} LMS<br />
                   Empowering Modern<br />
                   Education
                 </h1>
@@ -286,7 +287,7 @@ const ModernLayoutHero: React.FC = () => {
           <FloatingExpertCard variants={floatingCardVariants} />
           <InfoBox variants={infoBoxVariants}>
             <p className="text-muted-foreground text-sm leading-relaxed">
-              Learnify is a next-generation Learning Management System designed to make education accessible, engaging, and effective. Track your progress, join live classes, collaborate with peers, and unlock your full potential with our intuitive platform.
+              {PLATFORM_NAME} is a next-generation Learning Management System designed to make education accessible, engaging, and effective. Track your progress, join live classes, collaborate with peers, and unlock your full potential with our intuitive platform.
             </p>
           </InfoBox>
           <HeroBottomSection

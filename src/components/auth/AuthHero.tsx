@@ -1,6 +1,7 @@
 
 import React from "react";
 import { BookOpen, Users, Award, TrendingUp, Sparkles } from "lucide-react";
+import { PLATFORM_NAME } from "@/data/constants";
 
 // THEME COLORS: Emerald, Teal, Cyan, Slate. NO yellow/orange.
 
@@ -33,7 +34,7 @@ export const AuthHero: React.FC<AuthHeroProps> = ({
         <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center backdrop-blur-sm mr-4 shadow-lg border border-emerald-500/30">
           <BookOpen className="w-6 h-6 text-emerald-300" />
         </div>
-        <h1 className="text-3xl font-black uppercase tracking-wider gradient-text drop-shadow">Learnify</h1>
+        <h1 className="text-3xl font-black uppercase tracking-wider gradient-text drop-shadow">{PLATFORM_NAME}</h1>
       </div>
       <h2 className="text-5xl font-extrabold mb-6 leading-tight tracking-tight text-balance gradient-text">
         {title}

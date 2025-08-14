@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Store } from 'lucide-react';
+import { PLATFORM_NAME } from '@/data/constants';
 
 interface WalletCardProps {
   wallet: string | number;
@@ -16,7 +17,7 @@ const WalletCard: React.FC<WalletCardProps> = ({ wallet }) => {
       <div className="relative z-10 flex flex-col items-start gap-2 flex-1">
         <span className="text-xs font-semibold text-white/80 tracking-wide">Wallet Balance</span>
         <span className="text-3xl font-bold text-white drop-shadow-lg">{wallet}</span>
-        <span className="text-xs text-white/60 mt-1">Learnify Credits</span>
+        <span className="text-xs text-white/60 mt-1">{PLATFORM_NAME} Credits</span>
       </div>
       {/* Chip/Logo */}
       <div className="absolute top-5 right-5 w-10 h-7 bg-white/30 rounded-lg flex items-center justify-center shadow-inner">

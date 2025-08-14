@@ -142,7 +142,7 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
       (async () => {
         const { data: questionsData } = await supabase
           .from('quiz_questions')
-          .select('id, question_text, correct_answer')
+          .select('id, question_text, correct_answer, question_type, points')
           .eq('quiz_id', quizId)
           .order('order_index');
         setModalQuestions(questionsData || []);
@@ -350,9 +350,9 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
     const newQuestions: Question[] = extractedQuestions.map((q, index) => ({
       question_text: q.question_text,
       question_type: q.question_type,
-      options: q.question_type === 'mcq' ? (q.options || ['', '', '', '']) : ['', '', '', ''],
+      options: q.question_type === 'mcq' ? (Array.isArray(q.options) && q.options.length > 0 ? q.options : ['', '', '', '']) : ['', '', '', ''],
       correct_answer: q.correct_answer || '',
-      points: q.points,
+      points: typeof q.points === 'number' ? q.points : 1,
       order_index: questions.length + index
     }));
     
@@ -544,19 +544,59 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
     return {};
   }
 
+  const computeScoreFromAnswers = (answers: Record<string, string>) => {
+    let newScore = 0;
+    modalQuestions.forEach((q: any) => {
+      const a = answers[q.id];
+      if (typeof q.points === 'number' && q.correct_answer && a === q.correct_answer) {
+        newScore += q.points;
+      }
+    });
+    return newScore;
+  };
+
+  const markWrittenAnswerCorrect = async (questionId: string) => {
+    if (!modalAttempt) return;
+    const q = modalQuestions.find((mq: any) => mq.id === questionId);
+    if (!q) return;
+    const studentAnswer = modalAnswers?.[questionId];
+    if (!studentAnswer) return;
+    if (q.question_type !== 'written') return;
+    if (!q.correct_answer) return; // require a canonical correct answer to align state/UI
+
+    const updatedAnswers = { ...(modalAnswers || {}), [questionId]: q.correct_answer };
+    const newScore = computeScoreFromAnswers(updatedAnswers);
+
+    try {
+      const { error } = await supabase
+        .from('quiz_attempts')
+        .update({ answers: updatedAnswers, score: newScore })
+        .eq('id', modalAttempt.id);
+      if (error) throw error;
+
+      setModalAnswers(updatedAnswers);
+      setModalScore(newScore);
+      // reflect in attempts table list
+      setAttempts(prev => prev.map(a => a.id === modalAttempt.id ? { ...a, score: newScore, answers: updatedAnswers } : a));
+      toast({ title: 'Updated', description: 'Answer marked as correct.' });
+    } catch (e: any) {
+      toast({ title: 'Error', description: e.message || 'Failed to update attempt', variant: 'destructive' });
+    }
+  };
+
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center gap-4">
+    <div className="container mx-auto p-4 sm:p-6 space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
         {onBack && (
           <Button variant="outline" onClick={onBack}>
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back
           </Button>
         )}
-        <h1 className="text-3xl font-bold">
+        <h1 className="text-2xl sm:text-3xl font-bold">
           {isNewQuiz ? 'Create Quiz' : 'Edit Quiz'}
         </h1>
-        <div className="ml-auto">
+        <div className="sm:ml-auto">
           <Button onClick={saveQuiz} disabled={saving}>
             <Save className="h-4 w-4 mr-2" />
             {saving ? 'Saving...' : 'Save Quiz'}
@@ -565,11 +605,11 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
       </div>
 
       <Card>
-        <CardHeader>
+        <CardHeader className="p-4 sm:p-6 pb-0">
           <CardTitle>Quiz Details</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+        <CardContent className="space-y-4 p-4 sm:p-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input
               placeholder="Quiz Title"
               value={quizForm.title}
@@ -592,7 +632,7 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
             onChange={(e) => setQuizForm({ ...quizForm, description: e.target.value })}
           />
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="text-sm font-medium">Time Limit (minutes)</label>
               <Input
@@ -613,7 +653,7 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
 
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Quiz Options</h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="flex items-center space-x-2">
                 <Switch
                   id="shuffle-questions"
@@ -663,8 +703,8 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
         </CardContent>
       </Card>
 
-      <Tabs defaultValue="questions" className="space-y-6 mt-8">
-        <TabsList className="card border border-border bg-card p-2">
+      <Tabs defaultValue="questions" className="space-y-6 mt-6 sm:mt-8">
+        <TabsList className="card border border-border bg-card p-2 overflow-x-auto">
           <TabsTrigger value="questions" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-500/20 data-[state=active]:to-teal-500/20 data-[state=active]:text-emerald-300 data-[state=active]:border data-[state=active]:border-emerald-500/30 transition-all duration-300">
             Questions
           </TabsTrigger>
@@ -674,10 +714,10 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
         </TabsList>
         <TabsContent value="questions" className="space-y-6">
           <Card>
-            <CardHeader>
+            <CardHeader className="p-4 sm:p-6 pb-0">
               <CardTitle>Add Questions</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-4 sm:p-6">
               <Tabs defaultValue="manual" className="space-y-4">
                 <TabsList className="grid w-full grid-cols-3">
                   <TabsTrigger value="manual">Manual Entry</TabsTrigger>
@@ -686,7 +726,7 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
                 </TabsList>
 
                 <TabsContent value="manual" className="space-y-4">
-                  <div className="flex justify-between items-center">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <p className="text-muted-foreground">Add questions manually</p>
                     <div className="flex gap-2">
                       <Button
@@ -730,14 +770,14 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
           </Card>
 
           <Card>
-            <CardHeader>
+            <CardHeader className="p-4 sm:p-6 pb-0">
               <CardTitle>Questions ({questions.length})</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 p-4 sm:p-6">
               {questions.map((question, index) => (
                 <Card key={index}>
                   <CardContent className="p-4 space-y-4">
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                       <h4 className="font-medium">Question {index + 1}</h4>
                       <div className="flex gap-2">
                         <Button
@@ -766,7 +806,7 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
                       onChange={(e) => updateQuestion(index, 'question_text', e.target.value)}
                     />
 
-                    <div className="grid grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                       <Select
                         value={question.question_type}
                         onValueChange={(value) => updateQuestion(index, 'question_type', value)}
@@ -831,10 +871,10 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
         </TabsContent>
         <TabsContent value="attempts" className="space-y-6">
           <Card className="card border border-border bg-card">
-            <CardHeader>
+            <CardHeader className="p-4 sm:p-6 pb-0">
               <CardTitle className="text-xl text-emerald-400">Student Attempts</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-4 sm:p-6 space-y-4">
               <div className="mb-4 flex items-center gap-2">
                 <Select value={searchField} onValueChange={v => setSearchField(v as 'name' | 'email' | 'score')}>
                   <SelectTrigger className="w-36 text-emerald-200 focus:ring-emerald-400">
@@ -909,59 +949,107 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
               ) : filteredAttempts.length === 0 ? (
                 <div className="text-muted-foreground">No attempts found for this quiz.</div>
               ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Student</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Score</TableHead>
-                      <TableHead>Max Score</TableHead>
-                      <TableHead>Started At</TableHead>
-                      <TableHead>Submitted At</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredAttempts.map((a) => (
-                      <TableRow key={a.id}>
-                        <TableCell>
-                          <Link
-                            to={`/profile/${a.student_id}`}
-                            className="text-emerald-400 hover:underline hover:text-emerald-300 transition-colors"
+                <div className="overflow-x-auto -mx-2 sm:mx-0 hidden sm:block">
+                  <div className="min-w-[720px] sm:min-w-0">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="text-xs sm:text-sm whitespace-nowrap">Student</TableHead>
+                          <TableHead className="text-xs sm:text-sm whitespace-nowrap">Email</TableHead>
+                          <TableHead className="text-xs sm:text-sm whitespace-nowrap">Score</TableHead>
+                          <TableHead className="text-xs sm:text-sm whitespace-nowrap">Max Score</TableHead>
+                          <TableHead className="text-xs sm:text-sm whitespace-nowrap">Started At</TableHead>
+                          <TableHead className="text-xs sm:text-sm whitespace-nowrap">Submitted At</TableHead>
+                          <TableHead className="text-xs sm:text-sm whitespace-nowrap">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredAttempts.map((a) => (
+                          <TableRow key={a.id}>
+                            <TableCell className="text-xs sm:text-sm whitespace-nowrap">
+                              <Link
+                                to={`/profile/${a.student_id}`}
+                                className="text-emerald-400 hover:underline hover:text-emerald-300 transition-colors"
+                              >
+                                {a.student_name}
+                              </Link>
+                            </TableCell>
+                            <TableCell className="text-xs sm:text-sm whitespace-nowrap">{a.student_email}</TableCell>
+                            <TableCell className="text-xs sm:text-sm whitespace-nowrap">
+                              {a.submitted_at && typeof a.score === 'number' ? a.score : <span className="text-destructive">Not submitted yet</span>}
+                            </TableCell>
+                            <TableCell className="text-xs sm:text-sm whitespace-nowrap">{a.max_score ?? '-'}</TableCell>
+                            <TableCell className="text-xs sm:text-sm whitespace-nowrap">{a.started_at ? new Date(a.started_at).toLocaleString() : '-'}</TableCell>
+                            <TableCell className="text-xs sm:text-sm whitespace-nowrap">
+                              {a.submitted_at ? new Date(a.submitted_at).toLocaleString() : <span className="text-destructive">Not submitted yet</span>}
+                            </TableCell>
+                            <TableCell className="text-xs sm:text-sm whitespace-nowrap">
+                              {a.answers && Object.keys(a.answers || {}).length > 0 ? (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="text-emerald-400"
+                                  onClick={() => {
+                                    setModalAnswers(normalizeAnswers(a.answers));
+                                    setModalAttempt(a);
+                                    setOpenAnswersModal(true);
+                                  }}
+                                >
+                                  View Answers
+                                </Button>
+                              ) : (
+                                <span className="text-destructive">No answers</span>
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </div>
+              )}
+
+              {/* Mobile list view for attempts */}
+              {!attemptsLoading && filteredAttempts.length > 0 && (
+                <div className="space-y-3 sm:hidden">
+                  {filteredAttempts.map((a) => (
+                    <div key={a.id} className="rounded-xl border border-emerald-500/20 p-4 bg-card/50">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="min-w-0">
+                          <div className="font-semibold text-emerald-300 truncate">{a.student_name}</div>
+                          <div className="text-xs text-muted-foreground break-all">{a.student_email}</div>
+                        </div>
+                        {a.answers && Object.keys(a.answers || {}).length > 0 ? (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-emerald-400 shrink-0"
+                            onClick={() => {
+                              setModalAnswers(normalizeAnswers(a.answers));
+                              setModalAttempt(a);
+                              setOpenAnswersModal(true);
+                            }}
                           >
-                            {a.student_name}
-                          </Link>
-                        </TableCell>
-                        <TableCell>{a.student_email}</TableCell>
-                        <TableCell>
-                          {a.submitted_at && typeof a.score === 'number' ? a.score : <span className="text-destructive">Not submitted yet</span>}
-                        </TableCell>
-                        <TableCell>{a.max_score ?? '-'}</TableCell>
-                        <TableCell>{a.started_at ? new Date(a.started_at).toLocaleString() : '-'}</TableCell>
-                        <TableCell>
-                          {a.submitted_at ? new Date(a.submitted_at).toLocaleString() : <span className="text-destructive">Not submitted yet</span>}
-                        </TableCell>
-                        <TableCell>
-                          {a.answers && Object.keys(a.answers || {}).length > 0 ? (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="text-emerald-400"
-                              onClick={() => {
-                                setModalAnswers(normalizeAnswers(a.answers));
-                                setModalAttempt(a);
-                                setOpenAnswersModal(true);
-                              }}
-                            >
-                              View Answers
-                            </Button>
-                          ) : (
-                            <span className="text-destructive">No answers</span>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                            View
+                          </Button>
+                        ) : (
+                          <span className="text-destructive text-xs shrink-0">No answers</span>
+                        )}
+                      </div>
+                      <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
+                        <div className="text-muted-foreground">Score</div>
+                        <div>
+                          {a.submitted_at && typeof a.score === 'number' ? a.score : <span className="text-destructive">Not submitted</span>}
+                          {typeof a.max_score === 'number' && <span className="text-muted-foreground"> / {a.max_score}</span>}
+                        </div>
+                        <div className="text-muted-foreground">Started</div>
+                        <div>{a.started_at ? new Date(a.started_at).toLocaleString() : '-'}</div>
+                        <div className="text-muted-foreground">Submitted</div>
+                        <div>{a.submitted_at ? new Date(a.submitted_at).toLocaleString() : <span className="text-destructive">Not submitted</span>}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               )}
             </CardContent>
           </Card>
@@ -1023,6 +1111,13 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
                             <span className="text-destructive font-semibold">Incorrect</span>
                           )}
                         </div>
+                        {q.question_type === 'written' && studentAnswer && studentAnswer !== q.correct_answer && (
+                          <div className="mt-2">
+                            <Button size="sm" variant="outline" onClick={() => markWrittenAnswerCorrect(q.id)}>
+                              Mark Correct
+                            </Button>
+                          </div>
+                        )}
                       </li>
                     );
                   })

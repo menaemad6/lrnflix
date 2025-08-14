@@ -39,6 +39,7 @@ const FeatureCardsSection = lazy(() => import('@/components/home/FeatureCardsSec
 import IphoneShowcaseSection from '@/components/home/IphoneShowcaseSection';
 import { useRandomBackground } from "../hooks/useRandomBackground";
 import HyperspeedCardSection from '@/components/home/HyperspeedCardSection';
+import { PLATFORM_NAME } from '@/data/constants';
 
 // Morphing card component
 const MorphingCard = ({ children, className = "" }: { children: React.ReactNode, className?: string }) => {
@@ -278,7 +279,7 @@ export const Home = () => {
               <AnimatedLogo />
             </motion.div>
             
-            <h3 className="text-3xl font-semibold gradient-text mb-4">EduPlatform</h3>
+            <h3 className="text-3xl font-semibold gradient-text mb-4">PLATFORM_NAME</h3>
             <p className="text-gray-400 text-lg mb-8">
               Revolutionizing education with AI-powered learning experiences
             </p>
@@ -309,7 +310,7 @@ export const Home = () => {
               transition={{ duration: 1, delay: 0.4 }}
               viewport={{ once: true }}
             >
-              © 2024 EduPlatform. Crafted with passion for the future of education.
+              © 2024 {PLATFORM_NAME}. Crafted with passion for the future of education.
             </motion.p>
           </motion.div>
         </div>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { DraggableCourseContent } from './DraggableCourseContent';
 import { CreateLessonModal } from '@/components/lessons/CreateLessonModal';
 import { CreateQuizModal } from '@/components/quizzes/CreateQuizModal';
-import { BookOpen, FileQuestion, Plus, Users, Clock, Video, GraduationCap, Settings } from 'lucide-react';
+import { BookOpen, FileQuestion, Plus, Users, Clock, Video, GraduationCap, Settings, ArrowLeft } from 'lucide-react';
 
 interface Course {
   id: string;
@@ -116,11 +116,12 @@ export const TeacherCourseSidebar: React.FC<TeacherCourseSidebarProps> = ({
         title: 'Success',
         description: 'Content reordered successfully!',
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error reordering content:', error);
+      const message = error instanceof Error ? error.message : 'Failed to reorder content';
       toast({
         title: 'Error',
-        description: error.message || 'Failed to reorder content',
+        description: message,
         variant: 'destructive',
       });
       onContentUpdate(); // Refresh to revert changes
@@ -136,28 +137,45 @@ export const TeacherCourseSidebar: React.FC<TeacherCourseSidebarProps> = ({
   const totalContent = lessons.length + quizzes.length;
 
   return (
-    <div className="h-full flex flex-col bg-card/30 backdrop-blur-sm">
-      <div className="p-6 border-b">
+    <div className="h-full flex flex-col bg-card/30 backdrop-blur-sm w-full">
+      <div className="p-4 sm:p-6 border-b">
         <div className="space-y-3">
-          <div>
-            <h2 className="text-lg font-semibold gradient-text line-clamp-1">
-              {course.title}
-            </h2>
-            <div className="flex items-center gap-4 text-sm text-muted-foreground mt-2">
-              <div className="flex items-center gap-1">
-                <Video className="h-4 w-4" />
-                <span>{lessons.length}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <FileQuestion className="h-4 w-4" />
-                <span>{quizzes.length}</span>
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <h2 className="text-base sm:text-lg font-semibold gradient-text line-clamp-2">
+                {course.title}
+              </h2>
+              {course.description && (
+                <p className="mt-1 text-xs sm:text-sm text-muted-foreground line-clamp-2">
+                  {course.description}
+                </p>
+              )}
+              <div className="mt-2 flex items-center gap-3 text-xs sm:text-sm text-muted-foreground flex-wrap">
+                <div className="flex items-center gap-1">
+                  <BookOpen className="h-4 w-4" />
+                  <span>Total {totalContent}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Video className="h-4 w-4" />
+                  <span>{lessons.length} Lessons</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <FileQuestion className="h-4 w-4" />
+                  <span>{quizzes.length} Quizzes</span>
+                </div>
               </div>
             </div>
+            <Link to={`/teacher/courses/${course.id}`} className="shrink-0">
+              <Button variant="outline" size="sm" className="gap-1">
+                <ArrowLeft className="h-4 w-4" />
+                Back
+              </Button>
+            </Link>
           </div>
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-6 space-y-6">
+      <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
         {/* Management Buttons */}
         <div className="space-y-4">
           <div className="flex items-center gap-2">
@@ -165,7 +183,7 @@ export const TeacherCourseSidebar: React.FC<TeacherCourseSidebarProps> = ({
             <h3 className="font-semibold">Management</h3>
           </div>
           
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-2 sm:gap-3">
             <Button 
               onClick={() => onViewModeChange('lessons')}
               variant={viewMode === 'lessons' ? 'default' : 'outline'}
@@ -173,7 +191,7 @@ export const TeacherCourseSidebar: React.FC<TeacherCourseSidebarProps> = ({
             >
               <GraduationCap className="h-5 w-5" />
               <span className="text-sm">Lessons</span>
-              <Badge variant="secondary" className="text-xs">
+              <Badge variant="outline" className="text-xs">
                 {lessons.length}
               </Badge>
             </Button>
@@ -184,7 +202,7 @@ export const TeacherCourseSidebar: React.FC<TeacherCourseSidebarProps> = ({
             >
               <FileQuestion className="h-5 w-5" />
               <span className="text-sm">Quizzes</span>
-              <Badge variant="secondary" className="text-xs">
+              <Badge variant="outline" className="text-xs">
                 {quizzes.length}
               </Badge>
             </Button>
@@ -197,7 +215,7 @@ export const TeacherCourseSidebar: React.FC<TeacherCourseSidebarProps> = ({
           >
             <Video className="h-5 w-5" />
             <span className="text-sm">Live Lectures</span>
-            <Badge variant="secondary" className="text-xs">
+            <Badge variant="outline" className="text-xs">
               Google Meet
             </Badge>
           </Button>
@@ -208,7 +226,7 @@ export const TeacherCourseSidebar: React.FC<TeacherCourseSidebarProps> = ({
           <div className="flex items-center gap-2">
             <BookOpen className="h-5 w-5 text-primary" />
             <h3 className="font-semibold">Course Content</h3>
-            <Badge variant="secondary">{totalContent}</Badge>
+            <Badge variant="outline">{totalContent}</Badge>
           </div>
 
           {totalContent > 0 ? (

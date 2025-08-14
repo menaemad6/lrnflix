@@ -22,8 +22,10 @@ import {
   Sparkles,
   TrendingUp,
   Target,
-  Zap
+  Zap,
+  Upload
 } from 'lucide-react';
+import { usePdfAi } from '@/hooks/usePdfAi';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import {
   Table,
@@ -88,6 +90,42 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
     transcription: '',
     summary: '',
   });
+
+  // AI: extract course info from slides PDF and synthesize a lesson summary
+  const { process: processCourseInfo, loading: aiLoading } = usePdfAi('extract-course-info');
+
+  const handleSlidesPdfUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    if (file.type !== 'application/pdf') {
+      toast({ title: 'Invalid file', description: 'Please upload a PDF.', variant: 'destructive' });
+      return;
+    }
+    try {
+      const res = await processCourseInfo({ pdfFile: file });
+      if (!res.success) {
+        toast({ title: 'AI extraction failed', description: res.error || 'Could not extract course info', variant: 'destructive' });
+        return;
+      }
+      const info = res.data as any;
+      const course = info?.course ?? info;
+      // Build a descriptive summary ONLY (no title or outline)
+      const desc = (course?.description ?? '').trim();
+      const chapters = Array.isArray(course?.chapters) ? course.chapters : [];
+      let summaryText = desc;
+      if (!summaryText) {
+        const topics = chapters.map((ch: any) => (ch?.title ? String(ch.title) : '')).filter(Boolean);
+        if (topics.length > 0) {
+          summaryText = `This lesson provides an overview of ${topics.join(', ')}.`;
+        }
+      }
+      setContentData(prev => ({ ...prev, summary: summaryText || prev.summary }));
+      toast({ title: 'Summary generated', description: 'AI summary inserted from slides.' });
+      event.target.value = '';
+    } catch (e: any) {
+      toast({ title: 'Error', description: e?.message || 'Failed to process PDF', variant: 'destructive' });
+    }
+  };
 
   useEffect(() => {
     fetchLessonData();
@@ -273,11 +311,11 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
-      <div className="space-y-8 relative z-10 p-8">
+      <div className="space-y-6 sm:space-y-8 relative z-10 p-4 sm:p-8">
         {/* Header */}
-        <div className="card p-8 border border-border bg-card">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-6">
+        <div className="card p-4 sm:p-8 border border-border bg-card">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3 sm:gap-6">
               <Button 
                 variant="outline" 
                 onClick={onBack}
@@ -286,11 +324,11 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back
               </Button>
-              <div className="space-y-2">
-                <h3 className="text-4xl font-bold bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent">
+              <div className="space-y-1 sm:space-y-2">
+                <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent">
                   Edit Lesson
                 </h3>
-                <p className="text-muted-foreground text-lg">Customize your lesson content and settings</p>
+                <p className="text-muted-foreground text-sm sm:text-base lg:text-lg">Customize your lesson content and settings</p>
               </div>
             </div>
             <Button 
@@ -305,7 +343,7 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
         </div>
 
         <Tabs defaultValue="details" className="space-y-6">
-          <TabsList className="card border border-border bg-card p-2">
+          <TabsList className="card border border-border bg-card p-2 overflow-x-auto">
             <TabsTrigger 
               value="details"
               className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-500/20 data-[state=active]:to-teal-500/20 data-[state=active]:text-emerald-300 data-[state=active]:border data-[state=active]:border-emerald-500/30 transition-all duration-300"
@@ -338,7 +376,7 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
 
           <TabsContent value="details" className="space-y-6">
             <Card className="card border border-border bg-card">
-              <CardHeader className="pb-4">
+              <CardHeader className="pb-4 p-4 sm:p-6">
                 <CardTitle className="text-xl text-emerald-300 flex items-center gap-3">
                   <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-lg flex items-center justify-center">
                     <FileText className="h-4 w-4 text-black" />
@@ -346,7 +384,7 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
                   Lesson Information
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className="space-y-6 p-4 sm:p-6">
                 <div className="space-y-3">
                   <label className="text-sm font-medium text-emerald-300">Title</label>
                   <Input
@@ -374,27 +412,29 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
                     placeholder="Enter video URL..."
                   />
                 </div>
-                <div className="space-y-3">
-                  <label className="text-sm font-medium text-emerald-300">View Limit</label>
-                  <Input
-                    value={formData.view_limit}
-                    onChange={(e) => setFormData(prev => ({ ...prev, view_limit: e.target.value }))}
-                    className="bg-background/50 border-emerald-500/30 focus:border-emerald-500/50 text-emerald-100 placeholder:text-emerald-300/50"
-                    placeholder="Enter view limit..."
-                    type="number"
-                    min="0"
-                  />
-                </div>
-                <div className="space-y-3">
-                  <label className="text-sm font-medium text-emerald-300">Duration (minutes)</label>
-                  <Input
-                    value={formData.duration_minutes}
-                    onChange={(e) => setFormData(prev => ({ ...prev, duration_minutes: e.target.value.replace(/[^0-9]/g, '') }))}
-                    className="bg-background/50 border-emerald-500/30 focus:border-emerald-500/50 text-emerald-100 placeholder:text-emerald-300/50"
-                    placeholder="Enter duration in minutes..."
-                    type="number"
-                    min="1"
-                  />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-3">
+                    <label className="text-sm font-medium text-emerald-300">View Limit</label>
+                    <Input
+                      value={formData.view_limit}
+                      onChange={(e) => setFormData(prev => ({ ...prev, view_limit: e.target.value }))}
+                      className="bg-background/50 border-emerald-500/30 focus:border-emerald-500/50 text-emerald-100 placeholder:text-emerald-300/50"
+                      placeholder="Enter view limit..."
+                      type="number"
+                      min="0"
+                    />
+                  </div>
+                  <div className="space-y-3">
+                    <label className="text-sm font-medium text-emerald-300">Duration (minutes)</label>
+                    <Input
+                      value={formData.duration_minutes}
+                      onChange={(e) => setFormData(prev => ({ ...prev, duration_minutes: e.target.value.replace(/[^0-9]/g, '') }))}
+                      className="bg-background/50 border-emerald-500/30 focus:border-emerald-500/50 text-emerald-100 placeholder:text-emerald-300/50"
+                      placeholder="Enter duration in minutes..."
+                      type="number"
+                      min="1"
+                    />
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -402,7 +442,7 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
 
           <TabsContent value="content" className="space-y-6">
             <Card className="card border border-border bg-card">
-              <CardHeader className="pb-4">
+              <CardHeader className="pb-4 p-4 sm:p-6">
                 <CardTitle className="text-xl text-teal-300 flex items-center gap-3">
                   <div className="w-8 h-8 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-lg flex items-center justify-center">
                     <Brain className="h-4 w-4 text-black" />
@@ -414,7 +454,24 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
                   </Badge>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className="space-y-6 p-4 sm:p-6">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-teal-300">Generate summary from slides (PDF)</label>
+                  <div className="relative inline-flex items-center gap-3">
+                    <Input
+                      type="file"
+                      accept=".pdf"
+                      onChange={handleSlidesPdfUpload}
+                      disabled={aiLoading}
+                      className="file:mr-4 file:rounded-md file:border file:border-teal-500/30 file:bg-background/50 file:px-3 file:py-1 file:text-teal-300"
+                    />
+                    <Button variant="outline" disabled className="hidden sm:inline-flex">
+                      <Upload className="h-4 w-4 mr-2" />
+                      {aiLoading ? 'Processing...' : 'Choose PDF'}
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">Upload course slides PDF to auto-generate a concise lesson summary.</p>
+                </div>
                 <div className="space-y-3">
                   <label className="text-sm font-medium text-teal-300">Transcription</label>
                   <Textarea
@@ -439,7 +496,7 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
 
           <TabsContent value="analytics" className="space-y-6">
             {/* Analytics Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
               <Card className="card border border-border bg-card">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm font-medium text-purple-300">Total Views</CardTitle>
@@ -490,7 +547,7 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
             </div>
 
             {/* Charts */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               <Card className="card border border-border bg-card">
                 <CardHeader>
                   <CardTitle className="text-emerald-300 flex items-center gap-2">
@@ -548,13 +605,13 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
 
             {/* Student Views Table */}
             <Card className="card border border-border bg-card">
-              <CardHeader>
+              <CardHeader className="p-4 sm:p-6 pb-0">
                 <CardTitle className="text-purple-300 flex items-center gap-2">
                   <Users className="h-5 w-5" />
                   Student Views
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-4 sm:p-6">
                 <div className="overflow-x-auto">
                   <Table>
                     <TableHeader>
@@ -609,7 +666,7 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
 
           <TabsContent value="preview" className="space-y-6">
             <Card className="card border border-border bg-card">
-              <CardHeader className="pb-4">
+              <CardHeader className="pb-4 p-4 sm:p-6">
                 <CardTitle className="text-xl text-cyan-300 flex items-center gap-3">
                   <div className="w-8 h-8 bg-gradient-to-br from-cyan-500 to-emerald-500 rounded-lg flex items-center justify-center">
                     <Video className="h-4 w-4 text-black" />
@@ -617,7 +674,7 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
                   Lesson Preview
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className="space-y-6 p-4 sm:p-6">
                 <div className="space-y-4">
                   <h2 className="text-2xl font-bold text-cyan-300">{formData.title}</h2>
                   {formData.description && (

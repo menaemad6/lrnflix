@@ -45,6 +45,7 @@ import { useChatbot } from '@/contexts/ChatbotContext';
 import { useTenant } from '@/contexts/TenantContext';
 import type { RootState } from '@/store/store';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { PLATFORM_NAME } from '@/data/constants';
 
 interface MenuItem {
   title: string;
@@ -195,7 +196,7 @@ export const DashboardSidebar = () => {
             {!isCollapsed && (
               <div className="flex flex-col">
                 <span className="text-xl font-bold gradient-text bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
-                  {teacher?.display_name || 'EduPlatform'}
+                  {teacher?.display_name || PLATFORM_NAME }
                 </span>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>

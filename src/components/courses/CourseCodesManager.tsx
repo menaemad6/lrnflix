@@ -185,12 +185,14 @@ export const CourseCodesManager = ({ courseId }: CourseCodesManagerProps) => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">Course Codes & Discounts</h3>
-        <Button onClick={() => setShowCreateForm(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Create Code
-        </Button>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <h3 className="text-lg sm:text-xl font-semibold">Course Codes & Discounts</h3>
+        <div className="flex gap-2 flex-wrap">
+          <Button onClick={() => setShowCreateForm(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Create Code
+          </Button>
+        </div>
       </div>
 
       {showCreateForm && (
@@ -200,7 +202,7 @@ export const CourseCodesManager = ({ courseId }: CourseCodesManagerProps) => {
           </CardHeader>
           <CardContent>
             <form onSubmit={createCode} className="space-y-4">
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <Input
                   placeholder="Enter code or generate"
                   value={newCode.code}
@@ -213,7 +215,7 @@ export const CourseCodesManager = ({ courseId }: CourseCodesManagerProps) => {
                 </Button>
               </div>
               
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Input
                     type="number"
@@ -236,7 +238,7 @@ export const CourseCodesManager = ({ courseId }: CourseCodesManagerProps) => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Input
                     type="number"
@@ -271,9 +273,9 @@ export const CourseCodesManager = ({ courseId }: CourseCodesManagerProps) => {
         {codes.map((code) => (
           <Card key={code.id}>
             <CardContent className="pt-6">
-              <div className="flex justify-between items-start">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+                <div className="space-y-2 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <code className="bg-muted px-2 py-1 rounded font-mono text-lg">
                       {code.code}
                     </code>
@@ -306,7 +308,7 @@ export const CourseCodesManager = ({ courseId }: CourseCodesManagerProps) => {
                   </div>
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
                   <Button
                     size="sm"
                     variant="outline"
