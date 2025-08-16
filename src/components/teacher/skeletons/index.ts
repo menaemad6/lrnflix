@@ -3,3 +3,7 @@ export { StatsGridSkeleton } from './StatsGridSkeleton';
 export { RecentCoursesSkeleton } from './RecentCoursesSkeleton';
 export { QuickActionsSkeleton } from './QuickActionsSkeleton';
 export { TeachingProgressSkeleton } from './TeachingProgressSkeleton';
+export { PerformanceMetricsSkeleton } from './PerformanceMetricsSkeleton';
+export { RecentActivitySkeleton } from './RecentActivitySkeleton';
+export { UpcomingTasksSkeleton } from './UpcomingTasksSkeleton';
+export { StudentInsightsSkeleton } from './StudentInsightsSkeleton';
