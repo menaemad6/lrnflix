@@ -1,3 +1,4 @@
+
 import { useCallback, useMemo, useState } from 'react'
 import { extractTextFromPDF, ExtractResult } from '@/services/pdf'
 
@@ -9,18 +10,25 @@ interface UsePdfAiOptions {
 	maxOutputTokens?: number
 }
 
+interface FileInfo {
+	name: string
+	size: number
+	type: string
+	pageCount: number
+}
+
 interface BaseSuccess<T> {
 	success: true
 	data: T
 	extractedText?: string
-	fileInfo?: ExtractResult extends { success: true; fileInfo: infer F } ? F : never
+	fileInfo?: FileInfo
 }
 
 interface BaseError {
 	success: false
 	error: string
 	stage?: 'extraction' | 'ai'
-	fileInfo?: ExtractResult extends { success: true; fileInfo: infer F } ? F : never
+	fileInfo?: FileInfo
 	rawResponse?: string
 }
 
@@ -198,13 +206,13 @@ export function usePdfAi(task: PdfAiTask, options?: UsePdfAiOptions) {
 			setError(null)
 			try {
 				let text: string
-				let fileInfo: any
+				let fileInfo: FileInfo | undefined
 				if ('pdfFile' in input && input.pdfFile) {
 					const res = await extractTextFromPDF(input.pdfFile)
 					if (!res.success) {
 						return { 
 							success: false, 
-							error: res.error || 'PDF extraction failed', 
+							error: 'PDF extraction failed', 
 							stage: 'extraction' as const,
 							fileInfo: undefined
 						}
