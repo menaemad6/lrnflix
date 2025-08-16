@@ -22,6 +22,7 @@ export const MultiplayerQuizContainer = () => {
     finalResults,
     publicRooms,
     questions,
+    categories,
     findMatch,
     cancelMatch,
     submitAnswer,
@@ -39,6 +40,7 @@ export const MultiplayerQuizContainer = () => {
       <MultiplayerQuizLobby
         gameState={gameState}
         publicRooms={publicRooms}
+        categories={categories}
         onFindMatch={findMatch}
         onCancelMatch={cancelMatch}
         onCreateRoom={createRoom}
@@ -98,6 +100,7 @@ export const MultiplayerQuizContainer = () => {
     <MultiplayerQuizLobby
       gameState={gameState}
       publicRooms={publicRooms}
+      categories={categories}
       onFindMatch={findMatch}
       onCancelMatch={cancelMatch}
       onCreateRoom={createRoom}

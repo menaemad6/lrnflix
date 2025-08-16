@@ -7,10 +7,10 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "12.2.3 (519615d)"
+    PostgrestVersion: "12.2.12 (cd3cf9e)"
   }
   public: {
     Tables: {
@@ -571,6 +571,8 @@ export type Database = {
           description: string | null
           group_code: string
           id: string
+          is_code_visible: boolean
+          is_members_visible: boolean
           is_public: boolean | null
           max_members: number | null
           name: string
@@ -582,6 +584,8 @@ export type Database = {
           description?: string | null
           group_code: string
           id?: string
+          is_code_visible?: boolean
+          is_members_visible?: boolean
           is_public?: boolean | null
           max_members?: number | null
           name: string
@@ -593,6 +597,8 @@ export type Database = {
           description?: string | null
           group_code?: string
           id?: string
+          is_code_visible?: boolean
+          is_members_visible?: boolean
           is_public?: boolean | null
           max_members?: number | null
           name?: string
@@ -878,6 +884,7 @@ export type Database = {
       }
       multiplayer_quiz_questions: {
         Row: {
+          category: string
           correct_answer: string
           created_at: string
           difficulty: string
@@ -887,6 +894,7 @@ export type Database = {
           time_limit: number
         }
         Insert: {
+          category?: string
           correct_answer: string
           created_at?: string
           difficulty?: string
@@ -896,6 +904,7 @@ export type Database = {
           time_limit?: number
         }
         Update: {
+          category?: string
           correct_answer?: string
           created_at?: string
           difficulty?: string
@@ -1629,7 +1638,7 @@ export type Database = {
         Returns: Json
       }
       purchase_minutes: {
-        Args: { p_minutes: number; p_cost_per_minute?: number }
+        Args: { p_cost_per_minute?: number; p_minutes: number }
         Returns: Json
       }
       redeem_wallet_code: {

@@ -1,10 +1,9 @@
-
 import React, { useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Users, Crown, Copy, Eye, EyeOff, LogOut, Play, QrCode } from 'lucide-react';
+import { Users, Crown, Copy, Eye, EyeOff, LogOut, Play, QrCode, Tag } from 'lucide-react';
 import { GameRoom, Player } from '@/hooks/useMultiplayerQuiz';
 import { useToast } from '@/hooks/use-toast';
 
@@ -99,7 +98,8 @@ export const MultiplayerQuizWaitingRoom = ({
 
       {/* Modern Header with Animated Elements */}
       <div className="relative z-10 p-6 mb-8">
-        <div className="bg-transparent backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 overflow-hidden">
+        <div className="glass-card border-border overflow-hidden">
+          {/* Decorative Background Elements */}
           <div className="absolute inset-0 overflow-hidden opacity-20">
             <div className="absolute top-0 left-0 w-full h-full bg-grid-white/10"></div>
             <div className="absolute -top-10 -right-10 w-40 h-40 bg-pink-500/30 rounded-full blur-2xl"></div>
@@ -108,22 +108,22 @@ export const MultiplayerQuizWaitingRoom = ({
           
           <div className="relative z-10 flex flex-col md:flex-row items-center justify-between p-6 gap-4">
             <div className="flex flex-col md:flex-row items-center md:space-x-6 w-full md:w-auto">
-              <h1 className="text-4xl font-extrabold text-white mb-4 md:mb-0 text-center md:text-left">
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-200">QUIZ BATTLE</span>
-                <div className="text-sm font-normal text-blue-200 mt-1 animate-pulse">Get ready to compete!</div>
+              <h1 className="text-4xl font-extrabold text-foreground mb-4 md:mb-0 text-center md:text-left">
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">QUIZ BATTLE</span>
+                <div className="text-sm font-normal text-muted-foreground mt-1 animate-pulse">Get ready to compete!</div>
               </h1>
               
               {room.room_code && (
-                <div className="flex items-center space-x-3 bg-white/10 backdrop-blur-sm px-4 py-3 rounded-xl border border-white/20 w-full md:w-auto">
+                <div className="flex items-center space-x-3 glass-card px-4 py-3 rounded-xl border border-border w-full md:w-auto">
                   <div className="flex flex-col">
-                    <span className="text-blue-100 text-xs font-semibold uppercase tracking-wider">Room Code</span>
-                    <span className="text-white font-mono text-2xl font-bold tracking-widest">{room.room_code}</span>
+                    <span className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">Room Code</span>
+                    <span className="text-foreground font-mono text-2xl font-bold tracking-widest">{room.room_code}</span>
                   </div>
                   <Button
                     onClick={copyRoomCode}
                     variant="ghost"
                     size="icon"
-                    className="text-white hover:bg-white/20 transition-all duration-300 hover:scale-110"
+                    className="text-primary hover:bg-primary/20 transition-all duration-300 hover:scale-110"
                   >
                     <Copy className="h-5 w-5" />
                   </Button>
@@ -132,14 +132,22 @@ export const MultiplayerQuizWaitingRoom = ({
             </div>
 
             <div className="flex items-center space-x-3 w-full md:w-auto justify-center md:justify-end">
-              <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-xl border border-white/20 text-white">
+              {/* Category Badge */}
+              {room.category && (
+                <Badge className="bg-primary/20 text-primary border-primary/40 px-4 py-2">
+                  <Tag className="h-4 w-4 mr-2" />
+                  {room.category}
+                </Badge>
+              )}
+              
+              <div className="glass-card px-4 py-2 rounded-xl border border-border text-foreground">
                 <div className="flex items-center space-x-2">
                   <Users className="h-5 w-5" />
                   <span className="font-semibold">{players.length}/{room.max_players}</span>
                 </div>
               </div>
               
-              <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-xl border border-white/20 text-white">
+              <div className="glass-card px-4 py-2 rounded-xl border border-border text-foreground">
                 <div className="flex items-center space-x-2">
                   {room.is_public ? <Eye className="h-5 w-5" /> : <EyeOff className="h-5 w-5" />}
                   <span className="text-sm">{room.is_public ? 'Public' : 'Private'}</span>
@@ -149,7 +157,7 @@ export const MultiplayerQuizWaitingRoom = ({
               <Button
                 onClick={handleLeaveRoom}
                 variant="ghost"
-                className="text-white hover:bg-red-500/30 border border-white/20 transition-all duration-300"
+                className="text-foreground hover:bg-destructive/30 border border-border transition-all duration-300"
               >
                 <LogOut className="h-4 w-4 mr-2" />
                 Leave
@@ -165,7 +173,9 @@ export const MultiplayerQuizWaitingRoom = ({
           {/* Players Grid */}
           <div className="mb-8">
             <h2 className="text-2xl font-bold text-foreground mb-6 text-center">
-              <span className="inline-block bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent pb-1 border-b-2 border-primary/30 px-4">Players in the Game</span>
+              <span className="inline-block bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent pb-1 border-b-2 border-primary/30 px-4">
+                Players in the Game
+              </span>
             </h2>
             
             <div className="flex flex-wrap justify-center gap-4 max-w-6xl mx-auto">
@@ -180,8 +190,8 @@ export const MultiplayerQuizWaitingRoom = ({
                     className="relative w-[160px]"
                   >
                     <div className={`
-                      ${playerColors[index % playerColors.length]}
-                      p-4 rounded-2xl shadow-lg border-2 border-border
+                      glass-card border-border
+                      p-4 rounded-2xl shadow-lg
                       ${player.user_id === currentUserId ? 'ring-4 ring-primary' : ''}
                       transition-all duration-300 hover:scale-105 hover:shadow-xl
                     `}>
@@ -260,6 +270,11 @@ export const MultiplayerQuizWaitingRoom = ({
                   <p className="text-primary/80">
                     All players have joined. Ready to start the quiz!
                   </p>
+                  {room.category && (
+                    <p className="text-muted-foreground mt-2">
+                      Category: <span className="text-primary font-semibold">{room.category}</span>
+                    </p>
+                  )}
                 </div>
                 
                 {isRoomCreator && (
@@ -274,7 +289,7 @@ export const MultiplayerQuizWaitingRoom = ({
                 )}
                 
                 {!isRoomCreator && (
-                  <div className="bg-card/50 backdrop-blur-sm border border-border rounded-2xl p-4">
+                  <div className="glass-card border border-border rounded-2xl p-4">
                     <p className="text-foreground text-lg">
                       Waiting for host to start the game...
                     </p>
@@ -283,7 +298,7 @@ export const MultiplayerQuizWaitingRoom = ({
               </motion.div>
             ) : (
               <div className="text-center">
-                <div className="bg-card/50 backdrop-blur-sm border border-border rounded-2xl p-6 mb-6">
+                <div className="glass-card border border-border rounded-2xl p-6 mb-6">
                   <div className="text-4xl mb-4">⏳</div>
                   <h3 className="text-2xl font-bold text-foreground mb-2">
                     Waiting for More Players
@@ -292,8 +307,14 @@ export const MultiplayerQuizWaitingRoom = ({
                     Need {room.max_players - players.length} more player{room.max_players - players.length !== 1 ? 's' : ''} to join
                   </p>
                   
+                  {room.category && (
+                    <p className="text-muted-foreground mb-4">
+                      Category: <span className="text-primary font-semibold">{room.category}</span>
+                    </p>
+                  )}
+                  
                   {room.room_code && (
-                    <div className="bg-card/50 backdrop-blur-sm rounded-xl p-4 border border-border">
+                    <div className="glass-card rounded-xl p-4 border border-border">
                       <p className="text-muted-foreground text-sm mb-2">Share this PIN with your friends:</p>
                       <div className="flex items-center justify-center space-x-2">
                         <span className="text-3xl font-mono font-bold text-foreground">{room.room_code}</span>

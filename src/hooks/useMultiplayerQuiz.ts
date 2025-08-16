@@ -22,6 +22,7 @@ export interface Question {
   correct_answer: string;
   difficulty: string;
   time_limit: number;
+  category: string;
 }
 
 export interface GameRoom {
@@ -34,6 +35,7 @@ export interface GameRoom {
   room_code?: string;
   is_public?: boolean;
   created_by?: string;
+  category?: string;
 }
 
 // LocalStorage keys
@@ -91,11 +93,12 @@ export const useMultiplayerQuiz = (): {
   finalResults: Player[];
   publicRooms: GameRoom[];
   questions: Question[];
+  categories: string[];
   findMatch: () => Promise<void>;
   cancelMatch: () => Promise<void>;
   submitAnswer: (answer: string) => Promise<void>;
   setGameState: (state: GameState) => void;
-  createRoom: (maxPlayers: number, isPublic: boolean) => Promise<GameRoom | undefined>;
+  createRoom: (maxPlayers: number, isPublic: boolean, category?: string) => Promise<GameRoom | undefined>;
   joinRoomByCode: (roomCode: string) => Promise<void>;
   joinPublicRoom: (roomId: string) => Promise<void>;
   leaveRoom: () => Promise<void>;
@@ -103,6 +106,7 @@ export const useMultiplayerQuiz = (): {
   moveToNextQuestion: () => Promise<void>;
   endGame: () => Promise<void>;
   fetchPublicRooms: () => Promise<void>;
+  fetchCategories: () => Promise<void>;
 } => {
   const { user } = useSelector((state: RootState) => state.auth);
   const { toast } = useToast();
@@ -137,6 +141,9 @@ export const useMultiplayerQuiz = (): {
   );
   const [publicRooms, setPublicRooms] = useState<GameRoom[]>(() => 
     loadFromStorage(STORAGE_KEYS.PUBLIC_ROOMS, [])
+  );
+  const [categories, setCategories] = useState<string[]>(() => 
+    loadFromStorage('multiplayer_quiz_categories', [])
   );
 
   // Save state to localStorage whenever it changes
@@ -179,6 +186,10 @@ export const useMultiplayerQuiz = (): {
   useEffect(() => {
     saveToStorage(STORAGE_KEYS.PUBLIC_ROOMS, publicRooms);
   }, [publicRooms]);
+
+  useEffect(() => {
+    saveToStorage('multiplayer_quiz_categories', categories);
+  }, [categories]);
 
   // Save user ID to localStorage
   useEffect(() => {
@@ -305,7 +316,7 @@ export const useMultiplayerQuiz = (): {
   }, [user, toast]);
 
   // Create room
-  const createRoom = useCallback(async (maxPlayers: number, isPublic: boolean) => {
+  const createRoom = useCallback(async (maxPlayers: number, isPublic: boolean, category?: string) => {
     if (!user) return;
 
     try {
@@ -319,7 +330,8 @@ export const useMultiplayerQuiz = (): {
           is_public: isPublic,
           room_code: roomCode,
           created_by: user.id,
-          status: 'waiting'
+          status: 'waiting',
+          category: category || 'General'
         })
         .select()
         .single();
@@ -357,7 +369,7 @@ export const useMultiplayerQuiz = (): {
       
       toast({
         title: 'Room Created',
-        description: `Room code: ${roomCode}. Share this with other players!`,
+        description: `Room code: ${roomCode}. Category: ${category || 'General'}`,
       });
 
       return newRoom;
@@ -532,6 +544,23 @@ export const useMultiplayerQuiz = (): {
     }
   }, []);
 
+  // Fetch available categories
+  const fetchCategories = useCallback(async () => {
+    try {
+      const { data, error } = await supabase
+        .from('multiplayer_quiz_questions')
+        .select('category')
+        .order('category');
+
+      if (error) throw error;
+
+      const uniqueCategories = [...new Set(data.map(item => item.category))];
+      setCategories(uniqueCategories);
+    } catch (error: unknown) {
+      console.error('Error fetching categories:', error);
+    }
+  }, []);
+
   // Find match and join queue
   const findMatch = useCallback(async () => {
     if (!user) return;
@@ -697,13 +726,19 @@ export const useMultiplayerQuiz = (): {
     }
   }, [room, currentQuestion, user, timeLeft, questions]);
 
-  // Load questions
-  const loadQuestions = useCallback(async () => {
+  // Load questions by category
+  const loadQuestions = useCallback(async (category?: string) => {
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('multiplayer_quiz_questions')
         .select('*')
         .limit(10);
+
+      if (category && category !== 'General') {
+        query = query.eq('category', category);
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
 
@@ -713,7 +748,8 @@ export const useMultiplayerQuiz = (): {
         options: Array.isArray(q.options) ? q.options : JSON.parse(q.options as string),
         correct_answer: q.correct_answer,
         difficulty: q.difficulty,
-        time_limit: q.time_limit
+        time_limit: q.time_limit,
+        category: q.category
       }));
 
       setQuestions(formattedQuestions);
@@ -1156,11 +1192,14 @@ export const useMultiplayerQuiz = (): {
     };
   }, [user, room, gameState, questions, updatePlayersList]);
 
-  // Start game (for room creator)
+  // Start game (for room creator) - load questions based on room category
   const startGame = useCallback(async () => {
     if (!user || !room || room.created_by !== user.id) return;
 
     try {
+      // Load questions for the room's category
+      await loadQuestions(room.category);
+
       const { error } = await supabase
         .from('quiz_rooms')
         .update({ 
@@ -1184,7 +1223,7 @@ export const useMultiplayerQuiz = (): {
         variant: 'destructive',
       });
     }
-  }, [user, room, toast]);
+  }, [user, room, toast, loadQuestions]);
 
   // Leave room
   const leaveRoom = useCallback(async () => {
@@ -1299,14 +1338,17 @@ export const useMultiplayerQuiz = (): {
 
   // Initialize
   useEffect(() => {
-    loadQuestions();
+    fetchCategories();
     fetchPublicRooms();
+    
+    // Load default questions
+    loadQuestions();
     
     // Refresh public rooms every 10 seconds
     const interval = setInterval(fetchPublicRooms, 10000);
     
     return () => clearInterval(interval);
-  }, [loadQuestions, fetchPublicRooms]);
+  }, [fetchCategories, fetchPublicRooms, loadQuestions]);
 
   // More frequent refresh when in lobby (not in a room)
   useEffect(() => {
@@ -1331,6 +1373,7 @@ export const useMultiplayerQuiz = (): {
     finalResults,
     publicRooms,
     questions,
+    categories,
     findMatch,
     cancelMatch,
     submitAnswer,
@@ -1342,6 +1385,7 @@ export const useMultiplayerQuiz = (): {
     startGame,
     moveToNextQuestion,
     endGame,
-    fetchPublicRooms
+    fetchPublicRooms,
+    fetchCategories
   };
 };

@@ -1,317 +1,365 @@
+
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
+  Search, 
   Users, 
   Plus, 
-  Key, 
-  Eye,
-  EyeOff,
-  Trophy,
-  Crown,
-  Timer,
-  Star
+  Gamepad2, 
+  Clock, 
+  Loader2,
+  RefreshCw,
+  Globe,
+  Lock,
+  Tag
 } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { GameRoom } from '@/hooks/useMultiplayerQuiz';
+import type { GameState, GameRoom } from '@/hooks/useMultiplayerQuiz';
 
 interface MultiplayerQuizLobbyProps {
-  gameState: string;
+  gameState: GameState;
   publicRooms: GameRoom[];
+  categories: string[];
   onFindMatch: () => Promise<void>;
   onCancelMatch: () => Promise<void>;
-  onCreateRoom: (maxPlayers: number, isPublic: boolean) => Promise<GameRoom | undefined>;
+  onCreateRoom: (maxPlayers: number, isPublic: boolean, category?: string) => Promise<void>;
   onJoinRoomByCode: (roomCode: string) => Promise<void>;
   onJoinPublicRoom: (roomId: string) => Promise<void>;
   onRefreshRooms: () => Promise<void>;
 }
 
-export const MultiplayerQuizLobby = ({ 
+export const MultiplayerQuizLobby = ({
   gameState,
-  onFindMatch, 
-  onCancelMatch,
   publicRooms,
+  categories,
+  onFindMatch,
+  onCancelMatch,
   onCreateRoom,
   onJoinRoomByCode,
   onJoinPublicRoom,
   onRefreshRooms
 }: MultiplayerQuizLobbyProps) => {
-  const [createModalOpen, setCreateModalOpen] = useState(false);
-  const [joinModalOpen, setJoinModalOpen] = useState(false);
+  const [showCreateRoom, setShowCreateRoom] = useState(false);
+  const [roomCode, setRoomCode] = useState('');
   const [maxPlayers, setMaxPlayers] = useState(4);
   const [isPublic, setIsPublic] = useState(true);
-  const [roomCode, setRoomCode] = useState('');
-
-  const isSearching = gameState === 'finding';
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState<string>('all');
 
   const handleCreateRoom = async () => {
-    await onCreateRoom(maxPlayers, isPublic);
-    setCreateModalOpen(false);
+    await onCreateRoom(maxPlayers, isPublic, selectedCategory || 'General');
+    setShowCreateRoom(false);
+    setSelectedCategory('');
   };
 
-  const handleJoinRoom = async () => {
-    if (roomCode.length === 4) {
-      await onJoinRoomByCode(roomCode);
-      setJoinModalOpen(false);
+  const handleJoinByCode = async () => {
+    if (roomCode.trim()) {
+      await onJoinRoomByCode(roomCode.trim());
       setRoomCode('');
     }
   };
 
+  const filteredRooms = publicRooms.filter(room => {
+    const matchesSearch = room.room_code?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         room.category?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = categoryFilter === 'all' || room.category === categoryFilter;
+    return matchesSearch && matchesCategory;
+  });
+
   return (
-    <div className="min-h-screen bg-background particle-bg p-4 pt-28">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-primary mb-2">Quiz Battle Arena</h1>
-          <p className="text-muted-foreground text-lg">Test your knowledge against other players</p>
-        </div>
+    <div className="min-h-screen bg-background particle-bg pt-24">
+      <div className="max-w-7xl mx-auto p-6">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-8"
+        >
+          <h1 className="text-4xl font-bold text-foreground mb-2">
+            Multiplayer Quiz
+          </h1>
+          <p className="text-muted-foreground text-lg">
+            Challenge friends and compete in real-time quizzes
+          </p>
+        </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
-          {/* Main Actions - Left Side */}
+          {/* Left Column - Quick Actions */}
           <div className="lg:col-span-1 space-y-6">
-            <Card className="glass-card border-border shadow-2xl">
-              <CardHeader className="text-center pb-4">
-                <CardTitle className="text-2xl text-foreground">Join the Battle</CardTitle>
+            {/* Quick Match */}
+            <Card className="glass-card border-border">
+              <CardHeader>
+                <CardTitle className="text-foreground flex items-center">
+                  <Gamepad2 className="h-5 w-5 mr-2 text-primary" />
+                  Quick Match
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
+                <p className="text-muted-foreground text-sm">
+                  Find a random match with other players
+                </p>
                 
-                {/* Create Room Button */}
-                <Dialog open={createModalOpen} onOpenChange={setCreateModalOpen}>
-                  <DialogTrigger asChild>
-                    <Button 
-                      className="w-full h-14 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold text-lg shadow-lg hover:shadow-primary/25"
-                    >
-                      <Plus className="h-5 w-5 mr-2" />
-                      Create Room
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-md">
-                    <DialogHeader>
-                      <DialogTitle>Create New Room</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                      <div>
-                        <Label htmlFor="maxPlayers">Maximum Players</Label>
-                        <div className="flex space-x-2 mt-2">
-                          {[2, 3, 4, 5, 6].map((num) => (
-                            <Button
-                              key={num}
-                              variant={maxPlayers === num ? "default" : "outline"}
-                              className="flex-1"
-                              onClick={() => setMaxPlayers(num)}
-                            >
-                              {num}
-                            </Button>
-                          ))}
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Switch 
-                          id="isPublic" 
-                          checked={isPublic}
-                          onCheckedChange={setIsPublic}
-                        />
-                        <Label htmlFor="isPublic" className="flex items-center space-x-2">
-                          {isPublic ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
-                          <span>{isPublic ? 'Public Room' : 'Private Room'}</span>
-                        </Label>
-                      </div>
-                      <Button onClick={handleCreateRoom} className="w-full">
-                        Create Room
-                      </Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-
-                {/* Join Room Button */}
-                <Dialog open={joinModalOpen} onOpenChange={setJoinModalOpen}>
-                  <DialogTrigger asChild>
-                    <Button 
-                      variant="outline"
-                      className="w-full h-14 border-2 border-primary/50 bg-primary/10 hover:bg-primary/20 text-primary hover:text-primary font-semibold text-lg"
-                    >
-                      <Key className="h-5 w-5 mr-2" />
-                      Join with Code
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-md">
-                    <DialogHeader>
-                      <DialogTitle>Join Room</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                      <div>
-                        <Label htmlFor="roomCode">Room Code</Label>
-                        <Input
-                          id="roomCode"
-                          placeholder="Enter 4-digit code"
-                          value={roomCode}
-                          onChange={(e) => setRoomCode(e.target.value.replace(/\D/g, '').slice(0, 4))}
-                          className="text-center text-2xl font-mono tracking-widest"
-                          maxLength={4}
-                        />
-                      </div>
-                      <Button 
-                        onClick={handleJoinRoom} 
-                        className="w-full"
-                        disabled={roomCode.length !== 4}
-                      >
-                        Join Room
-                      </Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-
-                <Separator className="bg-border" />
-
-                {/* Quick Match */}
-                {!isSearching ? (
+                {gameState === 'finding' ? (
                   <Button
-                    onClick={onFindMatch}
-                    className="w-full h-12 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground font-semibold"
+                    onClick={onCancelMatch}
+                    variant="outline"
+                    className="w-full h-12"
+                    disabled={gameState !== 'finding'}
                   >
-                    <Users className="h-5 w-5 mr-2" />
-                    Quick Match
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Cancel Search
                   </Button>
                 ) : (
-                  <div className="text-center space-y-4">
-                    <div className="flex items-center justify-center space-x-2">
-                      <motion.div
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                        className="w-6 h-6 border-2 border-white/20 border-t-white rounded-full"
-                      />
-                      <span className="text-foreground font-medium">Finding players...</span>
-                    </div>
+                  <Button
+                    onClick={onFindMatch}
+                    className="w-full h-12 bg-primary hover:bg-primary/90"
+                  >
+                    <Search className="h-4 w-4 mr-2" />
+                    Find Match
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Create Room */}
+            <Card className="glass-card border-border">
+              <CardHeader>
+                <CardTitle className="text-foreground flex items-center">
+                  <Plus className="h-5 w-5 mr-2 text-accent" />
+                  Create Room
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {!showCreateRoom ? (
+                  <>
+                    <p className="text-muted-foreground text-sm">
+                      Create a custom room with your settings
+                    </p>
                     <Button
-                      onClick={onCancelMatch}
-                      variant="outline"
-                      className="border-destructive/50 bg-destructive/10 hover:bg-destructive/20 text-destructive"
+                      onClick={() => setShowCreateRoom(true)}
+                      className="w-full bg-accent hover:bg-accent/90"
                     >
-                      Cancel
+                      Create Room
                     </Button>
+                  </>
+                ) : (
+                  <div className="space-y-4">
+                    {/* Category Selection */}
+                    <div>
+                      <label className="text-sm font-medium text-foreground mb-2 block">
+                        Question Category
+                      </label>
+                      <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                        <SelectTrigger className="bg-card">
+                          <SelectValue placeholder="Select category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="">General (Mixed)</SelectItem>
+                          {categories.map((category) => (
+                            <SelectItem key={category} value={category}>
+                              {category}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Max Players */}
+                    <div>
+                      <label className="text-sm font-medium text-foreground mb-2 block">
+                        Max Players: {maxPlayers}
+                      </label>
+                      <input
+                        type="range"
+                        min="2"
+                        max="8"
+                        value={maxPlayers}
+                        onChange={(e) => setMaxPlayers(Number(e.target.value))}
+                        className="w-full accent-primary"
+                      />
+                    </div>
+
+                    {/* Visibility */}
+                    <div className="flex items-center space-x-4">
+                      <Button
+                        onClick={() => setIsPublic(true)}
+                        variant={isPublic ? "default" : "outline"}
+                        size="sm"
+                        className="flex-1"
+                      >
+                        <Globe className="h-4 w-4 mr-1" />
+                        Public
+                      </Button>
+                      <Button
+                        onClick={() => setIsPublic(false)}
+                        variant={!isPublic ? "default" : "outline"}
+                        size="sm"
+                        className="flex-1"
+                      >
+                        <Lock className="h-4 w-4 mr-1" />
+                        Private
+                      </Button>
+                    </div>
+
+                    <div className="flex space-x-2">
+                      <Button
+                        onClick={handleCreateRoom}
+                        className="flex-1 bg-accent hover:bg-accent/90"
+                      >
+                        Create
+                      </Button>
+                      <Button
+                        onClick={() => setShowCreateRoom(false)}
+                        variant="outline"
+                        className="flex-1"
+                      >
+                        Cancel
+                      </Button>
+                    </div>
                   </div>
                 )}
               </CardContent>
             </Card>
 
-            {/* Game Info */}
+            {/* Join by Code */}
             <Card className="glass-card border-border">
               <CardHeader>
                 <CardTitle className="text-foreground flex items-center">
-                  <Star className="h-5 w-5 mr-2" />
-                  How to Play
+                  <Users className="h-5 w-5 mr-2 text-secondary" />
+                  Join by Code
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3 text-muted-foreground text-sm">
-                <div className="flex items-start space-x-3">
-                  <Badge className="bg-primary/20 text-primary min-w-fit">1</Badge>
-                  <p>Create a room or join with a 4-digit code</p>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <Badge className="bg-accent/20 text-accent min-w-fit">2</Badge>
-                  <p>Wait for other players to join</p>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <Badge className="bg-primary/20 text-primary min-w-fit">3</Badge>
-                  <p>Answer questions as fast as possible</p>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <Badge className="bg-accent/20 text-accent min-w-fit">4</Badge>
-                  <p>Climb the leaderboard to victory!</p>
+              <CardContent className="space-y-4">
+                <p className="text-muted-foreground text-sm">
+                  Enter a room code to join a private game
+                </p>
+                <div className="flex space-x-2">
+                  <Input
+                    placeholder="Enter room code"
+                    value={roomCode}
+                    onChange={(e) => setRoomCode(e.target.value)}
+                    className="bg-card"
+                    maxLength={4}
+                  />
+                  <Button
+                    onClick={handleJoinByCode}
+                    disabled={!roomCode.trim()}
+                    className="bg-secondary hover:bg-secondary/90"
+                  >
+                    Join
+                  </Button>
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          {/* Public Rooms - Right Side */}
-          <div className="lg:col-span-2">
-            <Card className="glass-card border-border shadow-2xl h-full">
+          {/* Right Column - Public Rooms */}
+          <div className="lg:col-span-2 space-y-6">
+            <Card className="glass-card border-border">
               <CardHeader>
-                <CardTitle className="text-foreground flex items-center justify-between">
-                  <div className="flex items-center">
-                    <Trophy className="h-5 w-5 mr-2" />
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-foreground flex items-center">
+                    <Globe className="h-5 w-5 mr-2 text-primary" />
                     Public Rooms
-                  </div>
-                  <Badge className="bg-primary/20 text-primary border-primary/40">
-                    {publicRooms.length} Active
-                  </Badge>
-                </CardTitle>
+                  </CardTitle>
+                  <Button
+                    onClick={onRefreshRooms}
+                    variant="outline"
+                    size="sm"
+                    className="bg-card"
+                  >
+                    <RefreshCw className="h-4 w-4" />
+                  </Button>
+                </div>
               </CardHeader>
-              <CardContent>
-                {publicRooms.length === 0 ? (
-                  <div className="text-center py-12">
-                    <div className="text-muted-foreground mb-4">
-                      <Users className="h-16 w-16 mx-auto mb-4 opacity-50" />
-                      <p className="text-lg">No public rooms available</p>
-                      <p className="text-sm">Create one and invite your friends!</p>
-                    </div>
+              <CardContent className="space-y-4">
+                {/* Filters */}
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <div className="flex-1">
+                    <Input
+                      placeholder="Search rooms..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="bg-card"
+                    />
                   </div>
-                ) : (
-                  <div className="grid gap-4 max-h-96 overflow-y-auto">
-                    {publicRooms.map((room) => (
-                      <motion.div
-                        key={room.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="bg-card/50 rounded-xl p-4 border border-border hover:border-primary/50 transition-all duration-200"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="space-y-2">
-                            <div className="flex items-center space-x-3">
-                              <div className="w-10 h-10 bg-gradient-to-r from-primary to-accent rounded-lg flex items-center justify-center">
-                                <span className="text-primary-foreground font-bold">
-                                  {room.room_code}
+                  <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                    <SelectTrigger className="bg-card sm:w-48">
+                      <SelectValue placeholder="Filter by category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Categories</SelectItem>
+                      {categories.map((category) => (
+                        <SelectItem key={category} value={category}>
+                          {category}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Rooms List */}
+                <div className="space-y-3 max-h-96 overflow-y-auto">
+                  <AnimatePresence>
+                    {filteredRooms.length > 0 ? (
+                      filteredRooms.map((room) => (
+                        <motion.div
+                          key={room.id}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -20 }}
+                          className="bg-card/50 rounded-lg p-4 border border-border hover:border-primary/50 transition-colors"
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="space-y-2">
+                              <div className="flex items-center space-x-2">
+                                <span className="font-medium text-foreground">
+                                  Room {room.room_code}
+                                </span>
+                                {room.category && (
+                                  <Badge variant="secondary" className="bg-primary/20 text-primary">
+                                    <Tag className="h-3 w-3 mr-1" />
+                                    {room.category}
+                                  </Badge>
+                                )}
+                              </div>
+                              <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                                <span className="flex items-center">
+                                  <Users className="h-4 w-4 mr-1" />
+                                  {room.current_players}/{room.max_players}
+                                </span>
+                                <span className="flex items-center">
+                                  <Clock className="h-4 w-4 mr-1" />
+                                  Waiting
                                 </span>
                               </div>
-                              <div>
-                                <p className="text-foreground font-medium">Room {room.room_code}</p>
-                                <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                                  <div className="flex items-center space-x-1">
-                                    <Users className="h-4 w-4" />
-                                    <span>{room.current_players}/{room.max_players}</span>
-                                  </div>
-                                  <div className="flex items-center space-x-1">
-                                    <Timer className="h-4 w-4" />
-                                    <span>Waiting</span>
-                                  </div>
-                                </div>
-                              </div>
                             </div>
+                            <Button
+                              onClick={() => onJoinPublicRoom(room.id)}
+                              disabled={room.current_players >= room.max_players}
+                              size="sm"
+                              className="bg-primary hover:bg-primary/90"
+                            >
+                              {room.current_players >= room.max_players ? 'Full' : 'Join'}
+                            </Button>
                           </div>
-                          
-                          <Button
-                            onClick={() => onJoinPublicRoom(room.id)}
-                            disabled={room.current_players >= room.max_players}
-                            className={`
-                              ${room.current_players >= room.max_players 
-                                ? 'bg-muted/50 text-muted-foreground cursor-not-allowed' 
-                                : 'bg-primary text-primary-foreground hover:bg-primary/90'
-                              }
-                            `}
-                          >
-                            {room.current_players >= room.max_players ? 'Full' : 'Join'}
-                          </Button>
-                        </div>
-                        
-                        {/* Room progress bar */}
-                        <div className="mt-3">
-                          <div className="w-full bg-muted/20 rounded-full h-2">
-                            <div 
-                              className="bg-gradient-to-r from-primary to-accent h-2 rounded-full transition-all duration-500"
-                              style={{ width: `${(room.current_players / room.max_players) * 100}%` }}
-                            />
-                          </div>
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
-                )}
+                        </motion.div>
+                      ))
+                    ) : (
+                      <div className="text-center py-8">
+                        <p className="text-muted-foreground">No public rooms available</p>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          Create a room to start playing!
+                        </p>
+                      </div>
+                    )}
+                  </AnimatePresence>
+                </div>
               </CardContent>
             </Card>
           </div>
