@@ -42,6 +42,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store/store';
+import { Database } from '@/integrations/supabase/types';
 
 interface Question {
   id?: string;
@@ -51,6 +54,7 @@ interface Question {
   difficulty: 'easy' | 'medium' | 'hard';
   time_limit: number;
   category: string;
+  instructor_id?: string;
 }
 
 interface ExtractedQuestion {
@@ -81,10 +85,14 @@ export const MultiplayerQuizManagement = () => {
   const [generatingOptionsFor, setGeneratingOptionsFor] = useState<string | null>(null);
   const [generatingSavedQuestionOptions, setGeneratingSavedQuestionOptions] = useState<string | null>(null);
 
+  const user = useSelector((state: RootState) => state.auth.user);
+
   useEffect(() => {
-    fetchQuestions();
-    fetchCategories();
-  }, []);
+    if (user) {
+      fetchQuestions();
+      fetchCategories();
+    }
+  }, [user]);
 
   useEffect(() => {
     if (searchTerm.trim() === '') {
@@ -100,23 +108,33 @@ export const MultiplayerQuizManagement = () => {
   }, [searchTerm, questions]);
 
   const fetchQuestions = async () => {
+    if (!user) return;
     try {
       const { data, error } = await supabase
         .from('multiplayer_quiz_questions')
         .select('*')
+        .eq('instructor_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      const formattedQuestions: Question[] = data?.map(q => ({
-        id: q.id,
-        question: q.question,
-        options: Array.isArray(q.options) ? q.options : JSON.parse(q.options as string),
-        correct_answer: q.correct_answer,
-        difficulty: q.difficulty as 'easy' | 'medium' | 'hard',
-        time_limit: q.time_limit,
-        category: q.category || 'General'
-      })) || [];
+      // @ts-ignore
+      const formattedQuestions: Question[] =
+        (data as any)?.map((q: any) => {
+          const question: Question = {
+            id: q.id,
+            question: q.question,
+            options: Array.isArray(q.options)
+              ? q.options
+              : JSON.parse(q.options),
+            correct_answer: q.correct_answer,
+            difficulty: q.difficulty as 'easy' | 'medium' | 'hard',
+            time_limit: q.time_limit,
+            category: q.category || 'General',
+            instructor_id: q.instructor_id,
+          };
+          return question;
+        }) || [];
 
       setQuestions(formattedQuestions);
       setFilteredQuestions(formattedQuestions);
@@ -133,10 +151,12 @@ export const MultiplayerQuizManagement = () => {
   };
 
   const fetchCategories = async () => {
+    if (!user) return;
     try {
       const { data, error } = await supabase
         .from('multiplayer_quiz_questions')
         .select('category')
+        .eq('instructor_id', user.id)
         .order('category');
 
       if (error) throw error;
@@ -149,6 +169,14 @@ export const MultiplayerQuizManagement = () => {
   };
 
   const saveQuestion = async (question: Question) => {
+    if (!user) {
+      toast({
+        title: 'Error',
+        description: 'You must be logged in to save questions.',
+        variant: 'destructive',
+      });
+      return;
+    }
     setSaving(true);
     try {
       const questionData = {
@@ -157,7 +185,8 @@ export const MultiplayerQuizManagement = () => {
         correct_answer: question.correct_answer,
         difficulty: question.difficulty,
         time_limit: question.time_limit,
-        category: question.category || 'General'
+        category: question.category || 'General',
+        instructor_id: user.id,
       };
 
       if (question.id) {
@@ -225,13 +254,22 @@ export const MultiplayerQuizManagement = () => {
   };
 
   const startNewQuestion = () => {
+    if (!user) {
+      toast({
+        title: 'Error',
+        description: 'You must be logged in to create a question.',
+        variant: 'destructive',
+      });
+      return;
+    }
     setEditingQuestion({
       question: '',
       options: ['', '', '', ''],
       correct_answer: '',
       difficulty: 'medium',
       time_limit: 15,
-      category: selectedCategory === 'all' ? 'General' : selectedCategory
+      category: selectedCategory === 'all' ? 'General' : selectedCategory,
+      instructor_id: user?.id,
     });
   };
 
@@ -267,6 +305,14 @@ export const MultiplayerQuizManagement = () => {
 
   const addNewCategory = async () => {
     if (!newCategory.trim()) return;
+    if (!user) {
+      toast({
+        title: 'Error',
+        description: 'You must be logged in to add a category.',
+        variant: 'destructive',
+      });
+      return;
+    }
 
     try {
       // Add a placeholder question to establish the category
@@ -278,7 +324,8 @@ export const MultiplayerQuizManagement = () => {
           correct_answer: 'Option A',
           difficulty: 'medium',
           time_limit: 15,
-          category: newCategory.trim()
+          category: newCategory.trim(),
+          instructor_id: user.id,
         });
 
       if (error) throw error;
@@ -359,6 +406,14 @@ export const MultiplayerQuizManagement = () => {
   };
 
   const saveExtractedQuestions = async () => {
+    if (!user) {
+      toast({
+        title: 'Error',
+        description: 'You must be logged in to save questions.',
+        variant: 'destructive',
+      });
+      return;
+    }
     try {
       const newQuestions = extractedQuestions.map(q => ({
         question: q.question_text,
@@ -366,7 +421,8 @@ export const MultiplayerQuizManagement = () => {
         correct_answer: q.correct_answer || '',
         difficulty: 'medium', // Default difficulty
         time_limit: 15, // Default time limit
-        category: 'General' // Default category
+        category: 'General', // Default category
+        instructor_id: user.id,
       }));
 
       const { error } = await supabase.from('multiplayer_quiz_questions').insert(newQuestions);
@@ -683,7 +739,7 @@ export const MultiplayerQuizManagement = () => {
               </div>
               <Button 
                 onClick={addNewCategory}
-                disabled={!newCategory.trim()}
+                disabled={!newCategory.trim() || !user}
                 className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white"
               >
                 <Plus className="h-4 w-4 mr-2" />
