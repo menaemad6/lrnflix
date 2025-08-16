@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useSelector } from 'react-redux';
 import type { RootState } from '@/store/store';
@@ -36,6 +36,7 @@ export interface GameRoom {
   is_public?: boolean;
   created_by?: string;
   category?: string;
+  shuffled_questions?: string[]; // Array of question IDs in shuffled order
 }
 
 // LocalStorage keys
@@ -50,7 +51,8 @@ const STORAGE_KEYS = {
   FINAL_RESULTS: 'multiplayer_quiz_final_results',
   QUESTIONS: 'multiplayer_quiz_questions',
   PUBLIC_ROOMS: 'multiplayer_quiz_public_rooms',
-  USER_ID: 'multiplayer_quiz_user_id'
+  USER_ID: 'multiplayer_quiz_user_id',
+  CATEGORIES: 'multiplayer_quiz_categories'
 };
 
 // Helper functions for localStorage
@@ -94,11 +96,11 @@ export const useMultiplayerQuiz = (): {
   publicRooms: GameRoom[];
   questions: Question[];
   categories: string[];
-  findMatch: () => Promise<void>;
+  findMatch: (category?: string) => Promise<void>;
   cancelMatch: () => Promise<void>;
   submitAnswer: (answer: string) => Promise<void>;
   setGameState: (state: GameState) => void;
-  createRoom: (maxPlayers: number, isPublic: boolean, category?: string) => Promise<GameRoom | undefined>;
+  createRoom: (maxPlayers: number, isPublic: boolean, category?: string, questionCount?: number) => Promise<GameRoom | undefined>;
   joinRoomByCode: (roomCode: string) => Promise<void>;
   joinPublicRoom: (roomId: string) => Promise<void>;
   leaveRoom: () => Promise<void>;
@@ -107,6 +109,8 @@ export const useMultiplayerQuiz = (): {
   endGame: () => Promise<void>;
   fetchPublicRooms: () => Promise<void>;
   fetchCategories: () => Promise<void>;
+  debugMatchmakingStatus: () => Promise<void>;
+  checkAndStartGame: () => Promise<void>;
 } => {
   const { user } = useSelector((state: RootState) => state.auth);
   const { toast } = useToast();
@@ -143,8 +147,16 @@ export const useMultiplayerQuiz = (): {
     loadFromStorage(STORAGE_KEYS.PUBLIC_ROOMS, [])
   );
   const [categories, setCategories] = useState<string[]>(() => 
-    loadFromStorage('multiplayer_quiz_categories', [])
+    loadFromStorage(STORAGE_KEYS.CATEGORIES, [])
   );
+
+  // Ref to track current question index for real-time updates
+  const currentQuestionIndexRef = useRef<number>(0);
+  const hasProcessedCurrentQuestionRef = useRef<boolean>(false);
+  
+  // Refs to store interval IDs for cleanup
+  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const longPollIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Save state to localStorage whenever it changes
   useEffect(() => {
@@ -153,6 +165,10 @@ export const useMultiplayerQuiz = (): {
 
   useEffect(() => {
     saveToStorage(STORAGE_KEYS.ROOM, room);
+    // Update ref when room changes
+    if (room) {
+      currentQuestionIndexRef.current = room.current_question_index || 0;
+    }
   }, [room]);
 
   useEffect(() => {
@@ -188,7 +204,7 @@ export const useMultiplayerQuiz = (): {
   }, [publicRooms]);
 
   useEffect(() => {
-    saveToStorage('multiplayer_quiz_categories', categories);
+    saveToStorage(STORAGE_KEYS.CATEGORIES, categories);
   }, [categories]);
 
   // Save user ID to localStorage
@@ -197,6 +213,117 @@ export const useMultiplayerQuiz = (): {
       saveToStorage(STORAGE_KEYS.USER_ID, user.id);
     }
   }, [user]);
+  
+  // Cleanup intervals when game state changes or component unmounts
+  useEffect(() => {
+    return () => {
+      // Clear any active polling intervals
+      if (pollIntervalRef.current) {
+        clearInterval(pollIntervalRef.current);
+        pollIntervalRef.current = null;
+      }
+      if (longPollIntervalRef.current) {
+        clearInterval(longPollIntervalRef.current);
+        longPollIntervalRef.current = null;
+      }
+    };
+  }, [gameState]); // Re-run when game state changes
+
+  // Helper function to load shuffled questions for a room
+  const loadShuffledQuestions = useCallback(async (room: GameRoom) => {
+    if (room.shuffled_questions && room.shuffled_questions.length > 0) {
+      // Fetch the questions in the shuffled order
+      const { data: roomQuestions, error: questionsError } = await supabase
+        .from('multiplayer_quiz_questions')
+        .select('*')
+        .in('id', room.shuffled_questions);
+
+      if (!questionsError && roomQuestions) {
+        // Sort the questions according to the shuffled order
+        const orderedQuestions = room.shuffled_questions.map(id => 
+          roomQuestions.find(q => q.id === id)
+        ).filter(Boolean).map(q => ({
+          id: q!.id,
+          question: q!.question,
+          options: Array.isArray(q!.options) ? q!.options : JSON.parse(q!.options as string),
+          correct_answer: q!.correct_answer,
+          difficulty: q!.difficulty,
+          time_limit: q!.time_limit,
+          category: q!.category
+        }));
+        
+        setQuestions(orderedQuestions);
+        return true;
+      }
+    }
+    return false;
+  }, []);
+
+  // Helper function to create shuffled questions for quick match rooms
+  const createShuffledQuestionsForQuickMatch = useCallback(async (room: GameRoom) => {
+    try {
+      console.log('Creating shuffled questions for quick match room:', room.id, 'category:', room.category);
+      
+      // Load questions for the category
+      let query = supabase
+        .from('multiplayer_quiz_questions')
+        .select('*');
+
+      if (room.category) {
+        query = query.eq('category', room.category);
+      }
+
+      const { data: allQuestions, error: questionsError } = await query;
+      if (questionsError) {
+        console.error('Database error loading questions:', questionsError);
+        throw questionsError;
+      }
+
+      console.log('Found questions in database:', allQuestions?.length || 0);
+
+      if (!allQuestions || allQuestions.length === 0) {
+        console.error('No questions available for category:', room.category);
+        return;
+      }
+
+      // For quick match (1v1), use random question count between 5-15
+      const questionsToUse = Math.max(5, Math.min(15, Math.floor(Math.random() * 11) + 5));
+      console.log('Will use', questionsToUse, 'questions out of', allQuestions.length);
+      
+      // Shuffle the questions and take the specified number
+      const shuffledQuestions = allQuestions
+        .sort(() => Math.random() - 0.5)
+        .slice(0, questionsToUse)
+        .map(q => ({
+          id: q.id,
+          question: q.question,
+          options: Array.isArray(q.options) ? q.options : JSON.parse(q.options as string),
+          correct_answer: q.correct_answer,
+          difficulty: q.difficulty,
+          time_limit: q.time_limit,
+          category: q.category
+        }));
+
+      console.log('🎯 Created shuffled questions for quick match:', shuffledQuestions.length);
+      console.log('📝 First question:', shuffledQuestions[0]?.question?.substring(0, 50) + '...');
+      console.log('💾 Setting questions state with', shuffledQuestions.length, 'questions');
+      
+      // Return a promise that resolves when questions are set
+      return new Promise<void>((resolve) => {
+        setQuestions(shuffledQuestions);
+        // Use a small timeout to ensure state is updated
+        setTimeout(() => {
+          console.log('✅ Questions state updated:', questions.length);
+          resolve();
+        }, 100);
+      });
+        
+    } catch (error) {
+      console.error('Error creating shuffled questions for quick match:', error);
+      // Try to show a more user-friendly error
+      console.error('Failed to load questions for quick match. This might be a database connection issue.');
+    }
+  }, []);
 
   // Restore state on page load
   useEffect(() => {
@@ -257,32 +384,42 @@ export const useMultiplayerQuiz = (): {
 
           // Handle different room statuses
           if (roomExists.status === 'completed') {
-            // Game was completed while user was away
-            setGameState('results');
-            setShowResults(true);
-            
-            // Get final results
-            const { data: finalPlayers } = await supabase
-              .from('quiz_room_players')
-              .select('*')
-              .eq('room_id', savedRoom.id)
-              .order('score', { ascending: false });
-            
-            if (finalPlayers) {
-              setFinalResults(finalPlayers);
-            }
-          } else if (roomExists.status === 'started') {
-            // Game is in progress
-            const savedQuestions = loadFromStorage(STORAGE_KEYS.QUESTIONS, []);
-            if (savedQuestions.length > 0) {
-              setQuestions(savedQuestions);
-              const currentIndex = roomExists.current_question_index || 0;
-              if (savedQuestions[currentIndex]) {
-                setCurrentQuestion(savedQuestions[currentIndex]);
-                setTimeLeft(savedQuestions[currentIndex].time_limit);
-              }
-            }
-          }
+             // Game was completed while user was away
+             setGameState('results');
+             setShowResults(true);
+             
+             // Get final results
+             const { data: finalPlayers } = await supabase
+               .from('quiz_room_players')
+               .select('*')
+               .eq('room_id', savedRoom.id)
+               .order('score', { ascending: false });
+             
+             if (finalPlayers) {
+               setFinalResults(finalPlayers);
+             }
+           } else if (roomExists.status === 'started') {
+             // Game is in progress
+             const savedQuestions = loadFromStorage(STORAGE_KEYS.QUESTIONS, []);
+             if (savedQuestions.length > 0) {
+               setQuestions(savedQuestions);
+               const currentIndex = roomExists.current_question_index || 0;
+               if (savedQuestions[currentIndex]) {
+                 setCurrentQuestion(savedQuestions[currentIndex]);
+                 setTimeLeft(savedQuestions[currentIndex].time_limit);
+               }
+             } else {
+               // Try to load shuffled questions first, fallback to category questions
+               if (!(await loadShuffledQuestions(roomExists))) {
+                 await loadQuestions(roomExists.category);
+               }
+             }
+           } else if (roomExists.status === 'waiting') {
+             // Room is waiting, try to load shuffled questions first
+             if (!(await loadShuffledQuestions(roomExists))) {
+               await loadQuestions(roomExists.category);
+             }
+           }
 
           // If game is in countdown, set appropriate state
           if (roomExists.status === 'started' && savedGameState === 'countdown') {
@@ -313,13 +450,103 @@ export const useMultiplayerQuiz = (): {
       // Clear storage if user doesn't match or no saved state
       clearStorage();
     }
-  }, [user, toast]);
+  }, [user, toast, loadShuffledQuestions]);
+
+  // Load questions by category
+  const loadQuestions = useCallback(async (category?: string) => {
+    console.log('loadQuestions called for category:', category);
+    
+    try {
+      let query = supabase
+        .from('multiplayer_quiz_questions')
+        .select('*');
+
+      // Always filter by category if provided, including 'General'
+      if (category) {
+        query = query.eq('category', category);
+      }
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+
+      console.log('Questions loaded from DB:', data?.length || 0);
+
+      const formattedQuestions: Question[] = data.map(q => ({
+        id: q.id,
+        question: q.question,
+        options: Array.isArray(q.options) ? q.options : JSON.parse(q.options as string),
+        correct_answer: q.correct_answer,
+        difficulty: q.difficulty,
+        time_limit: q.time_limit,
+        category: q.category
+      }));
+
+      // Don't shuffle here - questions will be shuffled at room creation time
+      // and stored in the room's shuffled_questions field
+      console.log('Setting questions state:', formattedQuestions.length);
+      setQuestions(formattedQuestions);
+    } catch (error: unknown) {
+      console.error('Error loading questions:', error);
+    }
+  }, []);
 
   // Create room
-  const createRoom = useCallback(async (maxPlayers: number, isPublic: boolean, category?: string) => {
+  const createRoom = useCallback(async (maxPlayers: number, isPublic: boolean, category?: string, questionCount?: number) => {
     if (!user) return;
 
     try {
+      // First, load questions for the category to get the full list
+      let query = supabase
+        .from('multiplayer_quiz_questions')
+        .select('*');
+
+      if (category) {
+        query = query.eq('category', category);
+      }
+
+      const { data: allQuestions, error: questionsError } = await query;
+      if (questionsError) throw questionsError;
+
+      if (!allQuestions || allQuestions.length === 0) {
+        toast({
+          title: 'No Questions Available',
+          description: `No questions found for category: ${category || 'General'}`,
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Determine the number of questions to use
+      const maxAvailableQuestions = allQuestions.length;
+      let questionsToUse: number;
+      
+      if (questionCount) {
+        questionsToUse = Math.min(questionCount, maxAvailableQuestions);
+      } else if (maxPlayers === 2) {
+        // For 1v1 games (quick match), use random question count between 5-15
+        questionsToUse = Math.max(5, Math.min(15, Math.floor(Math.random() * 11) + 5));
+      } else {
+        questionsToUse = Math.min(10, maxAvailableQuestions);
+      }
+
+      // Shuffle the questions and take the specified number
+      const shuffledQuestions = allQuestions
+        .sort(() => Math.random() - 0.5)
+        .slice(0, questionsToUse)
+        .map(q => ({
+          id: q.id,
+          question: q.question,
+          options: Array.isArray(q.options) ? q.options : JSON.parse(q.options as string),
+          correct_answer: q.correct_answer,
+          difficulty: q.difficulty,
+          time_limit: q.time_limit,
+          category: q.category
+        }));
+
+      // Extract just the question IDs in the shuffled order
+      const shuffledQuestionIds = shuffledQuestions.map(q => q.id);
+
       // Generate 4-digit room code
       const roomCode = Math.floor(1000 + Math.random() * 9000).toString();
       
@@ -331,7 +558,8 @@ export const useMultiplayerQuiz = (): {
           room_code: roomCode,
           created_by: user.id,
           status: 'waiting',
-          category: category || 'General'
+          category: category || 'General',
+          shuffled_questions: shuffledQuestionIds // Store the shuffled question order
         })
         .select()
         .single();
@@ -352,6 +580,9 @@ export const useMultiplayerQuiz = (): {
       setRoom(newRoom);
       setGameState('matched');
       
+      // Set the shuffled questions for this room
+      setQuestions(shuffledQuestions);
+      
       // Fetch players after creating room
       try {
         const { data: playerData, error: playerError } = await supabase
@@ -367,9 +598,10 @@ export const useMultiplayerQuiz = (): {
         console.error('Error fetching players:', error);
       }
       
+      const isQuickMatch = maxPlayers === 2 && !questionCount;
       toast({
         title: 'Room Created',
-        description: `Room code: ${roomCode}. Category: ${category || 'General'}`,
+        description: `Room code: ${roomCode}. Category: ${category || 'All Categories'}. Questions: ${questionsToUse}${isQuickMatch ? ' (random)' : ''}`,
       });
 
       return newRoom;
@@ -397,13 +629,16 @@ export const useMultiplayerQuiz = (): {
 
       if (error) throw error;
 
+      // Cast to GameRoom type to access shuffled_questions
+      const typedRoom = targetRoom as GameRoom;
+
       // Check if room is full
       const { count } = await supabase
         .from('quiz_room_players')
         .select('*', { count: 'exact' })
-        .eq('room_id', targetRoom.id);
+        .eq('room_id', typedRoom.id);
 
-      if (count && count >= targetRoom.max_players) {
+      if (count && count >= typedRoom.max_players) {
         toast({
           title: 'Room Full',
           description: 'This room is already full',
@@ -416,22 +651,28 @@ export const useMultiplayerQuiz = (): {
       const { error: joinError } = await supabase
         .from('quiz_room_players')
         .insert({
-          room_id: targetRoom.id,
+          room_id: typedRoom.id,
           user_id: user.id,
           username: user.full_name || user.email
         });
 
       if (joinError) throw joinError;
 
-      setRoom(targetRoom);
+      setRoom(typedRoom);
       setGameState('matched');
+      
+      // Load the shuffled questions for this specific room
+      if (!(await loadShuffledQuestions(typedRoom))) {
+        // Fallback: load questions for the room's category
+        await loadQuestions(typedRoom.category);
+      }
       
       // Fetch players after joining room
       try {
         const { data: playerData, error: playerError } = await supabase
           .from('quiz_room_players')
           .select('*')
-          .eq('room_id', targetRoom.id)
+          .eq('room_id', typedRoom.id)
           .order('score', { ascending: false });
 
         if (!playerError) {
@@ -453,7 +694,7 @@ export const useMultiplayerQuiz = (): {
         variant: 'destructive',
       });
     }
-  }, [user, toast]);
+  }, [user, toast, loadQuestions, loadShuffledQuestions]);
 
   // Join public room
   const joinPublicRoom = useCallback(async (roomId: string) => {
@@ -469,26 +710,35 @@ export const useMultiplayerQuiz = (): {
 
       if (error) throw error;
 
+      // Cast to GameRoom type to access shuffled_questions
+      const typedRoom = targetRoom as GameRoom;
+
       // Join the room
       const { error: joinError } = await supabase
         .from('quiz_room_players')
         .insert({
-          room_id: targetRoom.id,
+          room_id: typedRoom.id,
           user_id: user.id,
           username: user.full_name || user.email
         });
 
       if (joinError) throw joinError;
 
-      setRoom(targetRoom);
+      setRoom(typedRoom);
       setGameState('matched');
+      
+      // Load the shuffled questions for this specific room
+      if (!(await loadShuffledQuestions(typedRoom))) {
+        // Fallback: load questions for the room's category
+        await loadQuestions(typedRoom.category);
+      }
       
       // Fetch players after joining room
       try {
         const { data: playerData, error: playerError } = await supabase
           .from('quiz_room_players')
           .select('*')
-          .eq('room_id', targetRoom.id)
+          .eq('room_id', typedRoom.id)
           .order('score', { ascending: false });
 
         if (!playerError) {
@@ -510,7 +760,7 @@ export const useMultiplayerQuiz = (): {
         variant: 'destructive',
       });
     }
-  }, [user, toast]);
+  }, [user, toast, loadQuestions, loadShuffledQuestions]);
 
   // Fetch public rooms
   const fetchPublicRooms = useCallback(async () => {
@@ -562,27 +812,486 @@ export const useMultiplayerQuiz = (): {
   }, []);
 
   // Find match and join queue
-  const findMatch = useCallback(async () => {
+  const findMatch = useCallback(async (category?: string) => {
     if (!user) return;
 
     try {
+      console.log('Starting matchmaking for category:', category || 'General');
       setGameState('finding');
       
-      // Add user to matchmaking queue
-      const { error } = await supabase
-        .from('matchmaking_queue')
-        .insert({
-          user_id: user.id,
-          username: user.full_name || user.email,
-          status: 'waiting'
-        });
-
-      if (error) throw error;
-
-      toast({
-        title: 'Finding Match',
-        description: 'Looking for other players...',
+      // Call the matchmaking edge function
+      const requestBody = {
+        action: 'find_match',
+        userId: user.id,
+        username: user.full_name || user.email,
+        category: category || 'General'
+      };
+      
+      console.log('Calling edge function with:', requestBody);
+      
+      const { data, error } = await supabase.functions.invoke('matchmaking', {
+        body: requestBody
       });
+
+      if (error) {
+        console.error('Edge function error:', error);
+        throw new Error('Failed to connect to matchmaking service');
+      }
+
+      console.log('Matchmaking response:', data);
+
+      if (data.matched) {
+        // User was immediately matched
+        console.log('Immediate match found:', data);
+        
+        // Check if the game is already started (quick match auto-start)
+        if (data.room && data.room.status === 'started') {
+          console.log('Immediate match - game already started for quick match:', data.room);
+          
+          // For quick match, create shuffled questions since the room doesn't have them
+          // IMPORTANT: Load questions BEFORE setting game state to countdown
+          await createShuffledQuestionsForQuickMatch(data.room);
+          
+          // Fetch players
+          const { data: playerData } = await supabase
+            .from('quiz_room_players')
+            .select('*')
+            .eq('room_id', data.room.id)
+            .order('score', { ascending: false });
+
+          if (playerData) {
+            setPlayers(playerData);
+          }
+
+          // Only set room and countdown state AFTER questions are loaded
+          setRoom(data.room);
+          setGameState('countdown');
+
+          toast({
+            title: 'Game Starting!',
+            description: 'Your opponent is ready! The game will begin in 3 seconds...',
+          });
+        } else {
+          // Game not started yet, transition to matched state
+          setRoom(data.room);
+          setGameState('matched');
+          
+          // For quick match rooms (1v1), always use createShuffledQuestionsForQuickMatch
+          // For regular rooms, use loadQuestions
+          if (data.room.max_players === 2) {
+            // This is a quick match room, create shuffled questions
+            console.log('Quick match room - creating shuffled questions for matched state');
+            await createShuffledQuestionsForQuickMatch(data.room);
+            
+            // CRITICAL FIX: For quick match rooms, we need to auto-start the game
+            // since the matchmaking function sets status to 'started' but returns 'waiting'
+            console.log('Auto-starting quick match game...');
+            
+            // Update the room status to 'started' to trigger auto-start
+            const { error: updateError } = await supabase
+              .from('quiz_rooms')
+              .update({ 
+                status: 'started',
+                current_question_index: 0,
+                question_start_time: new Date().toISOString()
+              })
+              .eq('id', data.room.id);
+            
+            if (updateError) {
+              console.error('Error updating room status:', updateError);
+            } else {
+              console.log('Room status updated to started, game will auto-start');
+              // Directly start the game instead of waiting for room subscription
+              console.log('Directly transitioning to countdown state...');
+              setGameState('countdown');
+            }
+          } else {
+            // This is a regular room, load questions for the category
+            console.log('Regular room - loading questions for category:', data.room.category);
+            await loadQuestions(data.room.category);
+          }
+          
+          // Fetch players
+          const { data: playerData } = await supabase
+            .from('quiz_room_players')
+            .select('*')
+            .eq('room_id', data.room.id)
+            .order('score', { ascending: false });
+
+          if (playerData) {
+            setPlayers(playerData);
+          }
+
+          toast({
+            title: 'Match Found!',
+            description: `You've been matched with ${data.matchDetails?.opponent || 'an opponent'} in ${data.room.category || 'General'}!`,
+          });
+        }
+      } else {
+        // User is in queue, start polling for matches
+        console.log('User added to queue, starting polling...');
+        toast({
+          title: 'Finding Match',
+          description: `Looking for opponent in ${category || 'General'}...`,
+        });
+        
+        // Start polling for matches with shorter intervals initially
+        let pollCount = 0;
+        
+        // Store interval ID in ref for cleanup
+        pollIntervalRef.current = setInterval(async () => {
+          try {
+            pollCount++;
+            console.log(`Polling for match (attempt ${pollCount})...`);
+            
+            const { data: checkData, error: checkError } = await supabase.functions.invoke('matchmaking', {
+              body: {
+                action: 'check_match',
+                userId: user.id
+              }
+            });
+
+            if (checkError) {
+              console.error('Error checking match:', checkError);
+              return;
+            }
+
+            console.log('Check match response:', checkData);
+
+            if (checkData.matched) {
+              console.log('Match found during polling:', checkData);
+              if (pollIntervalRef.current) {
+                clearInterval(pollIntervalRef.current);
+                pollIntervalRef.current = null;
+              }
+              
+              // Check if the game is already started (quick match auto-start)
+              if (checkData.room && checkData.room.status === 'started') {
+                console.log('Game already started for quick match:', checkData.room);
+                
+                // For quick match, create shuffled questions since the room doesn't have them
+                // IMPORTANT: Load questions BEFORE setting game state to countdown
+                await createShuffledQuestionsForQuickMatch(checkData.room);
+                
+                // Fetch players
+                const { data: playerData } = await supabase
+                  .from('quiz_room_players')
+                  .select('*')
+                  .eq('room_id', checkData.room.id)
+                  .order('score', { ascending: false });
+
+                if (playerData) {
+                  setPlayers(playerData);
+                }
+
+                // Only set room and countdown state AFTER questions are loaded
+                // Wait a bit to ensure questions state is updated
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
+                if (questions.length > 0) {
+                  console.log('✅ Questions loaded successfully, transitioning to countdown');
+                  setRoom(checkData.room);
+                  setGameState('countdown');
+                } else {
+                  console.error('❌ Failed to load questions, staying in matched state');
+                  setRoom(checkData.room);
+                  setGameState('matched');
+                  toast({
+                    title: 'Error',
+                    description: 'Failed to load questions for quick match',
+                    variant: 'destructive',
+                  });
+                }
+
+                toast({
+                  title: 'Game Starting!',
+                  description: 'Your opponent is ready! The game will begin in 3 seconds...',
+                });
+                
+                // Stop all polling since game is starting
+                return;
+              } else {
+                // Game not started yet, transition to matched state
+                setRoom(checkData.room);
+                setGameState('matched');
+                
+                // For quick match rooms (1v1), always use createShuffledQuestionsForQuickMatch
+                // For regular rooms, use loadQuestions
+                if (checkData.room.max_players === 2) {
+                  // This is a quick match room, create shuffled questions
+                  console.log('Quick match room - creating shuffled questions for matched state');
+                  await createShuffledQuestionsForQuickMatch(checkData.room);
+                  
+                  // CRITICAL FIX: For quick match rooms, we need to auto-start the game
+                  console.log('Auto-starting quick match game...');
+                  
+                  // Update the room status to 'started' to trigger auto-start
+                  const { error: updateError } = await supabase
+                    .from('quiz_rooms')
+                    .update({ 
+                      status: 'started',
+                      current_question_index: 0,
+                      question_start_time: new Date().toISOString()
+                    })
+                    .eq('id', checkData.room.id);
+                  
+                  if (updateError) {
+                    console.error('Error updating room status:', updateError);
+                  } else {
+                    console.log('Room status updated to started, game will auto-start');
+                    // Directly start the game instead of waiting for room subscription
+                    console.log('Directly transitioning to countdown state...');
+                    setGameState('countdown');
+                  }
+                } else {
+                  // This is a regular room, load questions for the category
+                  console.log('Regular room - loading questions for category:', checkData.room.category);
+                  await loadQuestions(checkData.room.category);
+                }
+                
+                // Fetch players
+                const { data: playerData } = await supabase
+                  .from('quiz_room_players')
+                  .select('*')
+                  .eq('room_id', checkData.room.id)
+                  .order('score', { ascending: false });
+
+                if (playerData) {
+                  setPlayers(playerData);
+                }
+
+                toast({
+                  title: 'Match Found!',
+                  description: `You've been matched with an opponent in ${checkData.room.category || 'General'}!`,
+                });
+                
+                // Stop all polling since match is found
+                return;
+              }
+            }
+            
+            // Check if room status has changed to 'started' (game auto-started)
+            if (checkData.room && checkData.room.status === 'started') {
+              console.log('Game auto-started during polling:', checkData.room);
+              if (pollIntervalRef.current) {
+                clearInterval(pollIntervalRef.current);
+                pollIntervalRef.current = null;
+              }
+              
+              // Set the room and transition to countdown state
+              setRoom(checkData.room);
+              setGameState('countdown');
+              
+              // For quick match, create shuffled questions since the room doesn't have them
+              await createShuffledQuestionsForQuickMatch(checkData.room);
+              
+              // Fetch players
+              const { data: playerData } = await supabase
+                .from('quiz_room_players')
+                .select('*')
+                .eq('room_id', checkData.room.id)
+                .order('score', { ascending: false });
+
+              if (playerData) {
+                setPlayers(playerData);
+              }
+
+              toast({
+                title: 'Game Starting!',
+                description: 'Your opponent is ready! The game will begin in 3 seconds...',
+              });
+              
+              // Stop all polling since game is starting
+              return;
+            }
+            
+            // Increase polling interval after first few attempts
+            if (pollCount >= 3) {
+              if (pollIntervalRef.current) {
+                clearInterval(pollIntervalRef.current);
+                pollIntervalRef.current = null;
+              }
+              // Switch to longer interval
+              longPollIntervalRef.current = setInterval(async () => {
+                try {
+                  const { data: checkData, error: checkError } = await supabase.functions.invoke('matchmaking', {
+                    body: {
+                      action: 'check_match',
+                      userId: user.id
+                    }
+                  });
+
+                  if (checkError) {
+                    console.error('Error checking match:', checkError);
+                    return;
+                  }
+
+                  if (checkData.matched) {
+                    if (longPollIntervalRef.current) {
+                      clearInterval(longPollIntervalRef.current);
+                      longPollIntervalRef.current = null;
+                    }
+                    
+                    // Check if the game is already started (quick match auto-start)
+                    if (checkData.room && checkData.room.status === 'started') {
+                      console.log('Game already started for quick match during long polling:', checkData.room);
+                      
+                                    // For quick match, create shuffled questions since the room doesn't have them
+              // IMPORTANT: Load questions BEFORE setting game state to countdown
+              await createShuffledQuestionsForQuickMatch(checkData.room);
+              
+              // Wait a bit to ensure questions state is updated
+              await new Promise(resolve => setTimeout(resolve, 100));
+              
+              if (questions.length > 0) {
+                console.log('✅ Questions loaded successfully, transitioning to countdown');
+                setRoom(checkData.room);
+                setGameState('countdown');
+              } else {
+                console.error('❌ Failed to load questions, staying in matched state');
+                setRoom(checkData.room);
+                setGameState('matched');
+                toast({
+                  title: 'Error',
+                  description: 'Failed to load questions for quick match',
+                  variant: 'destructive',
+                });
+              }
+                      
+                      // Fetch players
+                      const { data: playerData } = await supabase
+                        .from('quiz_room_players')
+                        .select('*')
+                        .eq('room_id', checkData.room.id)
+                        .order('score', { ascending: false });
+
+                      if (playerData) {
+                        setPlayers(playerData);
+                      }
+
+                      toast({
+                        title: 'Game Starting!',
+                        description: 'Your opponent is ready! The game will begin in 3 seconds...',
+                      });
+                      
+                      // Stop all polling since game is starting
+                      return;
+                    } else {
+                      // Game not started yet, transition to matched state
+                      setRoom(checkData.room);
+                      setGameState('matched');
+                      
+                      // For quick match rooms (1v1), always use createShuffledQuestionsForQuickMatch
+                      // For regular rooms, use loadQuestions
+                      if (checkData.room.max_players === 2) {
+                        // This is a quick match room, create shuffled questions
+                        console.log('Quick match room - creating shuffled questions for matched state');
+                        await createShuffledQuestionsForQuickMatch(checkData.room);
+                        
+                        // CRITICAL FIX: For quick match rooms, we need to auto-start the game
+                        console.log('Auto-starting quick match game...');
+                        
+                        // Update the room status to 'started' to trigger auto-start
+                        const { error: updateError } = await supabase
+                          .from('quiz_rooms')
+                          .update({ 
+                            status: 'started',
+                            current_question_index: 0,
+                            question_start_time: new Date().toISOString()
+                          })
+                          .eq('id', checkData.room.id);
+                        
+                        if (updateError) {
+                          console.error('Error updating room status:', updateError);
+                        } else {
+                          console.log('Room status updated to started, game will auto-start');
+                          // The room subscription will detect this change and start the game
+                        }
+                      } else {
+                        // This is a regular room, load questions for the category
+                        console.log('Regular room - loading questions for category:', checkData.room.category);
+                        await loadQuestions(checkData.room.category);
+                      }
+                      
+                      const { data: playerData } = await supabase
+                        .from('quiz_room_players')
+                        .select('*')
+                        .eq('room_id', checkData.room.id)
+                        .order('score', { ascending: false });
+
+                      if (playerData) {
+                        setPlayers(playerData);
+                      }
+
+                      toast({
+                        title: 'Match Found!',
+                        description: `You've been matched with an opponent in ${checkData.room.category || 'General'}!`,
+                      });
+                      
+                      // Stop all polling since match is found
+                      return;
+                    }
+                  }
+                  
+                  // Check if room status has changed to 'started' (game auto-started)
+                  if (checkData.room && checkData.room.status === 'started') {
+                    console.log('Game auto-started during long polling:', checkData.room);
+                    if (longPollIntervalRef.current) {
+                      clearInterval(longPollIntervalRef.current);
+                      longPollIntervalRef.current = null;
+                    }
+                    
+                    // For quick match, create shuffled questions since the room doesn't have them
+                    // IMPORTANT: Load questions BEFORE setting game state to countdown
+                    await createShuffledQuestionsForQuickMatch(checkData.room);
+                    
+                    // Wait a bit to ensure questions state is updated
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    
+                    if (questions.length > 0) {
+                      console.log('✅ Questions loaded successfully, transitioning to countdown');
+                      setRoom(checkData.room);
+                      setGameState('countdown');
+                    } else {
+                      console.error('❌ Failed to load questions, staying in matched state');
+                      setRoom(checkData.room);
+                      setGameState('matched');
+                      toast({
+                        title: 'Error',
+                        description: 'Failed to load questions for quick match',
+                        variant: 'destructive',
+                      });
+                    }
+                    
+                    // Fetch players
+                    const { data: playerData } = await supabase
+                      .from('quiz_room_players')
+                      .select('*')
+                      .eq('room_id', checkData.room.id)
+                      .order('score', { ascending: false });
+
+                    if (playerData) {
+                      setPlayers(playerData);
+                    }
+
+                    toast({
+                      title: 'Game Starting!',
+                      description: 'Your opponent is ready! The game will begin in 3 seconds...',
+                    });
+                    
+                    // Stop all polling since game is starting
+                    return;
+                  }
+                } catch (error) {
+                  console.error('Error in long polling:', error);
+                }
+              }, 3000); // Check every 3 seconds
+            }
+          } catch (error) {
+            console.error('Error checking match:', error);
+          }
+        }, 1000); // Check every 1 second initially
+      }
     } catch (error: unknown) {
       console.error('Error finding match:', error);
       toast({
@@ -592,17 +1301,30 @@ export const useMultiplayerQuiz = (): {
       });
       setGameState('idle');
     }
-  }, [user, toast]);
+  }, [user, toast, loadQuestions]);
 
   // Cancel matchmaking
   const cancelMatch = useCallback(async () => {
     if (!user) return;
 
     try {
-      await supabase
-        .from('matchmaking_queue')
-        .delete()
-        .eq('user_id', user.id);
+      // Clear any active polling intervals
+      if (pollIntervalRef.current) {
+        clearInterval(pollIntervalRef.current);
+        pollIntervalRef.current = null;
+      }
+      if (longPollIntervalRef.current) {
+        clearInterval(longPollIntervalRef.current);
+        longPollIntervalRef.current = null;
+      }
+
+      // Call the matchmaking edge function to cancel
+      await supabase.functions.invoke('matchmaking', {
+        body: {
+          action: 'cancel_match',
+          userId: user.id
+        }
+      });
 
       setGameState('idle');
       toast({
@@ -614,6 +1336,124 @@ export const useMultiplayerQuiz = (): {
     }
   }, [user, toast]);
 
+  // Function to manually check and start game if needed
+  const checkAndStartGame = useCallback(async () => {
+    if (!room || !user) return;
+    
+    try {
+      console.log('=== Checking and Starting Game ===');
+      
+      // Get current room status
+      const { data: roomData, error: roomError } = await supabase
+        .from('quiz_rooms')
+        .select('*')
+        .eq('id', room.id)
+        .single();
+      
+      if (roomError) {
+        console.error('Error getting room data:', roomError);
+        return;
+      }
+      
+      console.log('Current room status:', roomData.status);
+      
+      if (roomData.status === 'started' && gameState === 'matched') {
+        console.log('Room is started but game state is matched. Transitioning to countdown...');
+        setGameState('countdown');
+        
+        // Load questions and start countdown
+        await loadQuestions(roomData.category);
+        
+        setTimeout(() => {
+          setGameState('playing');
+          if (questions.length > 0) {
+            setCurrentQuestion(questions[0]);
+            setTimeLeft(questions[0].time_limit);
+          }
+        }, 3000);
+      } else if (roomData.status === 'waiting') {
+        console.log('Room is still waiting. Starting game manually...');
+        
+        // Manually start the game
+        const { error: startError } = await supabase
+          .from('quiz_rooms')
+          .update({ 
+            status: 'started',
+            current_question_index: 0,
+            question_start_time: new Date().toISOString()
+          })
+          .eq('id', room.id);
+        
+        if (startError) {
+          console.error('Error starting game manually:', startError);
+        } else {
+          console.log('Game started manually');
+          setGameState('countdown');
+          
+          // Load questions and start countdown
+          await loadQuestions(roomData.category);
+          
+          setTimeout(() => {
+            setGameState('playing');
+            if (questions.length > 0) {
+              setCurrentQuestion(questions[0]);
+              setTimeLeft(questions[0].time_limit);
+            }
+          }, 3000);
+        }
+      }
+      
+      console.log('=== End Check and Start ===');
+    } catch (error) {
+      console.error('Error in checkAndStartGame:', error);
+    }
+  }, [room, user, gameState, questions, loadQuestions]);
+
+  // Debug function to check current matchmaking status
+  const debugMatchmakingStatus = useCallback(async () => {
+    if (!user) return;
+
+    try {
+      console.log('=== DEBUG: Current Matchmaking Status ===');
+      
+      // Check current game state
+      console.log('Frontend game state:', gameState);
+      console.log('Current room:', room);
+      console.log('Current players:', players);
+      
+      // Check database queue status
+      const { data: queueData, error: queueError } = await supabase
+        .from('matchmaking_queue')
+        .select('*')
+        .eq('user_id', user.id);
+      
+      console.log('Queue status:', queueData, 'Error:', queueError);
+      
+      // Check if user is in any room
+      if (room) {
+        const { data: roomPlayers, error: playersError } = await supabase
+          .from('quiz_room_players')
+          .select('*')
+          .eq('room_id', room.id);
+        
+        console.log('Room players:', roomPlayers, 'Error:', playersError);
+        
+        // Check room status
+        const { data: roomData, error: roomError } = await supabase
+          .from('quiz_rooms')
+          .select('*')
+          .eq('id', room.id)
+          .single();
+        
+        console.log('Room status:', roomData, 'Error:', roomError);
+      }
+      
+      console.log('=== END DEBUG ===');
+    } catch (error) {
+      console.error('Debug error:', error);
+    }
+  }, [user, gameState, room, players]);
+
   // Submit answer
   const submitAnswer = useCallback(async (answer: string) => {
     if (!room || !currentQuestion || !user) return;
@@ -622,6 +1462,16 @@ export const useMultiplayerQuiz = (): {
       const answerTime = currentQuestion.time_limit - timeLeft;
       const isCorrect = answer === currentQuestion.correct_answer;
       const points = isCorrect ? Math.max(10, Math.floor((timeLeft / currentQuestion.time_limit) * 100)) : 0;
+      
+      console.log('Score calculation:', {
+        answer,
+        correctAnswer: currentQuestion.correct_answer,
+        isCorrect,
+        timeLeft,
+        timeLimit: currentQuestion.time_limit,
+        points,
+        currentPlayerScore: players.find(p => p.user_id === user.id)?.score || 0
+      });
 
       // Submit answer
       await supabase
@@ -639,124 +1489,43 @@ export const useMultiplayerQuiz = (): {
       // Update player score
       const currentPlayer = players.find(p => p.user_id === user.id);
       if (currentPlayer) {
+        const newScore = currentPlayer.score + points;
+        const newStreak = isCorrect ? currentPlayer.streak + 1 : 0;
+        const newXp = currentPlayer.xp_earned + Math.floor(points / 10);
+        
+        console.log('Updating player score:', {
+          userId: user.id,
+          oldScore: currentPlayer.score,
+          pointsEarned: points,
+          newScore,
+          oldStreak: currentPlayer.streak,
+          newStreak,
+          oldXp: currentPlayer.xp_earned,
+          newXp
+        });
+        
         await supabase
           .from('quiz_room_players')
           .update({ 
-            score: currentPlayer.score + points,
-            streak: isCorrect ? currentPlayer.streak + 1 : 0,
-            xp_earned: currentPlayer.xp_earned + Math.floor(points / 10)
+            score: newScore,
+            streak: newStreak,
+            xp_earned: newXp
           })
           .eq('room_id', room.id)
           .eq('user_id', user.id);
+      } else {
+        console.error('Current player not found in players list:', { userId: user.id, players });
       }
 
       setSelectedAnswer(answer);
 
-      // Check if all players have answered
-      const { count: answeredCount } = await supabase
-        .from('quiz_room_answers')
-        .select('*', { count: 'exact' })
-        .eq('room_id', room.id)
-        .eq('question_id', currentQuestion.id);
-
-      const { count: totalPlayers } = await supabase
-        .from('quiz_room_players')
-        .select('*', { count: 'exact' })
-        .eq('room_id', room.id);
-
-      // If all players have answered, move to next question after a short delay
-      if (answeredCount && totalPlayers && answeredCount >= totalPlayers) {
-        setTimeout(async () => {
-          if (!room || !questions.length) return;
-
-          const currentIndex = room.current_question_index || 0;
-          const nextIndex = currentIndex + 1;
-
-          if (nextIndex >= questions.length) {
-            // Game is complete, show results
-            try {
-              // Update room status to completed
-              await supabase
-                .from('quiz_rooms')
-                .update({ status: 'completed' })
-                .eq('id', room.id);
-
-              // Get final player scores
-              const { data: finalPlayers, error } = await supabase
-                .from('quiz_room_players')
-                .select('*')
-                .eq('room_id', room.id)
-                .order('score', { ascending: false });
-
-              if (!error && finalPlayers) {
-                setFinalResults(finalPlayers);
-                setShowResults(true);
-                setGameState('results');
-              }
-            } catch (error) {
-              console.error('Error ending game:', error);
-            }
-          } else {
-            // Move to next question
-            const { error } = await supabase
-              .from('quiz_rooms')
-              .update({
-                current_question_index: nextIndex,
-                question_start_time: new Date().toISOString()
-              })
-              .eq('id', room.id);
-
-            if (!error) {
-              // Reset state for next question
-              setSelectedAnswer(null);
-              setShowResults(false);
-              setGameState('countdown');
-              
-              setTimeout(() => {
-                setGameState('playing');
-                setCurrentQuestion(questions[nextIndex]);
-                setTimeLeft(questions[nextIndex].time_limit);
-              }, 3000);
-            }
-          }
-        }, 2000); // 2 second delay to show correct answer
-      }
+      // The dedicated effect will automatically check if all players have answered
+      // and move to the next question immediately
+      console.log('Answer submitted, waiting for other players or timer to complete');
     } catch (error: unknown) {
       console.error('Error submitting answer:', error);
     }
-  }, [room, currentQuestion, user, timeLeft, questions]);
-
-  // Load questions by category
-  const loadQuestions = useCallback(async (category?: string) => {
-    try {
-      let query = supabase
-        .from('multiplayer_quiz_questions')
-        .select('*')
-        .limit(10);
-
-      if (category && category !== 'General') {
-        query = query.eq('category', category);
-      }
-
-      const { data, error } = await query;
-
-      if (error) throw error;
-
-      const formattedQuestions: Question[] = data.map(q => ({
-        id: q.id,
-        question: q.question,
-        options: Array.isArray(q.options) ? q.options : JSON.parse(q.options as string),
-        correct_answer: q.correct_answer,
-        difficulty: q.difficulty,
-        time_limit: q.time_limit,
-        category: q.category
-      }));
-
-      setQuestions(formattedQuestions);
-    } catch (error: unknown) {
-      console.error('Error loading questions:', error);
-    }
-  }, []);
+  }, [room, currentQuestion, user, timeLeft, players]);
 
   // Fetch players with removal logic (for manual calls)
   const fetchPlayers = useCallback(async (roomId: string) => {
@@ -865,52 +1634,6 @@ export const useMultiplayerQuiz = (): {
     }
   }, []);
 
-  // Timer effect
-  useEffect(() => {
-    if (timeLeft > 0 && gameState === 'playing') {
-      const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
-      return () => clearTimeout(timer);
-    } else if (timeLeft === 0 && gameState === 'playing') {
-      // Time's up, move to next question
-      moveToNextQuestion();
-    }
-  }, [timeLeft, gameState]);
-
-  // Move to next question
-  const moveToNextQuestion = useCallback(async () => {
-    if (!room || !questions.length) return;
-
-    const currentIndex = room.current_question_index || 0;
-    const nextIndex = currentIndex + 1;
-
-    if (nextIndex >= questions.length) {
-      // Game is complete, show results
-      await endGame();
-    } else {
-      // Move to next question
-      const { error } = await supabase
-        .from('quiz_rooms')
-        .update({
-          current_question_index: nextIndex,
-          question_start_time: new Date().toISOString()
-        })
-        .eq('id', room.id);
-
-      if (!error) {
-        // Reset state for next question
-        setSelectedAnswer(null);
-        setShowResults(false);
-        setGameState('countdown');
-        
-        setTimeout(() => {
-          setGameState('playing');
-          setCurrentQuestion(questions[nextIndex]);
-          setTimeLeft(questions[nextIndex].time_limit);
-        }, 3000);
-      }
-    }
-  }, [room, questions]);
-
   // End game and show results
   const endGame = useCallback(async () => {
     if (!room) return;
@@ -939,6 +1662,204 @@ export const useMultiplayerQuiz = (): {
     }
   }, [room]);
 
+  // Move to next question
+  const moveToNextQuestion = useCallback(async () => {
+    console.log('moveToNextQuestion called', { room, questions: questions.length, gameState });
+    
+    if (!room) {
+      console.log('No room, returning');
+      return;
+    }
+    
+    // Ensure questions are loaded for this room's category
+    if (questions.length === 0) {
+      console.log('No questions loaded, loading for category:', room.category);
+      await loadQuestions(room.category);
+      // Wait a bit for state to update
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    
+    if (!questions.length) {
+      console.log('Still no questions after loading, returning');
+      return;
+    }
+
+    const currentIndex = room.current_question_index || 0;
+    const nextIndex = currentIndex + 1;
+    
+    console.log('Moving to next question', { currentIndex, nextIndex, totalQuestions: questions.length });
+
+    if (nextIndex >= questions.length) {
+      // Game is complete, show results
+      console.log('Game complete, ending game');
+      await endGame();
+    } else {
+      // Move to next question
+      console.log('Updating room to next question index:', nextIndex);
+      const { error } = await supabase
+        .from('quiz_rooms')
+        .update({
+          current_question_index: nextIndex,
+          question_start_time: new Date().toISOString()
+        })
+        .eq('id', room.id);
+
+      if (!error) {
+        console.log('Room updated successfully from timer, setting next question');
+        // Reset state for next question
+        setSelectedAnswer(null);
+        setShowResults(false);
+        setGameState('countdown');
+        
+        // Reset the processed flag for the new question
+        hasProcessedCurrentQuestionRef.current = false;
+        
+        // Update local room state immediately
+        setRoom(prev => prev ? { ...prev, current_question_index: nextIndex } : null);
+        
+        setTimeout(() => {
+          setGameState('playing');
+          const nextQuestion = questions[nextIndex];
+          if (nextQuestion) {
+            setCurrentQuestion(nextQuestion);
+            setTimeLeft(nextQuestion.time_limit);
+            console.log('Timer-based question progression complete:', { nextIndex, timeLimit: nextQuestion.time_limit });
+          } else {
+            console.error('Question not found at index:', nextIndex);
+            setGameState('matched');
+          }
+        }, 3000);
+      } else {
+        console.error('Error updating room:', error);
+      }
+    }
+  }, [room, questions, loadQuestions, endGame]);
+
+  // Timer effect
+  useEffect(() => {
+    console.log('Timer effect triggered', { timeLeft, gameState, hasMoveToNextQuestion: !!moveToNextQuestion });
+    
+    if (timeLeft > 0 && gameState === 'playing') {
+      console.log('Starting timer countdown from:', timeLeft);
+      const timer = setTimeout(() => {
+        const newTimeLeft = timeLeft - 1;
+        console.log('Timer tick, timeLeft:', newTimeLeft);
+        setTimeLeft(newTimeLeft);
+      }, 1000);
+      return () => {
+        console.log('Clearing timer');
+        clearTimeout(timer);
+      };
+    } else if (timeLeft === 0 && gameState === 'playing') {
+      // Time's up, move to next question
+      console.log('Time is up, calling moveToNextQuestion');
+      moveToNextQuestion();
+    }
+  }, [timeLeft, gameState, moveToNextQuestion]);
+
+  // Countdown timer effect for quick match auto-start
+  useEffect(() => {
+    if (gameState === 'countdown' && room) {
+      console.log('🎯 COUNTDOWN TIMER ACTIVATED!', { 
+        questionsLength: questions.length, 
+        roomCategory: room.category,
+        roomId: room.id,
+        gameState,
+        timestamp: new Date().toISOString()
+      });
+      
+      // CRITICAL: Wait for questions to be loaded before starting countdown
+      if (questions.length === 0) {
+        console.log('❌ Questions not loaded yet, waiting for questions to load...');
+        // Try to load questions if they're not loaded yet
+        if (room.max_players === 2) {
+          console.log('🔄 Creating shuffled questions for quick match...');
+          createShuffledQuestionsForQuickMatch(room).then(() => {
+            console.log('✅ Questions created and loaded');
+          });
+        }
+        return; // Don't start countdown until questions are loaded
+      }
+      
+      console.log('✅ Questions loaded, starting 3-second countdown...');
+      const countdownTimer = setTimeout(() => {
+        console.log('🎮 Countdown finished, starting game NOW!');
+        
+        // Double-check that questions are still available
+        if (questions.length > 0) {
+          console.log('🎯 Setting first question:', questions[0].id);
+          setCurrentQuestion(questions[0]);
+          setTimeLeft(questions[0].time_limit || 30);
+          setGameState('playing');
+          
+          toast({
+            title: 'Game Started!',
+            description: 'The quiz is now beginning!',
+          });
+        } else {
+          console.error('❌ No questions available to start game - this should not happen!');
+          toast({
+            title: 'Error',
+            description: 'No questions available to start game',
+            variant: 'destructive',
+          });
+          // Fallback to matched state if questions are missing
+          setGameState('matched');
+        }
+      }, 3000); // 3 second countdown
+      
+      return () => {
+        console.log('🧹 Clearing countdown timer');
+        clearTimeout(countdownTimer);
+      };
+    }
+  }, [gameState, room, questions, toast, createShuffledQuestionsForQuickMatch]);
+
+  // Check if all players have answered and move to next question immediately
+  useEffect(() => {
+    if (gameState === 'playing' && room && currentQuestion && timeLeft > 0 && !hasProcessedCurrentQuestionRef.current) {
+      const checkAllAnswered = async () => {
+        try {
+          const { count: answeredCount } = await supabase
+            .from('quiz_room_answers')
+            .select('*', { count: 'exact' })
+            .eq('room_id', room.id)
+            .eq('question_id', currentQuestion.id);
+
+          const { count: totalPlayers } = await supabase
+            .from('quiz_room_players')
+            .select('*', { count: 'exact' })
+            .eq('room_id', room.id);
+
+          // If all players have answered, move to next question immediately
+          if (answeredCount && totalPlayers && answeredCount >= totalPlayers) {
+            console.log('All players have answered, moving to next question immediately', { answeredCount, totalPlayers });
+            
+            // Mark this question as processed to prevent multiple executions
+            hasProcessedCurrentQuestionRef.current = true;
+            
+            // Show notification that all players have answered
+            toast({
+              title: 'All Players Answered!',
+              description: 'Moving to next question...',
+            });
+            
+            // Move to next question immediately
+            moveToNextQuestion();
+          }
+        } catch (error) {
+          console.error('Error checking if all players answered:', error);
+        }
+      };
+
+      // Check every 1 second if all players have answered
+      const interval = setInterval(checkAllAnswered, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [gameState, room, currentQuestion, timeLeft, moveToNextQuestion]);
+
+
+
   // Clear storage when game ends (results state)
   useEffect(() => {
     if (gameState === 'results') {
@@ -955,6 +1876,161 @@ export const useMultiplayerQuiz = (): {
   useEffect(() => {
     if (!user) return;
 
+    // Subscribe to matchmaking queue updates
+    const matchmakingChannel = supabase
+      .channel('matchmaking_queue')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'matchmaking_queue'
+      }, async (payload) => {
+        console.log('Matchmaking queue change:', payload);
+        
+        if (payload.eventType === 'UPDATE' && payload.new?.user_id === user.id) {
+          const updatedEntry = payload.new;
+          console.log('Matchmaking queue update for current user:', updatedEntry);
+          
+          if (updatedEntry.status === 'matched' && updatedEntry.room_id) {
+            // User has been matched, get room details
+            const { data: roomData } = await supabase
+              .from('quiz_rooms')
+              .select('*')
+              .eq('id', updatedEntry.room_id)
+              .single();
+            
+            if (roomData) {
+              console.log('Match found via real-time update:', roomData);
+              setRoom(roomData);
+              setGameState('matched');
+              
+              // For quick match rooms (1v1), always use createShuffledQuestionsForQuickMatch
+              // For regular rooms, use loadQuestions
+              if (roomData.max_players === 2) {
+                // This is a quick match room, create shuffled questions
+                console.log('Quick match room - creating shuffled questions for matched state');
+                await createShuffledQuestionsForQuickMatch(roomData);
+                
+                // CRITICAL FIX: For quick match rooms, we need to auto-start the game
+                console.log('Auto-starting quick match game...');
+                
+                // Update the room status to 'started' to trigger auto-start
+                const { error: updateError } = await supabase
+                  .from('quiz_rooms')
+                  .update({ 
+                    status: 'started',
+                    current_question_index: 0,
+                    question_start_time: new Date().toISOString()
+                  })
+                  .eq('id', roomData.id);
+                
+                if (updateError) {
+                  console.error('Error updating room status:', updateError);
+                } else {
+                  console.log('Room status updated to started, game will auto-start');
+                  // Directly start the game instead of waiting for room subscription
+                  console.log('Directly transitioning to countdown state...');
+                  setGameState('countdown');
+                }
+              } else {
+                // This is a regular room, load questions for the category
+                console.log('Regular room - loading questions for category:', roomData.category);
+                await loadQuestions(roomData.category);
+              }
+              
+              // Fetch players
+              const { data: playerData } = await supabase
+                .from('quiz_room_players')
+                .select('*')
+                .eq('room_id', roomData.id)
+                .order('score', { ascending: false });
+
+              if (playerData) {
+                setPlayers(playerData);
+              }
+
+              toast({
+                title: 'Match Found!',
+                description: `You've been matched with an opponent in ${roomData.category || 'General'}!`,
+              });
+            }
+          }
+        } else if (payload.eventType === 'INSERT' && payload.new?.user_id !== user.id) {
+          // Another user joined the queue, check if we can match
+          console.log('Another user joined queue:', payload.new);
+          if (gameState === 'finding') {
+            // Force a quick check for match
+            setTimeout(async () => {
+              try {
+                const { data: checkData, error: checkError } = await supabase.functions.invoke('matchmaking', {
+                  body: {
+                    action: 'check_match',
+                    userId: user.id
+                  }
+                });
+
+                if (!checkError && checkData.matched) {
+                  console.log('Match found after another user joined:', checkData);
+                  setRoom(checkData.room);
+                  setGameState('matched');
+                  
+                  // For quick match rooms (1v1), always use createShuffledQuestionsForQuickMatch
+                  // For regular rooms, use loadQuestions
+                  if (checkData.room.max_players === 2) {
+                    // This is a quick match room, create shuffled questions
+                    console.log('Quick match room - creating shuffled questions for matched state');
+                    await createShuffledQuestionsForQuickMatch(checkData.room);
+                    
+                    // CRITICAL FIX: For quick match rooms, we need to auto-start the game
+                    console.log('Auto-starting quick match game...');
+                    
+                    // Update the room status to 'started' to trigger auto-start
+                    const { error: updateError } = await supabase
+                      .from('quiz_rooms')
+                      .update({ 
+                        status: 'started',
+                        current_question_index: 0,
+                        question_start_time: new Date().toISOString()
+                      })
+                      .eq('id', checkData.room.id);
+                    
+                    if (updateError) {
+                      console.error('Error updating room status:', updateError);
+                    } else {
+                      console.log('Room status updated to started, game will auto-start');
+                      // Directly start the game instead of waiting for room subscription
+                      console.log('Directly transitioning to countdown state...');
+                      setGameState('countdown');
+                    }
+                  } else {
+                    // This is a regular room, load questions for the category
+                    console.log('Regular room - loading questions for category:', checkData.room.category);
+                    await loadQuestions(checkData.room.category);
+                  }
+                  
+                  const { data: playerData } = await supabase
+                    .from('quiz_room_players')
+                    .select('*')
+                    .eq('room_id', checkData.room.id)
+                    .order('score', { ascending: false });
+
+                  if (playerData) {
+                    setPlayers(playerData);
+                  }
+
+                  toast({
+                    title: 'Match Found!',
+                    description: `You've been matched with an opponent in ${checkData.room.category || 'General'}!`,
+                  });
+                }
+              } catch (error) {
+                console.error('Error checking match after user joined:', error);
+              }
+            }, 500); // Small delay to ensure database is updated
+          }
+        }
+      })
+      .subscribe();
+
     // Subscribe to room updates
     const roomChannel = supabase
       .channel('quiz_rooms')
@@ -968,27 +2044,88 @@ export const useMultiplayerQuiz = (): {
           setRoom(updatedRoom);
           
           if (updatedRoom.status === 'started' && gameState === 'matched') {
-            // Initial game start
-            setGameState('countdown');
-            setTimeout(() => {
-              setGameState('playing');
-              if (questions.length > 0) {
-                setCurrentQuestion(questions[updatedRoom.current_question_index] || questions[0]);
-                setTimeLeft(questions[updatedRoom.current_question_index]?.time_limit || 15);
+            // Initial game start - check if this is a quick match room
+            console.log('Room status changed to started via real-time update:', updatedRoom);
+            
+            // For quick match rooms, use the createShuffledQuestionsForQuickMatch function
+            // For regular rooms, use loadShuffledQuestions
+            if (updatedRoom.max_players === 2 && !updatedRoom.shuffled_questions) {
+              // This is a quick match room, create shuffled questions
+              console.log('Quick match room detected in real-time update, creating shuffled questions');
+              await createShuffledQuestionsForQuickMatch(updatedRoom);
+            } else {
+              // This is a regular room, try to load shuffled questions
+              console.log('Regular room detected, trying to load shuffled questions');
+              if (!(await loadShuffledQuestions(updatedRoom))) {
+                // Fallback: ensure questions are loaded for this room's category
+                if (questions.length === 0) {
+                  await loadQuestions(updatedRoom.category);
+                }
               }
-            }, 3000);
+            }
+            
+            // Only proceed to countdown if questions are loaded
+            if (questions.length > 0) {
+              setGameState('countdown');
+              
+              // Reset the processed flag for the first question
+              hasProcessedCurrentQuestionRef.current = false;
+              
+              // The countdown timer will handle starting the game
+              console.log('Questions loaded, countdown will start automatically');
+            } else {
+              console.error('Failed to load questions for room, staying in matched state');
+              toast({
+                title: 'Error',
+                description: 'Failed to load questions for this room',
+                variant: 'destructive',
+              });
+            }
           } else if (updatedRoom.status === 'started' && gameState === 'playing') {
             // Question progression
-            if (updatedRoom.current_question_index !== room.current_question_index) {
+            if (updatedRoom.current_question_index !== currentQuestionIndexRef.current) {
+              console.log('Question progression detected', { 
+                oldIndex: currentQuestionIndexRef.current, 
+                newIndex: updatedRoom.current_question_index 
+              });
+              
+              // Update the ref immediately
+              currentQuestionIndexRef.current = updatedRoom.current_question_index;
+              
               setSelectedAnswer(null);
               setShowResults(false);
               setGameState('countdown');
               
+              // Reset the processed flag for the new question
+              hasProcessedCurrentQuestionRef.current = false;
+              
+              // Ensure questions are loaded for this room's category
+              if (questions.length === 0) {
+                if (!(await loadShuffledQuestions(updatedRoom))) {
+                  await loadQuestions(updatedRoom.category);
+                }
+              }
+              
               setTimeout(() => {
                 setGameState('playing');
                 if (questions.length > 0) {
-                  setCurrentQuestion(questions[updatedRoom.current_question_index] || questions[0]);
-                  setTimeLeft(questions[updatedRoom.current_question_index]?.time_limit || 15);
+                  const questionIndex = updatedRoom.current_question_index || 0;
+                  const nextQuestion = questions[questionIndex];
+                  if (nextQuestion) {
+                    setCurrentQuestion(nextQuestion);
+                    setTimeLeft(nextQuestion.time_limit);
+                  } else {
+                    console.error('Question not found at index:', questionIndex);
+                    setGameState('matched');
+                  }
+                } else {
+                  // Fallback if questions still aren't loaded
+                  setGameState('matched');
+                  toast({
+                    title: 'Error',
+                    description: 'Failed to load questions for this category',
+                    variant: 'destructive',
+                  });
                 }
               }, 3000);
             }
@@ -1052,8 +2189,8 @@ export const useMultiplayerQuiz = (): {
             return;
           }
           
-          // Only update players list for INSERT and DELETE events (not UPDATE)
-          if (payload.eventType === 'INSERT' || payload.eventType === 'DELETE') {
+          // Update players list for INSERT, DELETE, and UPDATE events (including score updates)
+          if (payload.eventType === 'INSERT' || payload.eventType === 'DELETE' || payload.eventType === 'UPDATE') {
             await updatePlayersList(room.id);
           }
           
@@ -1186,19 +2323,33 @@ export const useMultiplayerQuiz = (): {
       .subscribe();
 
     return () => {
+      supabase.removeChannel(matchmakingChannel);
       supabase.removeChannel(roomChannel);
       supabase.removeChannel(playersChannel);
       supabase.removeChannel(answersChannel);
     };
-  }, [user, room, gameState, questions, updatePlayersList]);
+  }, [user, room, gameState, questions, updatePlayersList, loadQuestions, loadShuffledQuestions]);
 
   // Start game (for room creator) - load questions based on room category
   const startGame = useCallback(async () => {
     if (!user || !room || room.created_by !== user.id) return;
 
     try {
-      // Load questions for the room's category
-      await loadQuestions(room.category);
+      // Try to load shuffled questions first, fallback to category questions
+      if (!(await loadShuffledQuestions(room))) {
+        // Load questions for the room's category
+        await loadQuestions(room.category);
+      }
+
+      // Check if we have enough questions to start the game
+      if (questions.length === 0) {
+        toast({
+          title: 'Cannot Start Game',
+          description: 'No questions available for this category. Please add some questions first.',
+          variant: 'destructive',
+        });
+        return;
+      }
 
       const { error } = await supabase
         .from('quiz_rooms')
@@ -1223,7 +2374,7 @@ export const useMultiplayerQuiz = (): {
         variant: 'destructive',
       });
     }
-  }, [user, room, toast, loadQuestions]);
+  }, [user, room, toast, loadQuestions, questions.length, loadShuffledQuestions]);
 
   // Leave room
   const leaveRoom = useCallback(async () => {
@@ -1315,6 +2466,10 @@ export const useMultiplayerQuiz = (): {
       setSelectedAnswer(null);
       setShowResults(false);
       setFinalResults([]);
+      
+      // Reset refs
+      hasProcessedCurrentQuestionRef.current = false;
+      currentQuestionIndexRef.current = 0;
 
       // Clear localStorage when leaving room
       clearStorage();
@@ -1334,21 +2489,18 @@ export const useMultiplayerQuiz = (): {
         variant: 'destructive',
       });
     }
-  }, [user, room, gameState, toast]);
+  }, [user, room, gameState, toast, fetchPublicRooms]);
 
   // Initialize
   useEffect(() => {
     fetchCategories();
     fetchPublicRooms();
     
-    // Load default questions
-    loadQuestions();
-    
     // Refresh public rooms every 10 seconds
     const interval = setInterval(fetchPublicRooms, 10000);
     
     return () => clearInterval(interval);
-  }, [fetchCategories, fetchPublicRooms, loadQuestions]);
+  }, [fetchCategories, fetchPublicRooms]);
 
   // More frequent refresh when in lobby (not in a room)
   useEffect(() => {
@@ -1361,6 +2513,40 @@ export const useMultiplayerQuiz = (): {
       return () => clearInterval(lobbyInterval);
     }
   }, [room, gameState, fetchPublicRooms]);
+
+  // Ensure questions are loaded when in a room
+  useEffect(() => {
+    if (room && questions.length === 0) {
+      // Load questions for the room's category if they're not already loaded
+      loadQuestions(room.category);
+    }
+  }, [room, questions.length, loadQuestions]);
+
+  // Debug timer state
+  useEffect(() => {
+    console.log('Timer state changed:', { timeLeft, gameState, currentQuestion: currentQuestion?.id });
+  }, [timeLeft, gameState, currentQuestion]);
+
+  // Debug questions state
+  useEffect(() => {
+    console.log('📊 Questions state changed:', { 
+      questionsLength: questions.length, 
+      gameState,
+      hasQuestions: questions.length > 0,
+      timestamp: new Date().toISOString()
+    });
+  }, [questions, gameState]);
+
+  // Debug game state changes
+  useEffect(() => {
+    console.log('🎮 Game state changed:', { 
+      from: gameState, 
+      roomId: room?.id,
+      roomStatus: room?.status,
+      questionsLength: questions.length,
+      timestamp: new Date().toISOString()
+    });
+  }, [gameState, room, questions]);
 
   return {
     gameState,
@@ -1386,6 +2572,8 @@ export const useMultiplayerQuiz = (): {
     moveToNextQuestion,
     endGame,
     fetchPublicRooms,
-    fetchCategories
+    fetchCategories,
+    debugMatchmakingStatus,
+    checkAndStartGame
   };
 };

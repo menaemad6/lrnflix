@@ -168,3 +168,62 @@ Return your response as a JSON object with this exact structure:
     throw new Error(`Failed to get answers from Gemini: ${error.message}`);
   }
 };
+
+export const generateMcqOptions = async (questionText: string): Promise<{ options: string[], correct_answer: string }> => {
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  if (!apiKey) {
+    throw new Error('Gemini API key not found. Please set it in the settings.');
+  }
+
+  const systemPrompt = `You are an expert AI assistant that generates multiple choice questions.
+  For the given question, generate four plausible options, with one being the correct answer.
+  Return the options and the correct answer in JSON format: { "options": ["option1", "option2", "option3", "option4"], "correct_answer": "correct_option" }`;
+
+  const prompt = `Question: ${questionText}`;
+
+  try {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        contents: [{
+          parts: [{
+            text: `${systemPrompt}\n\n${prompt}`
+          }]
+        }],
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 1024,
+          responseMimeType: "application/json"
+        }
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Gemini API error: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    
+    if (data.candidates[0].finishReason === 'MAX_TOKENS') {
+        throw new Error('The response was truncated due to token limits. Please try a shorter question.');
+    }
+    
+    const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+    if (!responseText) {
+      throw new Error('No response received from Gemini');
+    }
+
+    try {
+      const parsedResponse = JSON.parse(responseText);
+      return parsedResponse;
+    } catch (parseError) {
+      throw new Error('Failed to parse Gemini response as JSON');
+    }
+  } catch (error: any) {
+    throw new Error(`Failed to generate options from Gemini: ${error.message}`);
+  }
+};

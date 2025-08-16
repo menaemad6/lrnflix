@@ -31,11 +31,17 @@ export const MultiplayerQuizContainer = () => {
     joinPublicRoom,
     leaveRoom,
     startGame,
-    fetchPublicRooms
+    fetchPublicRooms,
+    debugMatchmakingStatus,
+    checkAndStartGame
   } = useMultiplayerQuiz();
 
-  const handleCreateRoom = async (maxPlayers: number, isPublic: boolean, category?: string) => {
-    await createRoom(maxPlayers, isPublic, category);
+  const handleCreateRoom = async (maxPlayers: number, isPublic: boolean, category?: string, questionCount?: number) => {
+    return await createRoom(maxPlayers, isPublic, category, questionCount);
+  };
+
+  const handleFindMatch = async (category?: string) => {
+    await findMatch(category);
   };
 
   // Show lobby when game state is idle (not in any room)
@@ -45,7 +51,7 @@ export const MultiplayerQuizContainer = () => {
         gameState={gameState}
         publicRooms={publicRooms}
         categories={categories}
-        onFindMatch={findMatch}
+        onFindMatch={handleFindMatch}
         onCancelMatch={cancelMatch}
         onCreateRoom={handleCreateRoom}
         onJoinRoomByCode={joinRoomByCode}
@@ -64,6 +70,8 @@ export const MultiplayerQuizContainer = () => {
         onLeaveRoom={leaveRoom}
         onStartGame={startGame}
         currentUserId={user?.id || ''}
+        onDebugStatus={debugMatchmakingStatus}
+        onCheckAndStart={checkAndStartGame}
       />
     );
   }
@@ -95,6 +103,7 @@ export const MultiplayerQuizContainer = () => {
         gameState={gameState}
         currentQuestionIndex={currentQuestionIndex}
         totalQuestions={totalQuestions}
+        onLeave={leaveRoom}
       />
     );
   }
@@ -105,7 +114,7 @@ export const MultiplayerQuizContainer = () => {
       gameState={gameState}
       publicRooms={publicRooms}
       categories={categories}
-      onFindMatch={findMatch}
+      onFindMatch={handleFindMatch}
       onCancelMatch={cancelMatch}
       onCreateRoom={handleCreateRoom}
       onJoinRoomByCode={joinRoomByCode}

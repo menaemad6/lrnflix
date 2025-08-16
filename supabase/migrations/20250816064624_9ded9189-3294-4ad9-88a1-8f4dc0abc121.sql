@@ -11,3 +11,16 @@ ON public.multiplayer_quiz_questions(category);
 UPDATE public.multiplayer_quiz_questions 
 SET category = 'General' 
 WHERE category IS NULL;
+
+-- Add category field to quiz_rooms table
+ALTER TABLE public.quiz_rooms 
+ADD COLUMN category text;
+
+-- Create an index for better performance when filtering rooms by category
+CREATE INDEX idx_quiz_rooms_category 
+ON public.quiz_rooms(category);
+
+-- Update existing rooms to have a default category
+UPDATE public.quiz_rooms 
+SET category = 'General' 
+WHERE category IS NULL;

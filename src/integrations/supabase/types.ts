@@ -1256,6 +1256,7 @@ export type Database = {
       }
       quiz_rooms: {
         Row: {
+          category: string | null
           created_at: string
           created_by: string | null
           current_players: number
@@ -1269,6 +1270,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          category?: string | null
           created_at?: string
           created_by?: string | null
           current_players?: number
@@ -1282,6 +1284,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          category?: string | null
           created_at?: string
           created_by?: string | null
           current_players?: number

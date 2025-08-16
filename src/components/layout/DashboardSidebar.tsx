@@ -141,6 +141,12 @@ export const DashboardSidebar = () => {
       description: "Student communities"
     },
     { 
+      title: "Multiplayer Quiz", 
+      url: "/teacher/multiplayer-quiz", 
+      icon: Trophy,
+      description: "Create & manage quizzes"
+    },
+    { 
       title: "Analytics", 
       url: "/teacher/analytics", 
       icon: PieChart,
