@@ -1,0 +1,66 @@
+import React from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Brain, Plus, Target, Gift, Calendar, Star } from 'lucide-react';
+import { Link } from 'react-router-dom';
+
+interface TeacherHeroSectionProps {
+  user: any;
+}
+
+export function TeacherHeroSection({ user }: TeacherHeroSectionProps) {
+  return (
+    <div className="glass-card p-8 border-0 relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-blue-500/10" />
+      <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-emerald-500/5 to-transparent rounded-full blur-3xl" />
+      <div className="relative z-10">
+        <div className="flex items-start justify-between mb-6">
+          <div className="flex items-center gap-4">
+            <div className="w-20 h-20 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-3xl flex items-center justify-center animate-pulse-glow shadow-2xl shadow-emerald-500/25">
+              <Brain className="h-10 w-10 text-black" />
+            </div>
+            <div>
+              <h1 className="text-4xl font-bold mb-2">
+                Welcome back, <span className="gradient-text">Educator</span>
+              </h1>
+              <p className="text-muted-foreground text-lg">Ready to inspire and educate minds today?</p>
+              <div className="flex items-center gap-4 mt-2 text-sm text-emerald-400">
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4" />
+                  <span>{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 px-3 py-1">
+              <Star className="h-3 w-3 mr-1" />
+              Educator
+            </Badge>
+          </div>
+        </div>
+        
+        <div className="flex gap-4">
+          <Link to="/teacher/create-course">
+            <Button className="btn-primary group">
+              <Plus className="h-4 w-4 mr-2 group-hover:rotate-90 transition-transform" />
+              Create Course
+            </Button>
+          </Link>
+          <Link to="/teacher/analytics">
+            <Button className="btn-secondary group">
+              <Target className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform" />
+              View Analytics
+            </Button>
+          </Link>
+          <Link to="/teacher/codes">
+            <Button variant="outline" className="glass hover-glow group">
+              <Gift className="h-4 w-4 mr-2 group-hover:rotate-12 transition-transform" />
+              Generate Codes
+            </Button>
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}

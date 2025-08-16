@@ -15,7 +15,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { Video, Calendar, Clock, Users, ExternalLink, Edit, Trash2, MoreVertical } from 'lucide-react';
+import { Video, Calendar, Clock, Users, ExternalLink, Edit, Trash2, MoreVertical, ArrowLeft } from 'lucide-react';
 import { CreateLectureModal } from './CreateLectureModal';
 import { EditLectureModal } from './EditLectureModal';
 import { useLiveLectures } from '@/hooks/useLiveLectures';
@@ -269,11 +269,11 @@ export const GoogleMeetIntegration = ({ courseId, onBack }: GoogleMeetIntegratio
             <div className="flex items-center gap-3 sm:gap-6">
               {onBack && (
                 <Button 
-                  variant="outline" 
+                  variant="ghost" 
                   onClick={onBack}
                   className="border border-emerald-500/30 text-emerald-300 transition-all duration-300"
                 >
-                  <Video className="h-4 w-4 mr-2" />
+                  <ArrowLeft className="h-4 w-4 mr-2" />
                   Back
                 </Button>
               )}
