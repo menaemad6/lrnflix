@@ -34,6 +34,10 @@ export const MultiplayerQuizContainer = () => {
     fetchPublicRooms
   } = useMultiplayerQuiz();
 
+  const handleCreateRoom = async (maxPlayers: number, isPublic: boolean, category?: string) => {
+    await createRoom(maxPlayers, isPublic, category);
+  };
+
   // Show lobby when game state is idle (not in any room)
   if (gameState === 'idle' || gameState === 'finding') {
     return (
@@ -43,7 +47,7 @@ export const MultiplayerQuizContainer = () => {
         categories={categories}
         onFindMatch={findMatch}
         onCancelMatch={cancelMatch}
-        onCreateRoom={createRoom}
+        onCreateRoom={handleCreateRoom}
         onJoinRoomByCode={joinRoomByCode}
         onJoinPublicRoom={joinPublicRoom}
         onRefreshRooms={fetchPublicRooms}
@@ -103,7 +107,7 @@ export const MultiplayerQuizContainer = () => {
       categories={categories}
       onFindMatch={findMatch}
       onCancelMatch={cancelMatch}
-      onCreateRoom={createRoom}
+      onCreateRoom={handleCreateRoom}
       onJoinRoomByCode={joinRoomByCode}
       onJoinPublicRoom={joinPublicRoom}
       onRefreshRooms={fetchPublicRooms}

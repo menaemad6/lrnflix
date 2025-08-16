@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ChevronDown } from 'lucide-react';
@@ -9,19 +10,24 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
-import { motion } from 'framer-motion';
+import { motion, type Variants } from 'framer-motion';
 
 interface FeaturesDropdownProps {
   links: { to: string; label: string }[];
 }
 
-const itemVariants = {
+const itemVariants: Variants = {
   hidden: { opacity: 0, x: -12 },
-  visible: (i: number) => ({
+  visible: {
     opacity: 1,
     x: 0,
-    transition: { delay: 0.08 * i, type: 'spring', stiffness: 80, damping: 16 },
-  }),
+    transition: { 
+      delay: 0.08, 
+      type: 'spring' as const, 
+      stiffness: 80, 
+      damping: 16 
+    },
+  },
 };
 
 const FeaturesDropdown: React.FC<FeaturesDropdownProps> = ({ links }) => (
@@ -56,4 +62,4 @@ const FeaturesDropdown: React.FC<FeaturesDropdownProps> = ({ links }) => (
   </DropdownMenu>
 );
 
-export default FeaturesDropdown; 
+export default FeaturesDropdown;

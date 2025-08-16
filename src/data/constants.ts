@@ -1,1 +1,1 @@
-export const PLATFORM_NAME = "LRNFLIX"
+export const PLATFORM_NAME = "EduFlow"

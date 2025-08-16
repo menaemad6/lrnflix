@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
+import { PLATFORM_NAME } from '@/data/constants';
 import type { RootState } from '@/store/store';
 
 const HeroSection: React.FC = () => {
@@ -71,4 +72,4 @@ const HeroSection: React.FC = () => {
   );
 };
 
-export default HeroSection; 
+export default HeroSection;

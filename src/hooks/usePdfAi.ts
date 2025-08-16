@@ -154,7 +154,7 @@ export function usePdfAi(task: PdfAiTask, options?: UsePdfAiOptions) {
 					.map((q) => ({
 						id: String(q.id ?? crypto.randomUUID?.() ?? Math.random().toString(36).slice(2)),
 						question_text: String(q.question_text ?? ''),
-						question_type: q.question_type === 'mcq' ? 'mcq' : 'written',
+						question_type: (q.question_type === 'mcq' ? 'mcq' : 'written') as 'mcq' | 'written',
 						options: Array.isArray(q.options) ? q.options.map((o: any) => String(o)) : undefined,
 						correct_answer: q.correct_answer ? String(q.correct_answer) : undefined,
 						points: typeof q.points === 'number' ? q.points : undefined,
@@ -202,7 +202,12 @@ export function usePdfAi(task: PdfAiTask, options?: UsePdfAiOptions) {
 				if ('pdfFile' in input && input.pdfFile) {
 					const res = await extractTextFromPDF(input.pdfFile)
 					if (!res.success) {
-						return { success: false, error: res.error, stage: 'extraction', fileInfo: res.fileInfo }
+						return { 
+							success: false, 
+							error: res.error || 'PDF extraction failed', 
+							stage: 'extraction' as const,
+							fileInfo: undefined
+						}
 					}
 					text = res.text
 					fileInfo = res.fileInfo
@@ -231,7 +236,7 @@ export function usePdfAi(task: PdfAiTask, options?: UsePdfAiOptions) {
 				return { success: true, data: course, extractedText: text, fileInfo }
 			} catch (e: any) {
 				setError(e?.message || 'Processing failed')
-				return { success: false, error: e?.message || 'Processing failed', stage: 'ai' }
+				return { success: false, error: e?.message || 'Processing failed', stage: 'ai' as const }
 			} finally {
 				setLoading(false)
 			}
@@ -245,5 +250,3 @@ export function usePdfAi(task: PdfAiTask, options?: UsePdfAiOptions) {
 		process,
 	}
 }
-
-
