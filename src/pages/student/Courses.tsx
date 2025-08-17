@@ -212,16 +212,16 @@ export const Courses = () => {
                   />
                 </div>
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-col md:flex-row flex-wrap gap-2">
                 {categories.map((category) => (
                   <Button
                     key={category}
                     onClick={() => setSelectedCategory(category)}
-                    className={
+                    className={`w-full md:w-auto ${
                       selectedCategory === category
                         ? 'bg-primary text-white font-bold border-2 border-primary shadow-lg px-5 py-2 rounded-full transition-all duration-200 hover:bg-primary/80 hover:text-white'
                         : 'bg-background text-foreground border border-border hover:bg-primary/10 hover:text-primary px-5 py-2 rounded-full transition-all duration-200'
-                    }
+                    }`}
                     variant="ghost"
                   >
                     {category}
@@ -240,30 +240,28 @@ export const Courses = () => {
             ))}
           </div>
         ) : (
-          <div className="w-full overflow-x-auto">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 w-full max-w-full">
-              {filteredCourses.map((course: Course) => (
-                <PremiumCourseCard
-                  key={course.id}
-                  id={course.id}
-                  title={course.title}
-                  description={course.description}
-                  category={course.category}
-                  status={course.status}
-                  instructor_name={course.instructor_name}
-                  enrollment_count={course.enrollment_count}
-                  is_enrolled={course.is_enrolled}
-                  enrollment_code={course.enrollment_code}
-                  cover_image_url={course.cover_image_url}
-                  created_at={course.created_at}
-                  price={course.price}
-                  avatar_url={course.avatar_url}
-                  onPreview={() => navigate(`/courses/${course.id}`)}
-                  onEnroll={() => enrollInCourse(course.id)}
-                  onContinue={() => navigate(`/courses/${course.id}`)}
-                />
-              ))}
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 w-full max-w-full">
+            {filteredCourses.map((course: Course) => (
+              <PremiumCourseCard
+                key={course.id}
+                id={course.id}
+                title={course.title}
+                description={course.description}
+                category={course.category}
+                status={course.status}
+                instructor_name={course.instructor_name}
+                enrollment_count={course.enrollment_count}
+                is_enrolled={course.is_enrolled}
+                enrollment_code={course.enrollment_code}
+                cover_image_url={course.cover_image_url}
+                created_at={course.created_at}
+                price={course.price}
+                avatar_url={course.avatar_url}
+                onPreview={() => navigate(`/courses/${course.id}`)}
+                onEnroll={() => enrollInCourse(course.id)}
+                onContinue={() => navigate(`/courses/${course.id}`)}
+              />
+            ))}
           </div>
         )}
 

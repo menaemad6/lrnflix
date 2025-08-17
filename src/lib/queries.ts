@@ -1,5 +1,33 @@
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
+import { User } from "@supabase/supabase-js";
+
+interface Teacher {
+    user_id: string;
+}
+
+interface Course {
+    id: string;
+    title: string;
+    description: string;
+    category: string;
+    price: number;
+    cover_image_url?: string;
+    enrollment_code?: string;
+    created_at: string;
+    instructor_id?: string;
+    profiles?: { full_name?: string };
+}
+
+interface EnrolledCourse {
+    id: string;
+    enrolled_at: string;
+    course: Course;
+    progress?: number;
+    totalLessons?: number;
+    completedLessons?: number;
+    enrollment_count?: number;
+}
 
 export const getTeacherCourses = async () => {
   const { data: { user } } = await supabase.auth.getUser();
@@ -568,5 +596,457 @@ export const useWalletCodes = (userId: string) => {
         queryKey: ['walletCodes', userId],
         queryFn: () => getWalletCodes(userId),
         enabled: !!userId,
+    });
+};
+
+export const fetchStudentEnrolledCourses = async (user: User | null, teacher: Teacher | null) => {
+    if (!user) return [];
+
+    let enrollmentsQuery = supabase
+        .from('enrollments')
+        .select(`
+            id,
+            enrolled_at,
+            course:courses (
+                id,
+                title,
+                description,
+                category,
+                price,
+                cover_image_url,
+                enrollment_code,
+                created_at,
+                instructor_id,
+                profiles!courses_instructor_id_fkey(full_name)
+            )
+        `)
+        .eq('student_id', user.id)
+        .order('enrolled_at', { ascending: false });
+
+    if (teacher) {
+        enrollmentsQuery = enrollmentsQuery.filter('course.instructor_id', 'eq', teacher.user_id);
+    }
+
+    const { data: enrollmentsData, error: enrollmentsError } = await enrollmentsQuery;
+
+    if (enrollmentsError) throw enrollmentsError;
+
+    const instructorIds = Array.from(new Set((enrollmentsData as EnrolledCourse[] || [])
+        .map((e: EnrolledCourse) => e.course?.instructor_id)
+        .filter(Boolean)));
+
+    const avatars: Record<string, string | undefined> = {};
+    if (instructorIds.length > 0) {
+        const { data: teachersData } = await supabase
+            .from('teachers')
+            .select('user_id, profile_image_url')
+            .in('user_id', instructorIds);
+        if (teachersData) {
+            (teachersData as Array<{ user_id: string; profile_image_url?: string }>).forEach((t) => {
+                avatars[t.user_id] = t.profile_image_url;
+            });
+        }
+    }
+
+    const coursesWithProgress = await Promise.all(
+        (enrollmentsData as EnrolledCourse[] || [])
+            .filter((enrollment) => enrollment.course && enrollment.course.id)
+            .map(async (enrollment) => {
+                const { count: totalLessons } = await supabase
+                    .from('lessons')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('course_id', enrollment.course.id);
+
+                const { data: lessonsData } = await supabase
+                    .from('lessons')
+                    .select('id')
+                    .eq('course_id', enrollment.course.id);
+
+                const lessonIds = lessonsData?.map(l => l.id) || [];
+
+                const { count: completedLessons } = await supabase
+                    .from('lesson_progress')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('student_id', user.id)
+                    .in('lesson_id', lessonIds);
+
+                const { count: enrollmentCount } = await supabase
+                    .from('enrollments')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('course_id', enrollment.course.id);
+
+                const progress = totalLessons ? Math.round((completedLessons || 0) / totalLessons * 100) : 0;
+
+                return {
+                    ...enrollment,
+                    course: {
+                        ...enrollment.course,
+                        instructor_name: enrollment.course.profiles?.full_name || "Course Instructor",
+                        avatar_url: avatars[enrollment.course.instructor_id as string]
+                    },
+                    progress,
+                    totalLessons: totalLessons || 0,
+                    completedLessons: completedLessons || 0,
+                    enrollment_count: enrollmentCount || 0
+                };
+            })
+    );
+
+    return coursesWithProgress;
+};
+
+export const useStudentEnrolledCourses = (user: User | null, teacher: Teacher | null) => {
+    return useQuery({
+        queryKey: ['enrolledCourses', user?.id, teacher?.user_id],
+        queryFn: () => fetchStudentEnrolledCourses(user, teacher),
+        enabled: !!user && teacher !== undefined,
+    });
+};
+
+export const fetchStudentGroups = async (user: User | null, teacher: Teacher | null) => {
+    if (!user) return { groups: [], memberGroupIds: [] };
+
+    const { data: memberData, error: memberError } = await supabase
+        .from('group_members')
+        .select('group_id')
+        .eq('student_id', user.id);
+    if (memberError) throw memberError;
+    const groupIds = memberData?.map(m => m.group_id) || [];
+
+    let memberGroupsData = [];
+    if (groupIds.length > 0) {
+        let memberGroupsQuery = supabase
+            .from('groups')
+            .select('*')
+            .in('id', groupIds)
+            .order('created_at', { ascending: false });
+        if (teacher) {
+            memberGroupsQuery = memberGroupsQuery.eq('created_by', teacher.user_id);
+        }
+        const { data, error } = await memberGroupsQuery;
+        if (error) throw error;
+        memberGroupsData = data || [];
+    }
+
+    let publicGroupsQuery = supabase
+        .from('groups')
+        .select('*')
+        .eq('is_public', true)
+        .order('created_at', { ascending: false });
+    if (teacher) {
+        publicGroupsQuery = publicGroupsQuery.eq('created_by', teacher.user_id);
+    }
+    const { data: publicGroups, error: publicError } = await publicGroupsQuery;
+    if (publicError) throw publicError;
+
+    const allGroupsMap = new Map();
+    memberGroupsData.forEach(g => allGroupsMap.set(g.id, g));
+    (publicGroups || []).forEach(g => allGroupsMap.set(g.id, g));
+    const allGroups = Array.from(allGroupsMap.values());
+
+    const groupsWithCounts = await Promise.all(
+        allGroups.map(async (group) => {
+            const { count, error: countError } = await supabase
+                .from('group_members')
+                .select('*', { count: 'exact', head: true })
+                .eq('group_id', group.id);
+            if (countError) return { ...group, member_count: 0 };
+            return { ...group, member_count: count || 0 };
+        })
+    );
+    return { groups: groupsWithCounts, memberGroupIds: groupIds };
+};
+
+export const useStudentGroups = (user: User | null, teacher: Teacher | null) => {
+    return useQuery({
+        queryKey: ['studentGroups', user?.id, teacher?.user_id],
+        queryFn: () => fetchStudentGroups(user, teacher),
+        enabled: !!user,
+    });
+};
+
+export const fetchStudentEnrolledChapters = async (user, teacher) => {
+    if (!user) return [];
+
+    const { data: enrollmentsData, error: enrollmentsError } = await supabase
+        .from('chapter_enrollments')
+        .select(`
+            id,
+            enrolled_at,
+            chapter:chapters (
+                id,
+                title,
+                description,
+                price
+            )
+        `)
+        .eq('student_id', user.id)
+        .order('enrolled_at', { ascending: false });
+
+    if (enrollmentsError) throw enrollmentsError;
+
+    const fetchChapterCourses = async (chapterId) => {
+        let query = supabase
+            .from('chapter_objects')
+            .select('*, course:courses!object_id(*)')
+            .eq('chapter_id', chapterId)
+            .eq('object_type', 'course');
+        if (teacher) {
+            query = query.eq('course.instructor_id', teacher.user_id);
+        }
+        const { data, error } = await query;
+        if (error) throw error;
+        const chapterCourses = data || [];
+
+        const instructorIds = Array.from(new Set(
+            chapterCourses.map(obj => obj.course?.instructor_id).filter(Boolean)
+        ));
+
+        const names = {};
+        const avatars = {};
+        if (instructorIds.length > 0) {
+            const { data: teachersData } = await supabase
+                .from('teachers')
+                .select('user_id, display_name, profile_image_url')
+                .in('user_id', instructorIds);
+            if (teachersData) {
+                teachersData.forEach((t) => {
+                    names[t.user_id] = t.display_name;
+                    avatars[t.user_id] = t.profile_image_url;
+                });
+            }
+        }
+        return chapterCourses.map(obj => obj.course ? {
+            ...obj,
+            course: {
+                ...obj.course,
+                instructor_name: names[obj.course.instructor_id] || 'Course Instructor',
+                avatar_url: avatars[obj.course.instructor_id] || undefined
+            }
+        } : obj);
+    };
+
+    const chaptersWithProgress = await Promise.all(
+        (enrollmentsData || []).map(async (enrollment) => {
+            const chapterCourses = await fetchChapterCourses(enrollment.chapter.id);
+            const courseIds = chapterCourses.map((obj) => obj.course?.id).filter(Boolean);
+            const totalCourses = courseIds.length;
+            let enrolledCourses = 0;
+            if (courseIds.length > 0) {
+                const { count } = await supabase
+                    .from('enrollments')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('student_id', user.id)
+                    .in('course_id', courseIds);
+                enrolledCourses = count || 0;
+            }
+            return {
+                ...enrollment,
+                totalCourses,
+                enrolledCourses,
+                chapterCourses
+            };
+        })
+    );
+    return chaptersWithProgress;
+};
+
+export const useStudentEnrolledChapters = (user, teacher) => {
+    return useQuery({
+        queryKey: ['studentEnrolledChapters', user?.id, teacher?.user_id],
+        queryFn: () => fetchStudentEnrolledChapters(user, teacher),
+        enabled: !!user,
+    });
+};
+
+export const fetchStudentTransactionsAndWallet = async (user) => {
+    if (!user) return { transactions: [], wallet: 0 };
+
+    const { data: transactions, error: transactionsError } = await supabase
+        .from('wallet_transactions')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+    if (transactionsError) throw transactionsError;
+
+    const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('wallet')
+        .eq('id', user.id)
+        .single();
+
+    if (profileError) throw profileError;
+
+    return {
+        transactions: transactions || [],
+        wallet: profile?.wallet || 0
+    };
+};
+
+export const useStudentTransactionsAndWallet = (user) => {
+    return useQuery({
+        queryKey: ['studentTransactions', user?.id],
+        queryFn: () => fetchStudentTransactionsAndWallet(user),
+        enabled: !!user,
+    });
+};
+
+export const fetchTenant = async () => {
+    const hostname = window.location.hostname;
+    const parts = hostname.split('.');
+    let subdomain = '';
+
+    if (parts.length > 2) {
+        subdomain = parts[0];
+    } else if (parts.length === 2 && parts[0] !== 'localhost') {
+        subdomain = parts[0];
+    }
+
+    if (subdomain && subdomain !== 'platform' && subdomain !== 'www') {
+        const { data } = await supabase
+            .from('teachers')
+            .select('*')
+            .eq('slug', subdomain)
+            .maybeSingle();
+        return { slug: subdomain, teacher: data || null };
+    }
+
+    return { slug: subdomain, teacher: null };
+};
+
+export const useTenantQuery = () => {
+    return useQuery({
+        queryKey: ['tenant'],
+        queryFn: fetchTenant,
+    });
+};
+
+export const fetchStudentDashboardData = async (user, teacher) => {
+    if (!user) return { enrolledCourses: [], stats: {
+        totalCourses: 0,
+        completedCourses: 0,
+        inProgressCourses: 0,
+        totalCreditsSpent: 0,
+        studyStreak: 0,
+        avgQuizScore: 0,
+        totalStudyTime: 0
+    } };
+
+    // Fetch enrolled courses
+    let enrollmentsQuery = supabase
+        .from('enrollments')
+        .select(`
+            id,
+            enrolled_at,
+            course:courses (
+                id,
+                title,
+                description,
+                category,
+                price,
+                instructor_id,
+                cover_image_url
+            )
+        `)
+        .eq('student_id', user.id)
+        .order('enrolled_at', { ascending: false });
+
+    if (teacher) {
+        enrollmentsQuery = enrollmentsQuery.filter('course.instructor_id', 'eq', teacher.user_id);
+    }
+
+    const { data: enrollmentsData, error: enrollmentsError } = await enrollmentsQuery;
+
+    if (enrollmentsError) throw enrollmentsError;
+
+    // Fetch instructors
+    const instructorIds = Array.from(new Set((enrollmentsData || [])
+        .map((e) => e.course?.instructor_id)
+        .filter(Boolean)));
+    const names = {};
+    const avatars = {};
+    if (instructorIds.length > 0) {
+        const { data: teachersData } = await supabase
+            .from('teachers')
+            .select('user_id, display_name, profile_image_url')
+            .in('user_id', instructorIds);
+        if (teachersData) {
+            teachersData.forEach((t) => {
+                names[t.user_id] = t.display_name;
+                avatars[t.user_id] = t.profile_image_url;
+            });
+        }
+    }
+
+    // Fetch progress
+    const coursesWithProgress = await Promise.all(
+        (enrollmentsData || [])
+            .filter((enrollment) => enrollment.course && enrollment.course.id)
+            .map(async (enrollment) => {
+                const { count: totalLessons } = await supabase
+                    .from('lessons')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('course_id', enrollment.course.id);
+
+                const { data: lessons } = await supabase.from('lessons').select('id').eq('course_id', enrollment.course.id);
+                const lessonIds = lessons?.map(l => l.id) || [];
+
+                const { count: completedLessons } = await supabase
+                    .from('lesson_progress')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('student_id', user.id)
+                    .in('lesson_id', lessonIds);
+
+                const progress = totalLessons ? Math.round((completedLessons || 0) / totalLessons * 100) : 0;
+
+                return {
+                    ...enrollment,
+                    course: {
+                        ...enrollment.course,
+                        instructor_name: names[enrollment.course.instructor_id] || 'Course Instructor',
+                        avatar_url: avatars[enrollment.course.instructor_id] || undefined
+                    },
+                    progress,
+                    totalLessons: totalLessons || 0,
+                    completedLessons: completedLessons || 0
+                };
+            })
+    );
+
+    // Calculate stats
+    const totalCreditsSpent = coursesWithProgress.reduce((sum, course) => sum + course.course.price, 0);
+    const completedCourses = coursesWithProgress.filter(course => course.progress === 100).length;
+    const inProgressCourses = coursesWithProgress.filter(course => course.progress > 0 && course.progress < 100).length;
+
+    const { data: quizAttempts } = await supabase
+        .from('quiz_attempts')
+        .select('score, max_score')
+        .eq('student_id', user.id);
+
+    const avgQuizScore = quizAttempts && quizAttempts.length > 0
+        ? Math.round(quizAttempts.reduce((sum, attempt) =>
+            sum + (attempt.score || 0) / (attempt.max_score || 1), 0
+        ) / quizAttempts.length * 100)
+        : 0;
+
+    const stats = {
+        totalCourses: coursesWithProgress.length,
+        completedCourses,
+        inProgressCourses,
+        totalCreditsSpent,
+        studyStreak: Math.floor(Math.random() * 15) + 1,
+        avgQuizScore: avgQuizScore / 100,
+        totalStudyTime: Math.floor(Math.random() * 50) + 10
+    };
+
+    return { enrolledCourses: coursesWithProgress, stats };
+};
+
+export const useStudentDashboardData = (user, teacher) => {
+    return useQuery({
+        queryKey: ['studentDashboardData', user?.id, teacher?.user_id],
+        queryFn: () => fetchStudentDashboardData(user, teacher),
+        enabled: !!user,
     });
 };

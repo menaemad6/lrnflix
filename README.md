@@ -1,102 +1,212 @@
-# Welcome to your Lovable project
+# <img src="https://img.icons8.com/color/48/000000/learning.png" width="32" height="32"/> Lrnflix
 
-## Project info
+> **Your AI-Powered Gamified Learning Platform**
 
-**URL**: https://lovable.dev/projects/908c44de-bd63-4dd6-89af-267e4ab3be9d
+[![React](https://img.shields.io/badge/React-18-blue?logo=react)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.5-blue?logo=typescript)](https://www.typescriptlang.org/)
+[![Vite](https://img.shields.io/badge/Vite-5.4-646CFF?logo=vite)](https://vitejs.dev/)
+[![Tailwind](https://img.shields.io/badge/Tailwind-3.4-38B2AC?logo=tailwind-css)](https://tailwindcss.com/)
+[![Supabase](https://img.shields.io/badge/Supabase-2.49-3ECF8E?logo=supabase)](https://supabase.com/)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-## Google OAuth Integration
+![Lrnflix Demo](https://placehold.co/800x400/6366f1/FFFFFF/png?text=Lrnflix+AI+Learning&font=montserrat)
 
-This project includes a Google OAuth integration for Google Meet functionality. The implementation uses a popup-based flow with the following components:
+## 🚀 Overview
 
-### Flow Overview
-1. **React Component**: Opens a popup to Google's OAuth URL
-2. **Google OAuth**: Redirects to Supabase Edge Function after user authorization
-3. **Edge Function**: Exchanges authorization code for tokens and redirects to static HTML page
-4. **Static HTML Page**: Executes JavaScript to send tokens back to parent window via postMessage
-5. **React Component**: Receives tokens and saves them to Supabase
+Lrnflix is an innovative AI-powered learning management system (LMS) designed to make education more engaging and effective. By integrating cutting-edge artificial intelligence with gamified learning experiences, Lrnflix provides a dynamic and interactive platform for students and educators. Our mission is to transform traditional education by making it more personalized, fun, and effective.
 
-### Files Modified/Created
-- `public/oauth-success.html` - Static HTML page that handles OAuth callback
-- `supabase/functions/google-oauth-callback/index.ts` - Updated to redirect to static HTML
-- `src/components/lectures/GoogleMeetIntegration.tsx` - React component for OAuth flow
+## ✨ Key Features
 
-### Testing the OAuth Flow
-1. Start the development server: `npm run dev`
-2. Navigate to a course with Google Meet integration
-3. Click "Connect Google Account"
-4. Complete the Google OAuth flow in the popup
-5. The popup should close automatically and show success message
+- 🤖 **AI-Powered Learning** - Personalized learning paths, AI-driven advice, and smart suggestions to enhance the educational journey.
+- 🎮 **Gamified Experience** - Engage in multiplayer quiz games, earn badges, and track progress with student achievements and goals.
+- 👨‍🏫 **Comprehensive Course Management** - Tools for teachers to create, manage, and monitor courses, including content, quizzes, and student performance.
+- 🎓 **Interactive Student Dashboard** - A centralized hub for students to access courses, track their progress, and engage with learning materials.
+- 💬 **Collaborative Learning** - Features like discussion forums and group chats to foster a collaborative and supportive learning environment.
+- 🔐 **Secure Authentication** - Robust user authentication and role-based access control to ensure a secure learning environment.
+- 📱 **Responsive Design** - A modern and intuitive user interface that works seamlessly on both desktop and mobile devices.
+- 📈 **Performance Analytics** - Detailed analytics and reporting tools for both students and teachers to monitor progress and identify areas for improvement.
 
-### Environment Variables
-The OAuth callback function will automatically detect the frontend URL from:
-1. `FRONTEND_URL` environment variable (if set)
-2. Request origin header
-3. Fallback to `http://localhost:8080`
+## 🔧 Tech Stack
 
-## How can I edit this code?
+<div align="center">
+  <table>
+    <tr>
+      <td align="center" width="96">
+        <img src="https://techstack-generator.vercel.app/react-icon.svg" alt="React" width="48" height="48" />
+        <br/>React
+      </td>
+      <td align="center" width="96">
+        <img src="https://techstack-generator.vercel.app/ts-icon.svg" alt="TypeScript" width="48" height="48" />
+        <br/>TypeScript
+      </td>
+      <td align="center" width="96">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vitejs/vitejs-original.svg" alt="Vite" width="48" height="48" />
+        <br/>Vite
+      </td>
+      <td align="center" width="96">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-plain.svg" alt="Tailwind" width="48" height="48" />
+        <br/>Tailwind
+      </td>
+      <td align="center" width="96">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/supabase/supabase-original.svg" alt="Supabase" width="48" height="48" />
+        <br/>Supabase
+      </td>
+      <td align="center" width="96">
+        <img src="https://www.vectorlogo.zone/logos/reactrouter/reactrouter-icon.svg" alt="React Router" width="48" height="48" />
+        <br/>Router
+      </td>
+    </tr>
+    <tr>
+      <td align="center" width="96">
+        <img src="https://avatars.githubusercontent.com/u/14957082" alt="Gemini AI" width="48" height="48" />
+        <br/>Gemini AI
+      </td>
+      <td align="center" width="96">
+        <img src="https://raw.githubusercontent.com/TanStack/query/main/media/logo.svg" alt="React Query" width="48" height="48" />
+        <br/>React Query
+      </td>
+      <td align="center" width="96">
+        <img src="https://cdn.worldvectorlogo.com/logos/zod.svg" alt="Zod" width="48" height="48" />
+        <br/>Zod
+      </td>
+      <td align="center" width="96">
+        <img src="https://avatars.githubusercontent.com/u/75042455" alt="Radix UI" width="48" height="48" />
+        <br/>Radix UI
+      </td>
+      <td align="center" width="96">
+        <img src="https://avatars.githubusercontent.com/u/139895814" alt="shadcn UI" width="48" height="48" />
+        <br/>shadcn/ui
+      </td>
+      <td align="center" width="96">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/redux/redux-original.svg" alt="Redux" width="48" height="48" />
+        <br/>Redux
+      </td>
+    </tr>
+  </table>
+</div>
 
-There are several ways of editing your application.
+<b>⚛️ Frontend</b>
 
-**Use Lovable**
+- **React 18** - A JavaScript library for building user interfaces.
+- **TypeScript** - A typed superset of JavaScript that compiles to plain JavaScript.
+- **Vite** - A fast build tool that provides a quicker and leaner development experience.
+- **Tailwind CSS** - A utility-first CSS framework for rapid UI development.
+- **shadcn/ui** - A collection of beautifully designed, accessible UI components.
+- **React Router DOM** - A standard library for routing in React.
+- **React Query** - A powerful data-fetching and state-management library.
+- **Redux** - A predictable state container for JavaScript apps.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/908c44de-bd63-4dd6-89af-267e4ab3be9d) and start prompting.
+<b>🗃️ Backend & Data</b>
 
-Changes made via Lovable will be committed automatically to this repo.
+- **Supabase** - An open-source Firebase alternative for building secure and scalable backends.
+- **Google Gemini API** - An advanced AI model for powering intelligent features.
 
-**Use your preferred IDE**
+<b>🎭 UI/UX & Additional Libraries</b>
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- **Radix UI** - A low-level UI component library for building accessible design systems.
+- **Framer Motion** - A production-ready motion library for React.
+- **React Hook Form & Zod** - For building and validating forms with ease.
+- **Recharts** - A composable charting library for React.
+- **Lucide React** - A simply beautiful and consistent icon toolkit.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## 📂 Project Structure
 
-Follow these steps:
+```
+Lrnflix/
+├── public/                 # Public assets
+├── src/
+│   ├── components/         # Reusable UI components
+│   ├── contexts/           # React contexts for state management
+│   ├── hooks/              # Custom React hooks
+│   ├── lib/                # Utility functions and configurations
+│   ├── pages/              # Application pages
+│   ├── services/           # Services for external APIs
+│   ├── store/              # Redux store and slices
+│   └── utils/              # Utility functions
+├── supabase/               # Supabase configuration and migrations
+├── index.html              # HTML entry point
+├── tailwind.config.ts      # Tailwind configuration
+├── tsconfig.json           # TypeScript configuration
+├── vite.config.ts          # Vite configuration
+└── package.json            # Dependencies and scripts
+```
 
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js (v18 or higher recommended)
+- npm or yarn package manager
+- Supabase account and project
+
+### Installation
+
+1️⃣ **Clone the repository:**
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+git clone https://github.com/yourusername/Lrnflix.git
+cd Lrnflix
+```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+2️⃣ **Install dependencies:**
+```sh
+npm install
+```
 
-# Step 3: Install the necessary dependencies.
-npm i
+3️⃣ **Configure environment variables:**
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+Create a `.env` file in the root directory and add your Supabase project URL and API key:
+```env
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+VITE_GEMINI_API_KEY=your_gemini_api_key
+```
+
+4️⃣ **Set up the database:**
+
+Run the SQL scripts in the `supabase/migrations` directory to set up your database schema.
+
+5️⃣ **Start the development server:**
+```sh
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+6️⃣ **Open your browser:**
+Navigate to `http://localhost:5173`
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## 🌐 Deployment
 
-**Use GitHub Codespaces**
+```sh
+# Build the project
+npm run build
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+# Deploy the dist folder to your preferred hosting service
+# We recommend Netlify, Vercel, or GitHub Pages
+```
 
-## What technologies are used for this project?
+## 🤝 Contributing
 
-This project is built with:
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-## How can I deploy this project?
+## 📝 License
 
-Simply open [Lovable](https://lovable.dev/projects/908c44de-bd63-4dd6-89af-267e4ab3be9d) and click on Share -> Publish.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Can I connect a custom domain to my Lovable project?
+## 🙏 Acknowledgements
 
-Yes, you can!
+- **Google Gemini API** for powering the AI features.
+- **Supabase** for providing a robust backend infrastructure.
+- **shadcn/ui** for the beautiful and accessible component library.
+- The open-source community for their invaluable contributions.
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+---
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+<div align="center">
+  <img src="https://img.icons8.com/color/48/000000/learning.png" width="24" height="24"/>
+  <p>Made with ❤️ for the future of learning</p>
+</div>

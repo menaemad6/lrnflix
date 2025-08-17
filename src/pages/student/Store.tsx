@@ -18,12 +18,15 @@ import {
 } from 'lucide-react';
 import type { RootState } from '@/store/store';
 import { useRandomBackground } from "../../hooks/useRandomBackground";
+import { useDispatch } from 'react-redux';
+import { updateUser } from '@/store/slices/authSlice';
 
 const Store = () => {
   const { user } = useSelector((state: RootState) => state.auth);
   const { toast } = useToast();
   const [loading, setLoading] = useState<string | null>(null);
   const bgClass = useRandomBackground();
+  const dispatch = useDispatch();
 
   const creditPackages = [
     {
@@ -107,13 +110,17 @@ const Store = () => {
 
       if (error) throw error;
 
-      const result = data as { success: boolean; error?: string; message?: string };
+      const result = data as { success: boolean; error?: string; message?: string, cost?: number };
 
       if (result.success) {
         toast({
           title: "Minutes Purchased!",
           description: `Successfully purchased ${pkg.minutes} assistant minutes`,
         });
+        dispatch(updateUser({ 
+          wallet: (user.wallet || 0) - (result.cost || 0), 
+          minutes: (user.minutes || 0) + pkg.minutes 
+        }));
       } else {
         toast({
           title: "Purchase Failed",
@@ -180,7 +187,7 @@ const Store = () => {
           <div className="flex items-center gap-3 mb-6">
             <Zap className="h-6 w-6 text-yellow-500" />
             <h2 className="text-2xl font-bold">Credit Packages</h2>
-            <Badge variant="secondary">Pay with EGP</Badge>
+            <Badge variant="default">Pay with EGP</Badge>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -188,7 +195,7 @@ const Store = () => {
               <Card key={pkg.id} className={`relative ${pkg.popular ? 'border-primary ring-2 ring-primary/20' : ''}`}>
                 {pkg.popular && (
                   <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                    <Badge className="bg-primary text-primary-foreground">
+                    <Badge variant='default'>
                       <Star className="h-3 w-3 mr-1" />
                       Most Popular
                     </Badge>
@@ -237,7 +244,7 @@ const Store = () => {
           <div className="flex items-center gap-3 mb-6">
             <MessageSquare className="h-6 w-6 text-blue-500" />
             <h2 className="text-2xl font-bold">Assistant Minutes</h2>
-            <Badge variant="secondary">Pay with Credits</Badge>
+            <Badge variant="default">Pay with Credits</Badge>
           </div>
 
           {/* Free Minutes Info */}

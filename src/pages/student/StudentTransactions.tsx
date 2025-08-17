@@ -13,6 +13,7 @@ import DashboardModernHeader from '@/components/ui/DashboardModernHeader';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem, SelectLabel } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { TransactionCardSkeleton } from '@/components/student/skeletons/TransactionCardSkeleton';
+import { useStudentTransactionsAndWallet } from '@/lib/queries';
 
 interface Transaction {
   id: string;
@@ -26,22 +27,25 @@ interface Transaction {
 export const StudentTransactions = () => {
   const { toast } = useToast();
   const user = useSelector((state: RootState) => state.auth.user);
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const { data, isLoading, error } = useStudentTransactionsAndWallet(user);
+  const { transactions = [], wallet = 0 } = data || {};
+  
   const [filteredTransactions, setFilteredTransactions] = useState<Transaction[]>([]);
-  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [wallet, setWallet] = useState(0);
   const [filterType, setFilterType] = useState<string>('all');
   const [filterStartDate, setFilterStartDate] = useState<string>('');
   const [filterEndDate, setFilterEndDate] = useState<string>('');
   const [sortBy, setSortBy] = useState<string>('date_desc');
 
   useEffect(() => {
-    if (user) {
-      fetchTransactions();
-      fetchWalletBalance();
+    if (error) {
+        toast({
+            title: 'Error',
+            description: 'Failed to load transactions. Please try again.',
+            variant: 'destructive',
+        });
     }
-  }, [user]);
+  }, [error, toast]);
 
   useEffect(() => {
     let filtered = [...transactions];
@@ -75,49 +79,6 @@ export const StudentTransactions = () => {
     }
     setFilteredTransactions(filtered);
   }, [searchTerm, transactions, filterType, filterStartDate, filterEndDate, sortBy]);
-
-  const fetchWalletBalance = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('wallet')
-        .eq('id', user?.id)
-        .single();
-
-      if (error) throw error;
-      setWallet(data?.wallet || 0);
-    } catch (error: unknown) {
-      console.error('Error fetching wallet balance:', error instanceof Error ? error.message : error);
-    }
-  };
-
-  const fetchTransactions = async () => {
-    try {
-      setLoading(true);
-      console.log('Fetching transactions for user:', user?.id);
-
-      const { data, error } = await supabase
-        .from('wallet_transactions')
-        .select('*')
-        .eq('user_id', user?.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      console.log('Transactions data:', data);
-      setTransactions(data || []);
-      setFilteredTransactions(data || []);
-    } catch (error: unknown) {
-      console.error('Error fetching transactions:', error instanceof Error ? error.message : error);
-      toast({
-        title: 'Error',
-        description: 'Failed to load transactions. Please try again.',
-        variant: 'destructive',
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const getTransactionIcon = (type: string) => {
     switch (type) {
@@ -283,7 +244,7 @@ export const StudentTransactions = () => {
         </div>
 
         {/* Transactions List or Skeletons */}
-        {loading ? (
+        {isLoading ? (
           <div className="space-y-2">
             {[...Array(8)].map((_, i) => (
               <TransactionCardSkeleton key={i} />

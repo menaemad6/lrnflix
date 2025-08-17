@@ -13,6 +13,7 @@ import type { RootState } from '@/store/store';
 import { useTenant } from '@/contexts/TenantContext';
 import DashboardModernHeader from '@/components/ui/DashboardModernHeader';
 import { Input } from '@/components/ui/input';
+import { useStudentEnrolledChapters } from '@/lib/queries';
 
 interface ChapterCourse {
   id: string;
@@ -49,14 +50,20 @@ export const StudentChaptersPage = () => {
   const { toast } = useToast();
   const { user } = useSelector((state: RootState) => state.auth);
   const { teacher } = useTenant();
-  const [enrolledChapters, setEnrolledChapters] = useState<EnrolledChapter[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: enrolledChapters, isLoading, error } = useStudentEnrolledChapters(user, teacher);
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    fetchEnrolledChapters();
-  }, []);
+    if (error) {
+        console.error('Error fetching chapters:', error);
+        toast({
+            title: 'Error',
+            description: 'Failed to load chapters',
+            variant: 'destructive',
+        });
+    }
+  }, [error, toast]);
 
   const fetchChapterCourses = async (chapterId: string): Promise<ChapterCourse[]> => {
     let query = supabase
@@ -100,65 +107,11 @@ export const StudentChaptersPage = () => {
     } : obj);
   };
 
-  const fetchEnrolledChapters = async () => {
-    try {
-      if (!user) throw new Error('Not authenticated');
-      const { data: enrollmentsData, error: enrollmentsError } = await supabase
-        .from('chapter_enrollments')
-        .select(`
-          id,
-          enrolled_at,
-          chapter:chapters (
-            id,
-            title,
-            description,
-            price
-          )
-        `)
-        .eq('student_id', user.id)
-        .order('enrolled_at', { ascending: false });
-      if (enrollmentsError) throw enrollmentsError;
-      const chaptersWithProgress = await Promise.all(
-        (enrollmentsData || []).map(async (enrollment: EnrolledChapter) => {
-          // Fetch courses for this chapter using chapter_objects
-          const chapterCourses = await fetchChapterCourses(enrollment.chapter.id);
-          const courseIds = chapterCourses.map((obj) => obj.course?.id).filter(Boolean);
-          const totalCourses = courseIds.length;
-          let enrolledCourses = 0;
-          if (courseIds.length > 0) {
-            const { count } = await supabase
-              .from('enrollments')
-              .select('*', { count: 'exact', head: true })
-              .eq('student_id', user.id)
-              .in('course_id', courseIds);
-            enrolledCourses = count || 0;
-          }
-          return {
-            ...enrollment,
-            totalCourses,
-            enrolledCourses,
-            chapterCourses
-          };
-        })
-      );
-      setEnrolledChapters(chaptersWithProgress);
-    } catch (error: unknown) {
-      console.error('Error fetching chapters:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to load chapters',
-        variant: 'destructive',
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
   // Filter logic for search
-  const filteredChapters = enrolledChapters.filter((enrollment) =>
+  const filteredChapters = enrolledChapters?.filter((enrollment) =>
     enrollment.chapter.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (enrollment.chapter.description || '').toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  ) || [];
 
   return (
     <DashboardLayout>
@@ -189,7 +142,7 @@ export const StudentChaptersPage = () => {
           </CardContent>
         </Card>
         {/* End Search Bar */}
-        {loading ? (
+        {isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
               <Suspense fallback={<div className='h-64' />} key={i}>

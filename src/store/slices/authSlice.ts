@@ -44,8 +44,13 @@ const authSlice = createSlice({
       state.isLoading = false;
       console.log('Redux: User logged out');
     },
+    updateUser: (state, action: PayloadAction<Partial<User>>) => {
+      if (state.user) {
+        state.user = { ...state.user, ...action.payload };
+      }
+    },
   },
 });
 
-export const { setUser, setLoading, logout } = authSlice.actions;
+export const { setUser, setLoading, logout, updateUser } = authSlice.actions;
 export default authSlice.reducer;

@@ -13,6 +13,9 @@ import { useRandomBackground } from "../../hooks/useRandomBackground";
 import { useTenant } from '@/contexts/TenantContext';
 import DashboardModernHeader from '@/components/ui/DashboardModernHeader';
 import { GroupCardSkeleton } from '@/components/student/skeletons/GroupCardSkeleton';
+import { useStudentGroups } from '@/lib/queries';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store/store';
 
 interface Group {
   id: string;
@@ -28,110 +31,40 @@ interface Group {
 export const StudentGroups = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [groups, setGroups] = useState<Group[]>([]);
+  const { user } = useSelector((state: RootState) => state.auth);
+  const { teacher } = useTenant();
+  const { data, isLoading, error, refetch } = useStudentGroups(user, teacher);
+  const { groups = [], memberGroupIds = [] } = data || {};
+
   const [filteredGroups, setFilteredGroups] = useState<Group[]>([]);
-  const [loading, setLoading] = useState(true);
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [memberGroupIds, setMemberGroupIds] = useState<string[]>([]);
   const bgClass = useRandomBackground();
-  const { teacher } = useTenant();
 
   useEffect(() => {
-    fetchStudentGroups();
-  }, []);
-
-  useEffect(() => {
-    if (searchTerm.trim() === '') {
-      setFilteredGroups(groups);
-    } else {
-      const filtered = groups.filter(group =>
-        group.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        group.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        group.group_code.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-      setFilteredGroups(filtered);
+    if (groups) {
+        if (searchTerm.trim() === '') {
+            setFilteredGroups(groups);
+        } else {
+            const filtered = groups.filter(group =>
+                group.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                group.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                group.group_code.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+            setFilteredGroups(filtered);
+        }
     }
   }, [searchTerm, groups]);
-
-  const fetchStudentGroups = async () => {
-    try {
-      setLoading(true);
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      if (userError) throw userError;
-      if (!user) {
-        setGroups([]);
-        setFilteredGroups([]);
-        return;
-      }
-
-      // Get groups where the student is a member
-      const { data: memberData, error: memberError } = await supabase
-        .from('group_members')
-        .select('group_id')
-        .eq('student_id', user.id);
-      if (memberError) throw memberError;
-      const groupIds = memberData?.map(m => m.group_id) || [];
-      setMemberGroupIds(groupIds);
-
-      // Fetch the actual group data for member groups
-      let memberGroupsData: any[] = [];
-      if (groupIds.length > 0) {
-        let memberGroupsQuery = supabase
-          .from('groups')
-          .select('*')
-          .in('id', groupIds)
-          .order('created_at', { ascending: false });
-        if (teacher) {
-          memberGroupsQuery = memberGroupsQuery.eq('created_by', teacher.user_id);
-        }
-        const { data, error } = await memberGroupsQuery;
-        if (error) throw error;
-        memberGroupsData = data || [];
-      }
-
-      // Fetch all public groups
-      let publicGroupsQuery = supabase
-        .from('groups')
-        .select('*')
-        .eq('is_public', true)
-        .order('created_at', { ascending: false });
-      if (teacher) {
-        publicGroupsQuery = publicGroupsQuery.eq('created_by', teacher.user_id);
-      }
-      const { data: publicGroups, error: publicError } = await publicGroupsQuery;
-      if (publicError) throw publicError;
-
-      // Merge member groups and public groups, avoiding duplicates
-      const allGroupsMap = new Map<string, any>();
-      memberGroupsData.forEach(g => allGroupsMap.set(g.id, g));
-      (publicGroups || []).forEach(g => allGroupsMap.set(g.id, g));
-      const allGroups = Array.from(allGroupsMap.values());
-
-      // Get member counts for each group and create properly typed Group objects
-      const groupsWithCounts = await Promise.all(
-        allGroups.map(async (group) => {
-          try {
-            const { count, error: countError } = await supabase
-              .from('group_members')
-              .select('*', { count: 'exact', head: true })
-              .eq('group_id', group.id);
-            if (countError) return { ...group, member_count: 0 } as Group;
-            return { ...group, member_count: count || 0 } as Group;
-          } catch (error: unknown) {
-            return { ...group, member_count: 0 } as Group;
-          }
-        })
-      );
-      setGroups(groupsWithCounts);
-      setFilteredGroups(groupsWithCounts);
-    } catch (error: unknown) {
-      setGroups([]);
-      setFilteredGroups([]);
-    } finally {
-      setLoading(false);
+  
+  useEffect(() => {
+    if (error) {
+        toast({
+            title: 'Error fetching groups',
+            description: error.message,
+            variant: 'destructive',
+        });
     }
-  };
+  }, [error, toast]);
 
   const handleLeaveGroup = async (groupId: string, groupName: string) => {
     if (!confirm(`Are you sure you want to leave "${groupName}"?`)) return;
@@ -153,7 +86,7 @@ export const StudentGroups = () => {
         description: `Left group: ${groupName}`,
       });
 
-      fetchStudentGroups();
+      refetch();
     } catch (error: unknown) {
       console.error('Error leaving group:', error instanceof Error ? error.message : error);
       toast({
@@ -186,7 +119,7 @@ export const StudentGroups = () => {
   return (
     <div className={bgClass + " min-h-screen"}>
       <DashboardLayout>
-        <div className="container mx-auto p-6 space-y-6">
+
           <DashboardModernHeader
             title="My Study Groups"
             subtitle="Connect and collaborate with your classmates"
@@ -215,7 +148,7 @@ export const StudentGroups = () => {
           </Card>
 
           {/* Groups Grid or Skeletons */}
-          {loading ? (
+          {isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 min-h-[400px]">
               {[...Array(6)].map((_, i) => (
                 <GroupCardSkeleton key={i} />
@@ -334,9 +267,8 @@ export const StudentGroups = () => {
           <JoinGroupModal
             isOpen={showJoinModal}
             onClose={() => setShowJoinModal(false)}
-            onGroupJoined={fetchStudentGroups}
+            onGroupJoined={refetch}
           />
-        </div>
       </DashboardLayout>
     </div>
   );

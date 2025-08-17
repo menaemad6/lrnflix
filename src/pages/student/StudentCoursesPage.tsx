@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { supabase } from '@/integrations/supabase/client';
@@ -22,9 +22,9 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { ChevronDown } from 'lucide-react';
 import { useCourseProgress } from '@/hooks/useCourseProgress';
-  
-const PremiumCourseCard = React.lazy(() => import('@/components/courses/PremiumCourseCard').then(m => ({ default: m.PremiumCourseCard })));
-const CourseCardSkeleton = React.lazy(() => import('@/components/student/skeletons/CourseCardSkeleton').then(m => ({ default: m.CourseCardSkeleton })));
+import { useStudentEnrolledCourses } from '@/lib/queries';
+import { PremiumCourseCard } from '@/components/courses/PremiumCourseCard';
+import { CourseCardSkeleton } from '@/components/student/skeletons/CourseCardSkeleton';
 
 interface EnrolledCourse {
   id: string;
@@ -53,174 +53,62 @@ export const StudentCoursesPage = () => {
   const { toast } = useToast();
   const { user } = useSelector((state: RootState) => state.auth);
   const { teacher } = useTenant();
-  const [enrolledCourses, setEnrolledCourses] = useState<EnrolledCourse[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: enrolledCourses, isLoading, error } = useStudentEnrolledCourses(user, teacher);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchFocused, setSearchFocused] = useState(false);
   const navigate = useNavigate();
-  const [instructorAvatars, setInstructorAvatars] = useState<Record<string, string | undefined>>({});
 
-  // Dynamically get unique categories from enrolledCourses
-  const courseCategories = Array.from(new Set(enrolledCourses.map(e => e.course.category).filter(Boolean)));
+  const courseCategories = Array.from(new Set(enrolledCourses?.map(e => e.course.category).filter(Boolean) || []));
   const categories = ['All', ...courseCategories];
 
   useEffect(() => {
-    fetchEnrolledCourses();
-  }, []);
-
-  const fetchEnrolledCourses = async () => {
-    try {
-      if (!user) throw new Error('Not authenticated');
-
-      let enrollmentsQuery = supabase
-        .from('enrollments')
-        .select(`
-          id,
-          enrolled_at,
-          course:courses (
-            id,
-            title,
-            description,
-            category,
-            price,
-            cover_image_url,
-            enrollment_code,
-            created_at,
-            instructor_id,
-            profiles!courses_instructor_id_fkey(full_name)
-          )
-        `)
-        .eq('student_id', user.id)
-        .order('enrolled_at', { ascending: false });
-
-      if (teacher) {
-        enrollmentsQuery = enrollmentsQuery.filter('course.instructor_id', 'eq', teacher.user_id);
-      }
-
-      const { data: enrollmentsData, error: enrollmentsError } = await enrollmentsQuery;
-
-      if (enrollmentsError) throw enrollmentsError;
-
-      // Fetch all unique instructor_ids
-      const instructorIds = Array.from(new Set((enrollmentsData as EnrolledCourse[] || [])
-        .map(e => e.course?.instructor_id)
-        .filter(Boolean)));
-      // Fetch all avatars in one go
-      const avatars: Record<string, string | undefined> = {};
-      if (instructorIds.length > 0) {
-        const { data: teachersData } = await supabase
-          .from('teachers')
-          .select('user_id, profile_image_url')
-          .in('user_id', instructorIds);
-        if (teachersData) {
-          (teachersData as Array<{ user_id: string; profile_image_url?: string }>).forEach((t) => {
-            avatars[t.user_id] = t.profile_image_url;
-          });
-        }
-      }
-      setInstructorAvatars(avatars);
-
-      const coursesWithProgress = await Promise.all(
-        (enrollmentsData as EnrolledCourse[] || [])
-          .filter((enrollment) => enrollment.course && enrollment.course.id)
-          .map(async (enrollment) => {
-            // Only count lessons for progress calculation
-            const { count: totalLessons } = await supabase
-              .from('lessons')
-              .select('*', { count: 'exact', head: true })
-              .eq('course_id', enrollment.course.id);
-
-            // Get all lesson IDs for this course
-            const { data: lessonsData } = await supabase
-              .from('lessons')
-              .select('id')
-              .eq('course_id', enrollment.course.id);
-
-            const lessonIds = lessonsData?.map(l => l.id) || [];
-
-            // Count completed lessons
-            const { count: completedLessons } = await supabase
-              .from('lesson_progress')
-              .select('*', { count: 'exact', head: true })
-              .eq('student_id', user.id)
-              .in('lesson_id', lessonIds);
-
-            // Get enrollment count for this course
-            const { count: enrollmentCount } = await supabase
-              .from('enrollments')
-              .select('*', { count: 'exact', head: true })
-              .eq('course_id', enrollment.course.id);
-
-            const progress = totalLessons ? Math.round((completedLessons || 0) / totalLessons * 100) : 0;
-
-            return {
-              ...enrollment,
-              course: {
-                ...enrollment.course,
-                instructor_name: enrollment.course.profiles?.full_name || "Course Instructor",
-                avatar_url: avatars[enrollment.course.instructor_id] // NEW
-              },
-              progress,
-              totalLessons: totalLessons || 0,
-              completedLessons: completedLessons || 0,
-              enrollment_count: enrollmentCount || 0
-            };
-          })
-      );
-
-      setEnrolledCourses(coursesWithProgress);
-    } catch (error: unknown) {
+    if (error) {
       console.error('Error fetching courses:', error);
       toast({
         title: 'Error',
         description: 'Failed to load courses',
         variant: 'destructive',
       });
-    } finally {
-      setLoading(false);
     }
-  };
+  }, [error, toast]);
 
-  // Filter logic for search and category
-  const filteredCourses = enrolledCourses.filter((enrollment) => {
+  const filteredCourses = enrolledCourses?.filter((enrollment) => {
     const course = enrollment.course;
     const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (course.description || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
       (course.enrollment_code || '').toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === 'All' || course.category === selectedCategory;
     return matchesSearch && matchesCategory;
-  });
+  }) || [];
 
   // Child component to show course card with real progress
   const StudentCourseCardWithProgress = ({ enrollment, userId }: { enrollment: EnrolledCourse, userId: string }) => {
     const progress = useCourseProgress(enrollment.course.id, userId);
     return (
-      <Suspense fallback={<CourseCardSkeleton />}>
-        <PremiumCourseCard
-          key={enrollment.id}
-          id={enrollment.course.id}
-          title={enrollment.course.title}
-          description={enrollment.course.description}
-          category={enrollment.course.category}
-          status="Active"
-          instructor_name={enrollment.course.instructor_name}
-          enrollment_count={enrollment.enrollment_count || 0}
-          is_enrolled={true}
-          enrollment_code={enrollment.course.enrollment_code || ""}
-          cover_image_url={enrollment.course.cover_image_url}
-          created_at={enrollment.course.created_at}
-          price={enrollment.course.price}
-          progress={progress.progressPercentage}
-          isHovering={true}
-          avatar_url={enrollment.course.avatar_url}
-          onPreview={() => {}}
-          onEnroll={() => {}}
-          onContinue={() => {
-            navigate(`/courses/${enrollment.course.id}`);
-          }}
-        />
-      </Suspense>
+      <PremiumCourseCard
+        key={enrollment.id}
+        id={enrollment.course.id}
+        title={enrollment.course.title}
+        description={enrollment.course.description}
+        category={enrollment.course.category}
+        status="Active"
+        instructor_name={enrollment.course.instructor_name}
+        enrollment_count={enrollment.enrollment_count || 0}
+        is_enrolled={true}
+        enrollment_code={enrollment.course.enrollment_code || ""}
+        cover_image_url={enrollment.course.cover_image_url}
+        created_at={enrollment.course.created_at}
+        price={enrollment.course.price}
+        progress={progress.progressPercentage}
+        isHovering={true}
+        avatar_url={enrollment.course.avatar_url}
+        onPreview={() => {}}
+        onEnroll={() => {}}
+        onContinue={() => {
+          navigate(`/courses/${enrollment.course.id}`);
+        }}
+      />
     );
   };
 
@@ -284,7 +172,7 @@ export const StudentCoursesPage = () => {
             </div>
           </CardContent>
         </Card>
-        {loading ? (
+        {isLoading ? (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {[...Array(6)].map((_, i) => (
               <CourseCardSkeleton key={i} />
