@@ -3,17 +3,16 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Calendar, Clock, AlertTriangle, CheckCircle, BookOpen, Users, Target, Star, Plus } from 'lucide-react';
-
+import { useNavigate } from 'react-router-dom';
 interface Task {
   id: string;
   title: string;
   description: string;
-  dueDate: string;
+  due_date: string;
   priority: 'low' | 'medium' | 'high' | 'urgent';
-  type: 'course' | 'lesson' | 'review' | 'meeting' | 'deadline' | 'reminder';
+  status: 'todo' | 'in_progress' | 'review' | 'completed';
   courseId?: string;
   courseName?: string;
-  completed: boolean;
   metadata?: {
     studentCount?: number;
     lessonCount?: number;
@@ -26,6 +25,7 @@ interface TeacherUpcomingTasksProps {
 }
 
 export function TeacherUpcomingTasks({ tasks }: TeacherUpcomingTasksProps) {
+  const navigate = useNavigate();
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'urgent':
@@ -38,44 +38,6 @@ export function TeacherUpcomingTasks({ tasks }: TeacherUpcomingTasksProps) {
         return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
       default:
         return 'bg-muted/20 text-muted-foreground border-muted/30';
-    }
-  };
-
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case 'course':
-        return <BookOpen className="h-4 w-4" />;
-      case 'lesson':
-        return <Target className="h-4 w-4" />;
-      case 'review':
-        return <Star className="h-4 w-4" />;
-      case 'meeting':
-        return <Users className="h-4 w-4" />;
-      case 'deadline':
-        return <AlertTriangle className="h-4 w-4" />;
-      case 'reminder':
-        return <Clock className="h-4 w-4" />;
-      default:
-        return <Calendar className="h-4 w-4" />;
-    }
-  };
-
-  const getTypeColor = (type: string) => {
-    switch (type) {
-      case 'course':
-        return 'text-purple-400';
-      case 'lesson':
-        return 'text-indigo-400';
-      case 'review':
-        return 'text-yellow-400';
-      case 'meeting':
-        return 'text-blue-400';
-      case 'deadline':
-        return 'text-red-400';
-      case 'reminder':
-        return 'text-emerald-400';
-      default:
-        return 'text-muted-foreground';
     }
   };
 
@@ -105,14 +67,16 @@ export function TeacherUpcomingTasks({ tasks }: TeacherUpcomingTasksProps) {
   };
 
   const sortedTasks = [...tasks].sort((a, b) => {
-    if (a.completed !== b.completed) return a.completed ? 1 : -1;
+    const aCompleted = a.status === 'completed';
+    const bCompleted = b.status === 'completed';
+    if (aCompleted !== bCompleted) return aCompleted ? 1 : -1;
     if (a.priority === 'urgent' && b.priority !== 'urgent') return -1;
     if (b.priority === 'urgent' && a.priority !== 'urgent') return 1;
-    return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+    return new Date(a.due_date).getTime() - new Date(b.due_date).getTime();
   });
 
-  const incompleteTasks = sortedTasks.filter(task => !task.completed);
-  const completedTasks = sortedTasks.filter(task => task.completed);
+  const incompleteTasks = sortedTasks.filter(task => task.status !== 'completed');
+  const completedTasks = sortedTasks.filter(task => task.status === 'completed');
 
   return (
     <Card className="glass-card border-0 hover-glow">
@@ -127,7 +91,7 @@ export function TeacherUpcomingTasks({ tasks }: TeacherUpcomingTasksProps) {
               <p className="text-muted-foreground text-sm">Manage your teaching schedule</p>
             </div>
           </div>
-          <Button size="sm" variant="outline" className="btn-secondary">
+          <Button size="sm" variant="outline" className="btn-secondary" onClick={() => navigate('/teacher/schedule')}>
             <Plus className="h-4 w-4 mr-2" />
             Add Task
           </Button>
@@ -152,8 +116,8 @@ export function TeacherUpcomingTasks({ tasks }: TeacherUpcomingTasksProps) {
                 <div className="flex items-start gap-3">
                   {/* Task Icon */}
                   <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center border border-primary/20 group-hover:scale-110 transition-transform">
-                    <div className={getTypeColor(task.type)}>
-                      {getTypeIcon(task.type)}
+                    <div className="text-muted-foreground">
+                      <Calendar className="h-4 w-4" />
                     </div>
                   </div>
                   
@@ -210,11 +174,11 @@ export function TeacherUpcomingTasks({ tasks }: TeacherUpcomingTasksProps) {
                   
                   {/* Due Date */}
                   <div className="flex-shrink-0 text-right">
-                    <div className={`text-xs font-medium ${getDueDateColor(task.dueDate)}`}>
-                      {formatDueDate(task.dueDate)}
+                    <div className={`text-xs font-medium ${getDueDateColor(task.due_date)}`}>
+                      {formatDueDate(task.due_date)}
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      {new Date(task.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                      {new Date(task.due_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                     </div>
                   </div>
                 </div>
@@ -240,7 +204,7 @@ export function TeacherUpcomingTasks({ tasks }: TeacherUpcomingTasksProps) {
                       {task.title}
                     </h4>
                     <p className="text-xs text-muted-foreground">
-                      Completed {formatDueDate(task.dueDate)}
+                      Completed {formatDueDate(task.due_date)}
                     </p>
                   </div>
                 </div>

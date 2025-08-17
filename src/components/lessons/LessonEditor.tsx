@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -90,6 +90,7 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
     transcription: '',
     summary: '',
   });
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // AI: extract course info from slides PDF and synthesize a lesson summary
   const { process: processCourseInfo, loading: aiLoading } = usePdfAi('extract-course-info');
@@ -119,7 +120,7 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
           summaryText = `This lesson provides an overview of ${topics.join(', ')}.`;
         }
       }
-      setContentData(prev => ({ ...prev, summary: summaryText || prev.summary }));
+      setContentData(prev => ({ ...prev, summary: summaryText }));
       toast({ title: 'Summary generated', description: 'AI summary inserted from slides.' });
       event.target.value = '';
     } catch (e: any) {
@@ -455,22 +456,33 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6 p-4 sm:p-6">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-teal-300">Generate summary from slides (PDF)</label>
-                  <div className="relative inline-flex items-center gap-3">
+                <div className="space-y-4 p-6 rounded-lg border-2 border-dashed border-teal-500/30 bg-teal-500/5 text-center">
+                  <div className="w-16 h-16 mx-auto bg-gradient-to-br from-teal-500/20 to-cyan-500/20 rounded-2xl flex items-center justify-center border border-teal-500/30">
+                    <Brain className="h-8 w-8 text-teal-300" />
+                  </div>
+                  <h4 className="text-lg font-semibold text-teal-300">AI Assistant Data Source</h4>
+                  <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                    Uploading your lesson's PDF is crucial. The AI assistant relies on this document to provide accurate summaries, answer student questions, and generate insights. Without it, the assistant will not function.
+                  </p>
+                  <div className="relative inline-flex items-center justify-center">
+                    <Button 
+                      variant="outline" 
+                      className="cursor-pointer bg-background/50 border-teal-500/30 hover:bg-teal-500/10 hover:border-teal-500/50 text-teal-300"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={aiLoading}
+                    >
+                      <Upload className="h-4 w-4 mr-2" />
+                      {aiLoading ? 'Processing...' : 'Upload PDF'}
+                    </Button>
                     <Input
+                      ref={fileInputRef}
                       type="file"
                       accept=".pdf"
                       onChange={handleSlidesPdfUpload}
                       disabled={aiLoading}
-                      className="file:mr-4 file:rounded-md file:border file:border-teal-500/30 file:bg-background/50 file:px-3 file:py-1 file:text-teal-300"
+                      className="sr-only"
                     />
-                    <Button variant="outline" disabled className="hidden sm:inline-flex">
-                      <Upload className="h-4 w-4 mr-2" />
-                      {aiLoading ? 'Processing...' : 'Choose PDF'}
-                    </Button>
                   </div>
-                  <p className="text-xs text-muted-foreground">Upload course slides PDF to auto-generate a concise lesson summary.</p>
                 </div>
                 <div className="space-y-3">
                   <label className="text-sm font-medium text-teal-300">Transcription</label>

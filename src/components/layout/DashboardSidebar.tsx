@@ -23,7 +23,8 @@ import {
   CreditCard,
   ArrowBigLeft,
   ChevronRight,
-  File
+  File,
+  Calendar
 } from 'lucide-react';
 import {
   Sidebar,
@@ -123,6 +124,7 @@ export const DashboardSidebar = () => {
       icon: Layout,
       description: "Teaching overview"
     },
+
     { 
       title: "My Courses", 
       url: "/teacher/courses", 
@@ -146,6 +148,12 @@ export const DashboardSidebar = () => {
       url: "/teacher/students", 
       icon: GraduationCap,
       description: "Students Info"
+    },
+    { 
+      title: "My Schedule", 
+      url: "/teacher/schedule", 
+      icon: Calendar,
+      description: "Schedule Tasks"
     },
     { 
       title: "Multiplayer Quiz", 

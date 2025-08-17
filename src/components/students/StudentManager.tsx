@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
 import { Search, UserMinus, Mail, Calendar } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface Student {
   id: string;
@@ -161,7 +162,9 @@ export const StudentManager = ({ courseId }: StudentManagerProps) => {
                   <TableRow key={student.id}>
                     <TableCell>
                       <div className="font-medium">
+                        <Link to={`/teacher/students/${student.id}`}>
                         {student.full_name || 'No name provided'}
+                        </Link>
                       </div>
                     </TableCell>
                     <TableCell>

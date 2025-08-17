@@ -9,6 +9,7 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { CreateChapterModal } from '@/components/chapters/CreateChapterModal';
 import { TeacherPageHeader } from '@/components/teacher/TeacherPageHeader';
 import { Input } from '@/components/ui/input';
+import { useTeacherChapters } from '@/lib/queries';
 
 interface Chapter {
   id: string;
@@ -24,61 +25,12 @@ interface Chapter {
 const ChapterCardSkeleton = React.lazy(() => import('@/components/student/skeletons/ChapterCardSkeleton').then(m => ({ default: m.ChapterCardSkeleton })));
 
 export const TeacherChaptersPage = () => {
-  const [chapters, setChapters] = useState<Chapter[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: chapters = [], isLoading, refetch } = useTeacherChapters();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
-  useEffect(() => {
-    fetchChapters();
-  }, []);
-
-  const fetchChapters = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      // Fetch only chapters owned by this teacher
-      const { data: chaptersData, error } = await supabase
-        .from('chapters')
-        .select('*')
-        .eq('instructor_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      // For each chapter, count courses and enrollments
-      const chaptersWithCounts = await Promise.all(
-        (chaptersData || []).map(async (chapter) => {
-          const { count: courseCount } = await supabase
-            .from('courses')
-            .select('*', { count: 'exact', head: true })
-            .eq('chapter_id', chapter.id)
-            .eq('instructor_id', user.id);
-
-          const { count: enrollmentCount } = await supabase
-            .from('chapter_enrollments')
-            .select('*', { count: 'exact', head: true })
-            .eq('chapter_id', chapter.id);
-
-          return {
-            ...chapter,
-            course_count: courseCount || 0,
-            enrollment_count: enrollmentCount || 0
-          };
-        })
-      );
-
-      setChapters(chaptersWithCounts);
-    } catch (error: any) {
-      console.error('Error fetching chapters:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleChapterCreated = () => {
-    fetchChapters();
+    refetch();
   };
 
   // Filter chapters by search term
@@ -108,7 +60,7 @@ export const TeacherChaptersPage = () => {
             className="pl-10"
           />
         </div>
-        {loading ? (
+        {isLoading ? (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 6 }).map((_, i) => (
               <Suspense fallback={<div className='glass-card border-0 p-6'><div className='h-40 w-full rounded-xl mb-2 bg-muted animate-pulse' /></div>} key={i}>

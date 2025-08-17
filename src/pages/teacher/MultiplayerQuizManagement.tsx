@@ -45,6 +45,7 @@ import {
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
 import { Database } from '@/integrations/supabase/types';
+import { useMultiplayerQuizQuestions, useMultiplayerQuizCategories } from '@/lib/queries';
 
 interface Question {
   id?: string;
@@ -68,13 +69,13 @@ interface ExtractedQuestion {
 
 export const MultiplayerQuizManagement = () => {
   const { toast } = useToast();
-  const [questions, setQuestions] = useState<Question[]>([]);
+  const user = useSelector((state: RootState) => state.auth.user);
+  const { data: questions = [], isLoading: loading, refetch: fetchQuestions } = useMultiplayerQuizQuestions(user?.id || '');
+  const { data: categories = [], refetch: fetchCategories } = useMultiplayerQuizCategories(user?.id || '');
   const [filteredQuestions, setFilteredQuestions] = useState<Question[]>([]);
   const [editingQuestionId, setEditingQuestionId] = useState<string | null>(null);
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [categories, setCategories] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [newCategory, setNewCategory] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState('');
@@ -84,15 +85,6 @@ export const MultiplayerQuizManagement = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [generatingOptionsFor, setGeneratingOptionsFor] = useState<string | null>(null);
   const [generatingSavedQuestionOptions, setGeneratingSavedQuestionOptions] = useState<string | null>(null);
-
-  const user = useSelector((state: RootState) => state.auth.user);
-
-  useEffect(() => {
-    if (user) {
-      fetchQuestions();
-      fetchCategories();
-    }
-  }, [user]);
 
   useEffect(() => {
     if (searchTerm.trim() === '') {
@@ -106,67 +98,6 @@ export const MultiplayerQuizManagement = () => {
       setFilteredQuestions(filtered);
     }
   }, [searchTerm, questions]);
-
-  const fetchQuestions = async () => {
-    if (!user) return;
-    try {
-      const { data, error } = await supabase
-        .from('multiplayer_quiz_questions')
-        .select('*')
-        .eq('instructor_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      // @ts-ignore
-      const formattedQuestions: Question[] =
-        (data as any)?.map((q: any) => {
-          const question: Question = {
-            id: q.id,
-            question: q.question,
-            options: Array.isArray(q.options)
-              ? q.options
-              : JSON.parse(q.options),
-            correct_answer: q.correct_answer,
-            difficulty: q.difficulty as 'easy' | 'medium' | 'hard',
-            time_limit: q.time_limit,
-            category: q.category || 'General',
-            instructor_id: q.instructor_id,
-          };
-          return question;
-        }) || [];
-
-      setQuestions(formattedQuestions);
-      setFilteredQuestions(formattedQuestions);
-    } catch (error: unknown) {
-      console.error('Error fetching questions:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to load questions',
-        variant: 'destructive',
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchCategories = async () => {
-    if (!user) return;
-    try {
-      const { data, error } = await supabase
-        .from('multiplayer_quiz_questions')
-        .select('category')
-        .eq('instructor_id', user.id)
-        .order('category');
-
-      if (error) throw error;
-
-      const uniqueCategories = [...new Set(data?.map(q => q.category) || [])];
-      setCategories(uniqueCategories);
-    } catch (error: unknown) {
-      console.error('Error fetching categories:', error);
-    }
-  };
 
   const saveQuestion = async (question: Question) => {
     if (!user) {

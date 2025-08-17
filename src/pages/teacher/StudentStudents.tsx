@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,6 +11,7 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { TeacherPageHeader } from '@/components/teacher/TeacherPageHeader';
 import { useToast } from '@/hooks/use-toast';
 import { StudentCardSkeleton } from '@/components/student/skeletons';
+import { useTeacherStudents } from '@/lib/queries';
 
 import { 
   Users, 
@@ -58,137 +59,9 @@ interface Enrollment {
 
 export const StudentStudents = () => {
   const { toast } = useToast();
-  const [students, setStudents] = useState<StudentData[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: students = [], isLoading } = useTeacherStudents();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterBy, setFilterBy] = useState<'all' | 'active' | 'top_spenders'>('all');
-  const [user, setUser] = useState<{ id: string } | null>(null);
-
-  const fetchStudents = useCallback(async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      setUser(user);
-
-      // Get all students who purchased courses from this teacher
-      const { data: enrollmentsData, error: enrollmentsError } = await supabase
-        .from('enrollments')
-        .select(`
-          student_id,
-          enrolled_at,
-          course:courses!inner (
-            id,
-            title,
-            price,
-            instructor_id
-          )
-        `)
-        .eq('course.instructor_id', user.id);
-
-      if (enrollmentsError) throw enrollmentsError;
-
-      // Group by student and get unique students
-      const studentMap = new Map<string, { id: string; enrollments: Enrollment[]; totalSpent: number; enrollmentCount: number }>();
-      
-      (enrollmentsData as Enrollment[])?.forEach(enrollment => {
-        const studentId = enrollment.student_id;
-        if (!studentMap.has(studentId)) {
-          studentMap.set(studentId, {
-            id: studentId,
-            enrollments: [],
-            totalSpent: 0,
-            enrollmentCount: 0
-          });
-        }
-        
-        const student = studentMap.get(studentId);
-        student.enrollments.push(enrollment);
-        student.totalSpent += enrollment.course.price;
-        student.enrollmentCount += 1;
-      });
-
-      // Get student profiles
-      const studentIds = Array.from(studentMap.keys());
-      const { data: profilesData } = await supabase
-        .from('profiles')
-        .select('id, full_name, email, avatar_url')
-        .in('id', studentIds);
-
-      // Get quiz performance for each student
-      const studentsWithDetails = await Promise.all(
-        Array.from(studentMap.values()).map(async (student) => {
-          const profile = profilesData?.find(p => p.id === student.id);
-          
-          // Get quiz attempts for courses taught by this teacher
-          const courseIds = student.enrollments.map((e: Enrollment) => e.course.id);
-          const { data: quizAttempts } = await supabase
-            .from('quiz_attempts')
-            .select(`
-              score,
-              max_score,
-              quiz:quizzes!inner (
-                course_id
-              )
-            `)
-            .eq('student_id', student.id)
-            .in('quiz.course_id', courseIds);
-
-          // Calculate average score
-          let averageScore = 0;
-          let completedQuizzes = 0;
-          let totalQuizzes = 0;
-
-          if (quizAttempts && quizAttempts.length > 0) {
-            const scores = quizAttempts
-              .filter(attempt => attempt.score !== null && attempt.max_score !== null)
-              .map(attempt => (attempt.score / attempt.max_score) * 100);
-            
-            averageScore = scores.length > 0 ? scores.reduce((sum, score) => sum + score, 0) / scores.length : 0;
-            completedQuizzes = scores.length;
-          }
-
-          // Get total quizzes available
-          const { count: totalQuizzesCount } = await supabase
-            .from('quizzes')
-            .select('*', { count: 'exact', head: true })
-            .in('course_id', courseIds);
-
-          totalQuizzes = totalQuizzesCount || 0;
-
-          // Get last activity (most recent enrollment)
-          const lastEnrollment = student.enrollments.sort((a: Enrollment, b: Enrollment) => 
-            new Date(b.enrolled_at).getTime() - new Date(a.enrolled_at).getTime()
-          )[0];
-
-          return {
-            ...student,
-            full_name: profile?.full_name || 'Unknown Student',
-            email: profile?.email || '',
-            avatar_url: profile?.avatar_url,
-            averageScore: Math.round(averageScore),
-            lastActive: lastEnrollment?.enrolled_at || '',
-            completedQuizzes,
-            totalQuizzes
-          };
-        })
-      );
-
-      setStudents(studentsWithDetails);
-    } catch (error: unknown) {
-      console.error('Error fetching students:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to load students',
-        variant: 'destructive',
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, [toast]);
-
-  useEffect(() => {
-    fetchStudents();
-  }, [fetchStudents]);
 
   const filteredStudents = students
     .filter(student => 
@@ -336,7 +209,7 @@ export const StudentStudents = () => {
 
         {/* Students List */}
         <div className="grid grid-cols-1 gap-4">
-          {loading ? (
+          {isLoading ? (
             Array.from({ length: 3 }).map((_, index) => (
               <StudentCardSkeleton key={index} />
             ))

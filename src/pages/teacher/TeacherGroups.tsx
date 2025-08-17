@@ -10,6 +10,7 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { useToast } from '@/hooks/use-toast';
 import { Users, Plus, MessageCircle, Search, Hash, Copy, Trash2, Share2, Calendar, Crown, Sparkles, Star, Settings } from 'lucide-react';
 import { TeacherPageHeader } from '@/components/teacher/TeacherPageHeader';
+import { useTeacherGroups } from '@/lib/queries';
 
 interface Group {
   id: string;
@@ -25,9 +26,8 @@ interface Group {
 export const TeacherGroups = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [groups, setGroups] = useState<Group[]>([]);
+  const { data: groups = [], isLoading, refetch } = useTeacherGroups();
   const [filteredGroups, setFilteredGroups] = useState<Group[]>([]);
-  const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [newGroup, setNewGroup] = useState({
@@ -36,10 +36,6 @@ export const TeacherGroups = () => {
     is_public: false,
     max_members: ''
   });
-
-  useEffect(() => {
-    fetchTeacherGroups();
-  }, []);
 
   useEffect(() => {
     if (searchTerm.trim() === '') {
@@ -53,126 +49,6 @@ export const TeacherGroups = () => {
       setFilteredGroups(filtered);
     }
   }, [searchTerm, groups]);
-
-  const fetchTeacherGroups = async () => {
-    try {
-      setLoading(true);
-      console.log('Starting to fetch teacher groups...');
-
-      // First verify we have a user
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      if (userError) {
-        console.error('Auth error:', userError);
-        throw userError;
-      }
-      
-      if (!user) {
-        console.log('No authenticated user found');
-        toast({
-          title: 'Error',
-          description: 'You must be logged in to view groups',
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      console.log('Authenticated user ID:', user.id);
-
-      // Check user role
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', user.id)
-        .single();
-
-      if (profileError) {
-        console.error('Profile error:', profileError);
-        throw profileError;
-      }
-
-      if (profile?.role !== 'teacher') {
-        console.log('User is not a teacher, role:', profile?.role);
-        toast({
-          title: 'Access Denied',
-          description: 'Only teachers can access this page',
-          variant: 'destructive',
-        });
-        navigate('/student/groups');
-        return;
-      }
-
-      console.log('User is a teacher, fetching groups...');
-
-      // Fetch groups created by this teacher
-      const { data: groupsData, error: groupsError } = await supabase
-        .from('groups')
-        .select('*')
-        .eq('created_by', user.id)
-        .order('created_at', { ascending: false });
-
-      if (groupsError) {
-        console.error('Groups fetch error:', groupsError);
-        throw groupsError;
-      }
-
-      console.log('Raw groups data:', groupsData);
-
-      if (!groupsData) {
-        console.log('No groups data returned');
-        setGroups([]);
-        setFilteredGroups([]);
-        return;
-      }
-
-      // Get member counts for each group
-      const groupsWithCounts = await Promise.all(
-        groupsData.map(async (group) => {
-          try {
-            console.log(`Fetching member count for group ${group.id}...`);
-            const { count, error: countError } = await supabase
-              .from('group_members')
-              .select('*', { count: 'exact', head: true })
-              .eq('group_id', group.id);
-
-            if (countError) {
-              console.error(`Count error for group ${group.id}:`, countError);
-              return { ...group, member_count: 0 };
-            }
-
-            console.log(`Group ${group.id} has ${count} members`);
-            return {
-              ...group,
-              member_count: count || 0
-            };
-          } catch (error) {
-            console.error(`Error getting count for group ${group.id}:`, error);
-            return { ...group, member_count: 0 };
-          }
-        })
-      );
-
-      console.log('Final groups with counts:', groupsWithCounts);
-      setGroups(groupsWithCounts);
-      setFilteredGroups(groupsWithCounts);
-      
-      if (groupsWithCounts.length === 0) {
-        console.log('No groups found for this teacher');
-      } else {
-        console.log(`Successfully loaded ${groupsWithCounts.length} groups`);
-      }
-    } catch (error: unknown) {
-      console.error('Error in fetchTeacherGroups:', error);
-      toast({
-        title: 'Error',
-        description: `Failed to load groups: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        variant: 'destructive',
-      });
-      setGroups([]);
-      setFilteredGroups([]);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleCreateGroup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -218,7 +94,7 @@ export const TeacherGroups = () => {
 
       setNewGroup({ name: '', description: '', is_public: false, max_members: '' });
       setShowCreateForm(false);
-      fetchTeacherGroups();
+      refetch();
     } catch (error: unknown) {
       console.error('Error creating group:', error);
       toast({
@@ -245,7 +121,7 @@ export const TeacherGroups = () => {
         description: 'Group deleted successfully!',
       });
 
-      fetchTeacherGroups();
+      refetch();
     } catch (error: unknown) {
       console.error('Error deleting group:', error);
       toast({
@@ -353,7 +229,7 @@ export const TeacherGroups = () => {
         )}
 
         {/* Groups Grid */}
-        {loading ? (
+        {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {Array.from({ length: 6 }).map((_, i) => (
               <Suspense fallback={<div className='glass-card border-0 p-6'><div className='h-40 w-full rounded-xl mb-2 bg-muted animate-pulse' /></div>} key={i}>

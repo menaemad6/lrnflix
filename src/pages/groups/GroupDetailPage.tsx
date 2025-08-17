@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -33,6 +33,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { ObjectSharingModal } from '@/components/groups/ObjectSharingModal';
 import { SharedObjectsList } from '@/components/groups/SharedObjectsList';
 import { Switch } from '@/components/ui/switch';
+import { GroupDetailSkeleton } from '@/components/groups/skeletons';
 
 interface GroupDetails {
   id: string;
@@ -700,9 +701,7 @@ export const GroupDetailPage = () => {
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-        </div>
+        <GroupDetailSkeleton />
       </DashboardLayout>
     );
   }
@@ -1000,7 +999,9 @@ export const GroupDetailPage = () => {
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2">
                                 <p className="font-semibold truncate">
-                                  {member.profile?.full_name || member.profile?.email || 'Unknown User'}
+                                  <Link to={`/teacher/students/${member.student_id}`}>
+                                    {member.profile?.full_name || member.profile?.email || 'Unknown User'}
+                                  </Link>
                                 </p>
                                 {member.student_id === group.created_by && (
                                   <Crown className="w-4 h-4 text-primary flex-shrink-0" />

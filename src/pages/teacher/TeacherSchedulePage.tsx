@@ -14,10 +14,12 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Calendar as CalendarIcon, Clock, Tag, GripVertical, Sparkles, AlertCircle, Target, CheckCircle2 } from 'lucide-react';
+import { Plus, Calendar as CalendarIcon, Clock, Tag, GripVertical, Sparkles, AlertCircle, Target, CheckCircle2, Pencil, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
+
+type TaskInsert = Omit<Task, 'id' | 'created_at' | 'updated_at'>;
 
 interface Task {
   id: string;
@@ -46,17 +48,17 @@ interface TaskFormData {
   priority: 'low' | 'medium' | 'high' | 'urgent';
   due_date: Date | undefined;
   estimated_hours: string;
-  course_id: string;
+  course_id: string | null;
 }
 
-const priorityColors = {
+const priorityColors: { [key in Task['priority']]: string } = {
   low: 'bg-green-100 text-green-800 border-green-200',
   medium: 'bg-yellow-100 text-yellow-800 border-yellow-200',
   high: 'bg-orange-100 text-orange-800 border-orange-200',
   urgent: 'bg-red-100 text-red-800 border-red-200'
 };
 
-const statusConfig = {
+const statusConfig: { [key in Task['status']]: { title: string; icon: React.ElementType; color: string } } = {
   todo: { title: 'To Do', icon: AlertCircle, color: 'text-gray-500' },
   in_progress: { title: 'In Progress', icon: Clock, color: 'text-blue-500' },
   review: { title: 'Review', icon: Target, color: 'text-orange-500' },
@@ -66,18 +68,42 @@ const statusConfig = {
 export default function TeacherSchedulePage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isEnhancing, setIsEnhancing] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [taskToDelete, setTaskToDelete] = useState<Task | null>(null);
   const [formData, setFormData] = useState<TaskFormData>({
     title: '',
     description: '',
     priority: 'medium',
     due_date: undefined,
     estimated_hours: '',
-    course_id: ''
+    course_id: null
   });
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  useEffect(() => {
+    if (editingTask) {
+      setFormData({
+        title: editingTask.title,
+        description: editingTask.description || '',
+        priority: editingTask.priority,
+        due_date: editingTask.due_date ? new Date(editingTask.due_date) : undefined,
+        estimated_hours: editingTask.estimated_hours?.toString() || '',
+        course_id: editingTask.course_id
+      });
+      setIsDialogOpen(true);
+    } else {
+      setFormData({
+        title: '',
+        description: '',
+        priority: 'medium',
+        due_date: undefined,
+        estimated_hours: '',
+        course_id: null
+      });
+    }
+  }, [editingTask]);
   // Fetch tasks
   const { data: tasks, isLoading: tasksLoading } = useQuery({
     queryKey: ['teacher-schedule-tasks'],
@@ -114,7 +140,7 @@ export default function TeacherSchedulePage() {
   const enhanceWithAI = async (basicInfo: { title: string; description: string }) => {
     setIsEnhancing(true);
     try {
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${import.meta.env.VITE_GEMINI_API_KEY}`, {
+      const response = await fetch(`${import.meta.env.VITE_GEMINI_BASE_URL}${import.meta.env.VITE_GEMINI_API_KEY}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -184,7 +210,7 @@ export default function TeacherSchedulePage() {
         .insert({
           ...taskData,
           teacher_id: user.user.id,
-        })
+        } as TaskInsert)
         .select()
         .single();
 
@@ -200,7 +226,7 @@ export default function TeacherSchedulePage() {
         priority: 'medium',
         due_date: undefined,
         estimated_hours: '',
-        course_id: ''
+        course_id: null
       });
       toast({
         title: "Task Created",
@@ -216,8 +242,66 @@ export default function TeacherSchedulePage() {
     }
   });
 
-  // Update task status mutation
+  // Update task mutation
   const updateTaskMutation = useMutation({
+    mutationFn: async ({ id, updates }: { id: string; updates: Partial<Task> }) => {
+      const { data, error } = await supabase
+        .from('teacher_schedule_tasks')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['teacher-schedule-tasks'] });
+      setIsDialogOpen(false);
+      setEditingTask(null);
+      toast({
+        title: "Task Updated",
+        description: "Your task has been updated successfully.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to update task. Please try again.",
+        variant: "destructive"
+      });
+    }
+  });
+
+  // Delete task mutation
+  const deleteTaskMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('teacher_schedule_tasks')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['teacher-schedule-tasks'] });
+      setTaskToDelete(null);
+      toast({
+        title: "Task Deleted",
+        description: "Your task has been deleted successfully.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to delete task. Please try again.",
+        variant: "destructive"
+      });
+      setTaskToDelete(null);
+    }
+  });
+  // Update task status mutation
+  const updateTaskStatusMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: Partial<Task> }) => {
       const { data, error } = await supabase
         .from('teacher_schedule_tasks')
@@ -242,7 +326,7 @@ export default function TeacherSchedulePage() {
     if (source.droppableId !== destination.droppableId) {
       // Moving between columns - update status
       const newStatus = destination.droppableId as Task['status'];
-      updateTaskMutation.mutate({
+      updateTaskStatusMutation.mutate({
         id: draggableId,
         updates: { status: newStatus }
       });
@@ -252,16 +336,27 @@ export default function TeacherSchedulePage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    createTaskMutation.mutate({
+    const taskPayload = {
       title: formData.title,
       description: formData.description || null,
       priority: formData.priority,
-      due_date: formData.due_date?.toISOString() || null,
-      estimated_hours: formData.estimated_hours ? parseInt(formData.estimated_hours) : null,
+      due_date: formData.due_date ? formData.due_date.toISOString() : null,
+      estimated_hours: formData.estimated_hours ? parseInt(formData.estimated_hours, 10) : null,
       course_id: formData.course_id || null,
-      status: 'todo',
-      order_index: 0
-    });
+    };
+
+    if (editingTask) {
+      updateTaskMutation.mutate({
+        id: editingTask.id,
+        updates: taskPayload,
+      });
+    } else {
+      createTaskMutation.mutate({
+        ...taskPayload,
+        status: 'todo',
+        order_index: (tasks?.filter(t => t.status === 'todo').length || 0)
+      });
+    }
   };
 
   const getTasksByStatus = (status: Task['status']) => {
@@ -302,7 +397,7 @@ export default function TeacherSchedulePage() {
               </Badge>
               
               {task.estimated_hours && (
-                <Badge variant="secondary" className="text-xs">
+                <Badge variant="default" className="text-xs">
                   <Clock className="h-3 w-3 mr-1" />
                   {task.estimated_hours}h
                 </Badge>
@@ -315,6 +410,14 @@ export default function TeacherSchedulePage() {
                 {format(new Date(task.due_date), 'MMM dd')}
               </div>
             )}
+             <div className="flex items-center justify-end mt-4 gap-2">
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setEditingTask(task)}>
+                <Pencil className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setTaskToDelete(task)}>
+                <Trash2 className="h-4 w-4 text-red-500" />
+              </Button>
+            </div>
           </CardContent>
         </Card>
       )}
@@ -324,7 +427,7 @@ export default function TeacherSchedulePage() {
   const Column = ({ status, title, icon: Icon, color }: { 
     status: Task['status']; 
     title: string; 
-    icon: any; 
+    icon: React.ElementType; 
     color: string;
   }) => {
     const columnTasks = getTasksByStatus(status);
@@ -335,7 +438,7 @@ export default function TeacherSchedulePage() {
           <div className="flex items-center gap-2">
             <Icon className={cn("h-5 w-5", color)} />
             <h3 className="font-semibold">{title}</h3>
-            <Badge variant="secondary" className="text-xs">
+            <Badge variant="default" className="text-xs">
               {columnTasks.length}
             </Badge>
           </div>
@@ -350,7 +453,7 @@ export default function TeacherSchedulePage() {
                 "min-h-[400px] p-2 rounded-lg border-2 border-dashed transition-colors",
                 snapshot.isDraggingOver 
                   ? "border-primary bg-primary/5" 
-                  : "border-gray-200 bg-gray-50/50"
+                  : "border-gray-200 bg-transparent"
               )}
             >
               {columnTasks.map((task, index) => (
@@ -395,18 +498,23 @@ export default function TeacherSchedulePage() {
             <p className="text-muted-foreground">Manage your teaching tasks and schedule</p>
           </div>
           
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <Dialog open={isDialogOpen} onOpenChange={(isOpen) => {
+            setIsDialogOpen(isOpen);
+            if (!isOpen) {
+              setEditingTask(null);
+            }
+          }}>
             <DialogTrigger asChild>
-              <Button>
+              <Button onClick={() => setEditingTask(null)}>
                 <Plus className="h-4 w-4 mr-2" />
                 Add Task
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-md">
               <DialogHeader>
-                <DialogTitle>Create New Task</DialogTitle>
+                <DialogTitle>{editingTask ? 'Edit Task' : 'Create New Task'}</DialogTitle>
                 <DialogDescription>
-                  Add a new task to your schedule. AI can help enhance it!
+                  {editingTask ? 'Update the details of your task.' : 'Add a new task to your schedule. AI can help enhance it!'}
                 </DialogDescription>
               </DialogHeader>
               
@@ -431,32 +539,30 @@ export default function TeacherSchedulePage() {
                   />
                 </div>
                 
-                {formData.title && formData.description && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => enhanceWithAI({ title: formData.title, description: formData.description })}
-                    disabled={isEnhancing}
-                    className="w-full"
-                  >
-                    {isEnhancing ? (
-                      <>
-                        <div className="animate-spin h-4 w-4 mr-2 border-2 border-current border-t-transparent rounded-full" />
-                        Enhancing...
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="h-4 w-4 mr-2" />
-                        Enhance with AI
-                      </>
-                    )}
-                  </Button>
-                )}
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => enhanceWithAI({ title: formData.title, description: formData.description })}
+                  disabled={isEnhancing || !formData.title || !formData.description}
+                  className="w-full"
+                >
+                  {isEnhancing ? (
+                    <>
+                      <div className="animate-spin h-4 w-4 mr-2 border-2 border-current border-t-transparent rounded-full" />
+                      Enhancing...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="h-4 w-4 mr-2" />
+                      Enhance with AI
+                    </>
+                  )}
+                </Button>
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="text-sm font-medium">Priority</label>
-                    <Select value={formData.priority} onValueChange={(value: any) => setFormData(prev => ({ ...prev, priority: value }))}>
+                    <Select value={formData.priority} onValueChange={(value: Task['priority']) => setFormData(prev => ({ ...prev, priority: value }))}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -493,14 +599,14 @@ export default function TeacherSchedulePage() {
                         )}
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
-                        {formData.due_date ? format(formData.due_date, "PPP") : "Pick a date"}
+                        {formData.due_date ? format(formData.due_date, "PPP") : <span>Pick a date</span>}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0">
                       <Calendar
                         mode="single"
                         selected={formData.due_date}
-                        onSelect={(date) => setFormData(prev => ({ ...prev, due_date: date }))}
+                        onSelect={(date) => setFormData(prev => ({ ...prev, due_date: date as Date | undefined }))}
                         initialFocus
                       />
                     </PopoverContent>
@@ -510,12 +616,15 @@ export default function TeacherSchedulePage() {
                 {courses && courses.length > 0 && (
                   <div>
                     <label className="text-sm font-medium">Related Course</label>
-                    <Select value={formData.course_id} onValueChange={(value) => setFormData(prev => ({ ...prev, course_id: value }))}>
+                    <Select 
+                      value={formData.course_id || 'no-course'} 
+                      onValueChange={(value) => setFormData(prev => ({ ...prev, course_id: value === 'no-course' ? null : value }))}
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Select course (optional)" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">No course</SelectItem>
+                        <SelectItem value="no-course">No course</SelectItem>
                         {courses.map(course => (
                           <SelectItem key={course.id} value={course.id}>
                             {course.title}
@@ -527,11 +636,16 @@ export default function TeacherSchedulePage() {
                 )}
                 
                 <DialogFooter>
-                  <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                  <Button type="button" variant="outline" onClick={() => {
+                    setIsDialogOpen(false);
+                    setEditingTask(null);
+                  }}>
                     Cancel
                   </Button>
-                  <Button type="submit" disabled={createTaskMutation.isPending}>
-                    {createTaskMutation.isPending ? "Creating..." : "Create Task"}
+                  <Button type="submit" disabled={createTaskMutation.isPending || updateTaskMutation.isPending}>
+                    {editingTask 
+                      ? (updateTaskMutation.isPending ? "Updating..." : "Update Task")
+                      : (createTaskMutation.isPending ? "Creating..." : "Create Task")}
                   </Button>
                 </DialogFooter>
               </form>
@@ -552,6 +666,28 @@ export default function TeacherSchedulePage() {
             ))}
           </div>
         </DragDropContext>
+         <Dialog open={!!taskToDelete} onOpenChange={(isOpen) => !isOpen && setTaskToDelete(null)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Are you sure you want to delete this task?</DialogTitle>
+              <DialogDescription>
+                This action cannot be undone. This will permanently delete the task from your schedule.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setTaskToDelete(null)}>
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={() => taskToDelete && deleteTaskMutation.mutate(taskToDelete.id)}
+                disabled={deleteTaskMutation.isPending}
+              >
+                {deleteTaskMutation.isPending ? "Deleting..." : "Delete"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </DashboardLayout>
   );

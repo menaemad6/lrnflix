@@ -17,6 +17,7 @@ import {
   DropdownMenuItem,
 } from '@/components/ui/dropdown-menu';
 import { ChevronDown } from 'lucide-react';
+import { useTeacherCourses } from '@/lib/queries';
 // Remove direct import of PremiumCourseCard and CourseCardSkeleton
 // import { PremiumCourseCard } from '@/components/courses/PremiumCourseCard';
 // Add lazy imports:
@@ -36,8 +37,7 @@ interface Course {
 }
 
 export const TeacherCoursesPage = () => {
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: courses = [], isLoading, refetch } = useTeacherCourses();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -48,35 +48,8 @@ export const TeacherCoursesPage = () => {
   const courseCategories = Array.from(new Set(courses.map(c => c.category).filter(Boolean)));
   const categories = ['All', ...courseCategories];
 
-  useEffect(() => {
-    fetchCourses();
-  }, []);
-
-  const fetchCourses = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data: coursesData, error } = await supabase
-        .from('courses')
-        .select(`
-          *,
-          enrollments(count)
-        `)
-        .eq('instructor_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setCourses(coursesData || []);
-    } catch (error: any) {
-      console.error('Error fetching courses:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleCourseCreated = () => {
-    fetchCourses();
+    refetch();
   };
 
   // Filter logic for search and category
@@ -149,7 +122,7 @@ export const TeacherCoursesPage = () => {
             </div>
           </CardContent>
         </Card>
-        {loading ? (
+        {isLoading ? (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 6 }).map((_, i) => (
               <Suspense fallback={<div className='glass-card border-0 p-6'><div className='h-40 w-full rounded-xl mb-2 bg-muted animate-pulse' /></div>} key={i}>

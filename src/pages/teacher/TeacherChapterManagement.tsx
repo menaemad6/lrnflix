@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -470,7 +470,7 @@ export const TeacherChapterManagement = () => {
                       ) : (
                         students.map((student) => (
                           <TableRow key={student.student_id}>
-                            <TableCell>{student.profiles?.full_name || 'Unknown Name'}</TableCell>
+                            <TableCell><Link to={`/teacher/students/${student.student_id}`}>{student.profiles?.full_name || 'Unknown Name'}</Link></TableCell>
                             <TableCell>{student.profiles?.email || 'Unknown Email'}</TableCell>
                             <TableCell className="font-mono text-xs">{student.student_id}</TableCell>
                             <TableCell>

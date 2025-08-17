@@ -9,6 +9,9 @@ import { Plus, Copy, Trash2, ExternalLink, Check, X } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { useWalletCodes } from '@/lib/queries';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store/store';
 
 interface WalletCode {
   id: string;
@@ -29,8 +32,8 @@ interface WalletCodesManagerProps {
 
 export const WalletCodesManager: React.FC<WalletCodesManagerProps> = ({ searchTerm = '', onCreateCode, showCreateForm: showCreateFormProp }) => {
   const { toast } = useToast();
-  const [codes, setCodes] = useState<WalletCode[]>([]);
-  const [loading, setLoading] = useState(true);
+  const user = useSelector((state: RootState) => state.auth.user);
+  const { data: codes = [], isLoading: loading, refetch: fetchCodes } = useWalletCodes(user?.id || '');
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [creating, setCreating] = useState(false);
   const [newCode, setNewCode] = useState({
@@ -41,34 +44,6 @@ export const WalletCodesManager: React.FC<WalletCodesManagerProps> = ({ searchTe
 
   // Use controlled showCreateForm if provided
   const showForm = typeof showCreateFormProp === 'boolean' ? showCreateFormProp : showCreateForm;
-
-  useEffect(() => {
-    fetchCodes();
-  }, []);
-
-  const fetchCodes = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
-      const { data, error } = await supabase
-        .from('wallet_codes')
-        .select('*')
-        .eq('created_by', user.id)
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
-      setCodes(data || []);
-    } catch (error: any) {
-      console.error('Error fetching codes:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to load wallet codes',
-        variant: 'destructive',
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const createCode = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -76,6 +76,7 @@ import { TeacherProfile } from './pages/teacher/TeacherProfile';
 import { TenantProvider, useTenant } from './contexts/TenantContext';
 import { StudentStudents } from './pages/teacher/StudentStudents';
 import { StudentDetail } from './pages/teacher/StudentDetail';
+import TeacherSchedulePage from './pages/teacher/TeacherSchedulePage';
 
 const queryClient = new QueryClient();
 
@@ -134,6 +135,7 @@ const AppRoutes = () => {
           <Route path="/teacher/chapter/:chapterId" element={<ProtectedRoute requiredRole={['teacher']}><TeacherChapterManagement /></ProtectedRoute>} />
           <Route path="/teacher/codes" element={<ProtectedRoute requiredRole={['teacher']}><TeacherCodesPage /></ProtectedRoute>} />
           <Route path="/teacher/analytics" element={<ProtectedRoute requiredRole={['teacher']}><TeacherAnalyticsPage /></ProtectedRoute>} />
+          <Route path="/teacher/schedule" element={<ProtectedRoute requiredRole={['teacher']}><TeacherSchedulePage /></ProtectedRoute>} />
           <Route path="/teacher/notifications" element={<ProtectedRoute requiredRole={['teacher']}><TeacherNotificationsPage /></ProtectedRoute>} />
           <Route path="/teacher/students" element={<ProtectedRoute requiredRole={['teacher']}><StudentStudents /></ProtectedRoute>} />
           <Route path="/teacher/students/:studentId" element={<ProtectedRoute requiredRole={['teacher']}><StudentDetail /></ProtectedRoute>} />

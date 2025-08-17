@@ -8,6 +8,7 @@ import { BarChart3, Users, BookOpen, Trophy, TrendingUp, Star, MessageSquare, Cl
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { supabase } from '@/integrations/supabase/client';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useTeacherAnalytics } from '@/lib/queries';
 
 interface AnalyticsData {
   totalStudents: number;
@@ -22,144 +23,6 @@ interface AnalyticsData {
   topCourses: Array<{ title: string; enrollments: number; revenue: number }>;
   recentActivity: Array<{ type: string; count: number; change: number }>;
 }
-
-const fetchTeacherAnalytics = async (): Promise<AnalyticsData> => {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
-
-  // Fetch courses taught by this teacher
-  const { data: courses } = await supabase
-    .from('courses')
-    .select('id, title, price, created_at')
-    .eq('instructor_id', user.id);
-
-  const courseIds = courses?.map(c => c.id) || [];
-
-  // Fetch enrollments for teacher's courses
-  const { data: enrollments } = await supabase
-    .from('enrollments')
-    .select(`
-      id,
-      student_id,
-      enrolled_at,
-      course_id,
-      courses!inner(title, price)
-    `)
-    .in('course_id', courseIds);
-
-  // Fetch lesson progress
-  const { data: lessonProgress } = await supabase
-    .from('lesson_progress')
-    .select(`
-      id,
-      completed_at,
-      lessons!inner(course_id)
-    `)
-    .in('lessons.course_id', courseIds);
-
-  // Fetch quiz attempts
-  const { data: quizAttempts } = await supabase
-    .from('quiz_attempts')
-    .select(`
-      id,
-      score,
-      max_score,
-      submitted_at,
-      quizzes!inner(course_id)
-    `)
-    .in('quizzes.course_id', courseIds);
-
-  // Calculate analytics
-  const totalStudents = new Set(enrollments?.map(e => e.student_id)).size;
-  const totalCourses = courses?.length || 0;
-  const totalRevenue = enrollments?.reduce((sum, e) => sum + (e.courses?.price || 0), 0) || 0;
-  const totalEnrollments = enrollments?.length || 0;
-
-  // Calculate average rating (mock data for now)
-  const averageRating = 4.7;
-  const completionRate = lessonProgress?.length && totalEnrollments ? 
-    Math.round((lessonProgress.length / (totalEnrollments * 10)) * 100) : 0; // Assuming 10 lessons per course average
-
-  // Monthly revenue data
-  const monthlyData = new Map();
-  enrollments?.forEach(enrollment => {
-    const month = new Date(enrollment.enrolled_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-    const existing = monthlyData.get(month) || { month, revenue: 0, enrollments: 0 };
-    existing.revenue += enrollment.courses?.price || 0;
-    existing.enrollments += 1;
-    monthlyData.set(month, existing);
-  });
-
-  const monthlyRevenue = Array.from(monthlyData.values()).slice(-6);
-
-  // Course performance
-  const courseStats = new Map();
-  courses?.forEach(course => {
-    courseStats.set(course.id, {
-      name: course.title,
-      enrollments: 0,
-      completion: 0,
-      rating: 4.5 + Math.random() * 0.5 // Mock rating
-    });
-  });
-
-  enrollments?.forEach(enrollment => {
-    const stats = courseStats.get(enrollment.course_id);
-    if (stats) stats.enrollments += 1;
-  });
-
-  const coursePerformance = Array.from(courseStats.values()).slice(0, 5);
-
-  // Student engagement (mock data based on lesson progress)
-  const engagementData = [];
-  for (let i = 6; i >= 0; i--) {
-    const date = new Date();
-    date.setDate(date.getDate() - i);
-    engagementData.push({
-      date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-      activeStudents: Math.floor(Math.random() * 20) + 10,
-      lessonsCompleted: Math.floor(Math.random() * 50) + 20
-    });
-  }
-
-  // Top courses
-  const topCourses = coursePerformance
-    .sort((a, b) => b.enrollments - a.enrollments)
-    .slice(0, 3)
-    .map(course => ({
-      title: course.name,
-      enrollments: course.enrollments,
-      revenue: course.enrollments * 100 // Approximate revenue
-    }));
-
-  // Recent activity
-  const recentActivity = [
-    { type: 'New Enrollments', count: enrollments?.filter(e => 
-      new Date(e.enrolled_at) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
-    ).length || 0, change: 12 },
-    { type: 'Lessons Completed', count: lessonProgress?.filter(lp => 
-      new Date(lp.completed_at || '') > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
-    ).length || 0, change: 8 },
-    { type: 'Quiz Attempts', count: quizAttempts?.filter(qa => 
-      new Date(qa.submitted_at || '') > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
-    ).length || 0, change: -3 },
-    { type: 'Course Views', count: Math.floor(Math.random() * 100) + 50, change: 15 }
-  ];
-
-  return {
-    totalStudents,
-    totalCourses,
-    totalRevenue,
-    totalEnrollments,
-    averageRating,
-    completionRate,
-    monthlyRevenue,
-    coursePerformance,
-    studentEngagement: engagementData,
-    topCourses,
-    recentActivity
-  };
-};
 
 const chartConfig = {
   revenue: {
@@ -185,10 +48,7 @@ const chartConfig = {
 };
 
 export const TeacherAnalyticsPage = () => {
-  const { data: analytics, isLoading, error } = useQuery({
-    queryKey: ['teacher-analytics'],
-    queryFn: fetchTeacherAnalytics,
-  });
+  const { data: analytics, isLoading, error } = useTeacherAnalytics();
 
   if (isLoading) {
     return (

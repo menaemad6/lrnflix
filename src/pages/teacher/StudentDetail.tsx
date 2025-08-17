@@ -25,6 +25,7 @@ import {
   CheckCircle,
   XCircle
 } from 'lucide-react';
+import { StudentDetailSkeleton } from '@/components/teacher/skeletons';
 import {
   Dialog,
   DialogContent,
@@ -306,9 +307,7 @@ export const StudentDetail = () => {
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center">Loading student details...</div>
-        </div>
+        <StudentDetailSkeleton />
       </DashboardLayout>
     );
   }
