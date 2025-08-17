@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,12 +12,12 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { TeacherPageHeader } from '@/components/teacher/TeacherPageHeader';
 import { useToast } from '@/hooks/use-toast';
 import { useCourseProgress } from '@/hooks/useCourseProgress';
-import { 
+import {
   ArrowLeft,
-  BookOpen, 
-  Star, 
-  TrendingUp, 
-  Clock, 
+  BookOpen,
+  Star,
+  TrendingUp,
+  Clock,
   MessageSquare,
   Target,
   Calendar,
@@ -25,6 +25,14 @@ import {
   CheckCircle,
   XCircle
 } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface StudentDetailData {
   id: string;
@@ -47,6 +55,7 @@ interface StudentDetailData {
     score: number;
     max_score: number;
     submitted_at: string;
+    answers: Record<string, string>;
     quiz: {
       id: string;
       title: string;
@@ -68,12 +77,52 @@ interface StudentDetailData {
   }>;
 }
 
+interface SupabaseQuizAttempt {
+  id: string;
+  score: number;
+  max_score: number;
+  submitted_at: string;
+  answers: string | Record<string, string>;
+  quiz: {
+    id: string;
+    title: string;
+    course: {
+      id: string;
+      title: string;
+    };
+  };
+}
+
 interface CourseProgressData {
   courseId: string;
   courseTitle: string;
   progress: number;
   completedLessons: number;
   totalLessons: number;
+}
+
+interface AttemptDetails {
+  id: string;
+  score: number;
+  max_score: number;
+  submitted_at: string;
+  answers: Record<string, string>;
+  quiz: {
+    id: string;
+    title: string;
+    course: {
+      id: string;
+      title: string;
+    }
+  }
+}
+
+interface QuestionDetails {
+  id: string;
+  question_text: string;
+  correct_answer: string;
+  question_type: string;
+  points: number;
 }
 
 const CourseProgressCard = ({ courseId, courseTitle, studentId }: { courseId: string; courseTitle: string; studentId: string }) => {
@@ -107,13 +156,13 @@ export const StudentDetail = () => {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<{ id: string } | null>(null);
 
-  useEffect(() => {
-    if (studentId) {
-      fetchStudentDetails();
-    }
-  }, [studentId]);
+  const [selectedAttempt, setSelectedAttempt] = useState<AttemptDetails | null>(null);
+  const [attemptDetails, setAttemptDetails] = useState<QuestionDetails[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalSort, setModalSort] = useState<'none' | 'correct' | 'incorrect'>('none');
 
-  const fetchStudentDetails = async () => {
+
+  const fetchStudentDetails = useCallback(async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
@@ -159,6 +208,7 @@ export const StudentDetail = () => {
           score,
           max_score,
           submitted_at,
+          answers,
           quiz:quizzes!inner (
             id,
             title,
@@ -189,7 +239,7 @@ export const StudentDetail = () => {
           )
         `)
         .eq('student_id', studentId)
-        .in('course.id', courseIds)
+        // .in('course_id', courseIds)
         .order('created_at', { ascending: false });
 
       if (discussionsError) throw discussionsError;
@@ -197,7 +247,10 @@ export const StudentDetail = () => {
       const studentDetails: StudentDetailData = {
         ...profileData,
         enrollments: enrollmentsData || [],
-        quizAttempts: quizAttemptsData || [],
+        quizAttempts: (quizAttemptsData as SupabaseQuizAttempt[] || []).map(attempt => ({
+          ...attempt,
+          answers: typeof attempt.answers === 'string' ? JSON.parse(attempt.answers) : attempt.answers,
+        })),
         discussions: discussionsData || []
       };
 
@@ -212,7 +265,43 @@ export const StudentDetail = () => {
     } finally {
       setLoading(false);
     }
+  }, [studentId, toast]);
+
+  useEffect(() => {
+    if (studentId) {
+      fetchStudentDetails();
+    }
+  }, [studentId, fetchStudentDetails]);
+
+  const fetchAttemptDetails = async (attempt: AttemptDetails) => {
+    try {
+      const { data: questionsData, error: questionsError } = await supabase
+        .from('quiz_questions')
+        .select('id, question_text, correct_answer, question_type, points')
+        .eq('quiz_id', attempt.quiz.id)
+        .order('order_index');
+
+      if (questionsError) {
+        throw questionsError;
+      }
+
+      setAttemptDetails(questionsData || []);
+    } catch (error) {
+      console.error('Error fetching attempt details:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load attempt details.',
+        variant: 'destructive',
+      });
+    }
   };
+
+  const handleAttemptClick = (attempt: AttemptDetails) => {
+    setSelectedAttempt(attempt);
+    fetchAttemptDetails(attempt);
+    setIsModalOpen(true);
+  };
+
 
   if (loading) {
     return (
@@ -235,7 +324,7 @@ export const StudentDetail = () => {
   }
 
   const totalSpent = student.enrollments.reduce((sum, enrollment) => sum + enrollment.course.price, 0);
-  const averageScore = student.quizAttempts.length > 0 
+  const averageScore = student.quizAttempts.length > 0
     ? Math.round(student.quizAttempts.reduce((sum, attempt) => sum + (attempt.score / attempt.max_score) * 100, 0) / student.quizAttempts.length)
     : 0;
 
@@ -249,6 +338,20 @@ export const StudentDetail = () => {
     });
   };
 
+  const normalizeAnswers = (answers: Record<string, string>): Record<string, string> => {
+    if (!answers) return {};
+    if (typeof answers === 'string') {
+      try {
+        return JSON.parse(answers);
+      } catch {
+        return {};
+      }
+    }
+    if (typeof answers === 'object') return answers;
+    return {};
+  };
+
+
   return (
     <DashboardLayout>
       <div className="space-y-8">
@@ -258,9 +361,9 @@ export const StudentDetail = () => {
               <ArrowLeft className="h-4 w-4" />
             </Button>
           </Link>
-          <TeacherPageHeader 
-            title={student.full_name} 
-            description="Detailed student profile and performance"
+          <TeacherPageHeader
+            title={student.full_name}
+            subtitle="Detailed student profile and performance"
           />
         </div>
 
@@ -274,11 +377,11 @@ export const StudentDetail = () => {
                   {student.full_name.split(' ').map(n => n[0]).join('').toUpperCase()}
                 </AvatarFallback>
               </Avatar>
-              
+
               <div className="flex-1">
                 <h1 className="text-2xl font-bold gradient-text mb-2">{student.full_name}</h1>
                 <p className="text-muted-foreground mb-4">{student.email}</p>
-                
+
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="text-center p-3 rounded-xl bg-blue-500/10 border border-blue-500/20">
                     <div className="text-lg font-bold text-blue-400">{student.enrollments.length}</div>
@@ -349,7 +452,11 @@ export const StudentDetail = () => {
           <TabsContent value="quizzes" className="space-y-4">
             <div className="space-y-4">
               {student.quizAttempts.map((attempt) => (
-                <Card key={attempt.id} className="glass-card border-0">
+                <Card
+                  key={attempt.id}
+                  className="glass-card border-0 cursor-pointer hover:border-primary/50 transition-all"
+                  onClick={() => handleAttemptClick(attempt as unknown as AttemptDetails)}
+                >
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
@@ -366,11 +473,11 @@ export const StudentDetail = () => {
                           ) : (
                             <XCircle className="h-4 w-4 text-red-400" />
                           )}
-                          <Badge 
-                            variant="outline" 
+                          <Badge
+                            variant="outline"
                             className={
-                              (attempt.score / attempt.max_score) >= 0.7 
-                                ? "text-emerald-400 border-emerald-500/30" 
+                              (attempt.score / attempt.max_score) >= 0.7
+                                ? "text-emerald-400 border-emerald-500/30"
                                 : "text-red-400 border-red-500/30"
                             }
                           >
@@ -447,6 +554,58 @@ export const StudentDetail = () => {
           </TabsContent>
         </Tabs>
       </div>
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{selectedAttempt?.quiz.title} - Attempt Details</DialogTitle>
+            <DialogDescription>
+              Score: {selectedAttempt?.score}/{selectedAttempt?.max_score}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mb-4">
+            <Select value={modalSort} onValueChange={(v: 'none' | 'correct' | 'incorrect') => setModalSort(v)}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">No Sorting</SelectItem>
+                <SelectItem value="correct">Correct First</SelectItem>
+                <SelectItem value="incorrect">Incorrect First</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-4">
+            {attemptDetails.length > 0 && selectedAttempt ? (
+              [...attemptDetails].sort((a, b) => {
+                if (modalSort === 'none') return 0;
+                const studentAnswers = normalizeAnswers(selectedAttempt.answers);
+                const aCorrect = studentAnswers[a.id] === a.correct_answer;
+                const bCorrect = studentAnswers[b.id] === b.correct_answer;
+                if (modalSort === 'correct') return aCorrect === bCorrect ? 0 : aCorrect ? -1 : 1;
+                if (modalSort === 'incorrect') return aCorrect === bCorrect ? 0 : aCorrect ? 1 : -1;
+                return 0;
+              }).map((q) => {
+                const studentAnswers = normalizeAnswers(selectedAttempt.answers);
+                const studentAnswer = studentAnswers[q.id];
+                const isCorrect = studentAnswer === q.correct_answer;
+                return (
+                  <div key={q.id} className="border-b pb-2">
+                    <p className="font-semibold">{q.question_text}</p>
+                    <p className="text-sm text-muted-foreground">
+                      Correct Answer: <span className="text-primary">{q.correct_answer}</span>
+                    </p>
+                    <p className={`text-sm ${isCorrect ? 'text-green-500' : 'text-red-500'}`}>
+                      Student Answer: {studentAnswer || 'Not answered'}
+                    </p>
+                  </div>
+                );
+              })
+            ) : (
+              <p>Loading details...</p>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 };

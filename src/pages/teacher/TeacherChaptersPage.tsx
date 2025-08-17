@@ -149,7 +149,7 @@ export const TeacherChaptersPage = () => {
                         {chapter.title}
                       </CardTitle>
                       <div className="flex items-center gap-2 mt-1">
-                        <Badge variant={chapter.status === 'published' ? 'default' : 'secondary'} 
+                        <Badge variant={chapter.status === 'published' ? 'default' : 'outline'} 
                                className={chapter.status === 'published' ? 'bg-emerald-500 text-black' : ''}>
                           {chapter.status}
                         </Badge>

@@ -217,7 +217,7 @@ export const StudentStudents = () => {
       <div className="space-y-8">
         <TeacherPageHeader 
           title="My Students" 
-          description="Manage and track your students' progress"
+          subtitle="Manage and track your students' progress"
         />
 
         {/* Stats Overview */}
