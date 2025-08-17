@@ -9,10 +9,11 @@ import { useNavigate } from 'react-router-dom';
 
 interface AuthFormProps {
   mode: 'login' | 'signup';
+  setMode: (mode: 'login' | 'signup') => void;
   onClose?: () => void;
 }
 
-const AuthForm: React.FC<AuthFormProps> = ({ mode, onClose }) => {
+const AuthForm: React.FC<AuthFormProps> = ({ mode, setMode, onClose }) => {
   const login = useLoginForm();
   const signup = useSignupForm();
   const isLogin = mode === 'login';
@@ -202,6 +203,14 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode, onClose }) => {
           Sign in with Google
         </Button>
       )}
+      <div className="mt-6 text-center">
+        <button
+          onClick={() => setMode(isLogin ? 'signup' : 'login')}
+          className="text-sm text-muted-foreground hover:text-primary transition-colors"
+        >
+          {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
+        </button>
+      </div>
     </div>
   );
 };

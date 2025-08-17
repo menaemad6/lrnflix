@@ -82,15 +82,14 @@ function useVerticalCarousel(cards, direction = 'down', speed = 1) {
 const Auth: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [showForm, setShowForm] = useState<'login' | 'signup' | null>(null);
+  const [mode, setMode] = useState<'login' | 'signup'>('login');
   const [showLegalModal, setShowLegalModal] = useState(false);
   const [activeTab, setActiveTab] = useState('terms');
   const bgClass = useRandomBackground();
 
   useEffect(() => {
-    if (location.pathname.endsWith('/login')) setShowForm('login');
-    else if (location.pathname.endsWith('/signup')) setShowForm('signup');
-    else setShowForm(null);
+    if (location.pathname.endsWith('/login')) setMode('login');
+    else if (location.pathname.endsWith('/signup')) setMode('signup');
   }, [location.pathname]);
 
   const handleLegalLink = (tab: string) => {
@@ -122,27 +121,21 @@ const Auth: React.FC = () => {
           </h1>
           {/* Buttons or Forms */}
           <div className="flex flex-col gap-4 w-full">
-            <Button className="bg-primary hover:bg-primary/80 text-primary-foreground font-bold text-lg py-4 rounded-full w-full shadow-md transition-all" onClick={() => setShowForm('signup')}>
+            <Button className="bg-primary hover:bg-primary/80 text-primary-foreground font-bold text-lg py-4 rounded-full w-full shadow-md transition-all" onClick={() => navigate('/auth/signup')}>
               Create Account
             </Button>
-            <Button variant="outline" className="border border-border text-foreground font-semibold text-lg py-4 rounded-full w-full bg-background hover:bg-muted hover:text-primary transition-all" onClick={() => setShowForm('login')}>
+            <Button variant="outline" className="border border-border text-foreground font-semibold text-lg py-4 rounded-full w-full bg-background hover:bg-muted hover:text-primary transition-all" onClick={() => navigate('/auth/login')}>
               Sign In
             </Button>
           </div>
-          <AuthModal open={!!showForm} onOpenChange={(open) => {
+          <AuthModal open={location.pathname.includes('/auth/')} onOpenChange={(open) => {
             if (!open) {
-              setShowForm(null);
-              if (location.pathname.endsWith('/login') || location.pathname.endsWith('/signup')) {
-                navigate('/auth');
-              }
+              navigate('/');
             }
-          }} className={showForm === 'signup' ? 'p-0 max-w-xl' : 'p-0 max-w-lg'}>
-            {showForm && <AuthForm mode={showForm} onClose={() => {
-              setShowForm(null);
-              if (location.pathname.endsWith('/login') || location.pathname.endsWith('/signup')) {
-                navigate('/auth');
-              }
-            }} />}
+          }} className={mode === 'signup' ? 'p-0 max-w-xl' : 'p-0 max-w-lg'}>
+            <AuthForm mode={mode} setMode={setMode} onClose={() => {
+              navigate('/');
+            }} />
           </AuthModal>
           {/* Disclaimer */}
           <p className="text-xs text-muted-foreground mt-6 mb-0 text-center w-full">

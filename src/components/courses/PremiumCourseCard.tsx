@@ -166,7 +166,7 @@ export const PremiumCourseCard: React.FC<PremiumCourseCardProps> = ({
                   {onPreview && (
                     <Button 
                       variant="outline" 
-                      className="flex-1 border-primary/40 text-primary hover:bg-primary/10 min-w-0"
+                      className="flex-1 border-primary/40 text-primary  min-w-0"
                       onClick={onPreview}
                     >
                       Preview
@@ -174,7 +174,7 @@ export const PremiumCourseCard: React.FC<PremiumCourseCardProps> = ({
                   )}
                   {onEnroll && (
                     <Button 
-                      className="flex-1 bg-gradient-to-r from-primary to-secondary text-white font-bold min-w-0"
+                    variant='default'
                       onClick={onEnroll}
                     >
                       Enroll Now

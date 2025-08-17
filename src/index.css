@@ -560,3 +560,25 @@
   background: linear-gradient(120deg, rgba(162,255,204,0.03) 0%, rgba(62,180,137,0.03) 100%), #f8fafc;
   backdrop-filter: blur(4px);
 }
+@keyframes grid-move {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(50px, 50px); }
+}
+.perspective-1000 {
+  perspective: 1000px;
+}
+.revolutionary-badge {
+  background: linear-gradient(to right, rgba(16, 185, 129, 0.2), rgba(88, 204, 2, 0.2));
+}
+
+/* Hide default cursor on desktop for the landing page */
+@media (min-width: 1024px) {
+  .ultra-modern-landing * {
+    cursor: none;
+  }
+}
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+}

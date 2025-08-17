@@ -1043,6 +1043,44 @@ export const fetchStudentDashboardData = async (user, teacher) => {
     return { enrolledCourses: coursesWithProgress, stats };
 };
 
+export const getFeaturedInstructors = async () => {
+  const { data, error } = await supabase
+    .from('teachers')
+    .select('user_id, display_name, profile_image_url, specialization, social_links, bio, slug')
+    .eq('is_active', true)
+    .limit(4);
+
+  if (error) {
+    console.error('Error fetching featured instructors:', error);
+    throw new Error(error.message);
+  }
+
+  return data || [];
+}
+
+export const getTopCourses = async () => {
+  const { data, error } = await supabase
+    .from('courses')
+    .select(`
+        id,
+        title,
+        description,
+        cover_image_url,
+        price,
+        profiles (
+          full_name
+        ),
+        enrollments (
+          count
+        )
+      `)
+      .order('created_at', { ascending: false })
+      .limit(3);
+  
+    if (error) throw error;
+    return data || [];
+  };
+
 export const useStudentDashboardData = (user, teacher) => {
     return useQuery({
         queryKey: ['studentDashboardData', user?.id, teacher?.user_id],

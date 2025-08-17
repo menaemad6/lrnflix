@@ -43,6 +43,7 @@ import { useCourseProgress } from '@/hooks/useCourseProgress';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { useRandomBackground } from "../../hooks/useRandomBackground";
+import { CourseViewSkeleton } from '@/components/student/skeletons/CourseViewSkeleton';
 
 interface Course {
   id: string;
@@ -256,11 +257,7 @@ export const CourseView = () => {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
+    return <CourseViewSkeleton />;
   }
 
   if (!course) {
@@ -369,7 +366,7 @@ export const CourseView = () => {
                 <div className="flex items-center gap-3">
                   {/* Show Category If There is  */}
                   { course?.category && 
-                  <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 px-4 py-2">
+                  <Badge variant="default" className="bg-primary/10 text-primary border-primary/20 px-4 py-2">
                     {course.category}
                   </Badge>
                   }
@@ -496,7 +493,7 @@ export const CourseView = () => {
                   <CardTitle className="flex items-center gap-3 text-xl">
                     <BookOpen className="h-6 w-6 text-primary" />
                     Course Content
-                    <Badge variant="secondary" className="ml-auto">
+                    <Badge variant="default" className="ml-auto">
                       {progress.totalLessons} lessons, {progress.totalQuizzes} quizzes
                     </Badge>
                   </CardTitle>
@@ -769,7 +766,7 @@ export const CourseView = () => {
               <Button className="flex-1" onClick={handleCopyAgain}>
                 <Share2 className="h-4 w-4 mr-2" />Copy Link
               </Button>
-              <Button className="flex-1" variant="secondary" onClick={handleNativeShare}>
+              <Button className="flex-1" variant="default" onClick={handleNativeShare}>
                 <Smartphone className="h-4 w-4 mr-2" />Share...
               </Button>
             </div>
