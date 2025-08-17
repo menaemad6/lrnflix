@@ -819,6 +819,7 @@ export type Database = {
       }
       matchmaking_queue: {
         Row: {
+          category: string | null
           created_at: string
           id: string
           room_id: string | null
@@ -828,6 +829,7 @@ export type Database = {
           username: string
         }
         Insert: {
+          category?: string | null
           created_at?: string
           id?: string
           room_id?: string | null
@@ -837,6 +839,7 @@ export type Database = {
           username: string
         }
         Update: {
+          category?: string | null
           created_at?: string
           id?: string
           room_id?: string | null
@@ -889,6 +892,7 @@ export type Database = {
           created_at: string
           difficulty: string
           id: string
+          instructor_id: string | null
           options: Json
           question: string
           time_limit: number
@@ -899,6 +903,7 @@ export type Database = {
           created_at?: string
           difficulty?: string
           id?: string
+          instructor_id?: string | null
           options: Json
           question: string
           time_limit?: number
@@ -909,11 +914,20 @@ export type Database = {
           created_at?: string
           difficulty?: string
           id?: string
+          instructor_id?: string | null
           options?: Json
           question?: string
           time_limit?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "multiplayer_quiz_questions_instructor_id_fkey"
+            columns: ["instructor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       notifications: {
         Row: {
@@ -1266,6 +1280,7 @@ export type Database = {
           max_players: number
           question_start_time: string | null
           room_code: string | null
+          shuffled_questions: string[] | null
           status: string
           updated_at: string
         }
@@ -1280,6 +1295,7 @@ export type Database = {
           max_players?: number
           question_start_time?: string | null
           room_code?: string | null
+          shuffled_questions?: string[] | null
           status?: string
           updated_at?: string
         }
@@ -1294,6 +1310,7 @@ export type Database = {
           max_players?: number
           question_start_time?: string | null
           room_code?: string | null
+          shuffled_questions?: string[] | null
           status?: string
           updated_at?: string
         }
@@ -1415,6 +1432,62 @@ export type Database = {
             columns: ["student_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      teacher_schedule_tasks: {
+        Row: {
+          course_id: string | null
+          created_at: string
+          description: string | null
+          due_date: string | null
+          estimated_hours: number | null
+          id: string
+          order_index: number
+          priority: string
+          status: string
+          tags: string[] | null
+          teacher_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          course_id?: string | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          estimated_hours?: number | null
+          id?: string
+          order_index?: number
+          priority?: string
+          status?: string
+          tags?: string[] | null
+          teacher_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          course_id?: string | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          estimated_hours?: number | null
+          id?: string
+          order_index?: number
+          priority?: string
+          status?: string
+          tags?: string[] | null
+          teacher_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teacher_schedule_tasks_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
             referencedColumns: ["id"]
           },
         ]
