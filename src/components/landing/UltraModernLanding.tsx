@@ -7,14 +7,28 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { 
+  BookOpen, 
+  Users, 
+  Trophy, 
+  Zap, 
   ArrowRight, 
   Star,
   Sparkles,
   Brain,
   Target,
   Rocket,
+  Mic,
   PlayCircle,
   Award,
+  MessageSquare,
+  Calendar,
+  Globe,
+  Shield,
+  Headphones,
+  Play,
+  Gamepad2,
+  Video,
+  Bot,
   ChevronRight,
   TrendingUp,
   GraduationCap,
@@ -23,676 +37,577 @@ import {
   CheckCircle2,
   Flame,
   Crown,
-  Infinity,
-  Zap,
-  Bot,
-  Gamepad2,
-  Video,
-  Shield,
-  Globe,
-  Users,
-  BookOpen,
-  Trophy,
-  Calendar,
-  MessageSquare,
-  Headphones,
-  Play
+  Infinity
 } from 'lucide-react';
 import ModernLayoutHero from './ModernLayoutHero';
 
-// Revolutionary AI Neural Network Animation Component
-const AINetworkBackground = () => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    
-    const nodes: Array<{x: number, y: number, vx: number, vy: number, connections: number[]}> = [];
-    const nodeCount = 50;
-    
-    // Create nodes
-    for (let i = 0; i < nodeCount; i++) {
-      nodes.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        vx: (Math.random() - 0.5) * 0.5,
-        vy: (Math.random() - 0.5) * 0.5,
-        connections: []
-      });
-    }
-    
-    // Create connections
-    nodes.forEach((node, i) => {
-      const nearbyNodes = nodes
-        .map((n, j) => ({ node: n, index: j, distance: Math.hypot(n.x - node.x, n.y - node.y) }))
-        .filter(n => n.distance < 150 && n.index !== i)
-        .sort((a, b) => a.distance - b.distance)
-        .slice(0, 3);
-      
-      node.connections = nearbyNodes.map(n => n.index);
-    });
-    
-    let animationId: number;
-    
-    const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
-      // Update nodes
-      nodes.forEach(node => {
-        node.x += node.vx;
-        node.y += node.vy;
-        
-        if (node.x < 0 || node.x > canvas.width) node.vx *= -1;
-        if (node.y < 0 || node.y > canvas.height) node.vy *= -1;
-        
-        node.x = Math.max(0, Math.min(canvas.width, node.x));
-        node.y = Math.max(0, Math.min(canvas.height, node.y));
-      });
-      
-      // Draw connections
-      ctx.strokeStyle = 'rgba(34, 197, 94, 0.1)';
-      ctx.lineWidth = 1;
-      
-      nodes.forEach((node, i) => {
-        node.connections.forEach(connectionIndex => {
-          const connectedNode = nodes[connectionIndex];
-          if (connectedNode) {
-            ctx.beginPath();
-            ctx.moveTo(node.x, node.y);
-            ctx.lineTo(connectedNode.x, connectedNode.y);
-            ctx.stroke();
-          }
-        });
-      });
-      
-      // Draw nodes
-      nodes.forEach(node => {
-        const gradient = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, 4);
-        gradient.addColorStop(0, 'rgba(34, 197, 94, 0.8)');
-        gradient.addColorStop(1, 'rgba(34, 197, 94, 0.2)');
-        
-        ctx.fillStyle = gradient;
-        ctx.beginPath();
-        ctx.arc(node.x, node.y, 3, 0, Math.PI * 2);
-        ctx.fill();
-        
-        // Add pulsing effect to some nodes
-        if (Math.random() < 0.01) {
-          ctx.strokeStyle = 'rgba(34, 197, 94, 0.6)';
-          ctx.lineWidth = 2;
-          ctx.beginPath();
-          ctx.arc(node.x, node.y, 8, 0, Math.PI * 2);
-          ctx.stroke();
-        }
-      });
-      
-      animationId = requestAnimationFrame(animate);
-    };
-    
-    animate();
-    
-    const handleResize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-    
-    window.addEventListener('resize', handleResize);
-    
-    return () => {
-      cancelAnimationFrame(animationId);
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
-  
+// Floating geometric elements
+const FloatingGeometry = () => {
   return (
-    <canvas
-      ref={canvasRef}
-      className="absolute inset-0 pointer-events-none"
-      style={{ background: 'transparent' }}
-    />
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {[...Array(15)].map((_, i) => (
+        <motion.div
+          key={i}
+          className="absolute"
+          style={{
+            left: `${5 + i * 6}%`,
+            top: `${10 + (i % 5) * 20}%`,
+          }}
+          animate={{
+            y: [-50, 50, -50],
+            x: [-30, 30, -30],
+            rotate: [0, 180, 360],
+            scale: [0.5, 1.5, 0.5],
+          }}
+          transition={{
+            duration: 10 + i * 0.7,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: i * 0.4,
+          }}
+        >
+          <div className={`${
+            i % 4 === 0 ? 'w-2 h-2' :
+            i % 4 === 1 ? 'w-3 h-3' :
+            i % 4 === 2 ? 'w-4 h-4' : 'w-5 h-5'
+          } ${
+            i % 3 === 0 ? 'bg-gradient-to-r from-emerald-400/20 to-teal-400/20 rounded-full' :
+            i % 3 === 1 ? 'bg-gradient-to-r from-cyan-400/20 to-blue-400/20 rotate-45' :
+            'bg-gradient-to-r from-purple-400/20 to-pink-400/20 rounded-sm'
+          } blur-sm`} />
+        </motion.div>
+      ))}
+    </div>
   );
 };
 
-// Revolutionary Hero Section with 3D Elements
-const RevolutionaryHero = () => {
+// Hero Section Component
+const HeroSection = () => {
   const { scrollY } = useScroll();
-  const opacity = useTransform(scrollY, [0, 400], [1, 0]);
-  const scale = useTransform(scrollY, [0, 400], [1, 0.9]);
-  
+  const y1 = useTransform(scrollY, [0, 300], [0, 100]);
+  const y2 = useTransform(scrollY, [0, 300], [0, -100]);
+  const opacity = useTransform(scrollY, [0, 300], [1, 0]);
+
   return (
     <motion.section 
-      style={{ opacity, scale }}
-      className="relative min-h-screen flex items-center justify-center overflow-hidden"
+      style={{ opacity }}
+      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-background via-background/90 to-primary/5"
     >
-      {/* AI Network Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-900">
-        <AINetworkBackground />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-      </div>
+      <FloatingGeometry />
       
-      {/* Floating AI Orbs */}
-      <div className="absolute inset-0">
-        {[...Array(8)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute"
-            style={{
-              left: `${10 + i * 12}%`,
-              top: `${20 + (i % 3) * 25}%`,
-            }}
-            animate={{
-              y: [-30, 30, -30],
-              x: [-20, 20, -20],
-              rotate: [0, 360],
-              scale: [0.8, 1.2, 0.8],
-            }}
-            transition={{
-              duration: 6 + i * 0.5,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: i * 0.3,
-            }}
-          >
-            <div className="relative">
-              <div className={`w-16 h-16 rounded-full ${
-                i % 4 === 0 ? 'bg-gradient-to-r from-emerald-400 to-teal-400' :
-                i % 4 === 1 ? 'bg-gradient-to-r from-blue-400 to-cyan-400' :
-                i % 4 === 2 ? 'bg-gradient-to-r from-purple-400 to-pink-400' :
-                'bg-gradient-to-r from-yellow-400 to-orange-400'
-              } opacity-20 blur-sm`} />
-              <div className="absolute inset-0 flex items-center justify-center">
-                {i % 4 === 0 ? <Brain className="h-6 w-6 text-emerald-400" /> :
-                 i % 4 === 1 ? <Bot className="h-6 w-6 text-blue-400" /> :
-                 i % 4 === 2 ? <Gamepad2 className="h-6 w-6 text-purple-400" /> :
-                 <Zap className="h-6 w-6 text-yellow-400" />}
-              </div>
-            </div>
-          </motion.div>
-        ))}
-      </div>
-      
-      {/* Main Content */}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+      {/* Main Hero Content */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 100 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.5, ease: "easeOut" }}
+          transition={{ duration: 1.2, ease: "easeOut" }}
+          className="text-center"
         >
-          {/* Revolutionary Badge */}
+          {/* Floating Badge */}
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.5, duration: 1 }}
+            transition={{ delay: 0.3, duration: 0.8 }}
             className="mb-8"
           >
-            <Badge className="bg-gradient-to-r from-emerald-500/20 to-teal-500/20 text-emerald-300 border-emerald-500/30 px-8 py-3 text-lg font-bold backdrop-blur-sm">
-              <Sparkles className="mr-3 h-5 w-5" />
-              AI-Powered • Gamified • Revolutionary
-              <Crown className="ml-3 h-5 w-5" />
+            <Badge className="bg-gradient-to-r from-emerald-500/20 to-teal-500/20 text-emerald-400 border-emerald-500/30 px-6 py-2 text-sm font-medium backdrop-blur-sm">
+              <Sparkles className="mr-2 h-4 w-4" />
+              Next-Gen Learning Platform
             </Badge>
           </motion.div>
 
-          {/* Mind-Blowing Headline */}
-          <motion.div
+          {/* Main Headline */}
+          <motion.h1
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8, duration: 1.2 }}
+            transition={{ delay: 0.5, duration: 1 }}
+            className="text-6xl md:text-8xl lg:text-9xl font-bold mb-8 tracking-tight"
           >
-            <h1 className="text-7xl md:text-9xl lg:text-[12rem] font-black mb-8 tracking-tight">
-              <span className="block bg-gradient-to-r from-white via-emerald-300 to-teal-300 bg-clip-text text-transparent">
-                LEARN
-              </span>
-              <motion.span
-                animate={{ 
-                  backgroundPosition: ['0%', '100%', '0%'],
-                }}
-                transition={{ duration: 4, repeat: Infinity }}
-                className="block bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-400 bg-[length:200%_100%] bg-clip-text text-transparent"
-                style={{ backgroundSize: '200% 100%' }}
-              >
-                BEYOND
-              </motion.span>
-              <span className="block bg-gradient-to-r from-purple-400 via-pink-400 to-red-400 bg-clip-text text-transparent">
-                LIMITS
-              </span>
-            </h1>
-          </motion.div>
+            Your{' '}
+            <span className="gradient-text">Next-Level</span>
+            <br />
+            Learning Starts{' '}
+            <motion.span
+              animate={{ 
+                backgroundPosition: ['0%', '100%', '0%'],
+              }}
+              transition={{ duration: 3, repeat: Infinity }}
+              className="bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-[length:200%_100%] bg-clip-text text-transparent"
+            >
+              Here
+            </motion.span>
+          </motion.h1>
 
-          {/* Revolutionary Subtitle */}
+          {/* Subtitle */}
+          <motion.p
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7, duration: 1 }}
+            className="text-xl md:text-2xl text-foreground/70 max-w-4xl mx-auto mb-12 leading-relaxed"
+          >
+            Experience the future of education with AI-powered learning, 
+            immersive content, and personalized pathways that adapt to your unique journey.
+          </motion.p>
+
+          {/* CTA Buttons */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.2, duration: 1 }}
-            className="mb-12"
-          >
-            <p className="text-2xl md:text-4xl text-white/90 max-w-5xl mx-auto leading-relaxed font-light">
-              The world's first <span className="font-bold text-emerald-400">AI-Native</span> learning ecosystem that
-              <br />
-              <span className="font-bold text-cyan-400">gamifies knowledge</span> and 
-              <span className="font-bold text-purple-400"> transforms minds</span>
-            </p>
-          </motion.div>
-
-          {/* AI Statistics Ticker */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.5, duration: 1 }}
-            className="mb-16"
-          >
-            <div className="flex flex-wrap justify-center gap-8 text-sm font-mono">
-              {[
-                { label: 'AI Responses/sec', value: '∞', icon: Bot },
-                { label: 'Knowledge Points', value: '10M+', icon: Brain },
-                { label: 'Active Minds', value: '250K+', icon: Users },
-                { label: 'Success Rate', value: '98.7%', icon: Target }
-              ].map((stat, i) => (
-                <motion.div
-                  key={i}
-                  animate={{ scale: [1, 1.1, 1] }}
-                  transition={{ duration: 2, repeat: Infinity, delay: i * 0.5 }}
-                  className="flex items-center space-x-2 bg-white/5 backdrop-blur-sm rounded-full px-6 py-3 border border-white/10"
-                >
-                  <stat.icon className="h-4 w-4 text-emerald-400" />
-                  <span className="text-white/60">{stat.label}:</span>
-                  <span className="text-emerald-400 font-bold">{stat.value}</span>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-
-          {/* Revolutionary CTA */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.8, duration: 1 }}
-            className="flex flex-col sm:flex-row gap-8 justify-center items-center"
+            transition={{ delay: 0.9, duration: 1 }}
+            className="flex flex-col sm:flex-row gap-6 justify-center items-center"
           >
             <Link to="/auth/signup">
               <motion.div
-                whileHover={{ scale: 1.1, rotateY: 10 }}
+                whileHover={{ scale: 1.05, y: -5 }}
                 whileTap={{ scale: 0.95 }}
-                className="group relative"
+                className="group"
               >
-                <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 rounded-full blur-lg opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-pulse" />
-                <Button className="relative bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-black font-black px-16 py-8 text-2xl rounded-full shadow-2xl border-4 border-white/20">
-                  <Rocket className="mr-4 h-8 w-8" />
-                  ENTER THE MATRIX
+                <Button size="lg" className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-black font-bold px-12 py-6 text-lg rounded-full shadow-2xl hover:shadow-emerald-500/50 transition-all duration-500">
+                  Start Your Journey
                   <motion.div
-                    animate={{ 
-                      rotate: [0, 360],
-                      scale: [1, 1.3, 1]
-                    }}
-                    transition={{ 
-                      duration: 3, 
-                      repeat: Infinity
-                    }}
+                    animate={{ x: [0, 5, 0] }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
                   >
-                    <Sparkles className="ml-4 h-8 w-8" />
+                    <ArrowRight className="ml-3 h-5 w-5" />
                   </motion.div>
                 </Button>
               </motion.div>
             </Link>
 
             <motion.div
-              whileHover={{ scale: 1.05, rotateY: -5 }}
+              whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <Button variant="outline" className="px-16 py-8 text-2xl rounded-full border-2 border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/10 backdrop-blur-sm bg-white/5">
-                <PlayCircle className="mr-4 h-8 w-8" />
-                EXPERIENCE DEMO
+              <Button variant="outline" size="lg" className="px-12 py-6 text-lg rounded-full border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 backdrop-blur-sm">
+                <PlayCircle className="mr-3 h-5 w-5" />
+                Watch Demo
               </Button>
             </motion.div>
           </motion.div>
+        </motion.div>
+
+        {/* Floating Course Cards */}
+        <motion.div style={{ y: y1 }} className="absolute top-20 left-10 opacity-60">
+          <Card className="glass-card w-64 p-4">
+            <div className="flex items-center space-x-3">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
+                <Brain className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <h4 className="font-semibold">AI Fundamentals</h4>
+                <p className="text-sm text-foreground/60">4.9 ★ • 1.2k students</p>
+              </div>
+            </div>
+          </Card>
+        </motion.div>
+
+        <motion.div style={{ y: y2 }} className="absolute top-40 right-10 opacity-60">
+          <Card className="glass-card w-64 p-4">
+            <div className="flex items-center space-x-3">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 flex items-center justify-center">
+                <Target className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <h4 className="font-semibold">Web Development</h4>
+                <p className="text-sm text-foreground/60">4.8 ★ • 2.1k students</p>
+              </div>
+            </div>
+          </Card>
         </motion.div>
       </div>
     </motion.section>
   );
 };
 
-// AI-Powered Features Showcase with 3D Cards
-const AIFeaturesShowcase = () => {
+// Feature Showcase Component
+const FeatureShowcase = () => {
   const features = [
     {
-      icon: Brain,
-      title: "Neural Learning Engine",
-      description: "AI that learns how YOU learn, adapting in real-time to your cognitive patterns and optimizing knowledge retention by 340%",
-      gradient: "from-blue-600 via-purple-600 to-pink-600",
-      stats: "340% faster retention",
-      demo: "Live AI analyzing your learning..."
+      icon: Bot,
+      title: "AI Study Assistant",
+      description: "Personalized AI tutor that adapts to your learning style and provides instant help.",
+      gradient: "from-blue-500 to-purple-500"
     },
     {
       icon: Gamepad2,
-      title: "Knowledge Warfare",
-      description: "Battle other learners in real-time knowledge duels, earn XP, unlock achievements, and climb the global leaderboards",
-      gradient: "from-red-600 via-orange-600 to-yellow-600",
-      stats: "10M+ battles daily",
-      demo: "⚔️ CHALLENGER APPROACHING..."
+      title: "Gamified Quizzes",
+      description: "Interactive challenges and competitions that make learning addictive.",
+      gradient: "from-emerald-500 to-teal-500"
     },
     {
-      icon: Bot,
-      title: "AI Tutor Army",
-      description: "Personal AI tutors for every subject, each with unique personalities, teaching styles, and infinite patience",
-      gradient: "from-emerald-600 via-teal-600 to-cyan-600",
-      stats: "∞ tutors available",
-      demo: "Hello! I'm your Physics AI..."
+      icon: Video,
+      title: "Smart Video Playback",
+      description: "Adaptive streaming with AI-powered highlights and note-taking.",
+      gradient: "from-purple-500 to-pink-500"
     },
     {
-      icon: Trophy,
-      title: "Achievement Universe",
-      description: "Unlock legendary achievements, rare badges, and exclusive content as you master skills and knowledge domains",
-      gradient: "from-purple-600 via-pink-600 to-rose-600",
-      stats: "500+ achievements",
-      demo: "🏆 LEGENDARY UNLOCKED!"
+      icon: Award,
+      title: "Digital Certificates",
+      description: "Blockchain-verified certificates that showcase your achievements.",
+      gradient: "from-orange-500 to-red-500"
     }
   ];
 
   return (
-    <section className="py-32 relative overflow-hidden bg-gradient-to-b from-slate-900 to-black">
-      {/* Animated Grid Background */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute inset-0" style={{
-          backgroundImage: `
-            linear-gradient(rgba(34, 197, 94, 0.1) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(34, 197, 94, 0.1) 1px, transparent 1px)
-          `,
-          backgroundSize: '50px 50px',
-          animation: 'grid-move 20s linear infinite'
-        }} />
-      </div>
-
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 100 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2 }}
-          viewport={{ once: true }}
-          className="text-center mb-20"
-        >
-          <h2 className="text-6xl md:text-8xl font-black mb-8 bg-gradient-to-r from-white via-emerald-300 to-cyan-300 bg-clip-text text-transparent">
-            SUPERHUMAN
-            <br />
-            <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
-              LEARNING POWERS
-            </span>
-          </h2>
-          <p className="text-2xl text-white/70 max-w-4xl mx-auto">
-            Unlock cognitive abilities you never knew existed
-          </p>
-        </motion.div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-          {features.map((feature, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 100, rotateX: -20 }}
-              whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
-              transition={{ delay: index * 0.3, duration: 1.2 }}
-              viewport={{ once: true }}
-              whileHover={{ 
-                scale: 1.05, 
-                rotateY: 5,
-                z: 50
-              }}
-              className="group perspective-1000"
-            >
-              <Card className="relative overflow-hidden h-80 bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-sm border border-white/20 hover:border-emerald-500/50 transition-all duration-500">
-                {/* Animated Background */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-10 group-hover:opacity-20 transition-opacity duration-500`} />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-                
-                {/* Floating Icon */}
-                <motion.div
-                  animate={{ 
-                    rotate: [0, 10, -10, 0],
-                    scale: [1, 1.1, 1]
-                  }}
-                  transition={{ 
-                    duration: 4, 
-                    repeat: Infinity,
-                    delay: index * 0.5
-                  }}
-                  className="absolute top-6 right-6 z-10"
-                >
-                  <div className={`w-20 h-20 rounded-full bg-gradient-to-r ${feature.gradient} flex items-center justify-center shadow-2xl`}>
-                    <feature.icon className="h-10 w-10 text-white" />
-                  </div>
-                </motion.div>
-
-                <CardContent className="p-8 relative z-10 h-full flex flex-col justify-between">
-                  <div>
-                    <h3 className="text-3xl font-black text-white mb-4 group-hover:text-emerald-300 transition-colors duration-300">
-                      {feature.title}
-                    </h3>
-                    <p className="text-white/80 text-lg leading-relaxed mb-6">
-                      {feature.description}
-                    </p>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    {/* Stats */}
-                    <div className="flex items-center justify-between">
-                      <Badge className={`bg-gradient-to-r ${feature.gradient} text-white border-none px-4 py-2 font-bold`}>
-                        {feature.stats}
-                      </Badge>
-                      <motion.div
-                        animate={{ x: [0, 5, 0] }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                        className="text-emerald-400"
-                      >
-                        <ChevronRight className="h-6 w-6" />
-                      </motion.div>
-                    </div>
-                    
-                    {/* Live Demo Text */}
-                    <div className="bg-black/30 rounded-lg p-3 border border-emerald-500/30">
-                      <motion.p 
-                        animate={{ opacity: [0.5, 1, 0.5] }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                        className="text-emerald-400 font-mono text-sm"
-                      >
-                        {feature.demo}
-                      </motion.p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-
-      <style jsx>{`
-        @keyframes grid-move {
-          0% { transform: translate(0, 0); }
-          100% { transform: translate(50px, 50px); }
-        }
-        .perspective-1000 {
-          perspective: 1000px;
-        }
-      `}</style>
-    </section>
-  );
-};
-
-// Gamification Showcase with Real-time Elements
-const GamificationShowcase = () => {
-  const [activeLevel, setActiveLevel] = useState(1);
-  const [xp, setXp] = useState(1250);
-  const [streak, setStreak] = useState(7);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setXp(prev => prev + Math.floor(Math.random() * 50));
-      if (Math.random() < 0.3) {
-        setStreak(prev => prev + 1);
-      }
-      if (xp > 2000 && activeLevel < 5) {
-        setActiveLevel(prev => prev + 1);
-        setXp(0);
-      }
-    }, 3000);
-
-    return () => clearInterval(interval);
-  }, [xp, activeLevel]);
-
-  return (
-    <section className="py-32 relative overflow-hidden bg-gradient-to-b from-black via-purple-900/20 to-black">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 100 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2 }}
-          viewport={{ once: true }}
-          className="text-center mb-20"
-        >
-          <h2 className="text-6xl md:text-8xl font-black mb-8">
-            <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-red-400 bg-clip-text text-transparent">
-              KNOWLEDGE
-            </span>
-            <br />
-            <span className="bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400 bg-clip-text text-transparent">
-              IS POWER
-            </span>
-          </h2>
-          <p className="text-2xl text-white/70 max-w-4xl mx-auto">
-            Level up your mind. Compete globally. Become legendary.
-          </p>
-        </motion.div>
-
-        {/* Live Gaming Dashboard */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
-          {/* XP Counter */}
-          <motion.div
-            animate={{ scale: [1, 1.05, 1] }}
-            transition={{ duration: 2, repeat: Infinity }}
-          >
-            <Card className="bg-gradient-to-br from-purple-600/20 to-pink-600/20 backdrop-blur-sm border border-purple-500/30 p-8">
-              <div className="text-center">
-                <div className="text-6xl font-black text-purple-400 mb-2">
-                  {xp.toLocaleString()}
-                </div>
-                <p className="text-purple-300 text-xl font-bold">XP GAINED</p>
-                <div className="mt-4 bg-purple-900/30 rounded-full h-4 overflow-hidden">
-                  <motion.div
-                    animate={{ width: `${(xp % 2000) / 20}%` }}
-                    className="h-full bg-gradient-to-r from-purple-500 to-pink-500"
-                  />
-                </div>
-              </div>
-            </Card>
-          </motion.div>
-
-          {/* Level Display */}
-          <motion.div
-            animate={{ rotateY: [0, 5, -5, 0] }}
-            transition={{ duration: 4, repeat: Infinity }}
-          >
-            <Card className="bg-gradient-to-br from-yellow-600/20 to-orange-600/20 backdrop-blur-sm border border-yellow-500/30 p-8">
-              <div className="text-center">
-                <div className="text-6xl font-black text-yellow-400 mb-2">
-                  {activeLevel}
-                </div>
-                <p className="text-yellow-300 text-xl font-bold">LEVEL</p>
-                <div className="mt-4 flex justify-center">
-                  <Crown className="h-12 w-12 text-yellow-400" />
-                </div>
-              </div>
-            </Card>
-          </motion.div>
-
-          {/* Streak Counter */}
-          <motion.div
-            animate={{ y: [-5, 5, -5] }}
-            transition={{ duration: 3, repeat: Infinity }}
-          >
-            <Card className="bg-gradient-to-br from-emerald-600/20 to-teal-600/20 backdrop-blur-sm border border-emerald-500/30 p-8">
-              <div className="text-center">
-                <div className="text-6xl font-black text-emerald-400 mb-2">
-                  {streak}
-                </div>
-                <p className="text-emerald-300 text-xl font-bold">DAY STREAK</p>
-                <div className="mt-4 flex justify-center">
-                  <Flame className="h-12 w-12 text-emerald-400" />
-                </div>
-              </div>
-            </Card>
-          </motion.div>
-        </div>
-
-        {/* Achievement Showcase */}
+    <section className="py-32 relative">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 1 }}
           viewport={{ once: true }}
-          className="text-center"
+          className="text-center mb-20"
         >
-          <h3 className="text-4xl font-black text-white mb-8">LEGENDARY ACHIEVEMENTS</h3>
-          <div className="flex flex-wrap justify-center gap-6">
-            {[
-              { name: "Neural Network Master", icon: Brain, rarity: "LEGENDARY", color: "from-purple-500 to-pink-500" },
-              { name: "Knowledge Gladiator", icon: Trophy, rarity: "EPIC", color: "from-yellow-500 to-orange-500" },
-              { name: "AI Whisperer", icon: Bot, rarity: "RARE", color: "from-blue-500 to-cyan-500" },
-              { name: "Speed Learner", icon: Zap, rarity: "UNCOMMON", color: "from-emerald-500 to-teal-500" }
-            ].map((achievement, i) => (
-              <motion.div
-                key={i}
-                whileHover={{ scale: 1.1, rotateZ: 5 }}
-                className="group"
-              >
-                <Card className={`w-48 h-64 bg-gradient-to-br ${achievement.color} p-6 relative overflow-hidden cursor-pointer group-hover:shadow-2xl transition-all duration-300`}>
-                  <div className="absolute inset-0 bg-black/20" />
-                  <div className="relative z-10 text-center h-full flex flex-col justify-between">
-                    <div>
-                      <achievement.icon className="h-16 w-16 text-white mx-auto mb-4" />
-                      <h4 className="text-white font-bold text-lg mb-2">{achievement.name}</h4>
-                    </div>
-                    <Badge className="bg-white/20 text-white border-white/30">
-                      {achievement.rarity}
-                    </Badge>
-                  </div>
-                  <motion.div
-                    animate={{ rotate: [0, 360] }}
-                    transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-                    className="absolute inset-0 border-4 border-white/20 rounded-lg"
+          <h2 className="text-5xl md:text-7xl font-bold mb-6">
+            Features That{' '}
+            <span className="gradient-text">Revolutionize</span>
+            <br />Learning
+          </h2>
+          <p className="text-xl text-foreground/70 max-w-3xl mx-auto">
+            Cutting-edge tools and technologies that transform how you learn, practice, and grow.
+          </p>
+        </motion.div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {features.map((feature, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.2, duration: 1 }}
+              viewport={{ once: true }}
+              whileHover={{ scale: 1.05, rotateY: 5 }}
+              className="group"
+            >
+              <Card className="glass-card p-8 h-full hover-glow transition-all duration-500 cursor-pointer">
+                <div className={`w-16 h-16 rounded-2xl bg-gradient-to-r ${feature.gradient} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                  <feature.icon className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="text-2xl font-bold mb-4">{feature.title}</h3>
+                <p className="text-foreground/70 text-lg leading-relaxed">{feature.description}</p>
+                <motion.div
+                  className="mt-6 flex items-center text-emerald-400 font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  whileHover={{ x: 5 }}
+                >
+                  Explore Feature
+                  <ChevronRight className="ml-2 h-5 w-5" />
+                </motion.div>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+// Teachers Spotlight Component
+const TeachersSpotlight = () => {
+  const teachers = [
+    {
+      name: "Dr. Sarah Chen",
+      subject: "Machine Learning",
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200",
+      rating: 4.9,
+      students: "15.2k",
+      quote: "Making AI accessible to everyone"
+    },
+    {
+      name: "Prof. Marcus Johnson",
+      subject: "Web Development",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200",
+      rating: 4.8,
+      students: "23.1k",
+      quote: "Code is poetry in motion"
+    },
+    {
+      name: "Dr. Elena Rodriguez",
+      subject: "Data Science",
+      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200",
+      rating: 4.9,
+      students: "18.7k",
+      quote: "Data tells the most amazing stories"
+    },
+    {
+      name: "Prof. David Kim",
+      subject: "UI/UX Design",
+      avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200",
+      rating: 4.7,
+      students: "12.3k",
+      quote: "Design shapes the future"
+    }
+  ];
+
+  return (
+    <section className="py-32 relative overflow-hidden">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1 }}
+          viewport={{ once: true }}
+          className="text-center mb-20"
+        >
+          <h2 className="text-5xl md:text-7xl font-bold mb-6">
+            Learn From{' '}
+            <span className="gradient-text">World-Class</span>
+            <br />Educators
+          </h2>
+          <p className="text-xl text-foreground/70 max-w-3xl mx-auto">
+            Our expert instructors are industry leaders, researchers, and passionate educators.
+          </p>
+        </motion.div>
+
+        <div className="flex gap-8 overflow-x-auto pb-8 scrollbar-hide">
+          {teachers.map((teacher, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, x: 100 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ delay: index * 0.2, duration: 1 }}
+              viewport={{ once: true }}
+              whileHover={{ scale: 1.05, y: -10 }}
+              className="flex-shrink-0 w-80"
+            >
+              <Card className="glass-card p-8 h-full hover-glow">
+                <div className="relative mb-6">
+                  <img
+                    src={teacher.avatar}
+                    alt={teacher.name}
+                    className="w-24 h-24 rounded-full object-cover mx-auto border-4 border-emerald-500/30"
                   />
-                </Card>
-              </motion.div>
-            ))}
-          </div>
+                  <div className="absolute -top-2 -right-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-black text-xs font-bold px-3 py-1 rounded-full">
+                    <Crown className="inline h-3 w-3 mr-1" />
+                    Expert
+                  </div>
+                </div>
+                
+                <div className="text-center">
+                  <h3 className="text-2xl font-bold mb-2">{teacher.name}</h3>
+                  <p className="text-emerald-400 font-semibold mb-4">{teacher.subject}</p>
+                  
+                  <div className="flex items-center justify-center space-x-4 mb-4">
+                    <div className="flex items-center">
+                      <Star className="h-5 w-5 text-yellow-400 fill-current" />
+                      <span className="ml-1 font-semibold">{teacher.rating}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <Users className="h-5 w-5 text-emerald-400" />
+                      <span className="ml-1">{teacher.students}</span>
+                    </div>
+                  </div>
+                  
+                  <blockquote className="text-foreground/70 italic">
+                    "{teacher.quote}"
+                  </blockquote>
+                </div>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Become a Teacher CTA */}
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 1 }}
+          viewport={{ once: true }}
+          className="text-center mt-16"
+        >
+          <Button size="lg" variant="outline" className="px-8 py-4 text-lg rounded-full border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 backdrop-blur-sm">
+            <GraduationCap className="mr-3 h-5 w-5" />
+            Become a Teacher
+          </Button>
         </motion.div>
       </div>
     </section>
   );
 };
 
-// Neural Impact Visualization
-const NeuralImpactSection = () => {
+// Courses Discovery Component
+const CoursesDiscovery = () => {
+  const [activeCategory, setActiveCategory] = useState('Design');
+  const categories = ['Design', 'Development', 'Data Science', 'AI/ML', 'Business'];
+
+  const courses = {
+    'Design': [
+      { title: "Advanced UI/UX Design", students: "2.1k", rating: 4.9, image: "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=400", live: true },
+      { title: "Motion Graphics Mastery", students: "1.8k", rating: 4.8, image: "https://images.unsplash.com/photo-1626785774573-4b799315345d?w=400", trending: true }
+    ],
+    'Development': [
+      { title: "Full-Stack React Development", students: "3.2k", rating: 4.9, image: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400", live: true },
+      { title: "Advanced JavaScript Patterns", students: "2.7k", rating: 4.8, image: "https://images.unsplash.com/photo-1627398242454-45a1465c2479?w=400", trending: true }
+    ],
+    'Data Science': [
+      { title: "Python for Data Analysis", students: "4.1k", rating: 4.9, image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400", live: true },
+      { title: "Machine Learning Fundamentals", students: "3.8k", rating: 4.8, image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400", trending: true }
+    ],
+    'AI/ML': [
+      { title: "Deep Learning with TensorFlow", students: "2.9k", rating: 4.9, image: "https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=400", live: true },
+      { title: "Natural Language Processing", students: "2.2k", rating: 4.8, image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400", trending: true }
+    ],
+    'Business': [
+      { title: "Digital Marketing Strategy", students: "3.5k", rating: 4.7, image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400", live: true },
+      { title: "Product Management Essentials", students: "2.8k", rating: 4.8, image: "https://images.unsplash.com/photo-1553484771-371a605b060b?w=400", trending: true }
+    ]
+  };
+
+  return (
+    <section className="py-32 relative">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1 }}
+          viewport={{ once: true }}
+          className="text-center mb-20"
+        >
+          <h2 className="text-5xl md:text-7xl font-bold mb-6">
+            Discover Your{' '}
+            <span className="gradient-text">Next</span>
+            <br />Learning Adventure
+          </h2>
+          <p className="text-xl text-foreground/70 max-w-3xl mx-auto mb-12">
+            Join thousands of learners exploring cutting-edge courses designed for the future.
+          </p>
+
+          {/* Category Filters */}
+          <div className="flex flex-wrap justify-center gap-4 mb-16">
+            {categories.map((category) => (
+              <motion.button
+                key={category}
+                onClick={() => setActiveCategory(category)}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className={`px-8 py-3 rounded-full font-semibold transition-all duration-300 ${
+                  activeCategory === category
+                    ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-black'
+                    : 'bg-white/5 text-foreground/70 hover:bg-white/10 border border-emerald-500/30'
+                }`}
+              >
+                {category}
+              </motion.button>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Live Learning Indicator */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+          className="flex items-center justify-center mb-16"
+        >
+          <div className="flex items-center bg-gradient-to-r from-red-500/20 to-orange-500/20 border border-red-500/30 rounded-full px-6 py-3 backdrop-blur-sm">
+            <motion.div
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="w-3 h-3 bg-red-500 rounded-full mr-3"
+            />
+            <span className="text-red-400 font-semibold">Live: 1,247 students learning right now</span>
+          </div>
+        </motion.div>
+
+        {/* Course Grid */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeCategory}
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -50 }}
+            transition={{ duration: 0.5 }}
+            className="grid grid-cols-1 md:grid-cols-2 gap-8"
+          >
+            {courses[activeCategory as keyof typeof courses].map((course, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.2, duration: 0.8 }}
+                whileHover={{ scale: 1.03, y: -10 }}
+                className="group cursor-pointer"
+              >
+                <Card className="glass-card overflow-hidden hover-glow">
+                  <div className="relative">
+                    <img
+                      src={course.image}
+                      alt={course.title}
+                      className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                    
+                    {/* Status Badges */}
+                    <div className="absolute top-4 left-4 flex gap-2">
+                      {course.live && (
+                        <Badge className="bg-red-500/90 text-white border-none">
+                          <Flame className="mr-1 h-3 w-3" />
+                          Live
+                        </Badge>
+                      )}
+                      {course.trending && (
+                        <Badge className="bg-emerald-500/90 text-black border-none">
+                          <TrendingUp className="mr-1 h-3 w-3" />
+                          Trending
+                        </Badge>
+                      )}
+                    </div>
+
+                    {/* Play Button Overlay */}
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <motion.div
+                        whileHover={{ scale: 1.1 }}
+                        className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm"
+                      >
+                        <Play className="h-8 w-8 text-white ml-1" />
+                      </motion.div>
+                    </div>
+                  </div>
+
+                  <CardContent className="p-6">
+                    <h3 className="text-2xl font-bold mb-3 group-hover:text-emerald-400 transition-colors duration-300">
+                      {course.title}
+                    </h3>
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-4">
+                        <div className="flex items-center">
+                          <Star className="h-5 w-5 text-yellow-400 fill-current mr-1" />
+                          <span className="font-semibold">{course.rating}</span>
+                        </div>
+                        <div className="flex items-center">
+                          <Users className="h-5 w-5 text-emerald-400 mr-1" />
+                          <span>{course.students}</span>
+                        </div>
+                      </div>
+                      
+                      <motion.div
+                        className="text-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                        whileHover={{ x: 5 }}
+                      >
+                        <ChevronRight className="h-6 w-6" />
+                      </motion.div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </motion.div>
+        </AnimatePresence>
+      </div>
+    </section>
+  );
+};
+
+// Student Impact Component
+const StudentImpact = () => {
   const [ref, inView] = useInViewHook({ triggerOnce: true });
-  const [counters, setCounters] = useState({ 
-    minds: 0, 
-    knowledge: 0, 
-    achievements: 0, 
-    ai_responses: 0 
-  });
+  const [counters, setCounters] = useState({ courses: 0, students: 0, certificates: 0, satisfaction: 0 });
 
   useEffect(() => {
     if (inView) {
-      const targets = { 
-        minds: 250000, 
-        knowledge: 50000000, 
-        achievements: 1800000, 
-        ai_responses: 999999999 
-      };
-      const duration = 3000;
+      const targets = { courses: 50000, students: 250000, certificates: 180000, satisfaction: 98 };
+      const duration = 2000;
       const steps = 60;
       const stepDuration = duration / steps;
 
@@ -702,10 +617,10 @@ const NeuralImpactSection = () => {
         const progress = step / steps;
         
         setCounters({
-          minds: Math.floor(targets.minds * progress),
-          knowledge: Math.floor(targets.knowledge * progress),
-          achievements: Math.floor(targets.achievements * progress),
-          ai_responses: Math.floor(targets.ai_responses * progress)
+          courses: Math.floor(targets.courses * progress),
+          students: Math.floor(targets.students * progress),
+          certificates: Math.floor(targets.certificates * progress),
+          satisfaction: Math.floor(targets.satisfaction * progress)
         });
 
         if (step >= steps) {
@@ -718,133 +633,200 @@ const NeuralImpactSection = () => {
     }
   }, [inView]);
 
-  const stats = [
-    { 
-      label: "Minds Transformed", 
-      value: counters.minds, 
-      suffix: "+", 
-      icon: Brain,
-      gradient: "from-purple-500 to-pink-500"
-    },
-    { 
-      label: "Knowledge Points", 
-      value: counters.knowledge, 
-      suffix: "+", 
-      icon: Lightbulb,
-      gradient: "from-yellow-500 to-orange-500"
-    },
-    { 
-      label: "Achievements Unlocked", 
-      value: counters.achievements, 
-      suffix: "+", 
-      icon: Trophy,
-      gradient: "from-emerald-500 to-teal-500"
-    },
-    { 
-      label: "AI Responses", 
-      value: counters.ai_responses, 
-      suffix: "+", 
-      icon: Bot,
-      gradient: "from-blue-500 to-cyan-500"
-    }
+  const statItems: { label: string; value: number; suffix: string; icon: React.ElementType }[] = [
+    { label: "Courses Completed", value: counters.courses, suffix: "+", icon: CheckCircle2 },
+    { label: "Active Students", value: counters.students, suffix: "+", icon: Users },
+    { label: "Certificates Earned", value: counters.certificates, suffix: "+", icon: Award },
+    { label: "Satisfaction Rate", value: counters.satisfaction, suffix: "%", icon: Star }
   ];
 
   return (
-    <section ref={ref} className="py-32 relative overflow-hidden bg-gradient-to-b from-black via-slate-900 to-black">
+    <section ref={ref} className="py-32 relative overflow-hidden">
+      {/* Background Effects */}
+      <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-teal-500/5" />
+      
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1 }}
+          viewport={{ once: true }}
+          className="text-center mb-20"
+        >
+          <h2 className="text-5xl md:text-7xl font-bold mb-6">
+            Transforming{' '}
+            <span className="gradient-text">Lives</span>
+            <br />Globally
+          </h2>
+          <p className="text-xl text-foreground/70 max-w-3xl mx-auto">
+            Real impact, real results. See how our platform is changing the way the world learns.
+          </p>
+        </motion.div>
+
+        {/* Impact Statistics */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-20">
+          {statItems.map((stat, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, scale: 0.5 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              transition={{ delay: index * 0.2, duration: 0.8 }}
+              viewport={{ once: true }}
+              className="text-center"
+            >
+              <Card className="glass-card p-8 hover-glow">
+                <div className="text-emerald-400 mb-4 flex justify-center">
+                  <stat.icon className="h-8 w-8" />
+                </div>
+                <div className="text-4xl md:text-5xl font-bold mb-2 gradient-text">
+                  {stat.value.toLocaleString()}{stat.suffix}
+                </div>
+                <div className="text-foreground/70 font-medium">{stat.label}</div>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Testimonial Video Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1 }}
+          viewport={{ once: true }}
+          className="text-center"
+        >
+          <Card className="glass-card p-2 max-w-4xl mx-auto hover-glow group cursor-pointer">
+            <div className="relative rounded-2xl overflow-hidden">
+              <img
+                src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800"
+                alt="Student testimonial"
+                className="w-full h-96 object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+              <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                <motion.div
+                  whileHover={{ scale: 1.1 }}
+                  className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm"
+                >
+                  <Play className="h-10 w-10 text-white ml-1" />
+                </motion.div>
+              </div>
+              
+              {/* Floating Testimonial Quote */}
+              <div className="absolute bottom-8 left-8 right-8">
+                <blockquote className="text-white text-xl font-semibold text-center">
+                  "This platform didn't just teach me skills – it transformed my entire career trajectory."
+                </blockquote>
+                <cite className="text-white/80 text-center block mt-2">- Sarah M., Software Engineer</cite>
+              </div>
+            </div>
+          </Card>
+        </motion.div>
+      </div>
+    </section>
+  );
+};
+
+// Interactive Demo Section
+const InteractiveDemo = () => {
+  const [activeTab, setActiveTab] = useState('dashboard');
+
+  const demoTabs: { id: string; label: string; icon: React.ElementType }[] = [
+    { id: 'dashboard', label: 'Dashboard', icon: Target },
+    { id: 'course', label: 'Course View', icon: BookOpen },
+    { id: 'quiz', label: 'Quiz Mode', icon: Gamepad2 },
+    { id: 'ai', label: 'AI Assistant', icon: Bot }
+  ];
+
+  return (
+    <section className="py-32 relative">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1 }}
+          viewport={{ once: true }}
+          className="text-center mb-20"
+        >
+          <h2 className="text-5xl md:text-7xl font-bold mb-6">
+            Experience the{' '}
+            <span className="gradient-text">Platform</span>
+            <br />Interactive Demo
+          </h2>
+          <p className="text-xl text-foreground/70 max-w-3xl mx-auto">
+            Take a virtual tour of our platform and see how learning comes alive with our innovative features.
+          </p>
+        </motion.div>
+
+        {/* Demo Tabs */}
+        <div className="flex flex-wrap justify-center gap-4 mb-12">
+          {demoTabs.map((tab) => (
+            <motion.button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className={`flex items-center px-6 py-3 rounded-full font-semibold transition-all duration-300 ${
+                activeTab === tab.id
+                  ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-black'
+                  : 'bg-white/5 text-foreground/70 hover:bg-white/10 border border-emerald-500/30'
+              }`}
+            >
+              <tab.icon className="h-5 w-5 mr-2" />
+              <span>{tab.label}</span>
+            </motion.button>
+          ))}
+        </div>
+
+        {/* Demo Interface */}
+        <motion.div
+          key={activeTab}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="max-w-6xl mx-auto"
+        >
+          <Card className="glass-card p-8 hover-glow">
+            <div className="bg-gradient-to-br from-emerald-500/10 to-teal-500/10 rounded-2xl p-8 min-h-[500px] flex items-center justify-center">
+              <div className="text-center">
+                <div className="w-32 h-32 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full flex items-center justify-center mx-auto mb-8 text-white">
+                  {React.createElement(demoTabs.find(tab => tab.id === activeTab)!.icon, { className: "h-16 w-16" })}
+                </div>
+                <h3 className="text-3xl font-bold mb-4">
+                  {demoTabs.find(tab => tab.id === activeTab)?.label} Demo
+                </h3>
+                <p className="text-foreground/70 text-lg mb-8 max-w-md mx-auto">
+                  Interactive demo showing the {demoTabs.find(tab => tab.id === activeTab)?.label.toLowerCase()} experience.
+                </p>
+                <Button size="lg" className="bg-gradient-to-r from-emerald-500 to-teal-500 text-black font-bold">
+                  <Play className="mr-2 h-5 w-5" />
+                  Launch Interactive Demo
+                </Button>
+              </div>
+            </div>
+          </Card>
+        </motion.div>
+      </div>
+    </section>
+  );
+};
+
+// Final CTA Section
+const FinalCTA = () => {
+  return (
+    <section className="py-32 relative overflow-hidden">
+      {/* Background Effects */}
+      <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-cyan-500/10" />
+      <FloatingGeometry />
+      
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 100 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.2 }}
           viewport={{ once: true }}
-          className="text-center mb-20"
-        >
-          <h2 className="text-6xl md:text-8xl font-black mb-8">
-            <span className="bg-gradient-to-r from-white via-emerald-300 to-cyan-300 bg-clip-text text-transparent">
-              GLOBAL
-            </span>
-            <br />
-            <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
-              DOMINATION
-            </span>
-          </h2>
-          <p className="text-2xl text-white/70 max-w-4xl mx-auto">
-            Real numbers. Real impact. Real revolution.
-          </p>
-        </motion.div>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-          {stats.map((stat, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, scale: 0.5, rotateY: -90 }}
-              whileInView={{ opacity: 1, scale: 1, rotateY: 0 }}
-              transition={{ delay: index * 0.2, duration: 1.2 }}
-              viewport={{ once: true }}
-              whileHover={{ scale: 1.1, rotateY: 10 }}
-            >
-              <Card className={`bg-gradient-to-br ${stat.gradient} p-8 relative overflow-hidden group cursor-pointer`}>
-                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-all duration-300" />
-                <div className="relative z-10 text-center">
-                  <stat.icon className="h-12 w-12 text-white mx-auto mb-4" />
-                  <div className="text-4xl md:text-6xl font-black text-white mb-2">
-                    {stat.value === 999999999 ? '∞' : stat.value.toLocaleString()}{stat.suffix}
-                  </div>
-                  <div className="text-white/90 font-bold text-lg">{stat.label}</div>
-                </div>
-                
-                {/* Animated Border */}
-                <motion.div
-                  animate={{ rotate: [0, 360] }}
-                  transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                  className="absolute inset-0 border-4 border-white/30 rounded-lg"
-                />
-              </Card>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-};
-
-// Final Revolutionary CTA
-const RevolutionaryCTA = () => {
-  return (
-    <section className="py-32 relative overflow-hidden bg-gradient-to-b from-black via-emerald-900/30 to-black">
-      {/* Animated Particles */}
-      <div className="absolute inset-0">
-        {[...Array(100)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-1 h-1 bg-emerald-400 rounded-full"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-            animate={{
-              y: [-20, -100, -20],
-              opacity: [0, 1, 0],
-              scale: [0, 1, 0],
-            }}
-            transition={{
-              duration: 3 + Math.random() * 2,
-              repeat: Infinity,
-              delay: Math.random() * 5,
-            }}
-          />
-        ))}
-      </div>
-
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 100, scale: 0.8 }}
-          whileInView={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 1.5 }}
-          viewport={{ once: true }}
           className="text-center"
         >
-          {/* Epic Icon */}
+          {/* Animated Icon */}
           <motion.div
             animate={{ 
               rotate: [0, 360],
@@ -852,12 +834,11 @@ const RevolutionaryCTA = () => {
             }}
             transition={{ 
               rotate: { duration: 20, repeat: Infinity, ease: "linear" },
-              scale: { duration: 4, repeat: Infinity }
+              scale: { duration: 3, repeat: Infinity }
             }}
-            className="inline-flex items-center justify-center w-40 h-40 rounded-full bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 mb-12 shadow-2xl relative"
+            className="inline-flex items-center justify-center w-32 h-32 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 mb-12 shadow-2xl mx-auto"
           >
-            <Infinity className="h-20 w-20 text-black" />
-            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 blur-xl opacity-50" />
+            <Infinity className="h-16 w-16 text-black" />
           </motion.div>
 
           <motion.h2
@@ -865,15 +846,11 @@ const RevolutionaryCTA = () => {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 1 }}
             viewport={{ once: true }}
-            className="text-7xl md:text-9xl font-black mb-8"
+            className="text-6xl md:text-8xl font-bold mb-8"
           >
-            <span className="bg-gradient-to-r from-white via-emerald-300 to-teal-300 bg-clip-text text-transparent">
-              JOIN THE
-            </span>
-            <br />
-            <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
-              REVOLUTION
-            </span>
+            Join Thousands of{' '}
+            <span className="gradient-text">Learners</span>
+            <br />Building Their Future
           </motion.h2>
 
           <motion.p
@@ -881,11 +858,9 @@ const RevolutionaryCTA = () => {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 1 }}
             viewport={{ once: true }}
-            className="text-3xl text-white/90 max-w-5xl mx-auto mb-16 leading-relaxed"
+            className="text-2xl text-foreground/70 max-w-4xl mx-auto mb-16"
           >
-            The future of human intelligence starts <span className="font-black text-emerald-400">NOW</span>.
-            <br />
-            Don't just learn. <span className="font-black text-cyan-400">EVOLVE</span>.
+            Don't just learn—transform. Start your journey with the most advanced learning platform on the planet.
           </motion.p>
 
           <motion.div
@@ -893,38 +868,44 @@ const RevolutionaryCTA = () => {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7, duration: 1 }}
             viewport={{ once: true }}
-            className="flex flex-col sm:flex-row gap-8 justify-center items-center"
+            className="flex flex-col sm:flex-row gap-6 justify-center items-center"
           >
             <Link to="/auth/signup">
               <motion.div
-                whileHover={{ scale: 1.15, rotateZ: 2 }}
+                whileHover={{ scale: 1.1, y: -10 }}
                 whileTap={{ scale: 0.95 }}
                 className="group relative"
               >
-                <div className="absolute -inset-2 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 rounded-full blur-2xl opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200" />
-                <Button className="relative bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-black font-black px-20 py-10 text-3xl rounded-full shadow-2xl border-4 border-white/30">
-                  <motion.div
-                    animate={{ scale: [1, 1.2, 1] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                  >
-                    <Rocket className="mr-6 h-10 w-10" />
-                  </motion.div>
-                  ASCEND NOW
+                {/* Confetti effect on hover */}
+                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 blur-xl opacity-50 group-hover:opacity-75 transition-opacity duration-300 animate-pulse" />
+                <Button size="lg" className="relative bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-black font-bold px-16 py-8 text-xl rounded-full shadow-2xl">
+                  Start Learning Today
                   <motion.div
                     animate={{ 
-                      rotate: [0, 360],
-                      scale: [1, 1.3, 1]
+                      rotate: [0, 180, 360],
+                      scale: [1, 1.2, 1]
                     }}
                     transition={{ 
-                      duration: 3, 
-                      repeat: Infinity
+                      duration: 2, 
+                      repeat: Infinity,
+                      ease: "easeInOut"
                     }}
                   >
-                    <Crown className="ml-6 h-10 w-10" />
+                    <Sparkles className="ml-4 h-6 w-6" />
                   </motion.div>
                 </Button>
               </motion.div>
             </Link>
+
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Button variant="outline" size="lg" className="px-16 py-8 text-xl rounded-full border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 backdrop-blur-sm">
+                <Calendar className="mr-3 h-6 w-6" />
+                Book a Demo
+              </Button>
+            </motion.div>
           </motion.div>
 
           {/* Trust Indicators */}
@@ -933,23 +914,20 @@ const RevolutionaryCTA = () => {
             whileInView={{ opacity: 1 }}
             transition={{ delay: 1, duration: 1 }}
             viewport={{ once: true }}
-            className="mt-20 flex flex-wrap justify-center items-center gap-12 text-white/50"
+            className="mt-16 flex flex-wrap justify-center items-center gap-8 text-foreground/50"
           >
-            {[
-              { icon: Shield, text: "Quantum Encrypted" },
-              { icon: Globe, text: "Global Network" }, 
-              { icon: Infinity, text: "Unlimited Potential" }
-            ].map((item, i) => (
-              <motion.div
-                key={i}
-                animate={{ y: [0, -10, 0] }}
-                transition={{ duration: 3, repeat: Infinity, delay: i * 0.5 }}
-                className="flex items-center gap-3"
-              >
-                <item.icon className="h-8 w-8 text-emerald-400" />
-                <span className="text-xl font-bold">{item.text}</span>
-              </motion.div>
-            ))}
+            <div className="flex items-center">
+              <Shield className="h-6 w-6 mr-2 text-emerald-400" />
+              <span>Secure & Private</span>
+            </div>
+            <div className="flex items-center">
+              <Clock className="h-6 w-6 mr-2 text-emerald-400" />
+              <span>24/7 Support</span>
+            </div>
+            <div className="flex items-center">
+              <Globe className="h-6 w-6 mr-2 text-emerald-400" />
+              <span>Global Community</span>
+            </div>
           </motion.div>
         </motion.div>
       </div>
@@ -960,18 +938,20 @@ const RevolutionaryCTA = () => {
 // Main Ultra Modern Landing Component
 const UltraModernLanding = () => {
   return (
-    <div className="min-h-screen bg-black text-white relative overflow-hidden">
-      {/* Show ModernLayoutHero on large screens and up, RevolutionaryHero on smaller screens */}
+    <div className="min-h-screen bg-background text-foreground relative overflow-hidden">
+      {/* Show ModernLayoutHero on large screens and up, HeroSection on smaller screens */}
       <div className="hidden lg:block">
         <ModernLayoutHero />
       </div>
       <div className="block lg:hidden">
-        <RevolutionaryHero />
+        <HeroSection />
       </div>
-      <AIFeaturesShowcase />
-      <GamificationShowcase />
-      <NeuralImpactSection />
-      <RevolutionaryCTA />
+      <FeatureShowcase />
+      <TeachersSpotlight />
+      <CoursesDiscovery />
+      <StudentImpact />
+      <InteractiveDemo />
+      <FinalCTA />
     </div>
   );
 };
