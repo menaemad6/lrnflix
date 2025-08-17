@@ -40,6 +40,7 @@ const fetchTeacherAnalytics = async (): Promise<AnalyticsData> => {
     .from('enrollments')
     .select(`
       id,
+      student_id,
       enrolled_at,
       course_id,
       courses!inner(title, price)

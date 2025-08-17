@@ -370,7 +370,7 @@ export const StudentDetail = () => {
         {/* Student Header */}
         <Card className="glass-card border-0">
           <CardContent className="p-6">
-            <div className="flex items-center gap-6">
+            <div className="flex flex-col md:flex-row items-center gap-6">
               <Avatar className="w-20 h-20 border-4 border-primary/20">
                 <AvatarImage src={student.avatar_url} alt={student.full_name} />
                 <AvatarFallback className="bg-gradient-to-br from-primary/20 to-accent/20 text-primary text-xl">
@@ -407,7 +407,7 @@ export const StudentDetail = () => {
 
         {/* Detailed Information Tabs */}
         <Tabs defaultValue="courses" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 glass-card">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 glass-card">
             <TabsTrigger value="courses">Courses</TabsTrigger>
             <TabsTrigger value="quizzes">Quiz Performance</TabsTrigger>
             <TabsTrigger value="discussions">Discussions</TabsTrigger>

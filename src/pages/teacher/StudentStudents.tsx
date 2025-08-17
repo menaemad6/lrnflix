@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,6 +10,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { TeacherPageHeader } from '@/components/teacher/TeacherPageHeader';
 import { useToast } from '@/hooks/use-toast';
+import { StudentCardSkeleton } from '@/components/student/skeletons';
+
 import { 
   Users, 
   Search, 
@@ -43,6 +45,17 @@ interface StudentData {
   totalQuizzes: number;
 }
 
+interface Enrollment {
+  student_id: string;
+  enrolled_at: string;
+  course: {
+    id: string;
+    title: string;
+    price: number;
+    instructor_id: string;
+  };
+}
+
 export const StudentStudents = () => {
   const { toast } = useToast();
   const [students, setStudents] = useState<StudentData[]>([]);
@@ -51,11 +64,7 @@ export const StudentStudents = () => {
   const [filterBy, setFilterBy] = useState<'all' | 'active' | 'top_spenders'>('all');
   const [user, setUser] = useState<{ id: string } | null>(null);
 
-  useEffect(() => {
-    fetchStudents();
-  }, []);
-
-  const fetchStudents = async () => {
+  const fetchStudents = useCallback(async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
@@ -79,9 +88,9 @@ export const StudentStudents = () => {
       if (enrollmentsError) throw enrollmentsError;
 
       // Group by student and get unique students
-      const studentMap = new Map<string, any>();
+      const studentMap = new Map<string, { id: string; enrollments: Enrollment[]; totalSpent: number; enrollmentCount: number }>();
       
-      enrollmentsData?.forEach(enrollment => {
+      (enrollmentsData as Enrollment[])?.forEach(enrollment => {
         const studentId = enrollment.student_id;
         if (!studentMap.has(studentId)) {
           studentMap.set(studentId, {
@@ -111,7 +120,7 @@ export const StudentStudents = () => {
           const profile = profilesData?.find(p => p.id === student.id);
           
           // Get quiz attempts for courses taught by this teacher
-          const courseIds = student.enrollments.map((e: any) => e.course.id);
+          const courseIds = student.enrollments.map((e: Enrollment) => e.course.id);
           const { data: quizAttempts } = await supabase
             .from('quiz_attempts')
             .select(`
@@ -147,7 +156,7 @@ export const StudentStudents = () => {
           totalQuizzes = totalQuizzesCount || 0;
 
           // Get last activity (most recent enrollment)
-          const lastEnrollment = student.enrollments.sort((a: any, b: any) => 
+          const lastEnrollment = student.enrollments.sort((a: Enrollment, b: Enrollment) => 
             new Date(b.enrolled_at).getTime() - new Date(a.enrolled_at).getTime()
           )[0];
 
@@ -175,7 +184,11 @@ export const StudentStudents = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    fetchStudents();
+  }, [fetchStudents]);
 
   const filteredStudents = students
     .filter(student => 
@@ -324,11 +337,9 @@ export const StudentStudents = () => {
         {/* Students List */}
         <div className="grid grid-cols-1 gap-4">
           {loading ? (
-            <Card className="glass-card border-0">
-              <CardContent className="p-6">
-                <div className="text-center">Loading students...</div>
-              </CardContent>
-            </Card>
+            Array.from({ length: 3 }).map((_, index) => (
+              <StudentCardSkeleton key={index} />
+            ))
           ) : filteredStudents.length === 0 ? (
             <Card className="glass-card border-0">
               <CardContent className="p-6">
@@ -341,15 +352,26 @@ export const StudentStudents = () => {
             filteredStudents.map((student) => (
               <Card key={student.id} className="glass-card border-0 hover-glow group">
                 <CardContent className="p-6">
-                  <div className="flex items-center gap-4">
-                    <Avatar className="w-12 h-12 border-2 border-primary/20">
-                      <AvatarImage src={student.avatar_url} alt={student.full_name} />
-                      <AvatarFallback className="bg-gradient-to-br from-primary/20 to-accent/20 text-primary">
-                        {student.full_name.split(' ').map(n => n[0]).join('').toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
+                  <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-4">
+                    <div className="flex items-center gap-4 w-full sm:w-auto">
+                      <Avatar className="w-12 h-12 border-2 border-primary/20">
+                        <AvatarImage src={student.avatar_url} alt={student.full_name} />
+                        <AvatarFallback className="bg-gradient-to-br from-primary/20 to-accent/20 text-primary">
+                          {student.full_name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      
+                      <div className="flex-1 min-w-0 sm:hidden">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors truncate">
+                            {student.full_name}
+                          </h3>
+                        </div>
+                        <p className="text-sm text-muted-foreground truncate">{student.email}</p>
+                      </div>
+                    </div>
                     
-                    <div className="flex-1 min-w-0">
+                    <div className="flex-1 min-w-0 hidden sm:block">
                       <div className="flex items-center gap-2 mb-1">
                         <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
                           {student.full_name}
@@ -362,38 +384,38 @@ export const StudentStudents = () => {
                         )}
                       </div>
                       <p className="text-sm text-muted-foreground mb-2">{student.email}</p>
-                      
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                        <div className="flex items-center gap-2">
-                          <BookOpen className="h-4 w-4 text-blue-400" />
-                          <span className="text-muted-foreground">
-                            {student.enrollmentCount} course{student.enrollmentCount !== 1 ? 's' : ''}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <TrendingUp className="h-4 w-4 text-emerald-400" />
-                          <span className="text-muted-foreground">
-                            {student.totalSpent} credits spent
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Star className="h-4 w-4 text-yellow-400" />
-                          <span className="text-muted-foreground">
-                            {student.averageScore}% avg score
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Clock className="h-4 w-4 text-purple-400" />
-                          <span className="text-muted-foreground">
-                            {formatLastActive(student.lastActive)}
-                          </span>
-                        </div>
+                    </div>
+
+                    <div className="w-full sm:w-auto sm:flex-1 grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm mt-4 sm:mt-0">
+                      <div className="flex items-center gap-2">
+                        <BookOpen className="h-4 w-4 text-blue-400" />
+                        <span className="text-muted-foreground">
+                          {student.enrollmentCount} course{student.enrollmentCount !== 1 ? 's' : ''}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <TrendingUp className="h-4 w-4 text-emerald-400" />
+                        <span className="text-muted-foreground">
+                          {student.totalSpent} credits spent
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Star className="h-4 w-4 text-yellow-400" />
+                        <span className="text-muted-foreground">
+                          {student.averageScore}% avg score
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-purple-400" />
+                        <span className="text-muted-foreground">
+                          {formatLastActive(student.lastActive)}
+                        </span>
                       </div>
                     </div>
                     
-                    <div className="flex-shrink-0">
-                      <Link to={`/teacher/students/${student.id}`}>
-                        <Button variant="outline" size="sm" className="group-hover:bg-primary/10">
+                    <div className="w-full sm:w-auto flex justify-end mt-4 sm:mt-0">
+                      <Link to={`/teacher/students/${student.id}`} className="w-full sm:w-auto">
+                        <Button variant="outline" size="sm" className="group-hover:bg-primary/10 w-full">
                           View Details
                           <ArrowUpRight className="h-4 w-4 ml-2" />
                         </Button>

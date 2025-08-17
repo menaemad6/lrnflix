@@ -107,12 +107,12 @@ export const DashboardSidebar = () => {
       description: "Personal assistant",
       badge: "New"
     },
-    { 
-      title: "Notifications", 
-      url: "/student/notifications", 
-      icon: Bell,
-      description: "Stay updated"
-    },
+    // { 
+    //   title: "Notifications", 
+    //   url: "/student/notifications", 
+    //   icon: Bell,
+    //   description: "Stay updated"
+    // },
 
   ];
 
@@ -165,12 +165,12 @@ export const DashboardSidebar = () => {
       icon: Gift,
       description: "Reward students"
     },
-    { 
-      title: "Notifications", 
-      url: "/teacher/notifications", 
-      icon: Bell,
-      description: "Stay updated"
-    },
+    // { 
+    //   title: "Notifications", 
+    //   url: "/teacher/notifications", 
+    //   icon: Bell,
+    //   description: "Stay updated"
+    // },
     { 
       title: "Settings", 
       url: "/dashboard/settings", 

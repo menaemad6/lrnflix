@@ -165,8 +165,13 @@ export const TeacherDashboard = () => {
 
       // Calculate stats
       const totalCourses = coursesData?.length || 0;
-      const totalStudents = coursesData?.reduce((sum, course) => 
-        sum + (course.enrollments?.[0]?.count || 0), 0) || 0;
+      const { data: enrollments } = await supabase
+        .from('enrollments')
+        .select('student_id')
+        .in('course_id', coursesData?.map(c => c.id) || []);
+
+      const uniqueStudents = new Set(enrollments?.map(e => e.student_id));
+      const totalStudents = uniqueStudents.size;
       const totalRevenue = coursesData?.reduce((sum, course) => 
         sum + (course.price * (course.enrollments?.[0]?.count || 0)), 0) || 0;
 
