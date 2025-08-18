@@ -149,8 +149,8 @@ const AppRoutes = () => {
           <Route path="/student/store" element={<ProtectedRoute requiredRole={['student']}><Store /></ProtectedRoute>} />
           <Route path="/student/transactions" element={<ProtectedRoute requiredRole={['student']}><StudentTransactions /></ProtectedRoute>} />
           <Route path="/multiplayer-quiz" element={<ProtectedRoute requiredRole={['student']}><MultiplayerQuiz /></ProtectedRoute>} />
-          <Route path="/courses" element={<ProtectedRoute><Courses /></ProtectedRoute>} />
-          <Route path="/courses/:id" element={<ProtectedRoute><CourseView /></ProtectedRoute>} />
+          <Route path="/courses" element={<Courses />} />
+          <Route path="/courses/:id" element={<CourseView />} />
           <Route path="/courses/:id/progress" element={<ProtectedRoute><CourseProgress /></ProtectedRoute>} />
           <Route path="/courses/:id/progress/lesson/:lessonId" element={<ProtectedRoute><CourseProgress /></ProtectedRoute>} />
           <Route path="/courses/:id/progress/quiz/:quizId" element={<ProtectedRoute><CourseProgress /></ProtectedRoute>} />
@@ -159,8 +159,8 @@ const AppRoutes = () => {
           <Route path="/student/notifications" element={<ProtectedRoute requiredRole={['student']}><StudentNotificationsPage /></ProtectedRoute>} />
           {/* Shared Routes */}
 
-          <Route path="/teachers" element={<ProtectedRoute><TeachersPage /></ProtectedRoute>} />
-          <Route path="/teachers/:teacherSlug" element={<ProtectedRoute><TeacherProfile /></ProtectedRoute>} />
+          <Route path="/teachers" element={<TeachersPage />} />
+          <Route path="/teachers/:teacherSlug" element={<TeacherProfile />} />
 
           <Route path="/questions" element={<ProtectedRoute><QuestionsPage /></ProtectedRoute>} />
           <Route path="/groups/:id" element={<ProtectedRoute><GroupDetailPage /></ProtectedRoute>} />

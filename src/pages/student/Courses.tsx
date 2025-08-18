@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -59,14 +59,9 @@ export const Courses = () => {
   const courseCategories = Array.from(new Set(courses.map(c => c.category).filter(Boolean)));
   const categories = ['All', ...courseCategories];
 
-  useEffect(() => {
-    fetchCourses();
-  }, []);
-
-  const fetchCourses = async () => {
+  const fetchCourses = useCallback(async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
 
       // Get published courses with instructor info
       let coursesQuery = supabase
@@ -89,7 +84,7 @@ export const Courses = () => {
       }
 
       // Get all unique instructor_ids
-      const instructorIds = Array.from(new Set((coursesData || []).map((c: any) => c.instructor_id).filter(Boolean)));
+      const instructorIds = Array.from(new Set((coursesData || []).map((c: RawCourse) => c.instructor_id).filter(Boolean)));
       // Fetch all avatars in one go
       const avatars: Record<string, string | undefined> = {};
       if (instructorIds.length > 0) {
@@ -106,14 +101,15 @@ export const Courses = () => {
       setInstructorAvatars(avatars);
 
       // Get user's enrollments
-      const { data: enrollments, error: enrollmentError } = await supabase
-        .from('enrollments')
-        .select('course_id')
-        .eq('student_id', user.id);
-
-      if (enrollmentError) throw enrollmentError;
-
-      const enrolledCourseIds = enrollments?.map((e: { course_id: string }) => e.course_id) || [];
+      let enrolledCourseIds: string[] = [];
+      if (user) {
+        const { data: enrollments, error: enrollmentError } = await supabase
+          .from('enrollments')
+          .select('course_id')
+          .eq('student_id', user.id);
+        if (enrollmentError) throw enrollmentError;
+        enrolledCourseIds = enrollments?.map((e: { course_id: string }) => e.course_id) || [];
+      }
 
       // Get enrollment counts for each course
       const coursesWithDetails = await Promise.all(
@@ -148,12 +144,19 @@ export const Courses = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [teacher, toast]);
+
+  useEffect(() => {
+    fetchCourses();
+  }, [fetchCourses]);
 
   const enrollInCourse = async (courseId: string) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) {
+        navigate('/login');
+        return;
+      }
 
       const { error } = await supabase
         .from('enrollments')

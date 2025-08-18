@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -77,6 +77,14 @@ interface TeacherProfile {
   experience_years?: number;
 }
 
+interface Quiz {
+  id: string;
+  title: string;
+  description?: string;
+  max_attempts?: number;
+  time_limit?: number;
+}
+
 export const CourseView = () => {
   const { id } = useParams<{ id: string }>();
   const { toast } = useToast();
@@ -86,8 +94,9 @@ export const CourseView = () => {
   const [loading, setLoading] = useState(true);
   const [userWallet, setUserWallet] = useState(0);
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const [activeTab, setActiveTab] = useState('lessons');
-  const [quizzes, setQuizzes] = useState<any[]>([]);
+  const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [userId, setUserId] = useState<string | undefined>(undefined);
   const navigate = useNavigate();
   const [showShareModal, setShowShareModal] = useState(false);
@@ -104,33 +113,7 @@ export const CourseView = () => {
 
   const progress = useCourseProgress(id, userId);
 
-  useEffect(() => {
-    if (id) {
-      fetchCourseData();
-      fetchUserWallet();
-    }
-  }, [id]);
-
-  const fetchUserWallet = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('wallet')
-          .eq('id', user.id)
-          .single();
-        
-        if (profile) {
-          setUserWallet(profile.wallet);
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching user wallet:', error);
-    }
-  };
-
-  const fetchCourseData = async () => {
+  const fetchCourseData = useCallback(async () => {
     try {
       const { data: courseData, error: courseError } = await supabase
         .from('courses')
@@ -197,13 +180,47 @@ export const CourseView = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, toast]);
+
+  const fetchUserWallet = useCallback(async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('wallet')
+          .eq('id', user.id)
+          .single();
+        
+        if (profile) {
+          setUserWallet(profile.wallet);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching user wallet:', error);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (id) {
+      fetchCourseData();
+      fetchUserWallet();
+    }
+  }, [id, fetchCourseData, fetchUserWallet]);
 
   const handlePurchaseSuccess = () => {
     setIsEnrolled(true);
     setShowPurchaseModal(false);
     fetchCourseData();
     fetchUserWallet();
+  };
+
+  const handleEnrollClick = () => {
+    if (!userId) {
+      setShowAuthModal(true);
+    } else {
+      setShowPurchaseModal(true);
+    }
   };
 
   // Share logic
@@ -683,8 +700,9 @@ export const CourseView = () => {
                     {/* Action Button */}
                     {!isEnrolled ? (
                       <Button 
-                        onClick={() => setShowPurchaseModal(true)}
-                        className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 shadow-lg hover:shadow-xl transition-all duration-200 rounded-xl"
+                        onClick={handleEnrollClick}
+                        variant='default'
+                        className="w-full h-14 text-lg rounded-xl"
                       >
                         Enroll Now
                         <ArrowRight className="ml-2 h-5 w-5" />
@@ -771,6 +789,29 @@ export const CourseView = () => {
               </Button>
             </div>
             <div className="text-xs text-muted-foreground text-center">Link copied! You can now share it anywhere.</div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Auth Modal */}
+      <Dialog open={showAuthModal} onOpenChange={setShowAuthModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Authentication Required</DialogTitle>
+            <DialogDescription>
+              You need to be signed in to enroll in this course.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-2 mt-4">
+            <Button variant="outline" onClick={() => setShowAuthModal(false)}>
+              Cancel
+            </Button>
+            <Button onClick={() => navigate('/auth/login')}>
+              Sign In
+            </Button>
+            <Button onClick={() => navigate('/authsignup')}>
+              Create Account
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
