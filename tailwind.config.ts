@@ -27,6 +27,7 @@ export default {
 		},
 		extend: {
 			colors: {
+				// Core semantic colors using CSS variables
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',
@@ -34,11 +35,15 @@ export default {
 				foreground: 'hsl(var(--foreground))',
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
-					foreground: 'hsl(var(--primary-foreground))'
+					foreground: 'hsl(var(--primary-foreground))',
+					light: 'hsl(var(--primary-light))',
+					dark: 'hsl(var(--primary-dark))',
 				},
 				secondary: {
 					DEFAULT: 'hsl(var(--secondary))',
-					foreground: 'hsl(var(--secondary-foreground))'
+					foreground: 'hsl(var(--secondary-foreground))',
+					light: 'hsl(var(--secondary-light))',
+					dark: 'hsl(var(--secondary-dark))',
 				},
 				destructive: {
 					DEFAULT: 'hsl(var(--destructive))',
@@ -50,7 +55,9 @@ export default {
 				},
 				accent: {
 					DEFAULT: 'hsl(var(--accent))',
-					foreground: 'hsl(var(--accent-foreground))'
+					foreground: 'hsl(var(--accent-foreground))',
+					light: 'hsl(var(--accent-light))',
+					dark: 'hsl(var(--accent-dark))',
 				},
 				popover: {
 					DEFAULT: 'hsl(var(--popover))',
@@ -70,21 +77,24 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				emerald: {
-					400: '#34d399',
-					500: '#10b981',
-					600: '#059669',
+				// Semantic colors using CSS variables
+				success: 'hsl(var(--success))',
+				warning: 'hsl(var(--warning))',
+				error: 'hsl(var(--error))',
+				info: 'hsl(var(--info))',
+				// Neutral scale using CSS variables
+				neutral: {
+					50: 'hsl(var(--neutral-50))',
+					100: 'hsl(var(--neutral-100))',
+					200: 'hsl(var(--neutral-200))',
+					300: 'hsl(var(--neutral-300))',
+					400: 'hsl(var(--neutral-400))',
+					500: 'hsl(var(--neutral-500))',
+					600: 'hsl(var(--neutral-600))',
+					700: 'hsl(var(--neutral-700))',
+					800: 'hsl(var(--neutral-800))',
+					900: 'hsl(var(--neutral-900))',
 				},
-				teal: {
-					400: '#2dd4bf',
-					500: '#14b8a6',
-					600: '#0d9488',
-				},
-				cyan: {
-					400: '#22d3ee',
-					500: '#06b6d4',
-					600: '#0891b2',
-				}
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -131,10 +141,10 @@ export default {
 				},
 				'glow': {
 					'0%, 100%': {
-						boxShadow: '0 0 20px rgba(16, 185, 129, 0.3)'
+						boxShadow: '0 0 20px hsl(var(--primary) / 0.3)'
 					},
 					'50%': {
-						boxShadow: '0 0 40px rgba(16, 185, 129, 0.6)'
+						boxShadow: '0 0 40px hsl(var(--primary) / 0.6)'
 					}
 				},
 				'float': {
@@ -147,10 +157,10 @@ export default {
 				},
 				'pulse-glow': {
 					'0%, 100%': {
-						boxShadow: '0 0 20px rgba(16, 185, 129, 0.4), 0 0 40px rgba(16, 185, 129, 0.1)'
+						boxShadow: '0 0 20px hsl(var(--primary) / 0.4), 0 0 40px hsl(var(--primary) / 0.1)'
 					},
 					'50%': {
-						boxShadow: '0 0 30px rgba(16, 185, 129, 0.6), 0 0 60px rgba(16, 185, 129, 0.2)'
+						boxShadow: '0 0 30px hsl(var(--primary) / 0.6), 0 0 60px hsl(var(--primary) / 0.2)'
 					}
 				}
 			},
@@ -166,7 +176,7 @@ export default {
 			backgroundImage: {
 				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
 				'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
-				'mesh-gradient': 'radial-gradient(at 40% 20%, rgba(16, 185, 129, 0.3) 0px, transparent 50%), radial-gradient(at 80% 0%, rgba(16, 185, 129, 0.2) 0px, transparent 50%), radial-gradient(at 0% 50%, rgba(52, 211, 153, 0.2) 0px, transparent 50%)'
+				'mesh-gradient': 'radial-gradient(at 40% 20%, hsl(var(--primary) / 0.3) 0px, transparent 50%), radial-gradient(at 80% 0%, hsl(var(--primary) / 0.2) 0px, transparent 50%), radial-gradient(at 0% 50%, hsl(var(--primary-light) / 0.2) 0px, transparent 50%)'
 			},
 			backdropBlur: {
 				xs: '2px',
