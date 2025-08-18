@@ -492,9 +492,10 @@ export default function TeacherSchedulePage() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
+
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold">Schedule</h1>
+            <h1 className="text-3xl font-bold text-primary">Schedule Tasks</h1>
             <p className="text-muted-foreground">Manage your teaching tasks and schedule</p>
           </div>
           

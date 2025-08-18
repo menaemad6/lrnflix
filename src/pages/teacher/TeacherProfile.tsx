@@ -210,7 +210,7 @@ export const TeacherProfile = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Cover Image */}
-      <div className="relative h-64 bg-gradient-to-r from-primary to-emerald-400 overflow-hidden">
+      <div className="relative h-64 bg-gradient-to-r from-primary to-primary-400 overflow-hidden">
         {teacher.cover_image_url && (
           <img
             src={teacher.cover_image_url}

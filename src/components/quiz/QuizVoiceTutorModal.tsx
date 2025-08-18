@@ -118,7 +118,7 @@ export const QuizVoiceTutorModal = ({
                   <motion.div
                     animate={{ scale: [1, 1.1, 1] }}
                     transition={{ duration: 2, repeat: Infinity }}
-                    className="w-16 h-16 mx-auto bg-gradient-to-br from-green-500 to-teal-600 rounded-full flex items-center justify-center"
+                    className="w-16 h-16 mx-auto bg-gradient-to-br from-green-500 to-secondary-600 rounded-full flex items-center justify-center"
                   >
                     <Bot className="h-8 w-8 text-white" />
                   </motion.div>

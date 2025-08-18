@@ -170,8 +170,8 @@ const Store = () => {
                 </div>
               </div>
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center">
-                  <Clock className="h-6 w-6 text-green-600" />
+                <div className="w-12 h-12 bg-primary-500/20 rounded-full flex items-center justify-center">
+                  <Clock className="h-6 w-6 text-primary-600" />
                 </div>
                 <div>
                   <div className="text-sm text-muted-foreground">Assistant Minutes</div>
@@ -210,7 +210,7 @@ const Store = () => {
                     <div className="text-lg text-muted-foreground">
                       {pkg.credits} Credits
                       {pkg.bonus && (
-                        <span className="text-green-600 text-sm ml-2">
+                        <span className="text-primary-600 text-sm ml-2">
                           +{pkg.bonus} Bonus!
                         </span>
                       )}
@@ -248,15 +248,15 @@ const Store = () => {
           </div>
 
           {/* Free Minutes Info */}
-          <Card className="mb-6 bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20">
+          <Card className="mb-6 bg-gradient-to-r from-primary-50 to-blue-50 dark:from-primary-900/20 dark:to-blue-900/20">
             <CardContent className="p-6">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center">
-                  <Gift className="h-6 w-6 text-green-600" />
+                <div className="w-12 h-12 bg-primary-500/20 rounded-full flex items-center justify-center">
+                  <Gift className="h-6 w-6 text-primary-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-green-800 dark:text-green-400">Daily Free Minutes</h3>
-                  <p className="text-green-700 dark:text-green-300 text-sm">
+                  <h3 className="font-semibold text-primary-800 dark:text-primary-400">Daily Free Minutes</h3>
+                  <p className="text-primary-700 dark:text-primary-300 text-sm">
                     Every student gets 5 minutes of AI assistant conversation for free every day!
                   </p>
                 </div>
@@ -276,7 +276,7 @@ const Store = () => {
                       {pkg.minutes} Minutes
                     </div>
                     {pkg.savings && (
-                      <div className="text-green-600 text-sm">
+                      <div className="text-primary-600 text-sm">
                         Save {pkg.savings} credits!
                       </div>
                     )}

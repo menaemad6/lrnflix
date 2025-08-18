@@ -296,6 +296,174 @@ const tenantColors = teacherData?.colors as TenantColors;
 5. **Ensure sufficient contrast** when customizing colors
 6. **Use the color picker component** for testing tenant customization
 
+## Theme Color Customization Guide
+
+### Primary Colors to Change for Theme Customization
+
+To change the theme color of your application, you need to modify these **3 key colors** in the `src/data/constants.ts` file:
+
+#### 1. **Primary Color** (Main Brand Color)
+```typescript
+// In src/data/constants.ts - Line 22
+primary: {
+  main: '#10b981', // ← CHANGE THIS COLOR
+  // All other primary variants are automatically calculated
+  light: lighter('#10b981', 0.2),    // 20% lighter
+  dark: darker('#10b981', 0.2),      // 20% darker
+  hsl: hexToHsl('#10b981'),          // HSL conversion
+},
+```
+
+#### 2. **Secondary Color** (Complementary/Supporting Color)
+```typescript
+// In src/data/constants.ts - Line 30
+secondary: {
+  main: '#14b8a6', // ← CHANGE THIS COLOR
+  // All other secondary variants are automatically calculated
+  light: lighter('#14b8a6', 0.2),
+  dark: darker('#14b8a6', 0.2),
+  hsl: hexToHsl('#14b8a6'),
+},
+```
+
+#### 3. **Accent Color** (Highlight/Interactive Color)
+```typescript
+// In src/data/constants.ts - Line 38
+accent: {
+  main: '#06b6d4', // ← CHANGE THIS COLOR
+  // All other accent variants are automatically calculated
+  light: lighter('#06b6d4', 0.2),
+  dark: darker('#06b6d4', 0.2),
+  hsl: hexToHsl('#06b6d4'),
+},
+```
+
+### What Happens When You Change These Colors
+
+1. **Automatic Variant Generation**: Light and dark variants are automatically calculated
+2. **CSS Variables Update**: All CSS variables are regenerated with new colors
+3. **Tailwind Integration**: Tailwind classes automatically use the new colors
+4. **Gradients Update**: All gradients using these colors are updated
+5. **Effects Update**: Glows, shadows, and other effects use the new colors
+
+### Example: Changing to a Blue Theme
+
+```typescript
+// Change from green theme to blue theme
+primary: {
+  main: '#3b82f6', // Blue instead of green
+  // ... rest is automatic
+},
+secondary: {
+  main: '#1d4ed8', // Darker blue
+  // ... rest is automatic
+},
+accent: {
+  main: '#06b6d4', // Keep cyan or change to blue variant
+  // ... rest is automatic
+},
+```
+
+### Example: Changing to a Purple Theme
+
+```typescript
+// Change to purple theme
+primary: {
+  main: '#8b5cf6', // Purple
+  // ... rest is automatic
+},
+secondary: {
+  main: '#7c3aed', // Darker purple
+  // ... rest is automatic
+},
+accent: {
+  main: '#ec4899', // Pink accent
+  // ... rest is automatic
+},
+```
+
+### Colors You DON'T Need to Change
+
+These colors are **semantic** and should remain consistent across themes:
+
+```typescript
+// Keep these unchanged for consistency
+semantic: {
+  success: '#22c55e',    // Green (success)
+  warning: '#f97316',    // Orange (warning)
+  error: '#ef4444',      // Red (error)
+  info: '#3b82f6',       // Blue (info)
+},
+
+// Neutral colors are also calculated from primary
+neutral: {
+  50: '#f8fafc',   // Very light with primary tint
+  100: '#f1f5f9',  // Light with primary tint
+  // ... etc
+},
+```
+
+### How to Apply Theme Changes
+
+#### Method 1: Direct File Edit (Recommended for Development)
+1. Edit `src/data/constants.ts`
+2. Change the 3 main colors (primary, secondary, accent)
+3. Restart your development server
+4. All colors will automatically update
+
+#### Method 2: Tenant Context (For Production)
+1. Use the `TenantContext` to set custom colors
+2. Colors are applied dynamically via CSS variables
+3. No server restart needed
+
+#### Method 3: CSS Variables Override
+```css
+/* Override in your CSS */
+:root {
+  --primary: 220 100% 50%; /* Blue */
+  --secondary: 220 100% 40%; /* Darker blue */
+  --accent: 220 100% 60%; /* Lighter blue */
+}
+```
+
+### Testing Your Theme Changes
+
+1. **Visual Check**: Look for primary color usage throughout the app
+2. **CSS Variables**: Check browser dev tools for updated CSS variables
+3. **Tailwind Classes**: Verify `bg-primary`, `text-primary`, etc. work
+4. **Gradients**: Check that gradients use the new colors
+5. **Effects**: Verify glows and shadows use new primary color
+
+### Common Theme Color Combinations
+
+#### Professional Blue Theme
+```typescript
+primary: '#3b82f6',    // Blue
+secondary: '#1d4ed8',  // Dark blue
+accent: '#06b6d4',     // Cyan
+```
+
+#### Warm Orange Theme
+```typescript
+primary: '#f97316',    // Orange
+secondary: '#ea580c',  // Dark orange
+accent: '#f59e0b',     // Amber
+```
+
+#### Elegant Purple Theme
+```typescript
+primary: '#8b5cf6',    // Purple
+secondary: '#7c3aed',  // Dark purple
+accent: '#ec4899',     // Pink
+```
+
+#### Nature Green Theme (Current)
+```typescript
+primary: '#10b981',    // Emerald
+secondary: '#14b8a6',  // Teal
+accent: '#06b6d4',     // Cyan
+```
+
 ## Future Enhancements
 
 1. **Color Presets**: Pre-defined color schemes for common use cases

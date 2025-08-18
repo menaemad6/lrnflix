@@ -344,9 +344,9 @@ export const CourseView = () => {
               </CardContent>
             </Card>
             
-            <Card className="glass-card border-green-500/20 bg-green-500/5">
+            <Card className="glass-card border-primary-500/20 bg-primary-500/5">
               <CardContent className="p-4 text-center">
-                <BookOpen className="h-6 w-6 mx-auto mb-2 text-green-400" />
+                <BookOpen className="h-6 w-6 mx-auto mb-2 text-primary-400" />
                 <h3 className="font-medium text-sm">Browse Available</h3>
                 <p className="text-xs text-muted-foreground">Explore our published courses</p>
               </CardContent>
@@ -419,14 +419,14 @@ export const CourseView = () => {
 
                 {/* Course Highlights */}
                 <div className="grid sm:grid-cols-3 gap-4">
-                  <div className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/20">
-                    <PlayCircle className="h-8 w-8 text-emerald-500" />
+                  <div className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-primary-500/10 to-secondary-500/10 border border-primary-500/20">
+                    <PlayCircle className="h-8 w-8 text-primary-500" />
                     <div>
                       <div className="font-semibold">{progress.totalLessons} Lessons, {progress.totalQuizzes} Quizzes</div>
                       <div className="text-xs text-muted-foreground">High-quality content</div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/20">
+                  <div className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-blue-500/10 to-accent-500/10 border border-blue-500/20">
                     <Clock className="h-8 w-8 text-blue-500" />
                     <div>
                       <div className="font-semibold">{Math.round(totalCourseMinutes / 60) > 0 ? `${Math.round(totalCourseMinutes / 60)}+ Hours` : `${totalCourseMinutes} Minutes`}</div>
@@ -443,33 +443,33 @@ export const CourseView = () => {
                 </div>
 
                 {isEnrolled && (
-                  <Card className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 border-green-500/20">
+                  <Card className="bg-gradient-to-r from-primary-500/10 to-primary-500/10 border-primary-500/20">
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-3">
-                          <Trophy className="h-6 w-6 text-green-500" />
+                          <Trophy className="h-6 w-6 text-primary-500" />
                           <div>
-                            <h3 className="font-semibold text-green-700 dark:text-green-300">Your Progress</h3>
-                            <p className="text-sm text-green-600 dark:text-green-400">Keep up the great work!</p>
+                            <h3 className="font-semibold text-primary-700 dark:text-primary-300">Your Progress</h3>
+                            <p className="text-sm text-primary-600 dark:text-primary-400">Keep up the great work!</p>
                           </div>
                         </div>
                         <div className="text-right">
-                          <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                          <div className="text-2xl font-bold text-primary-600 dark:text-primary-400">
                             {Math.round(progress.progressPercentage)}%
                           </div>
-                          <div className="text-xs text-green-600 dark:text-green-400">Complete</div>
+                          <div className="text-xs text-primary-600 dark:text-primary-400">Complete</div>
                         </div>
                       </div>
-                      <div className="w-full bg-green-100 dark:bg-green-900/40 rounded-full h-3 mb-2">
+                      <div className="w-full bg-primary-100 dark:bg-primary-900/40 rounded-full h-3 mb-2">
                         <div 
-                          className="bg-gradient-to-r from-green-500 to-emerald-500 h-3 rounded-full transition-all duration-700 ease-out"
+                          className="bg-gradient-to-r from-primary-500 to-primary-500 h-3 rounded-full transition-all duration-700 ease-out"
                           style={{ width: `${progress.progressPercentage}%` }}
                         />
                       </div>
-                      <p className="text-sm text-green-600 dark:text-green-400">
+                      <p className="text-sm text-primary-600 dark:text-primary-400">
                         {progress.completedLessons + progress.completedQuizzes} of {progress.totalLessons + progress.totalQuizzes} items completed
                       </p>
-                      <p className="text-xs text-green-600 dark:text-green-400 mt-1">
+                      <p className="text-xs text-primary-600 dark:text-primary-400 mt-1">
                         Lessons: {progress.completedLessons}/{progress.totalLessons}, Quizzes: {progress.completedQuizzes}/{progress.totalQuizzes}
                       </p>
                     </CardContent>
@@ -496,7 +496,7 @@ export const CourseView = () => {
                       "Get hands-on experience with practical exercises"
                     ].map((item, index) => (
                       <div key={index} className="flex items-start gap-3">
-                        <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                        <CheckCircle className="h-5 w-5 text-primary-500 mt-0.5 flex-shrink-0" />
                         <span className="text-sm">{item}</span>
                       </div>
                     ))}
@@ -556,7 +556,7 @@ export const CourseView = () => {
                                     <div className="flex items-center gap-4">
                                       {isEnrolled ? (
                                         progress.completedLessonIds.includes(lesson.id) ? (
-                                          <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+                                          <CheckCircle className="h-5 w-5 text-primary-500 flex-shrink-0" />
                                         ) : (
                                           <Play className="h-5 w-5 text-primary flex-shrink-0" />
                                         )
@@ -659,7 +659,7 @@ export const CourseView = () => {
                           <span>15,234 Students</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <PlayCircle className="h-4 w-4 text-green-500" />
+                          <PlayCircle className="h-4 w-4 text-primary-500" />
                           <span>12 Courses</span>
                         </div>
                       </div>
@@ -709,7 +709,7 @@ export const CourseView = () => {
                       </Button>
                     ) : (
                       <div className="space-y-4">
-                        <div className="flex items-center justify-center gap-2 text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 p-4 rounded-xl">
+                        <div className="flex items-center justify-center gap-2 text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/20 p-4 rounded-xl">
                           <Trophy className="h-6 w-6" />
                           <span className="font-semibold">You&apos;re enrolled!</span>
                         </div>

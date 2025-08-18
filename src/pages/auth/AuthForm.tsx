@@ -140,14 +140,14 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode, setMode, onClose }) => {
                   <SelectValue placeholder="Choose role" />
                 </div>
               </SelectTrigger>
-              <SelectContent className="glass-card border-emerald-500/30 bg-white/90 dark:bg-slate-950/90">
-                <SelectItem value="student" className="hover:bg-accent focus:bg-accent text-foreground rounded">
+              <SelectContent className="glass-card border-primary-500/30 bg-white/90 dark:bg-slate-950/90">
+                <SelectItem value="student" className="hover:bg-primary/10 focus:bg-primary/10 text-foreground rounded">
                   <div className="flex items-center space-x-2">
                     <BookOpen className="w-4 h-4" />
                     <span>Student</span>
                   </div>
                 </SelectItem>
-                <SelectItem value="teacher" className="hover:bg-accent focus:bg-accent text-foreground rounded">
+                <SelectItem value="teacher" className="hover:bg-primary/10 focus:bg-primary/10 text-foreground rounded">
                   <div className="flex items-center space-x-2">
                     <GraduationCap className="w-4 h-4" />
                     <span>Teacher</span>

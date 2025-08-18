@@ -65,7 +65,7 @@ export const Login = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5">
         <div className="glass-card p-8">
-          <div className="animate-spin rounded-full h-12 w-12 border-2 border-emerald-500 border-t-transparent mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-2 border-primary-500 border-t-transparent mx-auto"></div>
         </div>
       </div>
     );
@@ -83,14 +83,14 @@ export const Login = () => {
   }
 
   return (
-    <div className="min-h-screen flex bg-gradient-to-br from-emerald-950 via-teal-950 to-cyan-950 dark:from-emerald-950 dark:via-teal-950 dark:to-cyan-950 overflow-hidden relative animate-fade-in">
+    <div className="min-h-screen flex bg-gradient-to-br from-primary-950 via-secondary-950 to-accent-950 dark:from-primary-950 dark:via-secondary-950 dark:to-accent-950 overflow-hidden relative animate-fade-in">
       {/* Floating blurred gradients like dashboard */}
       <div className="absolute inset-0 z-0 pointer-events-none">
-        <div className="absolute top-0 left-0 w-96 h-96 bg-emerald-500/12 rounded-full blur-3xl animate-float" />
-        <div className="absolute bottom-0 right-0 w-[32rem] h-72 bg-cyan-400/10 rounded-full blur-2xl animate-float" style={{ animationDelay: "1.2s" }}/>
-        <div className="absolute top-1/2 left-56 w-80 h-40 bg-teal-500/13 rounded-full blur-2xl animate-float" style={{ animationDelay: "2.2s" }}/>
-        <div className="absolute top-36 right-32 w-40 h-40 bg-emerald-700/17 rounded-full blur-2xl animate-float" style={{ animationDelay: "3.3s" }}/>
-        <div className="absolute left-1/2 top-14 w-24 h-60 bg-cyan-600/13 rounded-full blur-2xl animate-float" style={{ animationDelay: ".9s" }}/>
+        <div className="absolute top-0 left-0 w-96 h-96 bg-primary-500/12 rounded-full blur-3xl animate-float" />
+        <div className="absolute bottom-0 right-0 w-[32rem] h-72 bg-accent-400/10 rounded-full blur-2xl animate-float" style={{ animationDelay: "1.2s" }}/>
+        <div className="absolute top-1/2 left-56 w-80 h-40 bg-secondary-500/13 rounded-full blur-2xl animate-float" style={{ animationDelay: "2.2s" }}/>
+        <div className="absolute top-36 right-32 w-40 h-40 bg-primary-700/17 rounded-full blur-2xl animate-float" style={{ animationDelay: "3.3s" }}/>
+        <div className="absolute left-1/2 top-14 w-24 h-60 bg-accent-600/13 rounded-full blur-2xl animate-float" style={{ animationDelay: ".9s" }}/>
         {/* Glass slice effect */}
         <div className="absolute top-32 right-80 w-44 h-14 bg-white/8 rounded-2xl blur-2xl rotate-6 animate-float" style={{ animationDelay: "2.7s" }} />
       </div>
@@ -103,10 +103,10 @@ export const Login = () => {
       {/* Right Login Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 relative z-10 bg-transparent overflow-hidden min-h-screen">
         {/* Animate extra glass background */}
-        <div className="absolute top-0 right-0 w-60 h-60 bg-teal-700/17 rounded-full blur-2xl animate-float pointer-events-none" style={{ animationDuration: "7s" }} />
-        <Card className="w-full max-w-md glass-card border border-emerald-500/10 shadow-emerald-900/40 bg-slate-950/90 backdrop-blur-2xl animate-fade-in">
+        <div className="absolute top-0 right-0 w-60 h-60 bg-secondary-700/17 rounded-full blur-2xl animate-float pointer-events-none" style={{ animationDuration: "7s" }} />
+        <Card className="w-full max-w-md glass-card border border-primary-500/10 shadow-primary-900/40 bg-slate-950/90 backdrop-blur-2xl animate-fade-in">
           <CardHeader className="space-y-4 text-center pb-7">
-            <div className="mx-auto w-20 h-20 bg-gradient-to-tr from-emerald-500 via-teal-500 to-cyan-500 rounded-3xl flex items-center justify-center shadow-xl animate-glow-pulse border border-primary/20">
+            <div className="mx-auto w-20 h-20 bg-gradient-to-tr from-primary-500 via-secondary-500 to-accent-500 rounded-3xl flex items-center justify-center shadow-xl animate-glow-pulse border border-primary/20">
               <LogIn className="w-10 h-10 text-white" />
             </div>
             <div>
@@ -128,33 +128,33 @@ export const Login = () => {
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-2">
                 <div className="relative group">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-400 group-focus-within:text-emerald-300 w-5 h-5 transition-colors" />
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-primary-400 group-focus-within:text-primary-300 w-5 h-5 transition-colors" />
                   <Input
                     type="email"
                     placeholder="Email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    className="pl-12 h-14 bg-slate-950 border-slate-800 rounded-xl text-emerald-100 placeholder:text-slate-500 focus:border-emerald-400 focus:ring-emerald-700/30 transition-all"
+                    className="pl-12 h-14 bg-slate-950 border-slate-800 rounded-xl text-primary-100 placeholder:text-slate-500 focus:border-primary-400 focus:ring-primary-700/30 transition-all"
                   />
                 </div>
               </div>
               <div className="space-y-2">
                 <div className="relative group">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-400 group-focus-within:text-emerald-300 w-5 h-5 transition-colors" />
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-primary-400 group-focus-within:text-primary-300 w-5 h-5 transition-colors" />
                   <Input
                     type={showPassword ? "text" : "password"}
                     placeholder="Password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    className="pl-12 pr-12 h-14 bg-slate-950 border-slate-800 rounded-xl text-emerald-100 placeholder:text-slate-500 focus:border-emerald-400 focus:ring-emerald-700/30 transition-all"
+                    className="pl-12 pr-12 h-14 bg-slate-950 border-slate-800 rounded-xl text-primary-100 placeholder:text-slate-500 focus:border-primary-400 focus:ring-primary-700/30 transition-all"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     aria-label="toggle password visibility"
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-emerald-400 transition-colors"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-primary-400 transition-colors"
                   >
                     {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                   </button>
@@ -162,7 +162,7 @@ export const Login = () => {
               </div>
               <Button
                 type="submit"
-                className="w-full h-14 btn-primary bg-gradient-to-tr from-emerald-600 to-teal-600 shadow-xl hover:from-emerald-500 hover:to-teal-500 font-bold rounded-xl text-lg tracking-wide animate-glow-pulse"
+                className="w-full h-14 btn-primary bg-gradient-to-tr from-primary-600 to-secondary-600 shadow-xl hover:from-primary-500 hover:to-secondary-500 font-bold rounded-xl text-lg tracking-wide animate-glow-pulse"
                 disabled={loading}
               >
                 {loading ? (
@@ -188,7 +188,7 @@ export const Login = () => {
             <Button
               variant="outline"
               onClick={handleGoogleLogin}
-              className="w-full h-14 border-slate-800 bg-slate-950 hover:bg-slate-900 text-emerald-100 rounded-xl font-medium transition-all shadow animate-fade-in"
+              className="w-full h-14 border-slate-800 bg-slate-950 hover:bg-slate-900 text-primary-100 rounded-xl font-medium transition-all shadow animate-fade-in"
             >
               <svg className="mr-3 h-5 w-5" viewBox="0 0 24 24">
                 {/* gray Google icon (not blue, no yellow) */}

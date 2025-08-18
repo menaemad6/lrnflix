@@ -149,7 +149,7 @@ export const QuizVoiceTutorModal = ({
           setModalOpen(false);
         }
       }}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto scrollbar-thin scrollbar-thumb-emerald-500 scrollbar-track-background z-[10000]">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto scrollbar-thin scrollbar-thumb-primary-500 scrollbar-track-background z-[10000]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-3 text-xl">
               <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
@@ -168,7 +168,7 @@ export const QuizVoiceTutorModal = ({
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div>
                     <span className="font-medium">Your Answer: </span>
-                    <span className={userAnswer === question.correct_answer ? 'text-emerald-500' : 'text-destructive'}>{userAnswer || 'Not answered'}</span>
+                    <span className={userAnswer === question.correct_answer ? 'text-primary-500' : 'text-destructive'}>{userAnswer || 'Not answered'}</span>
                   </div>
                   <div>
                     <span className="font-medium">Correct Answer: </span>
@@ -228,11 +228,11 @@ export const QuizVoiceTutorModal = ({
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-2">
-                          <CreditCard className="h-5 w-5 text-emerald-500" />
+                          <CreditCard className="h-5 w-5 text-primary-500" />
                           <span className="font-semibold text-foreground">Purchased Minutes</span>
                         </div>
                         {hasPurchasedMinutesOnly && (
-                          <Badge className="bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border-emerald-500/30">
+                          <Badge className="bg-primary-500/20 text-primary-600 dark:text-primary-400 border-primary-500/30">
                             <Sparkles className="h-3 w-3 mr-1" />
                             Active
                           </Badge>
@@ -241,26 +241,26 @@ export const QuizVoiceTutorModal = ({
                       <div className="grid grid-cols-3 gap-4 text-sm">
                         <div>
                           <div className="text-muted-foreground">Available</div>
-                          <div className="font-bold text-lg text-emerald-600">{purchasedMinutes} min</div>
+                          <div className="font-bold text-lg text-primary-600">{purchasedMinutes} min</div>
                         </div>
                         <div>
                           <div className="text-muted-foreground">Type</div>
-                          <div className="font-bold text-lg text-emerald-600">Premium</div>
+                          <div className="font-bold text-lg text-primary-600">Premium</div>
                         </div>
                         <div>
                           <div className="text-muted-foreground">Status</div>
-                          <div className="font-bold text-lg text-emerald-600">Unlimited</div>
+                          <div className="font-bold text-lg text-primary-600">Unlimited</div>
                         </div>
                       </div>
                       {hasPurchasedMinutesOnly && (
                         <div className="mt-3">
                           <div className="w-full bg-muted rounded-full h-2">
                             <div 
-                              className="h-2 rounded-full bg-emerald-500 transition-all duration-300"
+                              className="h-2 rounded-full bg-primary-500 transition-all duration-300"
                               style={{ width: '100%' }}
                             />
                           </div>
-                          <div className="mt-2 text-xs text-emerald-600 flex items-center gap-1">
+                          <div className="mt-2 text-xs text-primary-600 flex items-center gap-1">
                             <Sparkles className="h-3 w-3" />
                             <span>Using purchased minutes for this session</span>
                           </div>

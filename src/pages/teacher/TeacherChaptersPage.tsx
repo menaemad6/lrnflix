@@ -71,8 +71,8 @@ export const TeacherChaptersPage = () => {
         ) : filteredChapters.length === 0 ? (
           <Card className="glass-card border-0 hover-glow">
             <CardContent className="text-center py-16">
-              <div className="w-20 h-20 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-glow-pulse">
-                <BookOpen className="h-10 w-10 text-emerald-400" />
+              <div className="w-20 h-20 bg-gradient-to-br from-primary-500/20 to-secondary-500/20 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-glow-pulse">
+                <BookOpen className="h-10 w-10 text-primary-400" />
               </div>
               <h3 className="text-xl font-semibold mb-3 gradient-text">Create Your First Chapter</h3>
               <p className="text-muted-foreground mb-6 max-w-md mx-auto">
@@ -93,16 +93,16 @@ export const TeacherChaptersPage = () => {
               <Card key={chapter.id} className="glass-card border-0 hover-glow group">
                 <CardHeader>
                   <div className="flex items-center gap-3 mb-2">
-                    <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center">
-                      <BookOpen className="h-6 w-6 text-emerald-400" />
+                    <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-xl flex items-center justify-center">
+                      <BookOpen className="h-6 w-6 text-primary-400" />
                     </div>
                     <div className="flex-1">
-                      <CardTitle className="text-lg group-hover:text-emerald-400 transition-colors">
+                      <CardTitle className="text-lg group-hover:text-primary-400 transition-colors">
                         {chapter.title}
                       </CardTitle>
                       <div className="flex items-center gap-2 mt-1">
                         <Badge variant={chapter.status === 'published' ? 'default' : 'outline'} 
-                               className={chapter.status === 'published' ? 'bg-emerald-500 text-black' : ''}>
+                               className={chapter.status === 'published' ? 'bg-primary-500 text-black' : ''}>
                           {chapter.status}
                         </Badge>
                         <span className="text-xs text-muted-foreground">
@@ -115,7 +115,7 @@ export const TeacherChaptersPage = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center justify-between mb-4">
-                    <span className="text-lg font-semibold gradient-text">{chapter.price} credits</span>
+                    <span className="text-lg font-semibold text-primary">{chapter.price} credits</span>
                     <span className="text-sm text-muted-foreground">
                       {chapter.course_count} courses
                     </span>

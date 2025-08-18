@@ -17,34 +17,34 @@ export function TeacherStatsGrid({ stats }: TeacherStatsGridProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       <Card className="glass-card border-0 hover-glow group relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-cyan-500/5" />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-accent-500/5" />
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
           <CardTitle className="text-sm font-medium text-muted-foreground">Total Courses</CardTitle>
-          <div className="w-12 h-12 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform border border-blue-500/20">
+          <div className="w-12 h-12 bg-gradient-to-br from-blue-500/20 to-accent-500/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform border border-blue-500/20">
             <BookOpen className="h-6 w-6 text-blue-400" />
           </div>
         </CardHeader>
         <CardContent className="relative z-10">
           <div className="text-3xl font-bold gradient-text mb-1">{stats.totalCourses}</div>
           <p className="text-xs text-muted-foreground flex items-center gap-1">
-            <TrendingUp className="h-3 w-3 text-emerald-400" />
+            <TrendingUp className="h-3 w-3 text-primary-400" />
             Published courses
           </p>
         </CardContent>
       </Card>
 
       <Card className="glass-card border-0 hover-glow group relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-green-500/5" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary-500/5 to-green-500/5" />
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
           <CardTitle className="text-sm font-medium text-muted-foreground">Total Students</CardTitle>
-          <div className="w-12 h-12 bg-gradient-to-br from-emerald-500/20 to-green-500/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform border border-emerald-500/20">
-            <Users className="h-6 w-6 text-emerald-400" />
+          <div className="w-12 h-12 bg-gradient-to-br from-primary-500/20 to-green-500/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform border border-primary-500/20">
+            <Users className="h-6 w-6 text-primary-400" />
           </div>
         </CardHeader>
         <CardContent className="relative z-10">
           <div className="text-3xl font-bold gradient-text mb-1">{stats.totalStudents}</div>
           <p className="text-xs text-muted-foreground flex items-center gap-1">
-            <ArrowUpRight className="h-3 w-3 text-emerald-400" />
+            <ArrowUpRight className="h-3 w-3 text-primary-400" />
             Enrolled learners
           </p>
         </CardContent>

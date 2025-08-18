@@ -6,11 +6,13 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { useToast } from '@/hooks/use-toast';
 import { Users, Plus, MessageCircle, Search, Hash, Copy, Trash2, Share2, Calendar, Crown, Sparkles, Star, Settings } from 'lucide-react';
 import { TeacherPageHeader } from '@/components/teacher/TeacherPageHeader';
 import { useTeacherGroups } from '@/lib/queries';
+import { GroupCardSkeleton } from '@/components/student/skeletons/GroupCardSkeleton';
 
 interface Group {
   id: string;
@@ -149,7 +151,7 @@ export const TeacherGroups = () => {
     });
   };
 
-  const GroupCardSkeleton = React.lazy(() => import('@/components/student/skeletons/GroupCardSkeleton').then(m => ({ default: m.GroupCardSkeleton })));
+
 
 
   return (
@@ -207,12 +209,10 @@ export const TeacherGroups = () => {
                     min="1"
                   />
                   <div className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
+                    <Switch
                       id="is_public"
                       checked={newGroup.is_public}
-                      onChange={(e) => setNewGroup({ ...newGroup, is_public: e.target.checked })}
-                      className="rounded"
+                      onCheckedChange={(checked) => setNewGroup({ ...newGroup, is_public: checked })}
                     />
                     <label htmlFor="is_public" className="text-sm font-medium">Make group public</label>
                   </div>
@@ -232,9 +232,7 @@ export const TeacherGroups = () => {
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {Array.from({ length: 6 }).map((_, i) => (
-              <Suspense fallback={<div className='glass-card border-0 p-6'><div className='h-40 w-full rounded-xl mb-2 bg-muted animate-pulse' /></div>} key={i}>
-                <GroupCardSkeleton />
-              </Suspense>
+              <GroupCardSkeleton key={i} />
             ))}
           </div>
         ) : filteredGroups.length === 0 ? (
@@ -262,13 +260,13 @@ export const TeacherGroups = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredGroups.map((group) => {
               const isPublic = group.is_public;
-              const borderColor = isPublic ? 'border-l-8 border-emerald-500' : 'border-l-8 border-yellow-400';
-              const badgeColor = isPublic ? 'bg-emerald-500 text-white' : 'bg-yellow-400 text-yellow-900 font-bold rounded-full shadow px-3 py-1 border border-yellow-300 hover:bg-yellow-300 hover:border-yellow-500 transition-colors';
+              const borderColor = isPublic ? 'border-l-8 border-primary-500' : 'border-l-8 border-yellow-400';
+              const badgeColor = isPublic ? 'bg-primary-500 text-white' : 'bg-yellow-400 text-yellow-900 font-bold rounded-full shadow px-3 py-1 border border-yellow-300 hover:bg-yellow-300 hover:border-yellow-500 transition-colors';
               const badgeLabel = isPublic ? 'Public' : 'Private';
               return (
                 <Card
                   key={group.id}
-                  className={`glass-card ${borderColor} rounded-2xl shadow-lg hover:shadow-emerald-500/30 hover:scale-[1.02] transition-all duration-200 group-card w-full`}
+                  className={`glass-card ${borderColor} rounded-2xl shadow-lg hover:shadow-primary-500/30 hover:scale-[1.02] transition-all duration-200 group-card w-full`}
                 >
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between gap-2">

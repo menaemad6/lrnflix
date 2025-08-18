@@ -77,6 +77,7 @@ import { TenantProvider, useTenant } from './contexts/TenantContext';
 import { StudentStudents } from './pages/teacher/StudentStudents';
 import { StudentDetail } from './pages/teacher/StudentDetail';
 import TeacherSchedulePage from './pages/teacher/TeacherSchedulePage';
+import { TeacherColorSettings } from './pages/teacher/TeacherColorSettings';
 
 const queryClient = new QueryClient();
 
@@ -98,7 +99,7 @@ const ChatSidebarToggle = () => {
   return (
     <button
       onClick={openChatbot}
-      className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 shadow-lg shadow-emerald-500/25 z-[10050] animate-pulse-glow flex items-center justify-center"
+      className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 shadow-lg shadow-primary-500/25 z-[10050] animate-pulse-glow flex items-center justify-center"
       style={{ pointerEvents: 'auto' }}
     >
       <MessageSquare className="h-5 w-5 sm:h-6 sm:w-6 text-black" />
@@ -137,6 +138,7 @@ const AppRoutes = () => {
           <Route path="/teacher/analytics" element={<ProtectedRoute requiredRole={['teacher']}><TeacherAnalyticsPage /></ProtectedRoute>} />
           <Route path="/teacher/schedule" element={<ProtectedRoute requiredRole={['teacher']}><TeacherSchedulePage /></ProtectedRoute>} />
           <Route path="/teacher/notifications" element={<ProtectedRoute requiredRole={['teacher']}><TeacherNotificationsPage /></ProtectedRoute>} />
+          <Route path="/teacher/colors" element={<ProtectedRoute requiredRole={['teacher']}><TeacherColorSettings /></ProtectedRoute>} />
           <Route path="/teacher/students" element={<ProtectedRoute requiredRole={['teacher']}><StudentStudents /></ProtectedRoute>} />
           <Route path="/teacher/students/:studentId" element={<ProtectedRoute requiredRole={['teacher']}><StudentDetail /></ProtectedRoute>} />
           <Route path="/teacher/multiplayer-quiz" element={<ProtectedRoute requiredRole={['teacher']}><MultiplayerQuizManagement /></ProtectedRoute>} />
@@ -146,7 +148,6 @@ const AppRoutes = () => {
           <Route path="/student/courses" element={<ProtectedRoute requiredRole={['student']}><StudentCoursesPage /></ProtectedRoute>} />
           <Route path="/student/chapters" element={<ProtectedRoute requiredRole={['student']}><StudentChaptersPage /></ProtectedRoute>} />
           <Route path="/student/groups" element={<ProtectedRoute requiredRole={['student']}><StudentGroups /></ProtectedRoute>} />
-          <Route path="/student/store" element={<ProtectedRoute requiredRole={['student']}><Store /></ProtectedRoute>} />
           <Route path="/student/transactions" element={<ProtectedRoute requiredRole={['student']}><StudentTransactions /></ProtectedRoute>} />
           <Route path="/multiplayer-quiz" element={<ProtectedRoute requiredRole={['student']}><MultiplayerQuiz /></ProtectedRoute>} />
           <Route path="/courses" element={<Courses />} />
@@ -157,6 +158,7 @@ const AppRoutes = () => {
           <Route path="/chapters" element={<ProtectedRoute><ChaptersPage /></ProtectedRoute>} />
           <Route path="/chapters/:id" element={<ProtectedRoute><ChapterDetailPage /></ProtectedRoute>} />
           <Route path="/student/notifications" element={<ProtectedRoute requiredRole={['student']}><StudentNotificationsPage /></ProtectedRoute>} />
+          <Route path="/student/store" element={<ProtectedRoute requiredRole={['student']}><Store /></ProtectedRoute>} />
           {/* Shared Routes */}
 
           <Route path="/teachers" element={<TeachersPage />} />
@@ -178,8 +180,8 @@ const AppRoutesWithTenant = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <SparkLoader text="It all starts with a spark" color="#1de9b6" size={56} />
+      <div className="min-h-screen flex items-center justify-center bg-black">
+        <SparkLoader text="It all starts with a spark" color="white" size={56} />
       </div>
     );
   }
@@ -208,11 +210,11 @@ const App = () => (
               <Toaster />
               <Sonner />
               <TenantProvider>
-                <Suspense fallback={
-                  <div className="min-h-screen flex items-center justify-center bg-background">
-                    <SparkLoader text="It all starts with a spark" color="#1de9b6" size={56} />
-                  </div>
-                }>
+                                 <Suspense fallback={
+                   <div className="min-h-screen flex items-center justify-center bg-black">
+                     <SparkLoader text="It all starts with a spark" color="white" size={56} />
+                   </div>
+                 }>
                   <BrowserRouter>
                     <AppRoutesWithTenant />
                   </BrowserRouter>

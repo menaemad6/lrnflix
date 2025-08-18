@@ -13,7 +13,7 @@ export const AuthFooter: React.FC<AuthFooterProps> = ({ mode }) => (
         Don't have an account?
         <Link
           to="/auth/signup"
-          className="ml-1 font-semibold text-emerald-400 hover:text-emerald-300 underline underline-offset-4 transition-colors story-link"
+          className="ml-1 font-semibold text-primary-400 hover:text-primary-300 underline underline-offset-4 transition-colors story-link"
         >
           Sign up
         </Link>
@@ -23,7 +23,7 @@ export const AuthFooter: React.FC<AuthFooterProps> = ({ mode }) => (
         Already have an account?
         <Link
           to="/auth/login"
-          className="ml-1 font-semibold text-emerald-400 hover:text-emerald-300 underline underline-offset-4 transition-colors story-link"
+          className="ml-1 font-semibold text-primary-400 hover:text-primary-300 underline underline-offset-4 transition-colors story-link"
         >
           Log in
         </Link>

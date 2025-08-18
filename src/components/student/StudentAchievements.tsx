@@ -101,7 +101,7 @@ export const StudentAchievements = ({ stats }: StudentAchievementsProps) => {
   const getRarityGradient = (rarity: string) => {
     switch (rarity) {
       case 'common': return 'from-gray-500/20 to-gray-600/20';
-      case 'rare': return 'from-blue-500/20 to-cyan-500/20';
+      case 'rare': return 'from-blue-500/20 to-accent-500/20';
       case 'epic': return 'from-purple-500/20 to-pink-500/20';
       case 'legendary': return 'from-yellow-500/20 to-orange-500/20';
       default: return 'from-gray-500/20 to-gray-600/20';

@@ -279,7 +279,7 @@ export const TeacherCourseManagement = () => {
       {/* Floating mobile toggle button */}
       <Button
         onClick={() => setMobileSidebarOpen(true)}
-        className="lg:hidden fixed bottom-4 left-4 z-[60] rounded-full w-12 h-12 p-0 shadow-lg shadow-emerald-500/25 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600"
+        className="lg:hidden fixed bottom-4 left-4 z-[60] rounded-full w-12 h-12 p-0 shadow-lg shadow-primary-500/25 bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600"
         aria-label="Open course management sidebar"
       >
         <Menu className="h-5 w-5 text-black" />

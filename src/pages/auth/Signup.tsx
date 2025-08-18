@@ -64,14 +64,14 @@ export const Signup = () => {
   }
 
   return (
-    <div className="min-h-screen flex bg-gradient-to-br from-emerald-950 via-teal-950 to-cyan-950 dark:from-emerald-950 dark:via-teal-950 dark:to-cyan-950 overflow-hidden relative animate-fade-in">
+    <div className="min-h-screen flex bg-gradient-to-br from-primary-950 via-secondary-950 to-accent-950 dark:from-primary-950 dark:via-secondary-950 dark:to-accent-950 overflow-hidden relative animate-fade-in">
       {/* Floating gradient blobs/glass and particles - premium */}
       <div className="absolute inset-0 z-0 pointer-events-none">
-        <div className="absolute left-8 top-24 w-80 h-80 bg-emerald-600/20 blur-3xl rounded-full animate-float" />
-        <div className="absolute right-24 bottom-12 w-96 h-96 bg-cyan-400/12 rounded-full blur-3xl animate-float" style={{ animationDelay: "2.2s" }} />
-        <div className="absolute left-1/3 top-1/2 w-48 h-48 bg-teal-400/15 blur-2xl rounded-full animate-pulse" />
-        <div className="absolute left-20 bottom-1/3 w-32 h-32 bg-emerald-400/10 rounded-full blur-2xl animate-float" style={{ animationDelay: "1.7s" }} />
-        <div className="absolute right-48 top-12 w-40 h-40 bg-cyan-700/20 rounded-full blur-3xl animate-float" style={{ animationDelay: ".9s" }} />
+        <div className="absolute left-8 top-24 w-80 h-80 bg-primary-600/20 blur-3xl rounded-full animate-float" />
+        <div className="absolute right-24 bottom-12 w-96 h-96 bg-accent-400/12 rounded-full blur-3xl animate-float" style={{ animationDelay: "2.2s" }} />
+        <div className="absolute left-1/3 top-1/2 w-48 h-48 bg-secondary-400/15 blur-2xl rounded-full animate-pulse" />
+        <div className="absolute left-20 bottom-1/3 w-32 h-32 bg-primary-400/10 rounded-full blur-2xl animate-float" style={{ animationDelay: "1.7s" }} />
+        <div className="absolute right-48 top-12 w-40 h-40 bg-accent-700/20 rounded-full blur-3xl animate-float" style={{ animationDelay: ".9s" }} />
         {/* Glass slice */}
         <div className="absolute top-40 right-64 w-48 h-20 bg-white/7 rounded-3xl blur-2xl rotate-6 animate-float" style={{ animationDelay: "3s" }} />
       </div>
@@ -83,10 +83,10 @@ export const Signup = () => {
       />
       {/* Right - Signup Form - modern glass look */}
       <div className="w-full lg:w-1/2 min-h-screen flex items-center justify-center p-8 z-10 relative">
-        <div className="absolute top-0 right-0 w-60 h-60 bg-teal-700/20 rounded-full blur-2xl animate-float pointer-events-none" style={{ animationDuration: "7s" }} />
-        <Card className="w-full max-w-md glass-card border border-emerald-500/10 shadow-cyan-900/40 bg-slate-950/90 backdrop-blur-2xl animate-fade-in">
+        <div className="absolute top-0 right-0 w-60 h-60 bg-secondary-700/20 rounded-full blur-2xl animate-float pointer-events-none" style={{ animationDuration: "7s" }} />
+        <Card className="w-full max-w-md glass-card border border-primary-500/10 shadow-accent-900/40 bg-slate-950/90 backdrop-blur-2xl animate-fade-in">
           <CardHeader className="space-y-4 text-center pb-8">
-            <div className="mx-auto w-20 h-20 bg-gradient-to-br from-teal-500 via-emerald-500 to-cyan-500 rounded-3xl flex items-center justify-center shadow-xl animate-glow-pulse border border-primary/20">
+            <div className="mx-auto w-20 h-20 bg-gradient-to-br from-secondary-500 via-primary-500 to-accent-500 rounded-3xl flex items-center justify-center shadow-xl animate-glow-pulse border border-primary/20">
               <UserPlus className="w-10 h-10 text-white" />
             </div>
             <CardTitle className="text-3xl font-black gradient-text tracking-wide drop-shadow-lg">Get Started</CardTitle>
@@ -101,14 +101,14 @@ export const Signup = () => {
               </Alert>
             )}
             {success && (
-              <Alert className="border-emerald-500/40 bg-emerald-900/20 animate-fade-in">
-                <AlertDescription className="text-emerald-200">{success}</AlertDescription>
+              <Alert className="border-primary-500/40 bg-primary-900/20 animate-fade-in">
+                <AlertDescription className="text-primary-200">{success}</AlertDescription>
               </Alert>
             )}
             <form onSubmit={handleSignup} className="space-y-4">
               <div className="space-y-2">
                 <div className="relative group">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 text-emerald-400 w-5 h-5" />
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 text-primary-400 w-5 h-5" />
                   <Input
                     type="text"
                     placeholder="Full name"
@@ -117,13 +117,13 @@ export const Signup = () => {
                       setFormData({ ...formData, fullName: e.target.value })
                     }
                     required
-                    className="pl-12 h-14 bg-slate-950 border-slate-800 rounded-xl text-emerald-100 placeholder:text-slate-500 focus:border-emerald-400 focus:ring-emerald-700/40 transition-all"
+                    className="pl-12 h-14 bg-slate-950 border-slate-800 rounded-xl text-primary-100 placeholder:text-slate-500 focus:border-primary-400 focus:ring-primary-700/40 transition-all"
                   />
                 </div>
               </div>
               <div className="space-y-2">
                 <div className="relative group">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-emerald-400 w-5 h-5" />
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-primary-400 w-5 h-5" />
                   <Input
                     type="email"
                     placeholder="Email"
@@ -132,13 +132,13 @@ export const Signup = () => {
                       setFormData({ ...formData, email: e.target.value })
                     }
                     required
-                    className="pl-12 h-14 bg-slate-950 border-slate-800 rounded-xl text-emerald-100 placeholder:text-slate-500 focus:border-emerald-400 focus:ring-emerald-700/40 transition-all"
+                    className="pl-12 h-14 bg-slate-950 border-slate-800 rounded-xl text-primary-100 placeholder:text-slate-500 focus:border-primary-400 focus:ring-primary-700/40 transition-all"
                   />
                 </div>
               </div>
               <div className="space-y-2">
                 <div className="relative group">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-emerald-400 w-5 h-5" />
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-primary-400 w-5 h-5" />
                   <Input
                     type={showPassword ? "text" : "password"}
                     placeholder="Password"
@@ -147,13 +147,13 @@ export const Signup = () => {
                       setFormData({ ...formData, password: e.target.value })
                     }
                     required
-                    className="pl-12 pr-12 h-14 bg-slate-950 border-slate-800 rounded-xl text-emerald-100 placeholder:text-slate-500 focus:border-emerald-400 focus:ring-emerald-700/40 transition-all"
+                    className="pl-12 pr-12 h-14 bg-slate-950 border-slate-800 rounded-xl text-primary-100 placeholder:text-slate-500 focus:border-primary-400 focus:ring-primary-700/40 transition-all"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     aria-label="toggle password visibility"
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-emerald-300 transition-colors"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-primary-300 transition-colors"
                   >
                     {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                   </button>
@@ -167,20 +167,20 @@ export const Signup = () => {
                       setFormData({ ...formData, role: value })
                   }
                 >
-                  <SelectTrigger className="h-14 bg-slate-950 border-slate-800 text-emerald-100 focus:border-emerald-400 focus:ring-emerald-700/40 rounded-xl transition-all flex items-center">
+                  <SelectTrigger className="h-14 bg-slate-950 border-slate-800 text-primary-100 focus:border-primary-400 focus:ring-primary-700/40 rounded-xl transition-all flex items-center">
                     <div className="flex items-center space-x-2">
                       {formData.role === "teacher" ? (
-                        <GraduationCap className="w-5 h-5 text-emerald-400" />
+                        <GraduationCap className="w-5 h-5 text-primary-400" />
                       ) : (
-                        <BookOpen className="w-5 h-5 text-emerald-400" />
+                        <BookOpen className="w-5 h-5 text-primary-400" />
                       )}
                       <SelectValue placeholder="Choose role" />
                     </div>
                   </SelectTrigger>
-                  <SelectContent className="glass-card border-emerald-500/30 bg-slate-950/90">
+                  <SelectContent className="glass-card border-primary-500/30 bg-slate-950/90">
                     <SelectItem
                       value="student"
-                      className="hover:bg-emerald-800/20 focus:bg-emerald-800/20 text-emerald-100 rounded"
+                      className="hover:bg-primary-800/20 focus:bg-primary-800/20 text-primary-100 rounded"
                     >
                       <div className="flex items-center space-x-2">
                         <BookOpen className="w-4 h-4" />
@@ -189,7 +189,7 @@ export const Signup = () => {
                     </SelectItem>
                     <SelectItem
                       value="teacher"
-                      className="hover:bg-teal-800/20 focus:bg-teal-800/20 text-emerald-100 rounded"
+                      className="hover:bg-secondary-800/20 focus:bg-secondary-800/20 text-primary-100 rounded"
                     >
                       <div className="flex items-center space-x-2">
                         <GraduationCap className="w-4 h-4" />
@@ -201,7 +201,7 @@ export const Signup = () => {
               </div>
               <Button
                 type="submit"
-                className="w-full h-14 btn-primary bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 shadow-xl font-bold rounded-xl text-lg tracking-wide animate-glow-pulse"
+                className="w-full h-14 btn-primary bg-gradient-to-r from-primary-600 to-secondary-600 hover:from-primary-500 hover:to-secondary-500 shadow-xl font-bold rounded-xl text-lg tracking-wide animate-glow-pulse"
                 disabled={loading}
               >
                 {loading ? (

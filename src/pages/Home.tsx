@@ -111,7 +111,7 @@ const FloatingElements3D = () => {
             delay: i * 0.3,
           }}
         >
-          <div className={`w-${2 + (i % 3)} h-${2 + (i % 3)} bg-gradient-to-r from-emerald-400/30 to-teal-400/30 rounded-full blur-sm`} />
+          <div className={`w-${2 + (i % 3)} h-${2 + (i % 3)} bg-gradient-to-r from-primary-400/30 to-secondary-400/30 rounded-full blur-sm`} />
         </motion.div>
       ))}
     </div>
@@ -125,7 +125,7 @@ const AnimatedLogo = () => {
       width="60"
       height="60"
       viewBox="0 0 60 60"
-      className="text-emerald-400"
+      className="text-primary-400"
       initial={{ pathLength: 0, opacity: 0 }}
       animate={{ pathLength: 1, opacity: 1 }}
       transition={{ duration: 2, ease: "easeInOut" }}
@@ -189,7 +189,7 @@ export const Home = () => {
           viewport={{ once: true }}
         >
           <motion.div
-            className="inline-flex items-center justify-center w-32 h-32 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 mb-12 shadow-2xl"
+            className="inline-flex items-center justify-center w-32 h-32 rounded-full bg-gradient-to-r from-primary-500 to-secondary-500 mb-12 shadow-2xl"
             animate={{ 
               rotate: 360,
               scale: [1, 1.1, 1],
@@ -234,7 +234,7 @@ export const Home = () => {
                   whileHover={{ scale: 1.05, rotateX: 10 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <Button className="h-20 px-16 text-2xl rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-black font-bold shadow-2xl hover:shadow-emerald-500/50 transition-all duration-500">
+                  <Button className="h-20 px-16 text-2xl rounded-full bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-400 hover:to-secondary-400 text-black font-bold shadow-2xl hover:shadow-primary-500/50 transition-all duration-500">
                     Launch Your Platform
                     <motion.div
                       animate={{ rotate: [0, 180, 360] }}
@@ -251,7 +251,7 @@ export const Home = () => {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <Button className="h-20 px-16 text-2xl rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-black font-bold shadow-2xl hover:shadow-emerald-500/50 transition-all duration-500">
+                  <Button className="h-20 px-16 text-2xl rounded-full bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-400 hover:to-secondary-400 text-black font-bold shadow-2xl hover:shadow-primary-500/50 transition-all duration-500">
                     Explore Platform
                     <ArrowRight className="ml-4 h-8 w-8" />
                   </Button>
@@ -295,7 +295,7 @@ export const Home = () => {
                 <motion.a
                   key={item}
                   href="#"
-                  className="hover:text-emerald-400 transition-colors duration-300"
+                  className="hover:text-primary-400 transition-colors duration-300"
                   whileHover={{ scale: 1.1, y: -2 }}
                 >
                   {item}

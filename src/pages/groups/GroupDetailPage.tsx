@@ -97,6 +97,7 @@ export const GroupDetailPage = () => {
   const [isMember, setIsMember] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showObjectSharing, setShowObjectSharing] = useState(false);
+  const [showLeaveConfirmation, setShowLeaveConfirmation] = useState(false);
   const [objectRefreshTrigger, setObjectRefreshTrigger] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string>('student');
@@ -229,6 +230,14 @@ export const GroupDetailPage = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Refresh messages when user becomes a member
+  useEffect(() => {
+    if (isMember && groupId) {
+      console.log('User became a member, refreshing messages');
+      fetchMessages();
+    }
+  }, [isMember, groupId]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -558,7 +567,9 @@ export const GroupDetailPage = () => {
           url.searchParams.delete('code');
           window.history.replaceState({}, '', url.pathname + url.search);
         }
-        fetchGroupDetails();
+        // Refresh group details and fetch messages after joining
+        await fetchGroupDetails();
+        await fetchMessages();
       } else {
         toast({
           title: 'Error',
@@ -577,8 +588,6 @@ export const GroupDetailPage = () => {
   };
 
   const handleLeaveGroup = async () => {
-    if (!confirm('Are you sure you want to leave this group?')) return;
-
     try {
       const { data: { user: currentUser } } = await supabase.auth.getUser();
       if (!currentUser) return;
@@ -596,6 +605,7 @@ export const GroupDetailPage = () => {
         description: 'Left the group',
       });
 
+      setShowLeaveConfirmation(false);
       navigate(userRole === 'teacher' ? '/teacher/groups' : '/student/groups');
     } catch (error: any) {
       console.error('Error leaving group:', error);
@@ -748,57 +758,59 @@ export const GroupDetailPage = () => {
     <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button variant="outline" onClick={() => navigate(-1)}>
+        <div className="space-y-4 sm:space-y-0 sm:flex sm:items-start sm:justify-between">
+          <div className="flex items-start gap-3 sm:gap-4">
+            <Button variant="outline" onClick={() => navigate(-1)} className="flex-shrink-0">
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <div>
-              <div className="flex items-center gap-3 mb-2">
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
                 {isOwner ? (
-                  <Crown className="w-5 h-5 text-primary" />
+                  <Crown className="w-5 h-5 text-primary flex-shrink-0" />
                 ) : (
-                  <UserCheck className="w-5 h-5 text-primary" />
+                  <UserCheck className="w-5 h-5 text-primary flex-shrink-0" />
                 )}
-                <Badge variant={group.is_public ? 'default' : undefined} className={group.is_public ? '' : 'bg-yellow-400 text-yellow-900 font-bold rounded-full shadow px-3 py-1 border border-yellow-300 hover:bg-yellow-300 hover:border-yellow-500 transition-colors'}>
+                <Badge variant={group.is_public ? 'default' : undefined} className={`flex-shrink-0 ${group.is_public ? '' : 'bg-yellow-400 text-yellow-900 font-bold rounded-full shadow px-3 py-1 border border-yellow-300 hover:bg-yellow-300 hover:border-yellow-500 transition-colors'}`}>
                   {group.is_public ? 'Public Group' : 'Private Group'}
                 </Badge>
               </div>
-              <h1 className="text-3xl font-bold">{group.name}</h1>
-              <div className="flex items-center gap-4 text-muted-foreground">
+              <h1 className="text-2xl sm:text-3xl font-bold break-words">{group.name}</h1>
+              <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-muted-foreground text-sm sm:text-base">
                 <div className="flex items-center gap-2">
-                  <Users className="w-4 h-4" />
+                  <Users className="w-4 h-4 flex-shrink-0" />
                   <span>{members.length} members</span>
                 </div>
                 {showGroupCodeAndShare && (userRole === 'teacher' || isOwner || group.is_code_visible) && (
                   <div className="flex items-center gap-2">
-                    <Hash className="w-4 h-4" />
-                    <span>{group.group_code}</span>
+                    <Hash className="w-4 h-4 flex-shrink-0" />
+                    <span className="break-all">{group.group_code}</span>
                   </div>
                 )}
               </div>
             </div>
           </div>
           
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-2 sm:gap-3 sm:flex-shrink-0">
             {isMember && showObjectSharingButton && (
-              <Button onClick={() => setShowObjectSharing(true)}>
-                <Plus className="w-4 h-4 mr-2" />
-                Share Object
+              <Button onClick={() => setShowObjectSharing(true)} size="sm" className="text-xs sm:text-sm">
+                <Plus className="w-4 h-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Share Object</span>
+                <span className="sm:hidden">Share</span>
               </Button>
             )}
             {isOwner && (
-              <Button variant="outline" onClick={() => setShowSettings(true)}>
-                <Settings className="w-4 h-4 mr-2" />
-                Settings
+              <Button variant="outline" onClick={() => setShowSettings(true)} size="sm" className="text-xs sm:text-sm">
+                <Settings className="w-4 h-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Settings</span>
+                <span className="sm:hidden">Settings</span>
               </Button>
             )}
           </div>
         </div>
 
-        <div className={`grid gap-6 ${showMembersSection || showSharedObjects ? 'grid-cols-1 lg:grid-cols-3' : 'grid-cols-1'}`}>
+        <div className={`grid gap-6 ${showMembersSection || showSharedObjects ? 'grid-cols-1 xl:grid-cols-3' : 'grid-cols-1'}`}>
           {/* Group Info & Chat - Takes full width if no sidebar, or 2 columns if sidebar */}
-          <div className={`space-y-6 ${showMembersSection || showSharedObjects ? 'lg:col-span-2' : ''}`}>
+          <div className={`space-y-6 ${showMembersSection || showSharedObjects ? 'xl:col-span-2' : ''}`}>
             {/* Group Information */}
             <Card>
               <CardHeader>
@@ -815,12 +827,12 @@ export const GroupDetailPage = () => {
                   </div>
                 )}
                 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {showGroupCodeAndShare && (userRole === 'teacher' || isOwner || group.is_code_visible) && (
                     <div>
                       <h4 className="font-semibold mb-2">Group Code</h4>
                       <Badge 
-                        className="cursor-pointer"
+                        className="cursor-pointer break-all"
                         onClick={() => navigator.clipboard.writeText(group.group_code)}
                       >
                         <Hash className="w-4 h-4 mr-1" />
@@ -849,24 +861,27 @@ export const GroupDetailPage = () => {
                   </div>
                 </div>
 
-                <div className="flex gap-3 pt-4">
+                <div className="flex flex-wrap gap-2 sm:gap-3 pt-4">
                   {showGroupCodeAndShare && (userRole === 'teacher' || isOwner || group.is_code_visible) && (
-                    <Button onClick={copyGroupLink}>
-                      <LinkIcon className="w-4 w-4 mr-2" />
-                      Share Link
+                    <Button onClick={copyGroupLink} size="sm" className="text-xs sm:text-sm">
+                      <LinkIcon className="w-4 h-4 mr-1 sm:mr-2" />
+                      <span className="hidden sm:inline">Share Link</span>
+                      <span className="sm:hidden">Share</span>
                     </Button>
                   )}
                   {!isMember && (
-                    <Button onClick={handleJoinGroup}>
-                      <Plus className="w-4 h-4 mr-2" />
-                      Join Group
+                    <Button onClick={handleJoinGroup} size="sm" className="text-xs sm:text-sm">
+                      <Plus className="w-4 h-4 mr-1 sm:mr-2" />
+                      <span className="hidden sm:inline">Join Group</span>
+                      <span className="sm:hidden">Join</span>
                     </Button>
                   )}
-                  {isMember && !isOwner && (
-                    <Button variant="destructive" onClick={handleLeaveGroup}>
-                      Leave Group
-                    </Button>
-                  )}
+                                     {isMember && !isOwner && (
+                     <Button variant="destructive" onClick={() => setShowLeaveConfirmation(true)} size="sm" className="text-xs sm:text-sm">
+                       <span className="hidden sm:inline">Leave Group</span>
+                       <span className="sm:hidden">Leave</span>
+                     </Button>
+                   )}
                 </div>
               </CardContent>
             </Card>
@@ -938,13 +953,13 @@ export const GroupDetailPage = () => {
                                   </div>
                                 </div>
                                 
-                                {isCurrentUser && (
-                                  <Avatar className="h-8 w-8 flex-shrink-0">
-                                    <AvatarFallback>
-                                      {user?.email?.charAt(0) || 'U'}
-                                    </AvatarFallback>
-                                  </Avatar>
-                                )}
+                                                                 {isCurrentUser && (
+                                   <Avatar className="h-8 w-8 flex-shrink-0">
+                                     <AvatarFallback className="bg-gradient-to-br from-primary-500 via-secondary-500 to-accent-500 text-white font-semibold">
+                                       {user?.email?.charAt(0) || 'U'}
+                                     </AvatarFallback>
+                                   </Avatar>
+                                 )}
                               </div>
                             </div>
                           );
@@ -976,7 +991,7 @@ export const GroupDetailPage = () => {
 
           {/* Sidebar - Show for teachers/owners OR students who can see shared objects */}
           {(showMembersSection || showSharedObjects) && (
-            <div className="lg:col-span-1 space-y-6">
+            <div className="xl:col-span-1 space-y-6">
               {/* Members List - Only for teachers/owners */}
               {showMembersSection && (
                 <Card>
@@ -1064,75 +1079,98 @@ export const GroupDetailPage = () => {
           />
         )}
 
-        {/* Settings Dialog */}
-        <Dialog open={showSettings} onOpenChange={setShowSettings}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Group Settings</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-2">Group Name</label>
-                <Input
-                  value={groupSettings.name}
-                  onChange={(e) => setGroupSettings({ ...groupSettings, name: e.target.value })}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">Description</label>
-                <Textarea
-                  value={groupSettings.description}
-                  onChange={(e) => setGroupSettings({ ...groupSettings, description: e.target.value })}
-                  rows={4}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">Max Members</label>
-                <Input
-                  type="number"
-                  value={groupSettings.max_members}
-                  onChange={(e) => setGroupSettings({ ...groupSettings, max_members: e.target.value })}
-                  placeholder="No limit"
-                  min="1"
-                />
-              </div>
-              <div className="flex items-center gap-3">
-                <Switch
-                  id="is_public_setting"
-                  checked={groupSettings.is_public}
-                  onCheckedChange={(checked) => setGroupSettings({ ...groupSettings, is_public: checked })}
-                />
-                <label htmlFor="is_public_setting" className="text-sm font-medium">Make group public</label>
-              </div>
-              <div className="flex items-center gap-3">
-                <Switch
-                  id="is_code_visible_setting"
-                  checked={groupSettings.is_code_visible}
-                  onCheckedChange={(checked) => setGroupSettings({ ...groupSettings, is_code_visible: checked })}
-                />
-                <label htmlFor="is_code_visible_setting" className="text-sm font-medium">Show group code to students</label>
-              </div>
-              <div className="flex items-center gap-3">
-                <Switch
-                  id="is_members_visible_setting"
-                  checked={groupSettings.is_members_visible}
-                  onCheckedChange={(checked) => setGroupSettings({ ...groupSettings, is_members_visible: checked })}
-                />
-                <label htmlFor="is_members_visible_setting" className="text-sm font-medium">
-                  Show members to students
-                </label>
-              </div>
-              <div className="flex gap-3 pt-4">
-                <Button onClick={handleUpdateGroup}>
-                  Save Changes
-                </Button>
-                <Button variant="outline" onClick={() => setShowSettings(false)}>
-                  Cancel
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
+                 {/* Settings Dialog */}
+         <Dialog open={showSettings} onOpenChange={setShowSettings}>
+           <DialogContent>
+             <DialogHeader>
+               <DialogTitle>Group Settings</DialogTitle>
+             </DialogHeader>
+             <div className="space-y-4">
+               <div>
+                 <label className="block text-sm font-medium mb-2">Group Name</label>
+                 <Input
+                   value={groupSettings.name}
+                   onChange={(e) => setGroupSettings({ ...groupSettings, name: e.target.value })}
+                 />
+               </div>
+               <div>
+                 <label className="block text-sm font-medium mb-2">Description</label>
+                 <Textarea
+                   value={groupSettings.description}
+                   onChange={(e) => setGroupSettings({ ...groupSettings, description: e.target.value })}
+                   rows={4}
+                 />
+               </div>
+               <div>
+                 <label className="block text-sm font-medium mb-2">Max Members</label>
+                 <Input
+                   type="number"
+                   value={groupSettings.max_members}
+                   onChange={(e) => setGroupSettings({ ...groupSettings, max_members: e.target.value })}
+                   placeholder="No limit"
+                   min="1"
+                 />
+               </div>
+               <div className="flex items-center gap-3">
+                 <Switch
+                   id="is_public_setting"
+                   checked={groupSettings.is_public}
+                   onCheckedChange={(checked) => setGroupSettings({ ...groupSettings, is_public: checked })}
+                 />
+                 <label htmlFor="is_public_setting" className="text-sm font-medium">Make group public</label>
+               </div>
+               <div className="flex items-center gap-3">
+                 <Switch
+                   id="is_code_visible_setting"
+                   checked={groupSettings.is_code_visible}
+                   onCheckedChange={(checked) => setGroupSettings({ ...groupSettings, is_code_visible: checked })}
+                 />
+                 <label htmlFor="is_code_visible_setting" className="text-sm font-medium">Show group code to students</label>
+               </div>
+               <div className="flex items-center gap-3">
+                 <Switch
+                   id="is_members_visible_setting"
+                   checked={groupSettings.is_members_visible}
+                   onCheckedChange={(checked) => setGroupSettings({ ...groupSettings, is_members_visible: checked })}
+                 />
+                 <label htmlFor="is_members_visible_setting" className="text-sm font-medium">
+                   Show members to students
+                 </label>
+               </div>
+               <div className="flex gap-3 pt-4">
+                 <Button onClick={handleUpdateGroup}>
+                   Save Changes
+                 </Button>
+                 <Button variant="outline" onClick={() => setShowSettings(false)}>
+                   Cancel
+                 </Button>
+               </div>
+             </div>
+           </DialogContent>
+         </Dialog>
+
+         {/* Leave Group Confirmation Dialog */}
+         <Dialog open={showLeaveConfirmation} onOpenChange={setShowLeaveConfirmation}>
+           <DialogContent>
+             <DialogHeader>
+               <DialogTitle className="text-destructive">Leave Group</DialogTitle>
+             </DialogHeader>
+             <div className="space-y-4">
+               <p className="text-muted-foreground">
+                 Are you sure you want to leave <span className="font-semibold text-foreground">{group?.name}</span>? 
+                 You will lose access to the group chat and shared objects.
+               </p>
+               <div className="flex gap-3 pt-4">
+                 <Button variant="destructive" onClick={handleLeaveGroup}>
+                   Leave Group
+                 </Button>
+                 <Button variant="outline" onClick={() => setShowLeaveConfirmation(false)}>
+                   Cancel
+                 </Button>
+               </div>
+             </div>
+           </DialogContent>
+         </Dialog>
       </div>
     </DashboardLayout>
   );

@@ -124,7 +124,7 @@ export const StudentActivity = ({ stats }: StudentActivityProps) => {
     <Card className="glass-card border-0">
       <CardHeader>
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-cyan-400 rounded-2xl flex items-center justify-center">
+          <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-accent-400 rounded-2xl flex items-center justify-center">
             <Calendar className="h-6 w-6 text-black" />
           </div>
           <div>

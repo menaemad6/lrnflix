@@ -179,13 +179,13 @@ export const StudentGroups = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredGroups.map((group) => {
                 const isPublic = group.is_public;
-                const borderColor = isPublic ? 'border-l-8 border-emerald-500' : 'border-l-8 border-yellow-400';
-                const badgeColor = isPublic ? 'bg-emerald-500 text-white' : 'bg-yellow-400 text-yellow-900 font-bold rounded-full shadow px-3 py-1 border border-yellow-300 hover:bg-yellow-300 hover:border-yellow-500 transition-colors';
+                const borderColor = isPublic ? 'border-l-8 border-primary-500' : 'border-l-8 border-yellow-400';
+                const badgeColor = isPublic ? 'bg-primary-500 text-white' : 'bg-yellow-400 text-yellow-900 font-bold rounded-full shadow px-3 py-1 border border-yellow-300 hover:bg-yellow-300 hover:border-yellow-500 transition-colors';
                 const badgeLabel = isPublic ? 'Public' : 'Private';
                 return (
                   <Card
                     key={group.id}
-                    className={`glass-card ${borderColor} rounded-2xl shadow-lg hover:shadow-emerald-500/30 hover:scale-[1.02] transition-all duration-200 group-card w-full`}
+                    className={`glass-card ${borderColor} rounded-2xl shadow-lg hover:shadow-primary-500/30 hover:scale-[1.02] transition-all duration-200 group-card w-full`}
                   >
                     <CardHeader className="pb-3">
                       <div className="flex items-start justify-between gap-2">

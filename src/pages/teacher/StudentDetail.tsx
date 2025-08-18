@@ -386,8 +386,8 @@ export const StudentDetail = () => {
                     <div className="text-lg font-bold text-blue-400">{student.enrollments.length}</div>
                     <div className="text-xs text-muted-foreground">Courses</div>
                   </div>
-                  <div className="text-center p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
-                    <div className="text-lg font-bold text-emerald-400">{totalSpent}</div>
+                  <div className="text-center p-3 rounded-xl bg-primary-500/10 border border-primary-500/20">
+                    <div className="text-lg font-bold text-primary-400">{totalSpent}</div>
                     <div className="text-xs text-muted-foreground">Credits Spent</div>
                   </div>
                   <div className="text-center p-3 rounded-xl bg-yellow-500/10 border border-yellow-500/20">
@@ -468,7 +468,7 @@ export const StudentDetail = () => {
                       <div className="text-right">
                         <div className="flex items-center gap-2">
                           {(attempt.score / attempt.max_score) >= 0.7 ? (
-                            <CheckCircle className="h-4 w-4 text-emerald-400" />
+                            <CheckCircle className="h-4 w-4 text-primary-400" />
                           ) : (
                             <XCircle className="h-4 w-4 text-red-400" />
                           )}
@@ -476,7 +476,7 @@ export const StudentDetail = () => {
                             variant="outline"
                             className={
                               (attempt.score / attempt.max_score) >= 0.7
-                                ? "text-emerald-400 border-emerald-500/30"
+                                ? "text-primary-400 border-primary-500/30"
                                 : "text-red-400 border-red-500/30"
                             }
                           >

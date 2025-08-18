@@ -227,7 +227,7 @@ export const MultiplayerQuizResults = ({
             >
               <Button
                 onClick={onPlayAgain}
-                className="w-full h-12 bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 text-white font-semibold"
+                className="w-full h-12 bg-gradient-to-r from-green-500 to-secondary-600 hover:from-green-600 hover:to-secondary-700 text-white font-semibold"
               >
                 <RotateCcw className="h-4 w-4 mr-2" />
                 Play Again

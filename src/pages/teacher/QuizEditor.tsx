@@ -594,7 +594,7 @@ export const QuizEditor = () => {
                       size="sm"
                       onClick={() => handleAnswerSingleQuestion(index)}
                       disabled={answeringQuestion === index || !question.question_text.trim()}
-                      className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white border-0 hover:from-blue-600 hover:to-cyan-600"
+                      className="bg-gradient-to-r from-blue-500 to-accent-500 text-white border-0 hover:from-blue-600 hover:to-accent-600"
                     >
                       <Sparkles className="h-4 w-4 mr-1" />
                       {answeringQuestion === index ? 'AI Answering...' : 'AI Answer'}

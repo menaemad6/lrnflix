@@ -39,7 +39,7 @@ export const TeacherCodesPage = () => {
         <Card className="glass-card border-0">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Gift className="h-5 w-5 text-emerald-400" />
+              <Gift className="h-5 w-5 text-primary-400" />
               Code Management
             </CardTitle>
             <CardDescription>

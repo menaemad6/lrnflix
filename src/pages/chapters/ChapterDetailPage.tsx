@@ -276,13 +276,13 @@ export const ChapterDetailPage = () => {
                 </div>
 
                 {isEnrolled && (
-                  <Card className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 border-green-500/20">
+                  <Card className="bg-gradient-to-r from-primary-500/10 to-primary-500/10 border-primary-500/20">
                     <CardContent className="p-6">
                       <div className="flex items-center gap-3">
-                        <Trophy className="h-6 w-6 text-green-500" />
+                        <Trophy className="h-6 w-6 text-primary-500" />
                         <div>
-                          <h3 className="font-semibold text-green-700 dark:text-green-300">Enrolled Successfully!</h3>
-                          <p className="text-sm text-green-600 dark:text-green-400">You now have access to all courses in this chapter</p>
+                          <h3 className="font-semibold text-primary-700 dark:text-primary-300">Enrolled Successfully!</h3>
+                          <p className="text-sm text-primary-600 dark:text-primary-400">You now have access to all courses in this chapter</p>
                         </div>
                       </div>
                     </CardContent>

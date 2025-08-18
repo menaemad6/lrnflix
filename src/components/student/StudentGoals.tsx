@@ -108,9 +108,9 @@ export const StudentGoals = ({ stats }: StudentGoalsProps) => {
           {goals.map((goal) => (
             <div
               key={goal.id}
-              className={`group p-4 rounded-xl border transition-all duration-300 hover:border-emerald-400/30 ${
+              className={`group p-4 rounded-xl border transition-all duration-300 hover:border-primary-400/30 ${
                 isCompleted(goal.current, goal.target)
-                  ? 'bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border-emerald-500/30 dark:bg-gradient-to-br dark:from-emerald-500/10 dark:to-teal-500/10'
+                  ? 'bg-gradient-to-br from-primary-500/10 to-secondary-500/10 border-primary-500/30 dark:bg-gradient-to-br dark:from-primary-500/10 dark:to-secondary-500/10'
                   : 'bg-white/80 border-gray-200 dark:bg-white/5 dark:border-white/10'
               }`}
             >
@@ -118,11 +118,11 @@ export const StudentGoals = ({ stats }: StudentGoalsProps) => {
                 <div className="flex items-start gap-3">
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110 ${
                     isCompleted(goal.current, goal.target)
-                      ? 'bg-gradient-to-br from-emerald-500/20 to-teal-500/20 dark:from-emerald-500/20 dark:to-teal-500/20'
+                      ? 'bg-gradient-to-br from-primary-500/20 to-secondary-500/20 dark:from-primary-500/20 dark:to-secondary-500/20'
                       : 'bg-gradient-to-br from-purple-500/10 to-pink-500/10 dark:from-purple-500/20 dark:to-pink-500/20'
                   }`}>
                     {isCompleted(goal.current, goal.target) ? (
-                      <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                      <CheckCircle2 className="h-4 w-4 text-primary-400" />
                     ) : (
                       getTypeIcon(goal.type)
                     )}
@@ -130,7 +130,7 @@ export const StudentGoals = ({ stats }: StudentGoalsProps) => {
                   <div className="flex-1">
                     <h4 className={`font-medium mb-1 ${
                       isCompleted(goal.current, goal.target)
-                        ? 'text-emerald-500 dark:text-emerald-400'
+                        ? 'text-primary-500 dark:text-primary-400'
                         : 'text-gray-900 dark:text-white'
                     }`}>
                       {goal.title}
@@ -148,7 +148,7 @@ export const StudentGoals = ({ stats }: StudentGoalsProps) => {
                   </div>
                 </div>
                 {isCompleted(goal.current, goal.target) && (
-                  <div className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center">
+                  <div className="w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center">
                     <CheckCircle2 className="h-4 w-4 text-white" />
                   </div>
                 )}
@@ -158,7 +158,7 @@ export const StudentGoals = ({ stats }: StudentGoalsProps) => {
                   <span className="text-muted-foreground">Progress</span>
                   <span className={`font-medium ${
                     isCompleted(goal.current, goal.target)
-                      ? 'text-emerald-500 dark:text-emerald-400'
+                      ? 'text-primary-500 dark:text-primary-400'
                       : 'text-gray-900 dark:text-white'
                   }`}>
                     {goal.current} / {goal.target}
@@ -171,7 +171,7 @@ export const StudentGoals = ({ stats }: StudentGoalsProps) => {
                 <div className="text-right">
                   <span className={`text-xs font-medium ${
                     isCompleted(goal.current, goal.target)
-                      ? 'text-emerald-500 dark:text-emerald-400'
+                      ? 'text-primary-500 dark:text-primary-400'
                       : 'text-purple-600 dark:text-purple-400'
                   }`}>
                     {Math.round(calculateProgress(goal.current, goal.target))}% Complete

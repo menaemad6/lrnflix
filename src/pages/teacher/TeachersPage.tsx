@@ -161,7 +161,7 @@ export const TeachersPage = () => {
       {/* Full-width header */}
       <WavesHeroHeader
         title={<>
-          Meet Our <span className="text-emerald-500 dark:text-emerald-400">Expert Teachers</span>
+          Meet Our <span className="text-primary-500 dark:text-primary-400">Expert Teachers</span>
         </>}
         description="Discover passionate educators, their specializations, and the courses they offer. Learn from the best and unlock your potential."
       />
@@ -195,7 +195,7 @@ export const TeachersPage = () => {
                 <Card className="h-full rounded-3xl border-0 glass-card shadow-xl bg-background/80 group-hover:scale-[1.03] group-hover:shadow-2xl transition-all duration-200 overflow-hidden">
                   <CardContent className="p-0">
                     {/* Cover Image */}
-                    <div className="relative h-32 sm:h-36 bg-gradient-to-r from-primary to-emerald-400">
+                    <div className="relative h-32 sm:h-36 bg-gradient-to-r from-primary to-primary-400">
                       {teacher.cover_image_url ? (
                         <img
                           src={teacher.cover_image_url}

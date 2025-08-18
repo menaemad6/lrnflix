@@ -353,7 +353,7 @@ const RevolutionaryHero = React.memo(() => {
       className="relative min-h-screen flex items-center justify-center overflow-hidden"
     >
       {/* AI Network Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-900">
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-primary-900">
         <AINetworkBackground />
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
       </div>
@@ -383,16 +383,16 @@ const RevolutionaryHero = React.memo(() => {
           >
             <div className="relative">
               <div className={`w-16 h-16 rounded-full ${
-                i % 4 === 0 ? 'bg-gradient-to-r from-emerald-400 to-teal-400' :
-                i % 4 === 1 ? 'bg-gradient-to-r from-emerald-400 to-teal-400' :
-                i % 4 === 2 ? 'bg-gradient-to-r from-emerald-400 to-teal-400' :
-                'bg-gradient-to-r from-emerald-400 to-teal-400'
+                i % 4 === 0 ? 'bg-gradient-to-r from-primary-400 to-secondary-400' :
+                i % 4 === 1 ? 'bg-gradient-to-r from-primary-400 to-secondary-400' :
+                i % 4 === 2 ? 'bg-gradient-to-r from-primary-400 to-secondary-400' :
+                'bg-gradient-to-r from-primary-400 to-secondary-400'
               } opacity-20 blur-sm`} />
               <div className="absolute inset-0 flex items-center justify-center">
-                {i % 4 === 0 ? <Brain className="h-6 w-6 text-emerald-400" /> :
-                 i % 4 === 1 ? <Bot className="h-6 w-6 text-emerald-400" /> :
-                 i % 4 === 2 ? <Gamepad2 className="h-6 w-6 text-emerald-400" /> :
-                 <Zap className="h-6 w-6 text-emerald-400" />}
+                {i % 4 === 0 ? <Brain className="h-6 w-6 text-primary-400" /> :
+                 i % 4 === 1 ? <Bot className="h-6 w-6 text-primary-400" /> :
+                 i % 4 === 2 ? <Gamepad2 className="h-6 w-6 text-primary-400" /> :
+                 <Zap className="h-6 w-6 text-primary-400" />}
               </div>
             </div>
           </motion.div>
@@ -413,7 +413,7 @@ const RevolutionaryHero = React.memo(() => {
             transition={{ delay: 0.5, duration: 1 }}
             className="mb-8"
           >
-            <Badge className="revolutionary-badge text-emerald-300 border-emerald-500/30 px-8 py-3 text-lg font-bold backdrop-blur-sm">
+            <Badge className="revolutionary-badge text-primary-300 border-primary-500/30 px-8 py-3 text-lg font-bold backdrop-blur-sm">
               <Sparkles className="mr-3 h-5 w-5" />
               AI-Powered • Gamified • Revolutionary
               <Crown className="ml-3 h-5 w-5" />
@@ -427,7 +427,7 @@ const RevolutionaryHero = React.memo(() => {
             transition={{ delay: 0.8, duration: 1.2 }}
           >
             <h1 className="text-7xl md:text-9xl lg:text-[12rem] font-black mb-8 tracking-tight">
-              <span className="block bg-gradient-to-r from-white via-emerald-300 to-teal-300 bg-clip-text text-transparent">
+              <span className="block bg-gradient-to-r from-white via-primary-300 to-secondary-300 bg-clip-text text-transparent">
                 LEARN
               </span>
               <motion.span
@@ -435,12 +435,12 @@ const RevolutionaryHero = React.memo(() => {
                   backgroundPosition: ['0%', '100%', '0%'],
                 }}
                 transition={{ duration: 4, repeatType: "loop" }}
-                className="block bg-gradient-to-r from-primary via-emerald-400 to-teal-400 bg-[length:200%_100%] bg-clip-text text-transparent"
+                className="block bg-gradient-to-r from-primary via-primary-400 to-secondary-400 bg-[length:200%_100%] bg-clip-text text-transparent"
                 style={{ backgroundSize: '200% 100%' }}
               >
                 BEYOND
               </motion.span>
-              <span className="block bg-gradient-to-r from-primary via-emerald-400 to-teal-400 bg-clip-text text-transparent">
+              <span className="block bg-gradient-to-r from-primary via-primary-400 to-secondary-400 bg-clip-text text-transparent">
                 LIMITS
               </span>
             </h1>
@@ -502,8 +502,8 @@ const RevolutionaryHero = React.memo(() => {
                 whileTap={{ scale: 0.95 }}
                 className="group relative"
               >
-                <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 rounded-full blur-lg opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-pulse" />
-                <Button className="relative bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-black font-black px-16 py-8 text-2xl rounded-full shadow-2xl border-4 border-white/20">
+                <div className="absolute -inset-1 bg-gradient-to-r from-primary-500 via-secondary-500 to-accent-500 rounded-full blur-lg opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-pulse" />
+                <Button className="relative bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-400 hover:to-secondary-400 text-black font-black px-16 py-8 text-2xl rounded-full shadow-2xl border-4 border-white/20">
                   <Rocket className="mr-4 h-8 w-8" />
                   ENTER THE MATRIX
                   <motion.div
@@ -526,7 +526,7 @@ const RevolutionaryHero = React.memo(() => {
               whileHover={{ scale: 1.05, rotateY: -5 }}
               whileTap={{ scale: 0.95 }}
             >
-              <Button variant="outline" className="px-16 py-8 text-2xl rounded-full border-2 border-emerald-500/50 text-primary hover:bg-emerald-500/10 backdrop-blur-sm bg-white/5">
+              <Button variant="outline" className="px-16 py-8 text-2xl rounded-full border-2 border-primary-500/50 text-primary hover:bg-primary-500/10 backdrop-blur-sm bg-white/5">
                 <PlayCircle className="mr-4 h-8 w-8" />
                 EXPERIENCE DEMO
               </Button>

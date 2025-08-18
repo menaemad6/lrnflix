@@ -31,15 +31,15 @@ interface MultiplayerQuizWaitingRoomProps {
 
 const playerColors = [
   'bg-gradient-to-br from-purple-500 to-pink-500',
-  'bg-gradient-to-br from-blue-500 to-cyan-500',
-  'bg-gradient-to-br from-green-500 to-emerald-500',
+  'bg-gradient-to-br from-blue-500 to-accent-500',
+  'bg-gradient-to-br from-green-500 to-primary-500',
   'bg-gradient-to-br from-orange-500 to-red-500',
   'bg-gradient-to-br from-indigo-500 to-purple-500',
-  'bg-gradient-to-br from-teal-500 to-green-500',
+  'bg-gradient-to-br from-secondary-500 to-green-500',
   'bg-gradient-to-br from-rose-500 to-pink-500',
   'bg-gradient-to-br from-amber-500 to-orange-500',
-  'bg-gradient-to-br from-cyan-500 to-blue-500',
-  'bg-gradient-to-br from-emerald-500 to-teal-500',
+  'bg-gradient-to-br from-accent-500 to-blue-500',
+  'bg-gradient-to-br from-primary-500 to-secondary-500',
   'bg-gradient-to-br from-violet-500 to-purple-500',
   'bg-gradient-to-br from-lime-500 to-green-500',
 ];

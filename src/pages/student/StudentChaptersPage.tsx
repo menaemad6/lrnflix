@@ -153,8 +153,8 @@ export const StudentChaptersPage = () => {
         ) : filteredChapters.length === 0 ? (
           <Card className="glass-card border-0 hover-glow">
             <CardContent className="text-center py-16">
-              <div className="w-20 h-20 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-glow-pulse">
-                <BookOpen className="h-10 w-10 text-emerald-400" />
+              <div className="w-20 h-20 bg-gradient-to-br from-primary-500/20 to-secondary-500/20 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-glow-pulse">
+                <BookOpen className="h-10 w-10 text-primary-400" />
               </div>
               <h3 className="text-xl font-semibold mb-3 gradient-text">No chapters found</h3>
               <p className="text-muted-foreground mb-6 max-w-md mx-auto">
@@ -176,8 +176,8 @@ export const StudentChaptersPage = () => {
                   <div className="flex flex-col h-full">
                     {/* Header Section */}
                     <div className="relative flex flex-col sm:flex-row sm:items-center gap-4 p-6 pb-3">
-                      <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0">
-                        <BookOpen className="h-7 w-7 text-emerald-100" />
+                      <div className="w-14 h-14 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0">
+                        <BookOpen className="h-7 w-7 text-primary-100" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <h3 className="text-2xl font-extrabold gradient-text mb-1 break-words whitespace-normal leading-tight">

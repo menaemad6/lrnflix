@@ -63,7 +63,7 @@ export function TeacherUpcomingTasks({ tasks }: TeacherUpcomingTasksProps) {
     if (diffDays < 0) return 'text-red-400';
     if (diffDays <= 1) return 'text-orange-400';
     if (diffDays <= 3) return 'text-yellow-400';
-    return 'text-emerald-400';
+    return 'text-primary-400';
   };
 
   const sortedTasks = [...tasks].sort((a, b) => {
@@ -107,7 +107,7 @@ export function TeacherUpcomingTasks({ tasks }: TeacherUpcomingTasksProps) {
           
           {incompleteTasks.length === 0 ? (
             <div className="text-center py-6">
-              <CheckCircle className="w-12 h-12 mx-auto text-emerald-400 mb-3" />
+              <CheckCircle className="w-12 h-12 mx-auto text-primary-400 mb-3" />
               <p className="text-muted-foreground text-sm">All caught up! No pending tasks.</p>
             </div>
           ) : (
@@ -151,7 +151,7 @@ export function TeacherUpcomingTasks({ tasks }: TeacherUpcomingTasksProps) {
                     {task.metadata && (
                       <div className="flex items-center gap-3 text-xs">
                         {task.metadata.studentCount && (
-                          <div className="flex items-center gap-1 text-emerald-400">
+                          <div className="flex items-center gap-1 text-primary-400">
                             <Users className="h-3 w-3" />
                             <span>{task.metadata.studentCount}</span>
                           </div>
@@ -191,14 +191,14 @@ export function TeacherUpcomingTasks({ tasks }: TeacherUpcomingTasksProps) {
         {completedTasks.length > 0 && (
           <div className="space-y-3 pt-4 border-t border-primary/20">
             <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-              <CheckCircle className="h-4 w-4 text-emerald-400" />
+              <CheckCircle className="h-4 w-4 text-primary-400" />
               Completed ({completedTasks.length})
             </h3>
             
             {completedTasks.slice(0, 3).map((task) => (
-              <div key={task.id} className="p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/20 opacity-75">
+              <div key={task.id} className="p-3 rounded-xl bg-primary-500/5 border border-primary-500/20 opacity-75">
                 <div className="flex items-center gap-3">
-                  <CheckCircle className="h-4 w-4 text-emerald-400 flex-shrink-0" />
+                  <CheckCircle className="h-4 w-4 text-primary-400 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
                     <h4 className="text-sm font-medium text-foreground line-through line-clamp-1">
                       {task.title}

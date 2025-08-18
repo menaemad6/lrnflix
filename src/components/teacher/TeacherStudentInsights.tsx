@@ -30,7 +30,7 @@ export function TeacherStudentInsights({ students }: TeacherStudentInsightsProps
   const getEngagementColor = (engagement: string) => {
     switch (engagement) {
       case 'high':
-        return 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
+        return 'bg-primary-500/20 text-primary-400 border-primary-500/30';
       case 'medium':
         return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
       case 'low':
@@ -43,7 +43,7 @@ export function TeacherStudentInsights({ students }: TeacherStudentInsightsProps
   const getEngagementIcon = (engagement: string) => {
     switch (engagement) {
       case 'high':
-        return <TrendingUp className="h-4 w-4 text-emerald-400" />;
+        return <TrendingUp className="h-4 w-4 text-primary-400" />;
       case 'medium':
         return <Target className="h-4 w-4 text-yellow-400" />;
       case 'low':
@@ -80,7 +80,7 @@ export function TeacherStudentInsights({ students }: TeacherStudentInsightsProps
   };
 
   const getProgressColor = (progress: number) => {
-    if (progress >= 80) return 'text-emerald-400';
+    if (progress >= 80) return 'text-primary-400';
     if (progress >= 60) return 'text-yellow-400';
     if (progress >= 40) return 'text-orange-400';
     return 'text-red-400';
@@ -115,8 +115,8 @@ export function TeacherStudentInsights({ students }: TeacherStudentInsightsProps
       <CardContent className="space-y-6">
         {/* Engagement Summary */}
         <div className="grid grid-cols-3 gap-4">
-          <div className="text-center p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
-            <div className="text-lg font-bold text-emerald-400">{highEngagementStudents.length}</div>
+          <div className="text-center p-3 rounded-xl bg-primary-500/10 border border-primary-500/20">
+            <div className="text-lg font-bold text-primary-400">{highEngagementStudents.length}</div>
             <div className="text-xs text-muted-foreground">High Engagement</div>
           </div>
           <div className="text-center p-3 rounded-xl bg-yellow-500/10 border border-yellow-500/20">
@@ -181,7 +181,7 @@ export function TeacherStudentInsights({ students }: TeacherStudentInsightsProps
                   
                   {/* Stats */}
                   <div className="flex items-center gap-4 text-xs">
-                    <div className="flex items-center gap-1 text-emerald-400">
+                    <div className="flex items-center gap-1 text-primary-400">
                       <Target className="h-3 w-3" />
                       <span>{student.progress}%</span>
                     </div>

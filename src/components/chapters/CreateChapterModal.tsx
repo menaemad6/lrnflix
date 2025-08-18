@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 
 interface CreateChapterModalProps {
@@ -57,11 +58,12 @@ export const CreateChapterModal = ({ isOpen, onClose, onChapterCreated }: Create
       
       onChapterCreated();
       onClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error creating chapter:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to create chapter';
       toast({
         title: 'Error',
-        description: error.message || 'Failed to create chapter',
+        description: errorMessage,
         variant: 'destructive',
       });
     } finally {
@@ -127,15 +129,15 @@ export const CreateChapterModal = ({ isOpen, onClose, onChapterCreated }: Create
 
             <div>
               <Label htmlFor="status">Status</Label>
-              <select
-                id="status"
-                value={formData.status}
-                onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 glass"
-              >
-                <option value="draft">Draft</option>
-                <option value="published">Published</option>
-              </select>
+              <Select value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value })}>
+                <SelectTrigger className="glass">
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="draft">Draft</SelectItem>
+                  <SelectItem value="published">Published</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
@@ -143,7 +145,8 @@ export const CreateChapterModal = ({ isOpen, onClose, onChapterCreated }: Create
             <Button
               type="submit"
               disabled={loading || !formData.title}
-              className="flex-1 btn-primary"
+              variant='default'
+              className='flex-1'
             >
               {loading ? 'Creating...' : 'Create Chapter'}
             </Button>

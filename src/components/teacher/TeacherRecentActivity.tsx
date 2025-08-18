@@ -33,7 +33,7 @@ export function TeacherRecentActivity({ activities }: TeacherRecentActivityProps
   const getActivityIcon = (type: string) => {
     switch (type) {
       case 'enrollment':
-        return <Users className="h-4 w-4 text-emerald-400" />;
+        return <Users className="h-4 w-4 text-primary-400" />;
       case 'discussion':
         return <MessageSquare className="h-4 w-4 text-blue-400" />;
       case 'rating':
@@ -52,7 +52,7 @@ export function TeacherRecentActivity({ activities }: TeacherRecentActivityProps
   const getActivityColor = (type: string) => {
     switch (type) {
       case 'enrollment':
-        return 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
+        return 'bg-primary-500/20 text-primary-400 border-primary-500/30';
       case 'discussion':
         return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
       case 'rating':
@@ -106,7 +106,7 @@ export function TeacherRecentActivity({ activities }: TeacherRecentActivityProps
     <Card className="glass-card border-0 hover-glow">
       <CardHeader>
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center">
+          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-accent-500 rounded-xl flex items-center justify-center">
             <Clock className="h-5 w-5 text-white" />
           </div>
           <div>
@@ -174,7 +174,7 @@ export function TeacherRecentActivity({ activities }: TeacherRecentActivityProps
                       </div>
                     )}
                     {activity.metadata.studentCount && (
-                      <div className="flex items-center gap-1 text-xs text-emerald-400">
+                      <div className="flex items-center gap-1 text-xs text-primary-400">
                         <Users className="h-3 w-3" />
                         <span>{activity.metadata.studentCount}</span>
                       </div>

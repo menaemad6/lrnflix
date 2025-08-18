@@ -34,7 +34,7 @@ const NotFound = () => {
         </div>
         <Button
           size="lg"
-          className="rounded-full px-10 py-4 text-lg font-semibold shadow-xl animate-glow-pulse bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-0"
+          className="rounded-full px-10 py-4 text-lg font-semibold shadow-xl animate-glow-pulse bg-gradient-to-r from-primary-500 to-secondary-500 text-white border-0"
           onClick={() => navigate("/")}
         >
           Back To Home

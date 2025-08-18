@@ -139,8 +139,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   if (!isInitialized) {
     console.log('Auth not yet initialized, showing loading...');
     return (
-      <div className="min-h-screen flex items-center justify-center">
-<SparkLoader text="It all starts with a spark" color="#1de9b6" />
+      <div className="min-h-screen flex items-center justify-center bg-black">
+        <SparkLoader text="It all starts with a spark" color="white" />
       </div>
     );
   }

@@ -99,14 +99,14 @@ export const TeacherCourseOverview = ({
               <Link to={`/teacher/courses/${courseId}`}>
                 <Button 
                   variant="outline" 
-                  className="border border-emerald-500/30 text-emerald-300 transition-all duration-300"
+                  className="border border-primary-500/30 text-primary-300 transition-all duration-300"
                 >
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Back to Course
                 </Button>
               </Link>
               <div className="space-y-1 sm:space-y-2 min-w-0">
-                <h1 className="truncate text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent">
+                <h1 className="truncate text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-primary-400 via-secondary-400 to-accent-400 bg-clip-text text-transparent">
                   {course.title}
                 </h1>
                 <p className="text-muted-foreground text-xs sm:text-sm lg:text-base truncate">{course.description}</p>
@@ -134,13 +134,13 @@ export const TeacherCourseOverview = ({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           <Card className="card border border-border bg-card">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-              <CardTitle className="text-sm font-medium text-emerald-300">Total Content</CardTitle>
-              <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center">
+              <CardTitle className="text-sm font-medium text-primary-300">Total Content</CardTitle>
+              <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-xl flex items-center justify-center">
                 <BookOpen className="h-5 w-5 text-black" />
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-emerald-300">
+              <div className="text-3xl font-bold text-primary-300">
                 {totalContent}
               </div>
               <p className="text-xs text-muted-foreground mt-2">
@@ -151,13 +151,13 @@ export const TeacherCourseOverview = ({
 
           <Card className="card border border-border bg-card">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-              <CardTitle className="text-sm font-medium text-emerald-300">Last Updated</CardTitle>
-              <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center">
+              <CardTitle className="text-sm font-medium text-primary-300">Last Updated</CardTitle>
+              <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-xl flex items-center justify-center">
                 <Calendar className="h-5 w-5 text-black" />
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-emerald-300">
+              <div className="text-2xl font-bold text-primary-300">
                 {lastUpdated.toLocaleDateString()}
               </div>
               <p className="text-xs text-muted-foreground mt-2">
@@ -168,13 +168,13 @@ export const TeacherCourseOverview = ({
 
           <Card className="card border border-border bg-card">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-              <CardTitle className="text-sm font-medium text-emerald-300">Content Progress</CardTitle>
-              <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center">
+              <CardTitle className="text-sm font-medium text-primary-300">Content Progress</CardTitle>
+              <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-xl flex items-center justify-center">
                 <TrendingUp className="h-5 w-5 text-black" />
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-emerald-300">
+              <div className="text-2xl font-bold text-primary-300">
                 {Math.round((totalContent / 20) * 100)}%
               </div>
               <Progress 
@@ -186,13 +186,13 @@ export const TeacherCourseOverview = ({
 
           <Card className="card border border-border bg-card">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-              <CardTitle className="text-sm font-medium text-emerald-300">Course Status</CardTitle>
-              <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center">
+              <CardTitle className="text-sm font-medium text-primary-300">Course Status</CardTitle>
+              <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-xl flex items-center justify-center">
                 <Target className="h-5 w-5 text-black" />
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-emerald-300">
+              <div className="text-2xl font-bold text-primary-300">
                 {totalContent > 0 ? 'Active' : 'Draft'}
               </div>
               <p className="text-xs text-muted-foreground mt-2">
@@ -206,8 +206,8 @@ export const TeacherCourseOverview = ({
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           <Card className="card border border-border bg-card">
             <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-3 text-lg sm:text-xl text-emerald-300">
-                <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-lg flex items-center justify-center">
+              <CardTitle className="flex items-center gap-3 text-lg sm:text-xl text-primary-300">
+                <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-lg flex items-center justify-center">
                   <Video className="h-4 w-4 text-black" />
                 </div>
                 Recent Lessons
@@ -218,15 +218,15 @@ export const TeacherCourseOverview = ({
                 {lessons.slice(0, 3).map((lesson) => (
                   <div 
                     key={lesson.id} 
-                    className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-emerald-500/10 to-teal-500/10 hover:from-emerald-500/20 hover:to-teal-500/20 border border-emerald-500/20 hover:border-emerald-500/40 cursor-pointer transition-all duration-300 group"
+                    className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-primary-500/10 to-secondary-500/10 hover:from-primary-500/20 hover:to-secondary-500/20 border border-primary-500/20 hover:border-primary-500/40 cursor-pointer transition-all duration-300 group"
                     onClick={() => onItemSelect('lesson', lesson.id)}
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-lg flex items-center justify-center group-hover:shadow-lg group-hover:shadow-emerald-500/25 transition-all duration-300">
-                        <Video className="h-5 w-5 text-emerald-400" />
+                      <div className="w-10 h-10 bg-gradient-to-br from-primary-500/20 to-secondary-500/20 rounded-lg flex items-center justify-center group-hover:shadow-lg group-hover:shadow-primary-500/25 transition-all duration-300">
+                        <Video className="h-5 w-5 text-primary-400" />
                       </div>
                       <div>
-                        <p className="font-medium text-emerald-300 group-hover:text-emerald-400 transition-colors truncate max-w-[200px] sm:max-w-none">
+                        <p className="font-medium text-primary-300 group-hover:text-primary-400 transition-colors truncate max-w-[200px] sm:max-w-none">
                           {lesson.title}
                         </p>
                         <p className="text-sm text-muted-foreground">
@@ -234,15 +234,15 @@ export const TeacherCourseOverview = ({
                         </p>
                       </div>
                     </div>
-                    <Button variant="ghost" size="sm" className="text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10">
+                    <Button variant="ghost" size="sm" className="text-primary-400 hover:text-primary-300 hover:bg-primary-500/10">
                       <ArrowRight className="h-4 w-4" />
                     </Button>
                   </div>
                 ))}
                 {lessons.length === 0 && (
                   <div className="text-center py-8">
-                    <div className="w-16 h-16 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                      <Video className="h-8 w-8 text-emerald-400" />
+                    <div className="w-16 h-16 bg-gradient-to-br from-primary-500/20 to-secondary-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      <Video className="h-8 w-8 text-primary-400" />
                     </div>
                     <p className="text-sm text-muted-foreground">No lessons added yet</p>
                   </div>
@@ -253,8 +253,8 @@ export const TeacherCourseOverview = ({
 
           <Card className="card border border-border bg-card">
             <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-3 text-lg sm:text-xl text-emerald-300">
-                <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-lg flex items-center justify-center">
+              <CardTitle className="flex items-center gap-3 text-lg sm:text-xl text-primary-300">
+                <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-lg flex items-center justify-center">
                   <Brain className="h-4 w-4 text-black" />
                 </div>
                 Recent Quizzes
@@ -265,38 +265,38 @@ export const TeacherCourseOverview = ({
                 {quizzes.slice(0, 3).map((quiz) => (
                   <div 
                     key={quiz.id} 
-                    className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-emerald-500/10 to-teal-500/10 hover:from-emerald-500/20 hover:to-teal-500/20 border border-emerald-500/20 hover:border-emerald-500/40 cursor-pointer transition-all duration-300 group"
+                    className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-primary-500/10 to-secondary-500/10 hover:from-primary-500/20 hover:to-secondary-500/20 border border-primary-500/20 hover:border-primary-500/40 cursor-pointer transition-all duration-300 group"
                     onClick={() => onItemSelect('quiz', quiz.id)}
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-lg flex items-center justify-center group-hover:shadow-lg group-hover:shadow-emerald-500/25 transition-all duration-300">
-                        <Brain className="h-5 w-5 text-emerald-400" />
+                      <div className="w-10 h-10 bg-gradient-to-br from-primary-500/20 to-secondary-500/20 rounded-lg flex items-center justify-center group-hover:shadow-lg group-hover:shadow-primary-500/25 transition-all duration-300">
+                        <Brain className="h-5 w-5 text-primary-400" />
                       </div>
                       <div>
-                        <p className="font-medium text-emerald-300 group-hover:text-emerald-400 transition-colors truncate max-w-[200px] sm:max-w-none">
+                        <p className="font-medium text-primary-300 group-hover:text-primary-400 transition-colors truncate max-w-[200px] sm:max-w-none">
                           {quiz.title}
                         </p>
                         <div className="flex gap-2 mt-1">
-                          <Badge variant="outline" className="text-xs border-emerald-500/30 text-emerald-400 bg-emerald-500/10">
+                          <Badge variant="outline" className="text-xs border-primary-500/30 text-primary-400 bg-primary-500/10">
                             {quiz.type}
                           </Badge>
                           {quiz.time_limit && (
-                            <Badge variant="outline" className="text-xs border-emerald-500/30 text-emerald-400 bg-emerald-500/10">
+                            <Badge variant="outline" className="text-xs border-primary-500/30 text-primary-400 bg-primary-500/10">
                               {quiz.time_limit} min
                             </Badge>
                           )}
                         </div>
                       </div>
                     </div>
-                    <Button variant="ghost" size="sm" className="text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10">
+                    <Button variant="ghost" size="sm" className="text-primary-400 hover:text-primary-300 hover:bg-primary-500/10">
                       <ArrowRight className="h-4 w-4" />
                     </Button>
                   </div>
                 ))}
                 {quizzes.length === 0 && (
                   <div className="text-center py-8">
-                    <div className="w-16 h-16 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                      <Brain className="h-8 w-8 text-emerald-400" />
+                    <div className="w-16 h-16 bg-gradient-to-br from-primary-500/20 to-secondary-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      <Brain className="h-8 w-8 text-primary-400" />
                     </div>
                     <p className="text-sm text-muted-foreground">No quizzes added yet</p>
                   </div>
@@ -310,7 +310,7 @@ export const TeacherCourseOverview = ({
         <Card className="card border border-border bg-card">
           <CardHeader className="pb-4">
             <CardTitle className="flex items-center gap-3 text-xl">
-              <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-lg flex items-center justify-center">
                 <Sparkles className="h-4 w-4 text-black" />
               </div>
               Quick Actions
@@ -320,11 +320,11 @@ export const TeacherCourseOverview = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
               <Button 
                 variant="outline" 
-                className="h-auto py-6 bg-gradient-to-br from-emerald-500/10 to-teal-500/10 hover:from-emerald-500/20 hover:to-teal-500/20 border-emerald-500/30 hover:border-emerald-500/50 text-emerald-300 hover:text-emerald-400 backdrop-blur-sm transition-all duration-300" 
+                className="h-auto py-6 bg-gradient-to-br from-primary-500/10 to-secondary-500/10 hover:from-primary-500/20 hover:to-secondary-500/20 border-primary-500/30 hover:border-primary-500/50 text-primary-300 hover:text-primary-400 backdrop-blur-sm transition-all duration-300" 
                 onClick={() => setShowLessonModal(true)}
               >
                 <div className="flex flex-col items-center gap-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/25">
+                  <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-xl flex items-center justify-center shadow-lg shadow-primary-500/25">
                     <Plus className="h-6 w-6 text-black" />
                   </div>
                   <span className="font-semibold">Add New Lesson</span>
@@ -332,11 +332,11 @@ export const TeacherCourseOverview = ({
               </Button>
               <Button 
                 variant="outline" 
-                className="h-auto py-6 bg-gradient-to-br from-emerald-500/10 to-teal-500/10 hover:from-emerald-500/20 hover:to-teal-500/20 border-emerald-500/30 hover:border-emerald-500/50 text-emerald-300 hover:text-emerald-400 backdrop-blur-sm transition-all duration-300" 
+                className="h-auto py-6 bg-gradient-to-br from-primary-500/10 to-secondary-500/10 hover:from-primary-500/20 hover:to-secondary-500/20 border-primary-500/30 hover:border-primary-500/50 text-primary-300 hover:text-primary-400 backdrop-blur-sm transition-all duration-300" 
                 onClick={() => setShowQuizModal(true)}
               >
                 <div className="flex flex-col items-center gap-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/25">
+                  <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-xl flex items-center justify-center shadow-lg shadow-primary-500/25">
                     <Plus className="h-6 w-6 text-black" />
                   </div>
                   <span className="font-semibold">Create New Quiz</span>

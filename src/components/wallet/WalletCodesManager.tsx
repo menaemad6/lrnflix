@@ -261,7 +261,7 @@ export const WalletCodesManager: React.FC<WalletCodesManagerProps> = ({ searchTe
               </Badge>
               {/* Mobile: correct/wrong coloring and icon only */}
               {code.is_active && !code.used_by && (
-                <Badge className="inline-flex md:hidden bg-emerald-500 text-white p-1" variant="default">
+                <Badge className="inline-flex md:hidden bg-primary-500 text-white p-1" variant="default">
                   <Check className="h-4 w-4" />
                 </Badge>
               )}

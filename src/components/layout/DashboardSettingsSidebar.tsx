@@ -16,7 +16,7 @@ export const DashboardSettingsSidebar: React.FC<DashboardSettingsSidebarProps> =
         className={cn(
           "group flex items-center justify-center lg:justify-start gap-3 px-3 py-3 rounded-xl text-sm lg:text-base font-medium transition-all w-full text-center lg:text-left whitespace-nowrap lg:whitespace-normal",
           activeTab === "ai-assistant"
-            ? "bg-gradient-to-r from-primary to-emerald-400 text-primary-foreground shadow"
+            ? "bg-gradient-to-r from-primary to-primary-400 text-primary-foreground shadow"
             : "hover:bg-accent"
         )}
       >
@@ -29,7 +29,7 @@ export const DashboardSettingsSidebar: React.FC<DashboardSettingsSidebarProps> =
         className={cn(
           "group flex items-center justify-center lg:justify-start gap-3 px-3 py-3 rounded-xl text-sm lg:text-base font-medium transition-all w-full text-center lg:text-left whitespace-nowrap lg:whitespace-normal",
           activeTab === "announcements"
-            ? "bg-gradient-to-r from-primary to-emerald-400 text-primary-foreground shadow"
+            ? "bg-gradient-to-r from-primary to-primary-400 text-primary-foreground shadow"
             : "hover:bg-accent"
         )}
       >

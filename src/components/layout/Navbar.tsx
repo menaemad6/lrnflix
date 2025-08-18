@@ -215,7 +215,7 @@ export const Navbar = ({ extraXSpacing = false }: { extraXSpacing?: boolean }) =
               <div className="flex items-center space-x-4">
                 <NavLink to="/" icon={Home} isActive={isActive}>Home</NavLink>
                 <Separator orientation="vertical" className="h-8 mx-2" />
-                <ThemeToggle buttonClassName="glass hover-glow px-3 py-2 hover:bg-emerald-500/20 focus:bg-primary/20 active:bg-primary/20 transition-colors group" iconClassName="group-hover:text-emerald-500 transition-colors" />
+                <ThemeToggle buttonClassName="glass hover-glow px-3 py-2 hover:bg-primary-500/20 focus:bg-primary/20 active:bg-primary/20 transition-colors group" iconClassName="group-hover:text-primary-500 transition-colors" />
                 <Separator orientation="vertical" className="h-8 mx-2" />
                 <Link to="/auth/login">
                   <Button className="hover-glow">Login</Button>
@@ -326,12 +326,12 @@ export const Navbar = ({ extraXSpacing = false }: { extraXSpacing?: boolean }) =
                 </DropdownMenuContent>
               </DropdownMenu>
               <Separator orientation="vertical" className="h-8 mx-2" />
-              <ThemeToggle buttonClassName="glass hover-glow px-3 py-2 hover:bg-emerald-500/20 focus:bg-primary/20 active:bg-primary/20 transition-colors group" iconClassName="group-hover:text-emerald-500 transition-colors" />
+              <ThemeToggle buttonClassName="glass hover-glow px-3 py-2 hover:bg-primary-500/20 focus:bg-primary/20 active:bg-primary/20 transition-colors group" iconClassName="group-hover:text-primary-500 transition-colors" />
               <Separator orientation="vertical" className="h-8 mx-2" />
               <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
                 <SheetTrigger asChild>
-                  <Button variant="outline" size="icon" className="glass hover-glow px-3 py-2 hover:bg-emerald-500/20 focus:bg-primary/20 active:bg-primary/20 transition-colors group" aria-label="Open Sidebar">
-                    <Sidebar className="h-[1.2rem] w-[1.2rem] transition-colors group-hover:text-emerald-500" />
+                  <Button variant="outline" size="icon" className="glass hover-glow px-3 py-2 hover:bg-primary-500/20 focus:bg-primary/20 active:bg-primary/20 transition-colors group" aria-label="Open Sidebar">
+                    <Sidebar className="h-[1.2rem] w-[1.2rem] transition-colors group-hover:text-primary-500" />
                   </Button>
                 </SheetTrigger>
                 <SheetContent side="right" className="pt-0 w-72 lg:w-96 rounded-l-2xl shadow-2xl bg-card text-foreground flex flex-col h-full">
@@ -408,9 +408,9 @@ function NavbarSidebarContent({ user, navLinks, handleLogout, setSheetOpen, isAc
       </ModernScrollbar>
       {/* Bottom: Profile Card and Logout (not scrollable) */}
       <div className="px-1 pb-4 pt-2 flex flex-col gap-2 mt-auto">
-        <Card className="p-2 rounded-xl bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/20">
+        <Card className="p-2 rounded-xl bg-gradient-to-r from-primary-500/10 to-secondary-500/10 border border-primary-500/20">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center text-black font-bold text-base">
+            <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-full flex items-center justify-center text-black font-bold text-base">
               {user?.full_name?.charAt(0) || user?.email?.charAt(0) || 'U'}
             </div>
             <div className="flex-1 min-w-0">

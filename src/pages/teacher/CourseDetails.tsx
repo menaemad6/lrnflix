@@ -320,21 +320,21 @@ export const CourseDetails = () => {
           <div className="space-y-6 md:space-y-8">
             {/* Hero Stats */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
-              <Card className="glass-card border-white/10 bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border-emerald-500/20">
+              <Card className="glass-card border-white/10 bg-gradient-to-br from-primary-500/10 to-secondary-500/10 border-primary-500/20">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400">Total Students</p>
-                      <p className="text-3xl font-bold text-emerald-700 dark:text-emerald-300">{enrollmentCount}</p>
+                      <p className="text-sm font-medium text-primary-600 dark:text-primary-400">Total Students</p>
+                      <p className="text-3xl font-bold text-primary-700 dark:text-primary-300">{enrollmentCount}</p>
                     </div>
-                    <div className="p-3 bg-emerald-500/20 rounded-xl">
-                      <Users className="h-6 w-6 text-emerald-500" />
+                    <div className="p-3 bg-primary-500/20 rounded-xl">
+                      <Users className="h-6 w-6 text-primary-500" />
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card className="glass-card border-white/10 bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border-blue-500/20">
+              <Card className="glass-card border-white/10 bg-gradient-to-br from-blue-500/10 to-accent-500/10 border-blue-500/20">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>

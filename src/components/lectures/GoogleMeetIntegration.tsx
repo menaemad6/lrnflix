@@ -269,16 +269,16 @@ export const GoogleMeetIntegration = ({ courseId, onBack }: GoogleMeetIntegratio
             <div className="flex items-center gap-3 sm:gap-6">
               {onBack && (
                 <Button 
-                  variant="ghost" 
+                  variant="outline" 
                   onClick={onBack}
-                  className="border border-emerald-500/30 text-emerald-300 transition-all duration-300"
+
                 >
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Back
                 </Button>
               )}
               <div className="space-y-1 sm:space-y-2">
-                <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent">
+                <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary" >
                   Live Lecture Management
                 </h3>
                 <p className="text-muted-foreground text-sm sm:text-base lg:text-lg">Create and manage your course's live Google Meet lectures</p>

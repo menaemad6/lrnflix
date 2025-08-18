@@ -1495,6 +1495,7 @@ export type Database = {
       teachers: {
         Row: {
           bio: string | null
+          colors: Json | null
           cover_image_url: string | null
           created_at: string
           display_name: string
@@ -1511,6 +1512,7 @@ export type Database = {
         }
         Insert: {
           bio?: string | null
+          colors?: Json | null
           cover_image_url?: string | null
           created_at?: string
           display_name: string
@@ -1527,6 +1529,7 @@ export type Database = {
         }
         Update: {
           bio?: string | null
+          colors?: Json | null
           cover_image_url?: string | null
           created_at?: string
           display_name?: string

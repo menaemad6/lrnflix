@@ -3,7 +3,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 export function TeacherCardSkeleton() {
   return (
     <div className="h-full rounded-3xl border-0 glass-card shadow-xl bg-background/80 overflow-hidden flex flex-col">
-      <div className="relative h-32 sm:h-36 bg-gradient-to-r from-primary to-emerald-400">
+      <div className="relative h-32 sm:h-36 bg-gradient-to-r from-primary to-primary-400">
         <Skeleton className="w-full h-full" />
       </div>
       <div className="flex flex-col items-center -mt-10 px-6">

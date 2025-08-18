@@ -221,11 +221,11 @@ export const QuizChoiceModal: React.FC<QuizChoiceModalProps> = ({
             <div className="space-y-4">
               {/* Voice Call - Primary Option */}
               <div className="relative group">
-                <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 rounded-2xl blur opacity-30 group-hover:opacity-50 transition duration-300"></div>
+                <div className="absolute -inset-1 bg-gradient-to-r from-primary-500 via-secondary-500 to-accent-500 rounded-2xl blur opacity-30 group-hover:opacity-50 transition duration-300"></div>
                 <Button
                   onClick={handleVoiceCallSelect}
                   size="lg"
-                  className="relative w-full h-28 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 group px-6 py-6"
+                  className="relative w-full h-28 bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 group px-6 py-6"
                 >
                   <div className="flex flex-col items-center gap-2 w-full overflow-hidden">
                     <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
@@ -253,7 +253,7 @@ export const QuizChoiceModal: React.FC<QuizChoiceModalProps> = ({
                 className="w-full h-24 bg-white/5 backdrop-blur-sm border-white/20 hover:bg-white/10 hover:border-white/30 transition-all duration-300 px-6 py-5"
               >
                 <div className="flex flex-col items-center gap-2 w-full overflow-hidden">
-                  <div className="w-10 h-10 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full flex items-center justify-center">
+                  <div className="w-10 h-10 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-full flex items-center justify-center">
                     <MessageCircle className="h-5 w-5 text-white" />
                   </div>
                   <div className="text-center w-full">
@@ -265,8 +265,8 @@ export const QuizChoiceModal: React.FC<QuizChoiceModalProps> = ({
             </div>
 
             {/* Recommendation */}
-            <div className="text-center p-3 bg-emerald-500/10 rounded-xl border border-emerald-500/20">
-              <p className="text-sm text-emerald-400 font-medium">
+            <div className="text-center p-3 bg-primary-500/10 rounded-xl border border-primary-500/20">
+              <p className="text-sm text-primary-400 font-medium">
                 💡 Recommended: Voice call for personalized, interactive help
               </p>
             </div>

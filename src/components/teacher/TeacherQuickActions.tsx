@@ -37,7 +37,7 @@ export function TeacherQuickActions() {
             <Button className="w-full btn-secondary justify-start group hover-glow h-12">
               <BookOpen className="h-5 w-5 mr-3 group-hover:scale-110 transition-transform duration-300" />
               <span className="font-semibold">Manage Lessons</span>
-              <Badge className="ml-auto bg-emerald-500/20 text-emerald-400 text-xs px-2 py-1">
+              <Badge className="ml-auto bg-primary-500/20 text-primary-400 text-xs px-2 py-1">
                 <Target className="h-3 w-3 mr-1" />
                 Active
               </Badge>

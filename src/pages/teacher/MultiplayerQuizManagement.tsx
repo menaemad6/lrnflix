@@ -480,7 +480,7 @@ export const MultiplayerQuizManagement = () => {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center min-h-[400px]">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div>
         </div>
       </DashboardLayout>
     );
@@ -500,7 +500,7 @@ export const MultiplayerQuizManagement = () => {
           onAction={startNewQuestion}
           actionIcon={<Plus className="h-4 w-4 mr-2" />}
           actionButtonProps={{
-            className: "bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-600 hover:via-teal-600 hover:to-emerald-700 text-black font-semibold px-6 py-3 rounded-xl shadow-lg shadow-emerald-500/25 border border-emerald-400/30 transition-all duration-300 hover:shadow-xl hover:shadow-emerald-500/30"
+            className: "bg-gradient-to-r from-primary-500 via-secondary-500 to-primary-600 hover:from-primary-600 hover:via-secondary-600 hover:to-primary-700 text-black font-semibold px-6 py-3 rounded-xl shadow-lg shadow-primary-500/25 border border-primary-400/30 transition-all duration-300 hover:shadow-xl hover:shadow-primary-500/30"
           }}
         />
 
@@ -609,12 +609,12 @@ export const MultiplayerQuizManagement = () => {
           <Card className="border border-border bg-card/50 backdrop-blur-sm">
             <CardContent className="p-6">
               <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-xl flex items-center justify-center border border-emerald-500/30">
-                  <Trophy className="h-6 w-6 text-emerald-400" />
+                <div className="w-12 h-12 bg-gradient-to-br from-primary-500/20 to-secondary-500/20 rounded-xl flex items-center justify-center border border-primary-500/30">
+                  <Trophy className="h-6 w-6 text-primary-400" />
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Total Questions</p>
-                  <p className="text-2xl font-bold text-emerald-400">{questions.length}</p>
+                  <p className="text-2xl font-bold text-primary-400">{questions.length}</p>
                 </div>
               </div>
             </CardContent>
@@ -623,7 +623,7 @@ export const MultiplayerQuizManagement = () => {
           <Card className="border border-border bg-card/50 backdrop-blur-sm">
             <CardContent className="p-6">
               <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-xl flex items-center justify-center border border-blue-500/30">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500/20 to-accent-500/20 rounded-xl flex items-center justify-center border border-blue-500/30">
                   <FolderOpen className="h-6 w-6 text-blue-400" />
                 </div>
                 <div>
@@ -652,7 +652,7 @@ export const MultiplayerQuizManagement = () => {
         {/* Category Management */}
         <Card className="border border-border bg-card/50 backdrop-blur-sm">
           <CardHeader>
-            <CardTitle className="text-xl text-emerald-300 flex items-center">
+            <CardTitle className="text-xl text-primary-300 flex items-center">
               <Tag className="h-5 w-5 mr-2" />
               Category Management
             </CardTitle>
@@ -671,7 +671,7 @@ export const MultiplayerQuizManagement = () => {
               <Button 
                 onClick={addNewCategory}
                 disabled={!newCategory.trim() || !user}
-                className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white"
+               variant='default'
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Add Category
@@ -681,7 +681,7 @@ export const MultiplayerQuizManagement = () => {
             <div className="flex flex-wrap gap-2">
               <Badge 
                 variant={selectedCategory === 'all' ? 'default' : 'outline'}
-                className={`cursor-pointer transition-all duration-200 ${selectedCategory === 'all' ? 'bg-emerald-500 text-black' : 'hover:bg-emerald-500/20 hover:border-emerald-500/50'}`}
+                className={`cursor-pointer transition-all duration-200 ${selectedCategory === 'all' ? 'bg-primary-500 text-black' : 'hover:bg-primary-500/20 hover:border-primary-500/50'}`}
                 onClick={() => setSelectedCategory('all')}
               >
                 All Categories ({questions.length})
@@ -690,7 +690,7 @@ export const MultiplayerQuizManagement = () => {
                 <Badge 
                   key={category}
                   variant={selectedCategory === category ? 'default' : 'outline'}
-                  className={`cursor-pointer transition-all duration-200 ${selectedCategory === category ? 'bg-emerald-500 text-black' : 'hover:bg-emerald-500/20 hover:border-emerald-500/50'}`}
+                  className={`cursor-pointer transition-all duration-200 ${selectedCategory === category ? 'bg-primary-500 text-black' : 'hover:bg-primary-500/20 hover:border-primary-500/50'}`}
                   onClick={() => setSelectedCategory(category)}
                 >
                   {category} ({questions.filter(q => q.category === category).length})
@@ -704,7 +704,7 @@ export const MultiplayerQuizManagement = () => {
         {editingQuestion && !editingQuestionId && (
           <Card className="border border-border bg-card/50 backdrop-blur-sm">
             <CardHeader>
-              <CardTitle className="text-xl text-emerald-300">
+              <CardTitle className="text-xl text-primary-300">
                 Create New Question
               </CardTitle>
             </CardHeader>
@@ -794,7 +794,7 @@ export const MultiplayerQuizManagement = () => {
                           correct_answer: option
                         })}
                         className={editingQuestion.correct_answer === option 
-                          ? "bg-emerald-500 text-black hover:bg-emerald-600" 
+                          ? "bg-primary-500 text-black hover:bg-primary-600" 
                           : "border-border hover:bg-muted"
                         }
                       >
@@ -822,7 +822,7 @@ export const MultiplayerQuizManagement = () => {
                 <Button
                   onClick={() => saveQuestion(editingQuestion)}
                   disabled={saving || !editingQuestion.question.trim() || !editingQuestion.correct_answer}
-                  className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-black"
+                  className="bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 text-black"
                 >
                   <Save className="h-4 w-4 mr-2" />
                   {saving ? 'Saving...' : 'Save Question'}
@@ -842,21 +842,21 @@ export const MultiplayerQuizManagement = () => {
         {/* Questions Display */}
         <Tabs defaultValue="list" className="w-full">
           <TabsList className="grid w-full grid-cols-2 bg-background/50 border-border">
-            <TabsTrigger value="list" className="data-[state=active]:bg-emerald-500 data-[state=active]:text-black">List View</TabsTrigger>
-            <TabsTrigger value="grouped" className="data-[state=active]:bg-emerald-500 data-[state=active]:text-black">Grouped by Category</TabsTrigger>
+            <TabsTrigger value="list" className="data-[state=active]:bg-primary-500 data-[state=active]:text-black">List View</TabsTrigger>
+            <TabsTrigger value="grouped" className="data-[state=active]:bg-primary-500 data-[state=active]:text-black">Grouped by Category</TabsTrigger>
           </TabsList>
 
           <TabsContent value="list" className="space-y-6 mt-6">
             {/* Questions List */}
             <div className="grid gap-6">
               {displayQuestions.map((question) => (
-                <Card key={question.id} className="border border-border bg-card/50 backdrop-blur-sm group hover:border-emerald-500/50 transition-all duration-300">
+                <Card key={question.id} className="border border-border bg-card/50 backdrop-blur-sm group hover:border-primary-500/50 transition-all duration-300">
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <div className="space-y-3 flex-1">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-xl flex items-center justify-center group-hover:shadow-lg group-hover:shadow-emerald-500/25 transition-all duration-300 border border-emerald-500/30">
-                            <Brain className="h-5 w-5 text-emerald-400" />
+                          <div className="w-10 h-10 bg-gradient-to-br from-primary-500/20 to-secondary-500/20 rounded-xl flex items-center justify-center group-hover:shadow-lg group-hover:shadow-primary-500/25 transition-all duration-300 border border-primary-500/30">
+                            <Brain className="h-5 w-5 text-primary-400" />
                           </div>
                           <div className="flex-1">
                             {editingQuestionId === question.id ? (
@@ -867,7 +867,7 @@ export const MultiplayerQuizManagement = () => {
                                 placeholder="Enter question text..."
                               />
                             ) : (
-                              <h4 className="text-lg font-medium text-emerald-300 group-hover:text-emerald-400 transition-colors duration-300">
+                              <h4 className="text-lg font-medium text-primary-300 group-hover:text-primary-400 transition-colors duration-300">
                                 {question.question}
                               </h4>
                             )}
@@ -903,7 +903,7 @@ export const MultiplayerQuizManagement = () => {
                               size="sm"
                               onClick={() => editingQuestion && saveQuestion(editingQuestion)}
                               disabled={saving}
-                              className="bg-emerald-500 hover:bg-emerald-600 text-white"
+                              className="bg-primary-500 hover:bg-primary-600 text-white"
                             >
                               <Save className="h-4 w-4" />
                             </Button>
@@ -922,7 +922,7 @@ export const MultiplayerQuizManagement = () => {
                               variant="outline" 
                               size="sm"
                               onClick={() => startInlineEdit(question)}
-                              className="bg-emerald-500/10 border-emerald-500/30 hover:bg-emerald-500/20 hover:border-emerald-500/50 text-emerald-300 backdrop-blur-sm transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/20"
+                              className="bg-primary-500/10 border-primary-500/30 hover:bg-primary-500/20 hover:border-primary-500/50 text-primary-300 backdrop-blur-sm transition-all duration-300 hover:shadow-lg hover:shadow-primary-500/20"
                             >
                               <Edit className="h-4 w-4" />
                             </Button>
@@ -948,7 +948,7 @@ export const MultiplayerQuizManagement = () => {
                               key={index}
                               className={`p-3 rounded-xl border transition-all duration-300 ${
                                 option === question.correct_answer
-                                  ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300'
+                                  ? 'bg-primary-500/20 border-primary-500/40 text-primary-300'
                                   : 'bg-muted/30 border-border text-muted-foreground'
                               }`}
                             >
@@ -971,7 +971,7 @@ export const MultiplayerQuizManagement = () => {
                                     size="sm"
                                     className={
                                       editingQuestion?.correct_answer === editingQuestion?.options[index]
-                                        ? 'bg-emerald-500 text-black hover:bg-emerald-600 h-8 px-2'
+                                        ? 'bg-primary-500 text-black hover:bg-primary-600 h-8 px-2'
                                         : 'border-border hover:bg-muted h-8 px-2'
                                     }
                                   >
@@ -983,7 +983,7 @@ export const MultiplayerQuizManagement = () => {
                                   <span className="text-sm font-medium">{String.fromCharCode(65 + index)}.</span>{' '}
                                   {option}
                                   {option === question.correct_answer && (
-                                    <Badge className="ml-2 bg-emerald-500/30 text-emerald-300 border-emerald-500/50">
+                                    <Badge className="ml-2 bg-primary-500/30 text-primary-300 border-primary-500/50">
                                       Correct
                                     </Badge>
                                   )}
@@ -1050,7 +1050,7 @@ export const MultiplayerQuizManagement = () => {
                               <Target className="h-3 w-3 mr-1" />
                               {question.difficulty}
                             </Badge>
-                            <Badge className="bg-cyan-500/20 text-cyan-300 border-cyan-500/40">
+                            <Badge className="bg-accent-500/20 text-accent-300 border-accent-500/40">
                               <Clock className="h-3 w-3 mr-1" />
                               {question.time_limit}s
                             </Badge>
@@ -1067,11 +1067,11 @@ export const MultiplayerQuizManagement = () => {
             {displayQuestions.length === 0 && (
               <Card className="border border-border bg-card/50 backdrop-blur-sm">
                 <CardContent className="text-center py-16 space-y-6">
-                  <div className="w-20 h-20 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-2xl flex items-center justify-center mx-auto border border-emerald-500/30">
-                    <Brain className="h-10 w-10 text-emerald-400" />
+                  <div className="w-20 h-20 bg-gradient-to-br from-primary-500/20 to-secondary-500/20 rounded-2xl flex items-center justify-center mx-auto border border-primary-500/30">
+                    <Brain className="h-10 w-10 text-primary-400" />
                   </div>
                   <div className="space-y-3">
-                    <h3 className="text-2xl font-semibold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
+                    <h3 className="text-2xl font-semibold bg-gradient-to-r from-primary-400 to-secondary-400 bg-clip-text text-transparent">
                       {searchTerm ? 'No matching questions found' : selectedCategory === 'all' ? 'No questions yet' : `No questions in ${selectedCategory}`}
                     </h3>
                     <p className="text-muted-foreground text-lg max-w-md mx-auto leading-relaxed">
@@ -1086,7 +1086,7 @@ export const MultiplayerQuizManagement = () => {
                   {!searchTerm && (
                     <Button 
                       onClick={startNewQuestion}
-                      className="bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-600 hover:via-teal-600 hover:to-emerald-700 text-black font-semibold px-8 py-4 rounded-2xl shadow-lg shadow-emerald-500/25 border border-emerald-400/30 transition-all duration-300 hover:shadow-xl hover:shadow-emerald-500/30"
+                      className="bg-gradient-to-r from-primary-500 via-secondary-500 to-primary-600 hover:from-primary-600 hover:via-secondary-600 hover:to-primary-700 text-black font-semibold px-8 py-4 rounded-2xl shadow-lg shadow-primary-500/25 border border-primary-400/30 transition-all duration-300 hover:shadow-xl hover:shadow-primary-500/30"
                     >
                       <Plus className="h-5 w-5 mr-2" />
                       Create Question
@@ -1102,12 +1102,12 @@ export const MultiplayerQuizManagement = () => {
             {Object.entries(questionsByCategory).map(([category, categoryQuestions]) => (
               <Card key={category} className="border border-border bg-card/50 backdrop-blur-sm">
                 <CardHeader>
-                  <CardTitle className="text-xl text-emerald-300 flex items-center justify-between">
+                  <CardTitle className="text-xl text-primary-300 flex items-center justify-between">
                     <div className="flex items-center">
                       <FolderOpen className="h-5 w-5 mr-2" />
                       {category}
                     </div>
-                    <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/40">
+                    <Badge className="bg-primary-500/20 text-primary-300 border-primary-500/40">
                       {categoryQuestions.length} questions
                     </Badge>
                   </CardTitle>
@@ -1115,7 +1115,7 @@ export const MultiplayerQuizManagement = () => {
                 <CardContent>
                   <div className="space-y-4">
                     {categoryQuestions.map((question) => (
-                      <div key={question.id} className="p-4 border border-border rounded-lg hover:border-emerald-500/50 transition-colors duration-200 bg-background/30">
+                      <div key={question.id} className="p-4 border border-border rounded-lg hover:border-primary-500/50 transition-colors duration-200 bg-background/30">
                         <div className="flex items-center justify-between mb-3">
                           <h4 className="text-lg font-medium text-foreground">{question.question}</h4>
                           <div className="flex gap-2">
@@ -1123,7 +1123,7 @@ export const MultiplayerQuizManagement = () => {
                               variant="outline" 
                               size="sm"
                               onClick={() => startInlineEdit(question)}
-                              className="bg-emerald-500/10 border-emerald-500/30 hover:bg-emerald-500/20 hover:border-emerald-500/50 text-emerald-300"
+                              className="bg-primary-500/10 border-primary-500/30 hover:bg-primary-500/20 hover:border-primary-500/50 text-primary-300"
                             >
                               <Edit className="h-4 w-4" />
                             </Button>
@@ -1144,7 +1144,7 @@ export const MultiplayerQuizManagement = () => {
                               key={index} 
                               className={`p-2 rounded-lg text-sm ${
                                 option === question.correct_answer 
-                                  ? 'bg-emerald-500/20 text-emerald-300' 
+                                  ? 'bg-primary-500/20 text-primary-300' 
                                   : 'bg-muted/30 text-muted-foreground'
                               }`}
                             >
@@ -1166,7 +1166,7 @@ export const MultiplayerQuizManagement = () => {
                             <Target className="h-3 w-3 mr-1" />
                             {question.difficulty}
                           </Badge>
-                          <Badge className="bg-cyan-500/20 text-cyan-300 border-cyan-500/40">
+                          <Badge className="bg-accent-500/20 text-accent-300 border-accent-500/40">
                             <Clock className="h-3 w-3 mr-1" />
                             {question.time_limit}s
                           </Badge>

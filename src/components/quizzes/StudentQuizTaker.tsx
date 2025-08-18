@@ -10,6 +10,7 @@ import { QuizTimer } from './QuizTimer';
 import { QuizQuestion } from './QuizQuestion';
 import { QuizResults } from './QuizResults';
 import { ArrowLeft, PlayCircle, ChevronLeft, ChevronRight, Send, Trophy, Target, BookOpen, CheckCircle, Eye, Clock, AlertTriangle } from 'lucide-react';
+import { QuizTakerSkeleton } from '@/components/student/skeletons';
 
 interface Quiz {
   id: string;
@@ -471,11 +472,7 @@ export const StudentQuizTaker = ({ quiz, courseId, onBackToCourse }: StudentQuiz
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
+    return <QuizTakerSkeleton onBackToCourse={onBackToCourse} />;
   }
 
   if (showResults && quizResults) {

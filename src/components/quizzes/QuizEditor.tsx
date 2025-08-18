@@ -597,7 +597,7 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
           {isNewQuiz ? 'Create Quiz' : 'Edit Quiz'}
         </h1>
         <div className="sm:ml-auto">
-          <Button onClick={saveQuiz} disabled={saving}>
+          <Button onClick={saveQuiz} disabled={saving} variant='default'>
             <Save className="h-4 w-4 mr-2" />
             {saving ? 'Saving...' : 'Save Quiz'}
           </Button>
@@ -705,10 +705,10 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
 
       <Tabs defaultValue="questions" className="space-y-6 mt-6 sm:mt-8">
         <TabsList className="card border border-border bg-card p-2 overflow-x-auto">
-          <TabsTrigger value="questions" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-500/20 data-[state=active]:to-teal-500/20 data-[state=active]:text-emerald-300 data-[state=active]:border data-[state=active]:border-emerald-500/30 transition-all duration-300">
+          <TabsTrigger value="questions" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary-500/20 data-[state=active]:to-secondary-500/20 data-[state=active]:text-primary-300 data-[state=active]:border data-[state=active]:border-primary-500/30 transition-all duration-300">
             Questions
           </TabsTrigger>
-          <TabsTrigger value="attempts" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-500/20 data-[state=active]:to-teal-500/20 data-[state=active]:text-emerald-300 data-[state=active]:border data-[state=active]:border-emerald-500/30 transition-all duration-300">
+          <TabsTrigger value="attempts" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary-500/20 data-[state=active]:to-secondary-500/20 data-[state=active]:text-primary-300 data-[state=active]:border data-[state=active]:border-primary-500/30 transition-all duration-300">
             Attempts
           </TabsTrigger>
         </TabsList>
@@ -785,7 +785,7 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
                           size="sm"
                           onClick={() => handleAnswerSingleQuestion(index)}
                           disabled={answeringQuestion === index || !question.question_text.trim()}
-                          className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white border-0 hover:from-blue-600 hover:to-cyan-600"
+                          className="bg-gradient-to-r from-blue-500 to-accent-500 text-white border-0 hover:from-blue-600 hover:to-accent-600"
                         >
                           <Sparkles className="h-4 w-4 mr-1" />
                           {answeringQuestion === index ? 'AI Answering...' : 'AI Answer'}
@@ -872,12 +872,12 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
         <TabsContent value="attempts" className="space-y-6">
           <Card className="card border border-border bg-card">
             <CardHeader className="p-4 sm:p-6 pb-0">
-              <CardTitle className="text-xl text-emerald-400">Student Attempts</CardTitle>
+              <CardTitle className="text-xl text-primary-400">Student Attempts</CardTitle>
             </CardHeader>
             <CardContent className="p-4 sm:p-6 space-y-4">
               <div className="mb-4 flex items-center gap-2">
                 <Select value={searchField} onValueChange={v => setSearchField(v as 'name' | 'email' | 'score')}>
-                  <SelectTrigger className="w-36 text-emerald-200 focus:ring-emerald-400">
+                  <SelectTrigger className="w-36 text-primary-200 focus:ring-primary-400">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -888,7 +888,7 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
                 </Select>
                 <Input
                   type="text"
-                  className="w-full  text-emerald-200 placeholder:text-emerald-300/60 focus:ring-emerald-400"
+                  className="w-full  text-primary-200 placeholder:text-primary-300/60 focus:ring-primary-400"
                   placeholder={`Search by ${searchField}...`}
                   value={attemptsSearch}
                   onChange={e => setAttemptsSearch(e.target.value)}
@@ -897,7 +897,7 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
               {/* Filters and sorting row */}
               <div className="mb-4 flex flex-col md:flex-row flex-wrap items-stretch gap-2 w-full">
                 <Select value={statusFilter} onValueChange={v => setStatusFilter(v as 'all' | 'submitted' | 'not_submitted')}>
-                  <SelectTrigger className="w-full md:w-36 text-emerald-200 focus:ring-emerald-400 flex-1">
+                  <SelectTrigger className="w-full md:w-36 text-primary-200 focus:ring-primary-400 flex-1">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -909,7 +909,7 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
                 <Input
                   type="number"
                   min=""
-                  className="w-full md:w-24  text-emerald-200 placeholder:text-emerald-300/60 focus:ring-emerald-400 flex-1"
+                  className="w-full md:w-24  text-primary-200 placeholder:text-primary-300/60 focus:ring-primary-400 flex-1"
                   placeholder="Min Score"
                   value={scoreMin}
                   onChange={e => setScoreMin(e.target.value)}
@@ -917,13 +917,13 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
                 <Input
                   type="number"
                   min=""
-                  className="w-full md:w-24  text-emerald-200 placeholder:text-emerald-300/60 focus:ring-emerald-400 flex-1"
+                  className="w-full md:w-24  text-primary-200 placeholder:text-primary-300/60 focus:ring-primary-400 flex-1"
                   placeholder="Max Score"
                   value={scoreMax}
                   onChange={e => setScoreMax(e.target.value)}
                 />
                 <Select value={sortField} onValueChange={v => setSortField(v as typeof sortField)}>
-                  <SelectTrigger className="w-full md:w-40 text-emerald-200 focus:ring-emerald-400 flex-1">
+                  <SelectTrigger className="w-full md:w-40 text-primary-200 focus:ring-primary-400 flex-1">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -937,7 +937,7 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
                 <Button
                   type="button"
                   variant="outline"
-                  className=" text-emerald-400 px-2 py-2 h-10 w-full md:w-auto flex-1"
+                  className=" text-primary-400 px-2 py-2 h-10 w-full md:w-auto flex-1"
                   onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
                   title={sortOrder === 'asc' ? 'Ascending' : 'Descending'}
                 >
@@ -969,7 +969,7 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
                             <TableCell className="text-xs sm:text-sm whitespace-nowrap">
                               <Link
                                 to={`/profile/${a.student_id}`}
-                                className="text-emerald-400 hover:underline hover:text-emerald-300 transition-colors"
+                                className="text-primary-400 hover:underline hover:text-primary-300 transition-colors"
                               >
                                 {a.student_name}
                               </Link>
@@ -988,7 +988,7 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  className="text-emerald-400"
+                                  className="text-primary-400"
                                   onClick={() => {
                                     setModalAnswers(normalizeAnswers(a.answers));
                                     setModalAttempt(a);
@@ -1013,17 +1013,17 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
               {!attemptsLoading && filteredAttempts.length > 0 && (
                 <div className="space-y-3 sm:hidden">
                   {filteredAttempts.map((a) => (
-                    <div key={a.id} className="rounded-xl border border-emerald-500/20 p-4 bg-card/50">
+                    <div key={a.id} className="rounded-xl border border-primary-500/20 p-4 bg-card/50">
                       <div className="flex items-center justify-between gap-3">
                         <div className="min-w-0">
-                          <div className="font-semibold text-emerald-300 truncate">{a.student_name}</div>
+                          <div className="font-semibold text-primary-300 truncate">{a.student_name}</div>
                           <div className="text-xs text-muted-foreground break-all">{a.student_email}</div>
                         </div>
                         {a.answers && Object.keys(a.answers || {}).length > 0 ? (
                           <Button
                             size="sm"
                             variant="outline"
-                            className="text-emerald-400 shrink-0"
+                            className="text-primary-400 shrink-0"
                             onClick={() => {
                               setModalAnswers(normalizeAnswers(a.answers));
                               setModalAttempt(a);
@@ -1056,7 +1056,7 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
         </TabsContent>
       </Tabs>
       <Dialog open={openAnswersModal} onOpenChange={setOpenAnswersModal}>
-        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto scrollbar-thin scrollbar-thumb-emerald-500 scrollbar-track-background">
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto scrollbar-thin scrollbar-thumb-primary-500 scrollbar-track-background">
           <DialogHeader>
             <DialogTitle>Student Answers</DialogTitle>
             <DialogDescription>
@@ -1066,14 +1066,14 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
                 </div>
               )}
               {modalScore !== null && (
-                <div className="mb-2 text-lg font-semibold text-emerald-400">Score: {modalScore} / {modalAttempt?.max_score ?? '-'}</div>
+                <div className="mb-2 text-lg font-semibold text-primary-400">Score: {modalScore} / {modalAttempt?.max_score ?? '-'}</div>
               )}
             </DialogDescription>
           </DialogHeader>
           {/* Sorting dropdown */}
           <div className="mb-4">
             <Select value={modalSort} onValueChange={v => setModalSort(v as 'none' | 'correct' | 'incorrect')}>
-              <SelectTrigger className="w-full text-emerald-200 focus:ring-emerald-400">
+              <SelectTrigger className="w-full text-primary-200 focus:ring-primary-400">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent>
@@ -1099,14 +1099,14 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
                     const correct = studentAnswer === q.correct_answer;
                     return (
                       <li key={q.id} className="border-b border-border pb-2">
-                        <div className="font-medium text-emerald-300">{q.question_text}</div>
-                        <div className="text-sm text-muted-foreground">Correct Answer: <span className="text-emerald-400">{q.correct_answer ?? '-'}</span></div>
-                        <div className="text-sm">Student Answer: <span className={correct ? 'text-emerald-400' : 'text-destructive'}>{studentAnswer ?? '-'}</span></div>
+                        <div className="font-medium text-primary-300">{q.question_text}</div>
+                        <div className="text-sm text-muted-foreground">Correct Answer: <span className="text-primary-400">{q.correct_answer ?? '-'}</span></div>
+                        <div className="text-sm">Student Answer: <span className={correct ? 'text-primary-400' : 'text-destructive'}>{studentAnswer ?? '-'}</span></div>
                         <div className="text-xs mt-1">
                           {studentAnswer == null ? (
                             <span className="text-destructive">No answer</span>
                           ) : correct ? (
-                            <span className="text-emerald-400 font-semibold">Correct</span>
+                            <span className="text-primary-400 font-semibold">Correct</span>
                           ) : (
                             <span className="text-destructive font-semibold">Incorrect</span>
                           )}
@@ -1124,8 +1124,8 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
                 ) : (
                   Object.entries(modalAnswers).map(([q, ans]) => (
                     <li key={q} className="border-b border-border pb-2">
-                      <div className="font-medium text-emerald-300">Question ID: {q}</div>
-                      <div className="text-emerald-100">Answer: {typeof ans === 'string' ? ans : JSON.stringify(ans)}</div>
+                      <div className="font-medium text-primary-300">Question ID: {q}</div>
+                      <div className="text-primary-100">Answer: {typeof ans === 'string' ? ans : JSON.stringify(ans)}</div>
                     </li>
                   ))
                 )}

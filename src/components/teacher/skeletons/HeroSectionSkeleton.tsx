@@ -3,8 +3,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 export function HeroSectionSkeleton() {
   return (
     <div className="glass-card p-8 border-0 relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-blue-500/10" />
-      <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-emerald-500/5 to-transparent rounded-full blur-3xl" />
+      <div className="absolute inset-0 bg-gradient-to-r from-primary-500/10 via-secondary-500/10 to-blue-500/10" />
+      <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-primary-500/5 to-transparent rounded-full blur-3xl" />
       <div className="relative z-10">
         <div className="flex items-start justify-between mb-6">
           <div className="flex items-center gap-4">

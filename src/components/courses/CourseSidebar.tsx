@@ -177,7 +177,7 @@ export const CourseSidebar = ({
                       isCurrent
                         ? 'border-primary bg-primary/5'
                         : isCompleted
-                        ? 'border-green-500/40 bg-green-100/10'
+                        ? 'border-primary-500/40 bg-primary-100/10'
                         : 'border-border hover:border-primary/30'
                     }`}
                     onClick={() => onLessonSelect(item)}
@@ -188,7 +188,7 @@ export const CourseSidebar = ({
                           isCurrent
                             ? 'bg-primary text-primary-foreground'
                             : isCompleted
-                            ? 'bg-green-500 text-white'
+                            ? 'bg-primary-500 text-white'
                             : 'bg-muted'
                         }`}>
                           <BookOpen className="h-5 w-5" />
@@ -202,7 +202,7 @@ export const CourseSidebar = ({
                           )}
                         </div>
                         <div className="flex items-center gap-2">
-                          {isCompleted && <CheckCircle className="h-4 w-4 text-green-500" />}
+                          {isCompleted && <CheckCircle className="h-4 w-4 text-primary-500" />}
                           <Badge variant="outline" className="text-xs">Lesson</Badge>
                         </div>
                       </div>

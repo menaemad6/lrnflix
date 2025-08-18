@@ -481,9 +481,9 @@ export const SecureVideoPlayer: React.FC<SecureVideoPlayerProps> = ({ lessonId, 
   }, [lessonId]);
 
   useEffect(() => {
-    // Inject emerald color for the played portion of the progress bar (cross-browser)
-    const emeraldStyle = document.createElement('style');
-    emeraldStyle.textContent = `
+    // Inject primary color for the played portion of the progress bar (cross-browser)
+    const primaryStyle = document.createElement('style');
+    primaryStyle.textContent = `
       /* Played portion for Plyr progress bar */
       .plyr__progress__played {
         background: #10b981 !important;
@@ -535,9 +535,9 @@ export const SecureVideoPlayer: React.FC<SecureVideoPlayerProps> = ({ lessonId, 
         background: #10b981 !important;
       }
     `;
-    document.head.appendChild(emeraldStyle);
+    document.head.appendChild(primaryStyle);
     return () => {
-      document.head.removeChild(emeraldStyle);
+      document.head.removeChild(primaryStyle);
     };
   }, []);
 

@@ -258,16 +258,16 @@ const TeacherLanding = () => {
   const achievements = [
     { icon: Trophy, label: "Industry Awards", value: "15+", color: "from-yellow-400 to-orange-500" },
     { icon: Users, label: "Students Worldwide", value: "50K+", color: "from-blue-400 to-purple-500" },
-    { icon: BookOpen, label: "Courses Created", value: "120+", color: "from-green-400 to-teal-500" },
+    { icon: BookOpen, label: "Courses Created", value: "120+", color: "from-green-400 to-secondary-500" },
     { icon: Star, label: "Average Rating", value: "4.9", color: "from-pink-400 to-red-500" },
     { icon: Globe, label: "Countries Reached", value: "85+", color: "from-indigo-400 to-blue-500" },
     { icon: Brain, label: "Hours of Content", value: "500+", color: "from-purple-400 to-pink-500" }
   ];
 
   const skills = [
-    { icon: Code, name: "Programming", level: 95, color: "from-blue-500 to-cyan-500" },
+    { icon: Code, name: "Programming", level: 95, color: "from-blue-500 to-accent-500" },
     { icon: Palette, name: "Design", level: 88, color: "from-pink-500 to-rose-500" },
-    { icon: LucideDatabase, name: "Data Science", level: 92, color: "from-green-500 to-emerald-500" },
+    { icon: LucideDatabase, name: "Data Science", level: 92, color: "from-green-500 to-primary-500" },
     { icon: Shield, name: "Security", level: 87, color: "from-red-500 to-orange-500" },
     { icon: MessageSquare, name: "Communication", level: 96, color: "from-purple-500 to-violet-500" },
     { icon: Wand2, name: "Innovation", level: 94, color: "from-yellow-500 to-amber-500" }

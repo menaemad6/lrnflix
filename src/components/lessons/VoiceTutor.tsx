@@ -289,9 +289,9 @@ export const VoiceTutor: React.FC<VoiceTutorProps> = ({
             </div>
             
             {/* Premium Badge */}
-            <Badge variant="primary" className="px-4 py-2 bg-gradient-to-r from-emerald-500/20 to-emerald-400/20 border-emerald-500/30">
-              <Zap className="h-4 w-4 text-emerald-500 mr-2" />
-              <span className="text-emerald-600 dark:text-emerald-400 font-semibold">Premium Feature</span>
+            <Badge variant="primary" className="px-4 py-2 bg-gradient-to-r from-primary-500/20 to-primary-400/20 border-primary-500/30">
+              <Zap className="h-4 w-4 text-primary-500 mr-2" />
+              <span className="text-primary-600 dark:text-primary-400 font-semibold">Premium Feature</span>
             </Badge>
           </div>
 
@@ -339,11 +339,11 @@ export const VoiceTutor: React.FC<VoiceTutorProps> = ({
             <div className="mb-6 p-4 bg-card/50 backdrop-blur-sm border-border/50 rounded-xl">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
-                  <CreditCard className="h-5 w-5 text-emerald-500" />
+                  <CreditCard className="h-5 w-5 text-primary-500" />
                   <span className="font-semibold text-foreground">Purchased Minutes</span>
                 </div>
                 {hasPurchasedMinutesOnly && (
-                  <Badge className="bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border-emerald-500/30">
+                  <Badge className="bg-primary-500/20 text-primary-600 dark:text-primary-400 border-primary-500/30">
                     <Sparkles className="h-3 w-3 mr-1" />
                     Active
                   </Badge>
@@ -352,26 +352,26 @@ export const VoiceTutor: React.FC<VoiceTutorProps> = ({
               <div className="grid grid-cols-3 gap-4 text-sm">
                 <div>
                   <div className="text-muted-foreground">Available</div>
-                  <div className="font-bold text-lg text-emerald-600">{purchasedMinutes} min</div>
+                  <div className="font-bold text-lg text-primary-600">{purchasedMinutes} min</div>
                 </div>
                 <div>
                   <div className="text-muted-foreground">Type</div>
-                  <div className="font-bold text-lg text-emerald-600">Premium</div>
+                  <div className="font-bold text-lg text-primary-600">Premium</div>
                 </div>
                 <div>
                   <div className="text-muted-foreground">Status</div>
-                  <div className="font-bold text-lg text-emerald-600">Unlimited</div>
+                  <div className="font-bold text-lg text-primary-600">Unlimited</div>
                 </div>
               </div>
               {hasPurchasedMinutesOnly && (
                 <div className="mt-3">
                   <div className="w-full bg-muted rounded-full h-2">
                     <div 
-                      className="h-2 rounded-full bg-emerald-500 transition-all duration-300"
+                      className="h-2 rounded-full bg-primary-500 transition-all duration-300"
                       style={{ width: '100%' }}
                     />
                   </div>
-                  <div className="mt-2 text-xs text-emerald-600 flex items-center gap-1">
+                  <div className="mt-2 text-xs text-primary-600 flex items-center gap-1">
                     <Sparkles className="h-3 w-3" />
                     <span>Using purchased minutes for this session</span>
                   </div>
@@ -470,7 +470,7 @@ export const VoiceTutor: React.FC<VoiceTutorProps> = ({
                     Required for voice session
                   </div>
                   {lessonSummary ? (
-                    <Badge className="bg-green-500/20 text-green-600 dark:text-green-400 border-green-500/30">
+                    <Badge variant='default'>
                       ✓ Available
                     </Badge>
                   ) : (
@@ -504,7 +504,7 @@ export const VoiceTutor: React.FC<VoiceTutorProps> = ({
           {/* Student Notes */}
           <div className="mb-8">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+              <div className="w-2 h-2 bg-primary-500 rounded-full animate-pulse"></div>
               <label className="text-foreground font-semibold">
                 Focus Areas (Optional)
               </label>
@@ -527,11 +527,11 @@ export const VoiceTutor: React.FC<VoiceTutorProps> = ({
             {/* Status Display */}
             <div className="mb-8">
               {isCallActive ? (
-                <div className="flex items-center justify-center gap-3 text-green-500 mb-4">
+                <div className="flex items-center justify-center gap-3 text-primary-500 mb-4">
                   <div className="flex gap-1">
-                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+                    <div className="w-2 h-2 bg-primary-500 rounded-full animate-pulse"></div>
+                    <div className="w-2 h-2 bg-primary-500 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                    <div className="w-2 h-2 bg-primary-500 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
                   </div>
                   <span className="font-semibold">Connected with Hossam</span>
                   <span className="text-sm">({formatTime(remainingTime)} remaining)</span>

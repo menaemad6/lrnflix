@@ -8,6 +8,8 @@ import { StudentQuizTaker } from '@/components/quizzes/StudentQuizTaker';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useRandomBackground } from "../../hooks/useRandomBackground";
+import { CourseProgressSkeleton, LessonContentSkeleton, QuizTakerSkeleton } from '@/components/student/skeletons';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface Course {
   id: string;
@@ -221,11 +223,7 @@ export const CourseProgress = () => {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
+    return <CourseProgressSkeleton />;
   }
 
   if (!course || !isEnrolled) {
@@ -251,28 +249,30 @@ export const CourseProgress = () => {
               onBackToCourse={handleBackToCourse}
             />
           ) : currentLesson ? (
-            <LessonContent
-              lesson={currentLesson}
-              course={course}
-              isCompleted={progress.includes(currentLesson.id)}
-              onLessonComplete={handleLessonComplete}
-            />
-          ) : lessons.length === 0 && quizzes.length === 0 ? (
-            <div className="flex items-center justify-center h-full">
-              <div className="text-center">
-                <h2 className="text-xl font-semibold mb-2">No Content Available</h2>
-                <p className="text-muted-foreground">This course doesn't have any lessons or quizzes yet.</p>
-              </div>
-            </div>
-          ) : (
-            <div className="flex items-center justify-center h-full">
-              <div className="text-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-                <h2 className="text-xl font-semibold mb-2">Loading Content</h2>
-                <p className="text-muted-foreground">Preparing your course content...</p>
-              </div>
-            </div>
-          )}
+                         <LessonContent
+               lesson={currentLesson}
+               course={course}
+               isCompleted={progress.includes(currentLesson.id)}
+               onLessonComplete={handleLessonComplete}
+               onBackToCourse={handleBackToCourse}
+             />
+                     ) : lessons.length === 0 && quizzes.length === 0 ? (
+             <div className="flex items-center justify-center h-full">
+               <div className="text-center space-y-4">
+                 <Skeleton className="h-16 w-16 rounded-full mx-auto" />
+                 <h2 className="text-xl font-semibold mb-2">No Content Available</h2>
+                 <p className="text-muted-foreground">This course doesn't have any lessons or quizzes yet.</p>
+               </div>
+             </div>
+                     ) : (
+             <div className="flex items-center justify-center h-full">
+               <div className="text-center space-y-4">
+                 <Skeleton className="h-8 w-8 rounded-full mx-auto" />
+                 <h2 className="text-xl font-semibold mb-2">Loading Content</h2>
+                 <p className="text-muted-foreground">Preparing your course content...</p>
+               </div>
+             </div>
+           )}
         </div>
         
         {/* Right Sidebar */}
@@ -306,7 +306,7 @@ export const CourseProgress = () => {
             />
           ) : (
             <div className="p-4 flex flex-col items-center gap-4">
-              <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-lg flex items-center justify-center">
                 <span className="text-black font-bold text-sm">C</span>
               </div>
               <div className="flex flex-col items-center gap-2 text-xs text-muted-foreground">

@@ -37,7 +37,10 @@ export const StudentProfileStats = ({ stats, user }: StudentProfileStatsProps) =
       <Card className="glass-card border-0 relative overflow-hidden">
         {/* Aurora animated background */}
         <div className="absolute inset-0 w-full h-full z-0 pointer-events-none">
-          <Aurora amplitude={1.2} blend={0.6} colorStops={["#5227FF", "#7cff67", "#5227FF"]} />
+          <Aurora 
+            amplitude={1.2} 
+            blend={0.6} 
+          />
           {theme === 'dark' && (
             <div className="absolute inset-0 bg-black/60" />
           )}
@@ -46,7 +49,7 @@ export const StudentProfileStats = ({ stats, user }: StudentProfileStatsProps) =
           <div className="flex flex-col sm:flex-row items-center sm:items-stretch gap-6">
             {/* Avatar with animated border */}
             <div className="relative flex-shrink-0">
-              <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-4xl font-bold text-black shadow-2xl animate-glow-pulse border-4 border-white/30">
+              <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-4xl font-bold text-primary-foreground shadow-2xl animate-glow-pulse border-4 border-white/30">
                 {user.avatar_url ? (
                   <img
                     src={user.avatar_url}
@@ -60,7 +63,7 @@ export const StudentProfileStats = ({ stats, user }: StudentProfileStatsProps) =
                 <svg className="absolute top-0 left-0 w-full h-full" viewBox="0 0 120 120">
                   <circle
                     cx="60" cy="60" r="54"
-                    stroke="#10b981"
+                    stroke="hsl(var(--primary))"
                     strokeWidth="8"
                     fill="none"
                     strokeDasharray={339.292}
@@ -71,8 +74,8 @@ export const StudentProfileStats = ({ stats, user }: StudentProfileStatsProps) =
                 </svg>
               </div>
               {/* Fire/Energy icon */}
-              <div className="absolute -bottom-3 -right-3 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full p-2 shadow-lg animate-bounce">
-                <Flame className="h-6 w-6 text-white" />
+              <div className="absolute -bottom-3 -right-3 bg-gradient-to-br from-warning to-warning/80 rounded-full p-2 shadow-lg animate-bounce">
+                <Flame className="h-6 w-6 text-warning-foreground" />
               </div>
             </div>
             {/* Info */}
@@ -82,7 +85,7 @@ export const StudentProfileStats = ({ stats, user }: StudentProfileStatsProps) =
               </h1>
               <p className="text-muted-foreground mb-2 text-sm sm:text-base break-all">{user.email}</p>
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3">
-                <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 flex items-center gap-1 text-base px-3 py-1">
+                <Badge className="bg-primary/20 text-primary border-primary/30 flex items-center gap-1 text-base px-3 py-1">
                   <Trophy className="h-4 w-4 mr-1" />
                   Level {studyLevel}
                 </Badge>
@@ -90,7 +93,7 @@ export const StudentProfileStats = ({ stats, user }: StudentProfileStatsProps) =
                   <BookOpen className="h-4 w-4" />
                   {stats.completedCourses} Courses Completed
                 </div>
-                <div className="flex items-center gap-1 text-base text-yellow-500">
+                <div className="flex items-center gap-1 text-base text-warning">
                   <Flame className="h-4 w-4" />
                   {stats.studyStreak || 0} day streak
                 </div>
@@ -111,16 +114,16 @@ export const StudentProfileStats = ({ stats, user }: StudentProfileStatsProps) =
         <Card className="glass-card border-0 hover-glow group">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Enrolled Courses</CardTitle>
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-              <BookOpen className="h-5 w-5 text-blue-400" />
+            <div className="w-10 h-10 bg-gradient-to-br from-info/20 to-accent/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+              <BookOpen className="h-5 w-5 text-info" />
             </div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold gradient-text">{stats.totalCourses}</div>
             <div className="flex items-center gap-2 mt-1">
-              <div className="text-xs text-emerald-400">{stats.inProgressCourses} in progress</div>
+              <div className="text-xs text-primary">{stats.inProgressCourses} in progress</div>
               <div className="text-xs text-muted-foreground">•</div>
-              <div className="text-xs text-purple-400">{stats.completedCourses} completed</div>
+              <div className="text-xs text-secondary">{stats.completedCourses} completed</div>
             </div>
           </CardContent>
         </Card>
@@ -128,8 +131,8 @@ export const StudentProfileStats = ({ stats, user }: StudentProfileStatsProps) =
         <Card className="glass-card border-0 hover-glow group">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Credits Balance</CardTitle>
-            <div className="w-10 h-10 bg-gradient-to-br from-emerald-500/20 to-green-500/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-              <Zap className="h-5 w-5 text-emerald-400" />
+            <div className="w-10 h-10 bg-gradient-to-br from-primary/20 to-success/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+              <Zap className="h-5 w-5 text-primary" />
             </div>
           </CardHeader>
           <CardContent>
@@ -143,8 +146,8 @@ export const StudentProfileStats = ({ stats, user }: StudentProfileStatsProps) =
         <Card className="glass-card border-0 hover-glow group">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">AI Minutes</CardTitle>
-            <div className="w-10 h-10 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-              <Clock className="h-5 w-5 text-purple-400" />
+            <div className="w-10 h-10 bg-gradient-to-br from-secondary/20 to-accent/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+              <Clock className="h-5 w-5 text-secondary" />
             </div>
           </CardHeader>
           <CardContent>
@@ -158,8 +161,8 @@ export const StudentProfileStats = ({ stats, user }: StudentProfileStatsProps) =
         <Card className="glass-card border-0 hover-glow group">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Study Level</CardTitle>
-            <div className="w-10 h-10 bg-gradient-to-br from-yellow-500/20 to-orange-500/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-              <TrendingUp className="h-5 w-5 text-yellow-400" />
+            <div className="w-10 h-10 bg-gradient-to-br from-warning/20 to-warning/40 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+              <TrendingUp className="h-5 w-5 text-warning" />
             </div>
           </CardHeader>
           <CardContent>

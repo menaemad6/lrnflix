@@ -545,7 +545,7 @@ export const ChatbotSidebar = () => {
             <div className="p-4 border-b border-border/20 bg-background/80 backdrop-blur-sm">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center">
+                  <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-xl flex items-center justify-center">
                     <Bot className="h-5 w-5 text-black" />
                   </div>
                   <div>
@@ -558,7 +558,7 @@ export const ChatbotSidebar = () => {
                     variant="ghost"
                     size="sm"
                     onClick={clearHistory}
-                    className="text-muted-foreground hover:text-emerald-400 hover:bg-emerald-400/10"
+                    className="text-muted-foreground hover:text-primary-400 hover:bg-primary-400/10"
                     title="Clear chat history"
                   >
                     <Sparkles className="h-4 w-4" />
@@ -567,7 +567,7 @@ export const ChatbotSidebar = () => {
                     variant="ghost"
                     size="sm"
                     onClick={closeChatbot}
-                    className="text-muted-foreground hover:text-emerald-400 hover:bg-emerald-400/10"
+                    className="text-muted-foreground hover:text-primary-400 hover:bg-primary-400/10"
                     title="Close chatbot"
                   >
                     <X className="h-4 w-4" />
@@ -577,9 +577,9 @@ export const ChatbotSidebar = () => {
 
               {/* Action Mode Toggle for Teachers */}
               {userRole === 'teacher' && (
-                <div className="flex items-center justify-between mt-4 p-4 rounded-2xl bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-emerald-500/10 border border-emerald-500/20 backdrop-blur-sm">
+                <div className="flex items-center justify-between mt-4 p-4 rounded-2xl bg-gradient-to-r from-primary-500/10 via-secondary-500/10 to-primary-500/10 border border-primary-500/20 backdrop-blur-sm">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-lg flex items-center justify-center">
+                    <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-lg flex items-center justify-center">
                       <Zap className="h-4 w-4 text-black" />
                     </div>
                     <div>
@@ -591,7 +591,7 @@ export const ChatbotSidebar = () => {
                     id="action-mode"
                     checked={actionMode}
                     onCheckedChange={setActionMode}
-                    className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-emerald-500 data-[state=checked]:to-teal-500"
+                    className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-primary-500 data-[state=checked]:to-secondary-500"
                   />
                 </div>
               )}
@@ -601,13 +601,13 @@ export const ChatbotSidebar = () => {
                 <div className={`flex items-center justify-between mt-4 p-4 rounded-2xl backdrop-blur-sm border ${
                   isRateLimited 
                     ? 'bg-gradient-to-r from-red-500/10 via-orange-500/10 to-red-500/10 border-red-500/20' 
-                    : 'bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-emerald-500/10 border-emerald-500/20'
+                    : 'bg-gradient-to-r from-primary-500/10 via-secondary-500/10 to-primary-500/10 border-primary-500/20'
                 }`}>
                   <div className="flex items-center gap-3">
                     <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
                       isRateLimited 
                         ? 'bg-gradient-to-br from-red-500 to-orange-500' 
-                        : 'bg-gradient-to-br from-emerald-500 to-teal-500'
+                        : 'bg-gradient-to-br from-primary-500 to-secondary-500'
                     }`}>
                       <MessageSquare className="h-4 w-4 text-white" />
                     </div>
@@ -637,10 +637,10 @@ export const ChatbotSidebar = () => {
               <div className="space-y-4">
                 {messages.length === 0 && (
                   <div className="text-center py-8">
-                    <div className="w-16 h-16 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                      <Bot className="h-8 w-8 text-emerald-400" />
+                    <div className="w-16 h-16 bg-gradient-to-br from-primary-500/20 to-secondary-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      <Bot className="h-8 w-8 text-primary-400" />
                     </div>
-                    <h4 className="font-medium text-emerald-400 mb-2">Welcome to AI Assistant!</h4>
+                    <h4 className="font-medium text-primary-400 mb-2">Welcome to AI Assistant!</h4>
                     <p className="text-sm text-muted-foreground">
                       {userRole === 'teacher' ? 
                         'Ask me anything about creating courses, managing students, or teaching strategies. Try "create a new course" or "delete RNA course".' :
@@ -658,14 +658,14 @@ export const ChatbotSidebar = () => {
                       className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                     >
                       {message.role === 'assistant' && (
-                        <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center flex-shrink-0">
+                        <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-full flex items-center justify-center flex-shrink-0">
                           <Bot className="h-4 w-4 text-black" />
                         </div>
                       )}
                       <div
                         className={`max-w-[80%] p-3 rounded-2xl ${
                           message.role === 'user'
-                            ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-black'
+                            ? 'bg-gradient-to-r from-primary-500 to-secondary-500 text-black'
                             : 'bg-white/10 backdrop-blur-sm border border-white/10'
                         }`}
                       >
@@ -740,7 +740,7 @@ export const ChatbotSidebar = () => {
                         </span>
                       </div>
                       {message.role === 'user' && (
-                        <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center flex-shrink-0">
+                        <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-full flex items-center justify-center flex-shrink-0">
                           <User className="h-4 w-4 text-white" />
                         </div>
                       )}
@@ -750,14 +750,14 @@ export const ChatbotSidebar = () => {
                 
                 {isLoading && (
                   <div className="flex gap-3 justify-start">
-                    <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center">
+                    <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-full flex items-center justify-center">
                       <Bot className="h-4 w-4 text-black" />
                     </div>
                     <div className="bg-white/10 backdrop-blur-sm border border-white/10 p-3 rounded-2xl">
                       <div className="flex space-x-1">
-                        <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce"></div>
-                        <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                        <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                        <div className="w-2 h-2 bg-primary-400 rounded-full animate-bounce"></div>
+                        <div className="w-2 h-2 bg-primary-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                        <div className="w-2 h-2 bg-primary-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                       </div>
                     </div>
                   </div>
@@ -780,7 +780,7 @@ export const ChatbotSidebar = () => {
                         ? `Try: "delete RNA course" or "create new course"` 
                         : `Ask your AI ${userRole} assistant...`
                   }
-                  className={`flex-1 bg-white/10 border-white/20 focus:border-emerald-400 ${
+                  className={`flex-1 bg-white/10 border-white/20 focus:border-primary-400 ${
                     userRole === 'student' && isRateLimited ? 'opacity-50 cursor-not-allowed' : ''
                   }`}
                   disabled={isLoading || (userRole === 'student' && isRateLimited)}
@@ -788,7 +788,7 @@ export const ChatbotSidebar = () => {
                 <Button
                   onClick={sendMessage}
                   disabled={!inputValue.trim() || isLoading || (userRole === 'student' && isRateLimited)}
-                  className={`bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-black ${
+                  className={`bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 text-black ${
                     userRole === 'student' && isRateLimited ? 'opacity-50 cursor-not-allowed' : ''
                   }`}
                 >
@@ -796,7 +796,7 @@ export const ChatbotSidebar = () => {
                 </Button>
               </div>
               {actionMode && (
-                <p className="text-xs text-emerald-400 mt-2 flex items-center gap-1">
+                <p className="text-xs text-primary-400 mt-2 flex items-center gap-1">
                   <Zap className="h-3 w-3" />
                   Action mode enabled - I can create, edit, and manage your content by name
                 </p>

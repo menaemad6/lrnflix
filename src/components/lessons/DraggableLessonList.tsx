@@ -84,7 +84,7 @@ const DraggableLessonItem: React.FC<DraggableLessonItemProps> = ({
               <GripVertical className="h-5 w-5 text-muted-foreground" />
             </div>
             
-            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-emerald-500/20 border border-primary/30">
+            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary-500/20 border border-primary/30">
               <span className="text-sm font-bold text-primary">{index + 1}</span>
             </div>
 
@@ -112,7 +112,7 @@ const DraggableLessonItem: React.FC<DraggableLessonItemProps> = ({
                     e.stopPropagation();
                     onEdit(lesson);
                   }}
-                  className="glass-card border-emerald-500/20 hover:border-emerald-500/50 hover:bg-emerald-500/10"
+                  className="glass-card border-primary-500/20 hover:border-primary-500/50 hover:bg-primary-500/10"
                 >
                   <Edit className="h-4 w-4" />
                 </Button>

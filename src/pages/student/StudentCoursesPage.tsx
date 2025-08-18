@@ -159,7 +159,7 @@ export const StudentCoursesPage = () => {
                         onSelect={() => setSelectedCategory(category)}
                         className={
                           selectedCategory === category
-                            ? 'bg-emerald-500 text-white font-semibold'
+                            ? 'bg-primary-500 text-white font-semibold'
                             : ''
                         }
                       >
@@ -181,8 +181,8 @@ export const StudentCoursesPage = () => {
         ) : filteredCourses.length === 0 ? (
           <Card className="glass-card border-0 hover-glow">
             <CardContent className="text-center py-16">
-              <div className="w-20 h-20 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-glow-pulse">
-                <BookOpen className="h-10 w-10 text-emerald-400" />
+              <div className="w-20 h-20 bg-gradient-to-br from-primary-500/20 to-secondary-500/20 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-glow-pulse">
+                <BookOpen className="h-10 w-10 text-primary-400" />
               </div>
               <h3 className="text-xl font-semibold mb-3 gradient-text">No courses found</h3>
               <p className="text-muted-foreground mb-6 max-w-md mx-auto">

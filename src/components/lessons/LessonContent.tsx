@@ -7,6 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Play, CheckCircle, Clock, Eye, FileText } from 'lucide-react';
 import { VoiceTutor } from '@/components/lessons/VoiceTutor';
 import { SecureVideoPlayer } from '@/components/video/SecureVideoPlayer';
+import { LessonContentSkeleton } from '@/components/student/skeletons';
 
 interface Lesson {
   id: string;
@@ -35,6 +36,7 @@ interface LessonContentProps {
   course: Course;
   isCompleted: boolean;
   onLessonComplete: (lessonId: string) => void;
+  onBackToCourse: () => void;
 }
 
 const extractYouTubeVideoId = (url: string): string | null => {
@@ -53,7 +55,7 @@ const getEmbedUrl = (url: string): string => {
   return url;
 };
 
-export const LessonContent = ({ lesson, course, isCompleted, onLessonComplete }: LessonContentProps) => {
+export const LessonContent = ({ lesson, course, isCompleted, onLessonComplete, onBackToCourse }: LessonContentProps) => {
   const { toast } = useToast();
   const [lessonContent, setLessonContent] = useState<LessonContent | null>(null);
   const [viewCount, setViewCount] = useState(0);
@@ -160,11 +162,7 @@ export const LessonContent = ({ lesson, course, isCompleted, onLessonComplete }:
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
+    return <LessonContentSkeleton onBackToCourse={onBackToCourse} />;
   }
 
   if (lesson.view_limit && !canView) {
@@ -238,7 +236,7 @@ export const LessonContent = ({ lesson, course, isCompleted, onLessonComplete }:
                 {/* Status Badges */}
                 <div className="flex flex-wrap gap-3">
                   {lesson.view_limit && (
-                    <Badge variant="secondary" className="px-4 py-2 bg-gradient-to-r from-secondary/20 to-secondary/30 border-secondary/30">
+                    <Badge variant="default" className="px-4 py-2">
                       <div className="flex items-center gap-2">
                         <Eye className="h-4 w-4" />
                         <span className="font-medium">Views: {viewCount}/{lesson.view_limit}</span>
@@ -246,7 +244,7 @@ export const LessonContent = ({ lesson, course, isCompleted, onLessonComplete }:
                     </Badge>
                   )}
                   {isCompleted && (
-                    <Badge className="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-medium shadow-lg">
+                                       <Badge variant="default" className="px-4 py-2">
                       <div className="flex items-center gap-2">
                         <CheckCircle className="h-4 w-4" />
                         <span>Completed</span>
@@ -291,7 +289,7 @@ export const LessonContent = ({ lesson, course, isCompleted, onLessonComplete }:
               <Card className="bg-card/50 backdrop-blur-sm border-border/50 hover:shadow-lg transition-all duration-300">
                 <CardContent className="p-6">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-accent/20 to-accent/30 rounded-xl flex items-center justify-center shadow-lg border border-accent/30">
+                    <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-primary/30 rounded-xl flex items-center justify-center shadow-lg border border-primary/30">
                       <Eye className="h-6 w-6 text-primary" />
                     </div>
                     <div>

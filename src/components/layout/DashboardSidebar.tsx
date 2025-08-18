@@ -24,7 +24,8 @@ import {
   ArrowBigLeft,
   ChevronRight,
   File,
-  Calendar
+  Calendar,
+  Palette
 } from 'lucide-react';
 import {
   Sidebar,
@@ -173,6 +174,12 @@ export const DashboardSidebar = () => {
       icon: Gift,
       description: "Reward students"
     },
+    { 
+      title: "Brand Colors", 
+      url: "/teacher/colors", 
+      icon: Palette,
+      description: "Customize your brand"
+    },
     // { 
     //   title: "Notifications", 
     //   url: "/teacher/notifications", 
@@ -201,7 +208,7 @@ export const DashboardSidebar = () => {
           variant="ghost"
           size="icon"
           onClick={toggleSidebar}
-          className="fixed top-1/2 left-[-25px] -translate-y-1/2 rounded-full z-50 w-16 h-16 p-0 flex items-center justify-center bg-gradient-to-br from-emerald-500/80 to-teal-500/80 shadow-xl border-2 border-white/30 hover:from-emerald-400 hover:to-teal-400 hover:scale-105 hover:shadow-emerald-400/30 transition-all duration-300"
+          className="fixed top-1/2 left-[-25px] -translate-y-1/2 rounded-full z-50 w-16 h-16 p-0 flex items-center justify-center bg-gradient-to-br from-primary-500/80 to-secondary-500/80 shadow-xl border-2 border-white/30 hover:from-primary-400 hover:to-secondary-400 hover:scale-105 hover:shadow-primary-400/30 transition-all duration-300"
           title="Open Sidebar"
         >
           <ChevronRight className={`h-8 w-8 ml-5 transition-transform duration-300 ${isCollapsed ? 'rotate-180' : ''}`} />
@@ -211,16 +218,16 @@ export const DashboardSidebar = () => {
       <Sidebar className="glass-card border-r border-white/10 bg-gradient-to-b from-background/95 to-background/80 backdrop-blur-xl">
         <SidebarHeader className="p-6 border-b border-white/5 relative">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-2xl flex items-center justify-center animate-glow-pulse shadow-lg shadow-emerald-500/25">
+            <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-2xl flex items-center justify-center animate-glow-pulse shadow-lg shadow-primary-500/25">
               <BookOpen className="h-7 w-7 text-black" />
             </div>
             {!isCollapsed && (
               <div className="flex flex-col">
-                <span className="text-xl font-bold gradient-text bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
+                <span className="text-xl font-bold gradient-text bg-gradient-to-r from-primary-400 to-secondary-400 bg-clip-text text-transparent">
                   {teacher?.display_name || PLATFORM_NAME }
                 </span>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+                  <div className="w-2 h-2 bg-primary-400 rounded-full animate-pulse"></div>
                   <span className="text-xs text-muted-foreground capitalize font-medium">
                     {userRole} Portal
                   </span>
@@ -229,7 +236,7 @@ export const DashboardSidebar = () => {
             )}
           </div>
           {!isCollapsed && (
-            <div className="absolute -bottom-3 left-6 right-6 h-px bg-gradient-to-r from-transparent via-emerald-500/50 to-transparent"></div>
+            <div className="absolute -bottom-3 left-6 right-6 h-px bg-gradient-to-r from-transparent via-primary-500/50 to-transparent"></div>
           )}
         </SidebarHeader>
         {/* Collapse Button: Centered vertically on the right edge of the sidebar, half-circle style */}
@@ -240,7 +247,7 @@ export const DashboardSidebar = () => {
                 variant="ghost"
                 size="icon"
                 onClick={toggleSidebar}
-                className="w-16 h-16 rounded-l-full rounded-r-none bg-gradient-to-br from-emerald-500/80 to-teal-500/80 shadow-xl border-2 border-white/30 hover:from-emerald-400 hover:to-teal-400 hover:scale-105 hover:shadow-emerald-400/30 transition-all duration-300 flex items-center justify-center p-0"
+                className="w-16 h-16 rounded-l-full rounded-r-none bg-gradient-to-br from-primary-500/80 to-secondary-500/80 shadow-xl border-2 border-white/30 hover:from-primary-400 hover:to-secondary-400 hover:scale-105 hover:shadow-primary-400/30 transition-all duration-300 flex items-center justify-center p-0"
                 title="Collapse Sidebar"
                 style={{ borderRight: 'none' }}
               >
@@ -254,7 +261,7 @@ export const DashboardSidebar = () => {
           <ModernScrollbar maxHeight="calc(100vh - 200px)">
             <div className="pr-2">
               <SidebarGroup>
-                <SidebarGroupLabel className={`text-emerald-400/80 font-medium mb-4 flex items-center gap-2 ${isCollapsed ? "justify-center" : ""}`}>
+                <SidebarGroupLabel className={`text-primary-400/80 font-medium mb-4 flex items-center gap-2 ${isCollapsed ? "justify-center" : ""}`}>
                   {!isCollapsed && (
                     <>
                       <Zap className="h-4 w-4" />
@@ -272,16 +279,16 @@ export const DashboardSidebar = () => {
                             to={item.url} 
                             className={`group flex items-center gap-3 px-3 h-14 min-h-14 rounded-2xl transition-all duration-300 relative overflow-hidden backdrop-blur-sm whitespace-nowrap w-full min-w-0 max-w-full
                               ${isActive(item.url) 
-                                ? 'bg-gradient-to-r from-emerald-500/20 to-teal-500/20 text-emerald-500 glow border border-emerald-500/30 shadow-lg shadow-emerald-500/20 pointer-events-none' 
-                                : 'hover:bg-emerald-600/15 hover:text-white hover:shadow-lg hover:shadow-emerald-500/20'}
+                                ? 'bg-gradient-to-r from-primary-500/20 to-secondary-500/20 text-primary-500 glow border border-primary-500/30 shadow-lg shadow-primary-500/20 pointer-events-none' 
+                                : 'hover:bg-primary-600/15 hover:text-white hover:shadow-lg hover:shadow-primary-500/20'}
                               ${isCollapsed ? 'justify-center' : ''}`}
                             title={isCollapsed ? item.title : ''}
                             style={{ minWidth: 0 }}
                           >
                             <div className={`p-2 rounded-xl transition-all duration-300 flex-shrink-0
                               ${isActive(item.url) 
-                                ? 'bg-emerald-500/20 text-emerald-500 shadow-lg shadow-emerald-500/25' 
-                                : 'group-hover:bg-emerald-600/20 group-hover:text-white group-hover:shadow-md'}
+                                ? 'bg-primary-500/20 text-primary-500 shadow-lg shadow-primary-500/25' 
+                                : 'group-hover:bg-primary-600/20 group-hover:text-white group-hover:shadow-md'}
                             `}>
                               <item.icon className="h-5 w-5" />
                             </div>
@@ -290,17 +297,17 @@ export const DashboardSidebar = () => {
                                 <div className="flex items-center justify-between min-w-0">
                                   <div className="font-semibold text-sm truncate min-w-0 text-ellipsis overflow-hidden">{item.title}</div>
                                   {item.badge && (
-                                    <Badge className="bg-emerald-500 text-black text-xs font-medium shadow-lg ml-2 whitespace-nowrap">{item.badge}</Badge>
+                                    <Badge className="bg-primary-500 text-black text-xs font-medium shadow-lg ml-2 whitespace-nowrap">{item.badge}</Badge>
                                   )}
                                 </div>
                                 <div className="text-xs text-muted-foreground truncate min-w-0 text-ellipsis overflow-hidden">{item.description}</div>
                               </div>
                             )}
                             {isActive(item.url) && (
-                              <div className="absolute left-0 top-0 w-1 h-full bg-gradient-to-b from-emerald-400 to-teal-400 rounded-r shadow-lg shadow-emerald-400/50" />
+                              <div className="absolute left-0 top-0 w-1 h-full bg-gradient-to-b from-primary-400 to-secondary-400 rounded-r shadow-lg shadow-primary-400/50" />
                             )}
                             {isActive(item.url) && !isCollapsed && (
-                              <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-teal-500/5 rounded-2xl pointer-events-none" />
+                              <div className="absolute inset-0 bg-gradient-to-r from-primary-500/5 to-secondary-500/5 rounded-2xl pointer-events-none" />
                             )}
                           </Link>
                         </SidebarMenuButton>
@@ -319,19 +326,19 @@ export const DashboardSidebar = () => {
             <div>
               
               <SidebarGroupContent>
-                <div className="p-4 rounded-2xl bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border border-emerald-500/20 backdrop-blur-sm">
+                <div className="p-4 rounded-2xl bg-gradient-to-br from-primary-500/10 to-secondary-500/10 border border-primary-500/20 backdrop-blur-sm">
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-lg flex items-center justify-center">
+                    <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-lg flex items-center justify-center">
                       <Sparkles className="h-4 w-4 text-black" />
                     </div>
                     <div>
-                      <div className="text-sm font-semibold text-emerald-400">AI Assistant</div>
+                      <div className="text-sm font-semibold text-primary-400">AI Assistant</div>
                       <div className="text-xs text-muted-foreground">Get instant help</div>
                     </div>
                   </div>
                   <Button 
                     onClick={handleAskAI}
-                    className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-black font-semibold text-xs py-2 rounded-xl shadow-lg shadow-emerald-500/25 border border-emerald-400/30 transition-all duration-300 hover:shadow-xl hover:shadow-emerald-500/30"
+                    className="w-full bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 text-black font-semibold text-xs py-2 rounded-xl shadow-lg shadow-primary-500/25 border border-primary-400/30 transition-all duration-300 hover:shadow-xl hover:shadow-primary-500/30"
                   >
                     Ask AI
                   </Button>
@@ -341,9 +348,9 @@ export const DashboardSidebar = () => {
           )}
           
           {!isCollapsed && user && (
-            <div className="mt-4 p-3 rounded-2xl bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/20">
+            <div className="mt-4 p-3 rounded-2xl bg-gradient-to-r from-primary-500/10 to-secondary-500/10 border border-primary-500/20">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center text-black font-bold">
+                <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-full flex items-center justify-center text-black font-bold">
                   {user?.full_name?.charAt(0) || user?.email?.charAt(0) || 'U'}
                 </div>
                 <div className="flex-1 min-w-0">

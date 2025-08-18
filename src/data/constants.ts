@@ -1,73 +1,69 @@
-import { lighter, darker, hexToHsl, generateColorPalette } from '@/utils/colorUtils';
+import { 
+  lighter, 
+  darker, 
+  hexToHsl, 
+  generateColorPalette,
+  generateColorScheme,
+  generateNeutralColors,
+  generateSemanticColors
+} from '@/utils/colorUtils';
 
 export const PLATFORM_NAME = "LRNFLIX"
 export const API_URL = import.meta.env.VITE_API_URL;
 
+// Base primary color - this is the ONLY hardcoded color, everything else is calculated
+const BASE_PRIMARY_COLOR = '#10b981';
+
+// Default tenant colors object that matches the teachers table structure
+export const DEFAULT_TENANT_COLORS = {
+  primary: '#10b981', // Emerald green as default
+  secondary: '#12A594',    // Will be auto-calculated from primary
+  accent: '#06B6D4',       // Will be auto-calculated from primary
+};
+
 /**
- * Comprehensive color system for the application
- * This is the single source of truth for all colors used in the application
- * Colors are calculated from primary colors to reduce redundancy and enable tenant customization
+ * Dynamic color system for the application
+ * All colors are calculated from the primary color to ensure consistency
+ * and enable easy tenant customization by changing just the primary color
  */
 export const colorSystem = {
-  // Primary brand colors (these will be tenant-customizable)
+  // Primary brand colors (calculated from base)
   primary: {
-    // Main brand color (currently emerald, but will be tenant-customizable)
-    main: '#10b981',
-    // Calculated variants from main
-    light: lighter('#10b981', 0.2),
-    dark: darker('#10b981', 0.2),
-    // HSL values for CSS variables
-    hsl: hexToHsl('#10b981'),
+    main: BASE_PRIMARY_COLOR,
+    light: lighter(BASE_PRIMARY_COLOR, 0.2),
+    dark: darker(BASE_PRIMARY_COLOR, 0.2),
+    hsl: hexToHsl(BASE_PRIMARY_COLOR),
   },
   
-  // Secondary brand colors (calculated from primary)
+  // Secondary brand colors (dynamically calculated from primary)
   secondary: {
-    // Complementary to primary (calculated)
-    main: '#14b8a6', // teal variant
-    light: lighter('#14b8a6', 0.2),
-    dark: darker('#14b8a6', 0.2),
-    hsl: hexToHsl('#14b8a6'),
+    main: generateColorScheme(BASE_PRIMARY_COLOR).secondary,
+    light: generateColorScheme(BASE_PRIMARY_COLOR).secondaryLight,
+    dark: generateColorScheme(BASE_PRIMARY_COLOR).secondaryDark,
+    hsl: hexToHsl(generateColorScheme(BASE_PRIMARY_COLOR).secondary),
   },
   
-  // Accent colors (calculated from primary)
+  // Accent colors (dynamically calculated from primary)
   accent: {
-    // Accent color (calculated from primary)
-    main: '#06b6d4', // cyan variant
-    light: lighter('#06b6d4', 0.2),
-    dark: darker('#06b6d4', 0.2),
-    hsl: hexToHsl('#06b6d4'),
+    main: generateColorScheme(BASE_PRIMARY_COLOR).accent,
+    light: generateColorScheme(BASE_PRIMARY_COLOR).accentLight,
+    dark: generateColorScheme(BASE_PRIMARY_COLOR).accentDark,
+    hsl: hexToHsl(generateColorScheme(BASE_PRIMARY_COLOR).accent),
   },
   
-  // Neutral colors (calculated from primary for consistency)
-  neutral: {
-    // White to black scale with primary tint
-    50: '#f8fafc',   // Very light with primary tint
-    100: '#f1f5f9',  // Light with primary tint
-    200: '#e2e8f0',  // Light gray with primary tint
-    300: '#cbd5e1',  // Medium light gray
-    400: '#a3a3a3',  // Medium gray
-    500: '#6b7280',  // Medium dark gray
-    600: '#4b5563',  // Dark gray
-    700: '#374151',  // Darker gray
-    800: '#1f2937',  // Very dark gray
-    900: '#171717',  // Almost black
-  },
+  // Neutral colors (dynamically calculated with primary tint)
+  neutral: generateNeutralColors(BASE_PRIMARY_COLOR),
   
-  // Semantic colors (calculated from primary)
-  semantic: {
-    success: '#22c55e',    // Green (success)
-    warning: '#f97316',    // Orange (warning)
-    error: '#ef4444',      // Red (error)
-    info: '#3b82f6',       // Blue (info)
-  },
+  // Semantic colors (calculated with primary influence)
+  semantic: generateSemanticColors(BASE_PRIMARY_COLOR),
   
   // Icon colors (calculated from semantic colors)
   icon: {
-    success: '#22c55e',    // Green
-    warning: '#f97316',    // Orange
-    error: '#ef4444',      // Red
-    info: '#3b82f6',       // Blue
-    primary: '#10b981',    // Primary brand color
+    success: generateSemanticColors(BASE_PRIMARY_COLOR).success,
+    warning: generateSemanticColors(BASE_PRIMARY_COLOR).warning,
+    error: generateSemanticColors(BASE_PRIMARY_COLOR).error,
+    info: generateSemanticColors(BASE_PRIMARY_COLOR).info,
+    primary: BASE_PRIMARY_COLOR,
   },
   
   // Theme-aware colors (light/dark variants)
@@ -83,7 +79,7 @@ export const colorSystem = {
       mutedForeground: '#6b7280',
       border: '#e2e8f0',
       input: '#e2e8f0',
-      ring: '#10b981',
+      ring: BASE_PRIMARY_COLOR,
       sidebar: {
         background: '#f8fafc',
         foreground: '#171717',
@@ -101,7 +97,7 @@ export const colorSystem = {
       mutedForeground: '#a3a3a3',
       border: '#1c2320',
       input: '#1c2320',
-      ring: '#10b981',
+      ring: BASE_PRIMARY_COLOR,
       sidebar: {
         background: '#101312',
         foreground: '#ffffff',
@@ -136,30 +132,33 @@ export const colorSystem = {
   // Helper functions
   getColor: (colorPath: string, theme = 'light') => {
     const parts = colorPath.split('.');
-    let result: any = colorSystem;
+    let result: unknown = colorSystem;
     
     for (const part of parts) {
-      if (!result[part]) return null;
-      result = result[part];
+      if (typeof result === 'object' && result !== null && part in result) {
+        result = (result as Record<string, unknown>)[part];
+      } else {
+        return null;
+      }
     }
     
-    return typeof result === 'object' ? result[theme] : result;
+    return typeof result === 'object' ? (result as Record<string, unknown>)[theme] : result;
   },
   
   getCssVar: (name: string) => `var(--${name})`,
   
   // For backward compatibility (deprecated - use semantic colors instead)
   designOptions: {
-    primary: '#10b981',
-    secondary: '#a3a3a3',
-    accent: '#34d399',
+    primary: BASE_PRIMARY_COLOR,
+    secondary: generateColorScheme(BASE_PRIMARY_COLOR).secondary,
+    accent: generateColorScheme(BASE_PRIMARY_COLOR).accent,
     textPrimary: '#171717',
     textSecondary: '#a3a3a3',
     background: '#f8fafc',
     cardBackground: '#ffffff',
-    error: '#ef4444',
-    success: '#22c55e',
-    warning: '#f97316',
+    error: generateSemanticColors(BASE_PRIMARY_COLOR).error,
+    success: generateSemanticColors(BASE_PRIMARY_COLOR).success,
+    warning: generateSemanticColors(BASE_PRIMARY_COLOR).warning,
   },
 };
 
@@ -169,25 +168,154 @@ export const designOptions = colorSystem.designOptions;
 // CSS Variables generator for tenant customization
 export const generateCssVariables = (tenantColors?: {
   primary?: string;
-  secondary?: string;
-  accent?: string;
-}) => {
+  secondary?: string | null;
+  accent?: string | null;
+}, theme: 'light' | 'dark' = 'light') => {
+  // Use tenant colors or fall back to defaults
   const colors = {
-    primary: tenantColors?.primary || colorSystem.primary.main,
-    secondary: tenantColors?.secondary || colorSystem.secondary.main,
-    accent: tenantColors?.accent || colorSystem.accent.main,
+    primary: tenantColors?.primary || DEFAULT_TENANT_COLORS.primary,
+    secondary: tenantColors?.secondary || DEFAULT_TENANT_COLORS.secondary,
+    accent: tenantColors?.accent || DEFAULT_TENANT_COLORS.accent,
   };
   
   // Generate full color palette from primary color
   const primaryPalette = generateColorPalette(colors.primary);
+  const neutralColors = generateNeutralColors(colors.primary);
+  const semanticColors = generateSemanticColors(colors.primary);
+  
+  // Generate secondary and accent palettes
+  const secondaryPalette = generateColorPalette(colors.secondary);
+  const accentPalette = generateColorPalette(colors.accent);
+  
+  // Dynamically calculate theme colors based on primary color
+  const primaryHsl = hexToHsl(colors.primary);
+  
+  // Calculate border and input colors based on primary color
+  // For light theme: use primary hue with low saturation and high lightness
+  // For dark theme: use primary hue with low saturation and low lightness
+  const borderHue = primaryHsl.h;
+  const borderSaturation = Math.min(primaryHsl.s, 15); // Keep saturation low for borders
+  
+  // Debug logging
+  console.log('Color generation debug:', {
+    primaryColor: colors.primary,
+    primaryHsl,
+    borderHue,
+    borderSaturation,
+    theme,
+    hasSecondary: !!colors.secondary,
+    hasAccent: !!colors.accent
+  });
+  
+  const themeColors = theme === 'dark' ? {
+    // Dark theme: darker colors with primary tint
+    '--background': `${primaryHsl.h} ${Math.min(primaryHsl.s, 8)}% 6%`,
+    '--foreground': '0 0% 100%',
+    '--card': `${primaryHsl.h} ${Math.min(primaryHsl.s, 8)}% 8%`,
+    '--card-foreground': '0 0% 100%',
+    '--popover': `${primaryHsl.h} ${Math.min(primaryHsl.s, 8)}% 8%`,
+    '--popover-foreground': '0 0% 100%',
+    '--muted': `${primaryHsl.h} ${Math.min(primaryHsl.s, 8)}% 8%`,
+    '--muted-foreground': '0 0% 69%',
+    '--border': `${borderHue} ${borderSaturation}% 20%`,
+    '--input': `${borderHue} ${borderSaturation}% 20%`,
+    '--ring': `${borderHue} ${borderSaturation}% 60%`,
+    '--sidebar-background': `${primaryHsl.h} ${Math.min(primaryHsl.s, 8)}% 8%`,
+    '--sidebar-foreground': '0 0% 100%',
+    '--sidebar-border': `${borderHue} ${borderSaturation}% 20%`,
+  } : {
+    // Light theme: lighter colors with primary tint
+    '--background': `${primaryHsl.h} ${Math.min(primaryHsl.s, 5)}% 100%`,
+    '--foreground': '0 0% 0%',
+    '--card': `${primaryHsl.h} ${Math.min(primaryHsl.s, 5)}% 100%`,
+    '--card-foreground': '0 0% 0%',
+    '--popover': `${primaryHsl.h} ${Math.min(primaryHsl.s, 5)}% 100%`,
+    '--popover-foreground': '0 0% 0%',
+    '--muted': `${primaryHsl.h} ${Math.min(primaryHsl.s, 10)}% 96%`,
+    '--muted-foreground': `${primaryHsl.h} ${Math.min(primaryHsl.s, 15)}% 47%`,
+    '--border': `${borderHue} ${borderSaturation}% 91%`,
+    '--input': `${borderHue} ${borderSaturation}% 91%`,
+    '--ring': `${borderHue} ${borderSaturation}% 60%`,
+    '--sidebar-background': `${primaryHsl.h} ${Math.min(primaryHsl.s, 5)}% 98%`,
+    '--sidebar-foreground': '0 0% 0%',
+    '--sidebar-border': `${borderHue} ${borderSaturation}% 91%`,
+  };
   
   return {
     ...primaryPalette,
+    // Secondary colors with full numeric scale
     '--secondary': colors.secondary,
-    '--secondary-light': lighter(colors.secondary, 0.2),
-    '--secondary-dark': darker(colors.secondary, 0.2),
+    ...Object.entries(secondaryPalette).reduce((acc, [key, value]) => {
+      // Rename keys to match secondary scale (e.g., --primary-50 -> --secondary-50)
+      const newKey = key.replace('--primary', '--secondary');
+      acc[newKey] = value;
+      return acc;
+    }, {} as Record<string, string>),
+    // Accent colors with full numeric scale
     '--accent': colors.accent,
-    '--accent-light': lighter(colors.accent, 0.2),
-    '--accent-dark': darker(colors.accent, 0.2),
+    ...Object.entries(accentPalette).reduce((acc, [key, value]) => {
+      // Rename keys to match accent scale (e.g., --primary-50 -> --accent-50)
+      const newKey = key.replace('--primary', '--accent');
+      acc[newKey] = value;
+      return acc;
+    }, {} as Record<string, string>),
+    // Add neutral colors
+    ...Object.entries(neutralColors).reduce((acc, [key, value]) => {
+      acc[`--neutral-${key}`] = value;
+      return acc;
+    }, {} as Record<string, string>),
+    // Add semantic colors
+    '--success': semanticColors.success,
+    '--warning': semanticColors.warning,
+    '--error': semanticColors.error,
+    '--info': semanticColors.info,
+    
+    // Add theme-specific UI colors
+    ...themeColors,
+    
+    // Common colors for both themes
+    '--primary-foreground': '0 0% 100%',
+    '--secondary-foreground': '0 0% 100%',
+    '--accent-foreground': theme === 'dark' ? '0 0% 100%' : '0 0% 0%',
+    '--destructive': '12 98% 60%',
+    '--destructive-foreground': '0 0% 100%',
+    '--radius': '1.25rem',
+    
+    // Sidebar colors
+    '--sidebar-primary': colors.primary,
+    '--sidebar-primary-foreground': '0 0% 100%',
+    '--sidebar-accent': colors.primary,
+    '--sidebar-accent-foreground': '0 0% 100%',
+    '--sidebar-ring': colors.primary,
+  };
+};
+
+// Function to get all colors as a flat object for easy access
+export const getAllColors = () => {
+  const scheme = generateColorScheme(BASE_PRIMARY_COLOR);
+  const neutralColors = generateNeutralColors(BASE_PRIMARY_COLOR);
+  const semanticColors = generateSemanticColors(BASE_PRIMARY_COLOR);
+  
+  return {
+    // Primary colors
+    primary: scheme.primary,
+    'primary-light': scheme.primaryLight,
+    'primary-dark': scheme.primaryDark,
+    
+    // Secondary colors
+    secondary: scheme.secondary,
+    'secondary-light': scheme.secondaryLight,
+    'secondary-dark': scheme.secondaryDark,
+    
+    // Accent colors
+    accent: scheme.accent,
+    'accent-light': scheme.accentLight,
+    'accent-dark': scheme.accentDark,
+    
+    // Neutral colors
+    ...neutralColors,
+    
+    // Semantic colors
+    ...semanticColors,
   };
 };

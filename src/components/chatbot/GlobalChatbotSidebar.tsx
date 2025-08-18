@@ -13,7 +13,7 @@ export const GlobalChatbotSidebar: React.FC = () => {
         <ResizablePanel defaultSize={75} minSize={0} maxSize={95} className="pointer-events-none" />
         <ResizableHandle 
           withHandle 
-          className="w-2 bg-gradient-to-b from-emerald-500/20 via-teal-500/20 to-emerald-500/20 hover:bg-gradient-to-b hover:from-emerald-500/40 hover:via-teal-500/40 hover:to-emerald-500/40 transition-colors border-l border-white/40 flex items-center justify-center cursor-col-resize pointer-events-auto backdrop-blur-sm touch-pan-x"
+          className="w-2 bg-gradient-to-b from-primary-500/20 via-secondary-500/20 to-primary-500/20 hover:bg-gradient-to-b hover:from-primary-500/40 hover:via-secondary-500/40 hover:to-primary-500/40 transition-colors border-l border-white/40 flex items-center justify-center cursor-col-resize pointer-events-auto backdrop-blur-sm touch-pan-x"
           style={{ 
             touchAction: 'pan-x',
             WebkitTouchCallout: 'none',

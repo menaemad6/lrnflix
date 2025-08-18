@@ -113,10 +113,10 @@ export const WalletCard = () => {
   return (
     <div className="space-y-6">
       <Card className="glass-card border-0 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-teal-500/10" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary-500/10 to-secondary-500/10" />
         <CardHeader className="relative z-10">
           <CardTitle className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-2xl flex items-center justify-center animate-glow-pulse shadow-lg shadow-emerald-500/25">
+            <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-2xl flex items-center justify-center animate-glow-pulse shadow-lg shadow-primary-500/25">
               <Wallet className="h-6 w-6 text-black" />
             </div>
             <div>
@@ -129,11 +129,11 @@ export const WalletCard = () => {
         </CardHeader>
         <CardContent className="space-y-6 relative z-10">
           {/* Wallet Balance */}
-          <div className="text-center p-8 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-2xl border border-emerald-500/30 backdrop-blur-sm relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-teal-500/5" />
+          <div className="text-center p-8 bg-gradient-to-br from-primary-500/20 to-secondary-500/20 rounded-2xl border border-primary-500/30 backdrop-blur-sm relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-primary-500/5 to-secondary-500/5" />
             <div className="relative z-10">
               <div className="text-4xl font-bold gradient-text mb-2">{wallet}</div>
-              <div className="text-sm text-emerald-400 font-medium flex items-center justify-center gap-2">
+              <div className="text-sm text-primary-400 font-medium flex items-center justify-center gap-2">
                 <Sparkles className="h-4 w-4" />
                 Credits Available
               </div>
@@ -143,7 +143,7 @@ export const WalletCard = () => {
           {/* Redemption Section */}
           <div className="space-y-4">
             <div className="flex items-center gap-2 mb-3">
-              <Gift className="h-5 w-5 text-emerald-400" />
+              <Gift className="h-5 w-5 text-primary-400" />
               <h3 className="text-lg font-semibold gradient-text">Redeem Code</h3>
             </div>
             <div className="flex gap-3">
@@ -152,7 +152,7 @@ export const WalletCard = () => {
                 placeholder="Enter redemption code"
                 value={redeemCode}
                 onChange={(e) => setRedeemCode(e.target.value)}
-                className="glass-input border-emerald-500/30 focus:border-emerald-500/50"
+                className="glass-input border-primary-500/30 focus:border-primary-500/50"
                 onKeyPress={(e) => e.key === 'Enter' && redeemWalletCode()}
               />
               <Button 
@@ -171,11 +171,11 @@ export const WalletCard = () => {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Clock className="h-5 w-5 text-emerald-400" />
-                  <h4 className="text-sm font-semibold text-emerald-400">Recent Activity</h4>
+                  <Clock className="h-5 w-5 text-primary-400" />
+                  <h4 className="text-sm font-semibold text-primary-400">Recent Activity</h4>
                 </div>
                 <Link to="/student/transactions">
-                  <Button variant="ghost" size="sm" className="text-xs hover:text-emerald-400">
+                  <Button variant="ghost" size="sm" className="text-xs hover:text-primary-400">
                     View All
                   </Button>
                 </Link>
@@ -189,7 +189,7 @@ export const WalletCard = () => {
                         {new Date(transaction.created_at).toLocaleDateString()}
                       </div>
                     </div>
-                    <div className={`text-sm font-bold ${transaction.amount > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                    <div className={`text-sm font-bold ${transaction.amount > 0 ? 'text-primary-400' : 'text-red-400'}`}>
                       {transaction.amount > 0 ? '+' : ''}{transaction.amount}
                     </div>
                   </div>

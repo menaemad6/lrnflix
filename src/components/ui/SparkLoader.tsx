@@ -19,7 +19,7 @@ interface SparkLoaderProps {
  */
 export const SparkLoader: React.FC<SparkLoaderProps> = ({
   text = "It all starts with a spark",
-  color = "#1de9b6", // teal accent, can be replaced with theme color
+  color = "white", // secondary accent, can be replaced with theme color
   size = 48,
   textClassName = "",
   className = "",
@@ -51,7 +51,7 @@ export const SparkLoader: React.FC<SparkLoaderProps> = ({
       <span
         className={`text-lg font-medium tracking-wide ${textClassName}`}
         style={{
-          color: "#10b981",
+          color: color,
           animation: "spark-text-fade 1.2s cubic-bezier(.7,0,.3,1) infinite"
         }}
       >

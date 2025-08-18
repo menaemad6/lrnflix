@@ -27,24 +27,70 @@ export default {
 		},
 		extend: {
 			colors: {
-				// Core semantic colors using CSS variables
+				// Core semantic colors using CSS variables - all dynamically generated
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
+				
+				// Primary colors - dynamically generated
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
 					foreground: 'hsl(var(--primary-foreground))',
 					light: 'hsl(var(--primary-light))',
 					dark: 'hsl(var(--primary-dark))',
+					// Add numeric scale for components that expect it
+					50: 'hsl(var(--primary-50))',
+					100: 'hsl(var(--primary-100))',
+					200: 'hsl(var(--primary-200))',
+					300: 'hsl(var(--primary-300))',
+					400: 'hsl(var(--primary-light))',
+					500: 'hsl(var(--primary))',
+					600: 'hsl(var(--primary-dark))',
+					700: 'hsl(var(--primary-700))',
+					800: 'hsl(var(--primary-800))',
+					900: 'hsl(var(--primary-900))',
 				},
+				
+				// Secondary colors - dynamically generated
 				secondary: {
 					DEFAULT: 'hsl(var(--secondary))',
 					foreground: 'hsl(var(--secondary-foreground))',
 					light: 'hsl(var(--secondary-light))',
 					dark: 'hsl(var(--secondary-dark))',
+					// Add numeric scale for components that expect it
+					50: 'hsl(var(--secondary-50))',
+					100: 'hsl(var(--secondary-100))',
+					200: 'hsl(var(--secondary-200))',
+					300: 'hsl(var(--secondary-300))',
+					400: 'hsl(var(--secondary-light))',
+					500: 'hsl(var(--secondary))',
+					600: 'hsl(var(--secondary-dark))',
+					700: 'hsl(var(--secondary-700))',
+					800: 'hsl(var(--secondary-800))',
+					900: 'hsl(var(--secondary-900))',
 				},
+				
+				// Accent colors - dynamically generated
+				accent: {
+					DEFAULT: 'hsl(var(--accent))',
+					foreground: 'hsl(var(--accent-foreground))',
+					light: 'hsl(var(--accent-light))',
+					dark: 'hsl(var(--accent-dark))',
+					// Add numeric scale for components that expect it
+					50: 'hsl(var(--accent-50))',
+					100: 'hsl(var(--accent-100))',
+					200: 'hsl(var(--accent-200))',
+					300: 'hsl(var(--accent-300))',
+					400: 'hsl(var(--accent-light))',
+					500: 'hsl(var(--accent))',
+					600: 'hsl(var(--accent-dark))',
+					700: 'hsl(var(--accent-700))',
+					800: 'hsl(var(--accent-800))',
+					900: 'hsl(var(--accent-900))',
+				},
+				
 				destructive: {
 					DEFAULT: 'hsl(var(--destructive))',
 					foreground: 'hsl(var(--destructive-foreground))'
@@ -52,12 +98,6 @@ export default {
 				muted: {
 					DEFAULT: 'hsl(var(--muted))',
 					foreground: 'hsl(var(--muted-foreground))'
-				},
-				accent: {
-					DEFAULT: 'hsl(var(--accent))',
-					foreground: 'hsl(var(--accent-foreground))',
-					light: 'hsl(var(--accent-light))',
-					dark: 'hsl(var(--accent-dark))',
 				},
 				popover: {
 					DEFAULT: 'hsl(var(--popover))',
@@ -77,12 +117,14 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// Semantic colors using CSS variables
+				
+				// Semantic colors using CSS variables - dynamically generated
 				success: 'hsl(var(--success))',
 				warning: 'hsl(var(--warning))',
 				error: 'hsl(var(--error))',
 				info: 'hsl(var(--info))',
-				// Neutral scale using CSS variables
+				
+				// Neutral scale using CSS variables - dynamically generated
 				neutral: {
 					50: 'hsl(var(--neutral-50))',
 					100: 'hsl(var(--neutral-100))',
@@ -183,5 +225,8 @@ export default {
 			}
 		}
 	},
-	plugins: [require("tailwindcss-animate")],
+	plugins: [
+		// eslint-disable-next-line @typescript-eslint/no-var-requires
+		require("tailwindcss-animate")
+	],
 } satisfies Config;

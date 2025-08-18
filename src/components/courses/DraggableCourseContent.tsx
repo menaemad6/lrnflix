@@ -102,7 +102,7 @@ const DraggableItem: React.FC<DraggableItemProps> = ({
             </div>
             
             <div className={`flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br ${
-              isLesson ? 'from-primary/20 to-emerald-500/20' : 'from-orange-500/20 to-yellow-500/20'
+              isLesson ? 'from-primary/20 to-primary-500/20' : 'from-orange-500/20 to-yellow-500/20'
             } border ${borderColor}`}>
               <span className="text-sm font-bold text-primary">{index + 1}</span>
             </div>

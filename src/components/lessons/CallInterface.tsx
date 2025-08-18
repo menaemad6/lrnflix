@@ -49,23 +49,23 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
     <div className="fixed inset-0 bg-gradient-to-br from-gray-900 via-black to-gray-800 backdrop-blur-sm z-[9999] pointer-events-auto flex flex-col h-screen">
       {/* Animated background particles */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-teal-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-secondary-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-accent-500/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
       </div>
 
       {/* Enhanced Header */}
       <div className="flex justify-between items-center p-8 text-white relative z-10 flex-shrink-0">
         <div className="flex items-center gap-4">
           <div className="relative">
-            <div className="w-4 h-4 bg-emerald-500 rounded-full animate-pulse shadow-lg shadow-emerald-500/50"></div>
-            <div className="absolute inset-0 w-4 h-4 bg-emerald-500 rounded-full animate-ping opacity-30"></div>
+            <div className="w-4 h-4 bg-primary-500 rounded-full animate-pulse shadow-lg shadow-primary-500/50"></div>
+            <div className="absolute inset-0 w-4 h-4 bg-primary-500 rounded-full animate-ping opacity-30"></div>
           </div>
           <div>
             <div className="text-xl font-semibold">
               {isConnecting ? 'Connecting to Hossam...' : 'Voice Session with Hossam'}
             </div>
-            <div className="text-emerald-400 text-sm">AI Tutor • Live Session</div>
+            <div className="text-primary-400 text-sm">AI Tutor • Live Session</div>
           </div>
         </div>
         <div className="text-right">
@@ -119,15 +119,15 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
         {/* AI Side */}
         <div className="flex-1 relative overflow-hidden">
           {/* Background gradient */}
-          <div className="absolute inset-0 bg-gradient-to-br from-emerald-900/30 via-teal-900/20 to-green-900/30"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-primary-900/30 via-secondary-900/20 to-green-900/30"></div>
           
           <div className="relative h-full flex items-center justify-center">
             <div className="text-center">
               {/* Enhanced AI Avatar */}
               <div className="relative mx-auto mb-6 transition-all duration-500 scale-100 hover:scale-105">
-                <div className="w-40 h-40 bg-gradient-to-br from-emerald-500 via-teal-500 to-green-500 rounded-full flex items-center justify-center text-white text-5xl font-bold shadow-2xl relative overflow-hidden">
+                <div className="w-40 h-40 bg-gradient-to-br from-primary-500 via-secondary-500 to-green-500 rounded-full flex items-center justify-center text-white text-5xl font-bold shadow-2xl relative overflow-hidden">
                   {/* Animated background */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/50 to-teal-500/50 animate-pulse"></div>
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary-400/50 to-secondary-500/50 animate-pulse"></div>
                   <span className="relative z-10">H</span>
                 </div>
               </div>
@@ -136,8 +136,8 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
               <div className="space-y-2">
                 <h3 className="text-2xl font-bold text-white">Hossam</h3>
                 <div className="flex items-center justify-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-emerald-400"></div>
-                  <p className="text-emerald-300 font-medium">AI Tutor</p>
+                  <div className="w-2 h-2 rounded-full bg-primary-400"></div>
+                  <p className="text-primary-300 font-medium">AI Tutor</p>
                 </div>
               </div>
             </div>
@@ -162,7 +162,7 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
 
       {/* Connection Status Indicator */}
       <div className="absolute bottom-4 left-4 flex items-center gap-2 text-white/70 text-sm">
-        <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+        <div className="w-2 h-2 bg-primary-400 rounded-full animate-pulse"></div>
         <span>Connected • High Quality</span>
       </div>
     </div>

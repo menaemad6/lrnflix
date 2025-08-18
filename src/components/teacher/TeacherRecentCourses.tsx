@@ -36,7 +36,7 @@ export function TeacherRecentCourses({ courses }: TeacherRecentCoursesProps) {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'published':
-        return 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
+        return 'bg-primary-500/20 text-primary-400 border-primary-500/30';
       case 'draft':
         return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
       case 'archived':
@@ -51,7 +51,7 @@ export function TeacherRecentCourses({ courses }: TeacherRecentCoursesProps) {
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center">
+            <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-xl flex items-center justify-center">
               <BookOpen className="h-5 w-5 text-white" />
             </div>
             <div>
@@ -59,7 +59,7 @@ export function TeacherRecentCourses({ courses }: TeacherRecentCoursesProps) {
               <CardDescription className="text-muted-foreground">Your latest teaching content</CardDescription>
             </div>
           </div>
-          <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 px-3 py-1">
+          <Badge className="bg-primary-500/20 text-primary-400 border-primary-500/30 px-3 py-1">
             <TrendingUp className="h-3 w-3 mr-1" />
             {courses.length} total
           </Badge>
@@ -67,9 +67,9 @@ export function TeacherRecentCourses({ courses }: TeacherRecentCoursesProps) {
       </CardHeader>
       <CardContent className="space-y-4">
         {courses.slice(0, 5).map((course) => (
-          <div key={course.id} className="flex items-center gap-4 p-4 rounded-xl hover:bg-white/5 transition-all duration-300 group border border-white/5 hover:border-emerald-500/30">
+          <div key={course.id} className="flex items-center gap-4 p-4 rounded-xl hover:bg-white/5 transition-all duration-300 group border border-white/5 hover:border-primary-500/30">
             {/* Course Thumbnail */}
-            <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-white/10 group-hover:border-emerald-500/30 transition-all duration-300">
+            <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-white/10 group-hover:border-primary-500/30 transition-all duration-300">
               {course.cover_image_url ? (
                 <img 
                   src={course.cover_image_url} 
@@ -77,19 +77,19 @@ export function TeacherRecentCourses({ courses }: TeacherRecentCoursesProps) {
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                 />
               ) : (
-                <div className="w-full h-full bg-gradient-to-br from-emerald-500/20 to-teal-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                  <BookOpen className="h-7 w-7 text-emerald-400" />
+                <div className="w-full h-full bg-gradient-to-br from-primary-500/20 to-secondary-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <BookOpen className="h-7 w-7 text-primary-400" />
                 </div>
               )}
               {/* Status indicator */}
               <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full border-2 border-white ${
-                course.status === 'published' ? 'bg-emerald-500' : 
+                course.status === 'published' ? 'bg-primary-500' : 
                 course.status === 'draft' ? 'bg-yellow-500' : 'bg-gray-500'
               }`} />
             </div>
             
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold group-hover:text-emerald-400 transition-colors mb-1 truncate">
+              <h3 className="font-semibold group-hover:text-primary-400 transition-colors mb-1 truncate">
                 {course.title}
               </h3>
               <div className="flex items-center gap-3 flex-wrap">
@@ -103,7 +103,7 @@ export function TeacherRecentCourses({ courses }: TeacherRecentCoursesProps) {
                   <Users className="h-3 w-3" />
                   {course.enrollments?.[0]?.count || 0} students
                 </span>
-                <span className="text-xs text-emerald-400 font-medium flex items-center gap-1">
+                <span className="text-xs text-primary-400 font-medium flex items-center gap-1">
                   <Eye className="h-3 w-3" />
                   {course.price} credits
                 </span>
@@ -124,8 +124,8 @@ export function TeacherRecentCourses({ courses }: TeacherRecentCoursesProps) {
         
         {courses.length === 0 && (
           <div className="text-center py-12">
-            <div className="w-20 h-20 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-              <BookOpen className="w-10 h-10 text-emerald-400 opacity-50" />
+            <div className="w-20 h-20 bg-gradient-to-br from-primary-500/20 to-secondary-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <BookOpen className="w-10 h-10 text-primary-400 opacity-50" />
             </div>
             <h3 className="text-lg font-semibold mb-2">No courses yet</h3>
             <p className="text-muted-foreground mb-4">Create your first course to get started</p>

@@ -96,7 +96,7 @@ export const LessonManager = ({ courseId, onBack }: LessonManagerProps) => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div>
       </div>
     );
   }
@@ -121,14 +121,14 @@ export const LessonManager = ({ courseId, onBack }: LessonManagerProps) => {
                 <Button 
                   variant="outline" 
                   onClick={onBack}
-                  className="bg-emerald-500/10 border-emerald-500/30 hover:bg-emerald-500/20 hover:border-emerald-500/50 text-emerald-300 backdrop-blur-sm transition-all duration-300"
+                  
                 >
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Back
                 </Button>
               )}
               <div className="space-y-1 sm:space-y-2">
-                <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent">
+                <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary">
                   Lesson Management
                 </h3>
                 <p className="text-muted-foreground text-sm sm:text-base lg:text-lg">Create and manage your course lessons</p>
@@ -136,7 +136,7 @@ export const LessonManager = ({ courseId, onBack }: LessonManagerProps) => {
             </div>
             <Button 
               onClick={() => setShowCreator(true)}
-              className="bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-600 hover:via-teal-600 hover:to-emerald-700 text-black font-semibold px-8 py-3 rounded-2xl shadow-lg shadow-emerald-500/25 border border-emerald-400/30 transition-all duration-300 hover:shadow-xl hover:shadow-emerald-500/30"
+              variant="default"
             >
               <Plus className="h-5 w-5 mr-2" />
               Create Lesson
@@ -163,10 +163,10 @@ export const LessonManager = ({ courseId, onBack }: LessonManagerProps) => {
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div className="space-y-3 flex-1">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center group-hover:shadow-lg group-hover:shadow-emerald-500/25 transition-all duration-300">
+                      <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-xl flex items-center justify-center group-hover:shadow-lg group-hover:shadow-primary-500/25 transition-all duration-300">
                         <Video className="h-5 w-5 text-black" />
                       </div>
-                      <CardTitle className="text-xl text-emerald-300 group-hover:text-emerald-400 transition-colors duration-300">
+                      <CardTitle className="text-xl text-primary-300 group-hover:text-primary-400 transition-colors duration-300">
                         {lesson.title}
                       </CardTitle>
                     </div>
@@ -181,7 +181,7 @@ export const LessonManager = ({ courseId, onBack }: LessonManagerProps) => {
                       variant="outline" 
                       size="sm"
                       onClick={() => setEditingLesson(lesson.id)}
-                      className="bg-emerald-500/10 border-emerald-500/30 hover:bg-emerald-500/20 hover:border-emerald-500/50 text-emerald-300 backdrop-blur-sm transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/20"
+                      className="bg-primary-500/10 border-primary-500/30 hover:bg-primary-500/20 hover:border-primary-500/50 text-primary-300 backdrop-blur-sm transition-all duration-300 hover:shadow-lg hover:shadow-primary-500/20"
                     >
                       <Edit className="h-4 w-4" />
                     </Button>
@@ -199,18 +199,18 @@ export const LessonManager = ({ courseId, onBack }: LessonManagerProps) => {
               <CardContent>
                 <div className="flex gap-2 sm:gap-3 flex-wrap">
                   {lesson.video_url && (
-                    <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/40 hover:bg-emerald-500/30 transition-colors duration-300">
+                    <Badge className="bg-primary-500/20 text-primary-300 border-primary-500/40 hover:bg-primary-500/30 transition-colors duration-300">
                       <Video className="h-3 w-3 mr-1" />
                       Video
                     </Badge>
                   )}
                   {lesson.view_limit && (
-                    <Badge className="bg-teal-500/20 text-teal-300 border-teal-500/40 hover:bg-teal-500/30 transition-colors duration-300">
+                    <Badge className="bg-secondary-500/20 text-secondary-300 border-secondary-500/40 hover:bg-secondary-500/30 transition-colors duration-300">
                       <Eye className="h-3 w-3 mr-1" />
                       {lesson.view_limit} views
                     </Badge>
                   )}
-                  <Badge className="bg-cyan-500/20 text-cyan-300 border-cyan-500/40 hover:bg-cyan-500/30 transition-colors duration-300">
+                  <Badge className="bg-accent-500/20 text-accent-300 border-accent-500/40 hover:bg-accent-500/30 transition-colors duration-300">
                     <Zap className="h-3 w-3 mr-1" />
                     Order: {lesson.order_index}
                   </Badge>
@@ -224,11 +224,11 @@ export const LessonManager = ({ courseId, onBack }: LessonManagerProps) => {
         {lessons.length === 0 && (
           <Card className="card border border-border bg-card">
             <CardContent className="text-center py-16 space-y-6">
-              <div className="w-20 h-20 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-2xl flex items-center justify-center mx-auto border border-emerald-500/30">
-                <Sparkles className="h-10 w-10 text-emerald-400" />
+              <div className="w-20 h-20 bg-gradient-to-br from-primary-500/20 to-secondary-500/20 rounded-2xl flex items-center justify-center mx-auto border border-primary-500/30">
+                <Sparkles className="h-10 w-10 text-primary-400" />
               </div>
               <div className="space-y-3">
-                <h3 className="text-2xl font-semibold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
+                <h3 className="text-2xl font-semibold bg-gradient-to-r from-primary-400 to-secondary-400 bg-clip-text text-transparent">
                   No lessons yet
                 </h3>
                 <p className="text-muted-foreground text-lg max-w-md mx-auto leading-relaxed">
@@ -237,7 +237,7 @@ export const LessonManager = ({ courseId, onBack }: LessonManagerProps) => {
               </div>
               <Button 
                 onClick={() => setShowCreator(true)}
-                className="bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-600 hover:via-teal-600 hover:to-emerald-700 text-black font-semibold px-8 py-4 rounded-2xl shadow-lg shadow-emerald-500/25 border border-emerald-400/30 transition-all duration-300 hover:shadow-xl hover:shadow-emerald-500/30"
+                className="bg-gradient-to-r from-primary-500 via-secondary-500 to-primary-600 hover:from-primary-600 hover:via-secondary-600 hover:to-primary-700 text-black font-semibold px-8 py-4 rounded-2xl shadow-lg shadow-primary-500/25 border border-primary-400/30 transition-all duration-300 hover:shadow-xl hover:shadow-primary-500/30"
               >
                 <Plus className="h-5 w-5 mr-2" />
                 Create First Lesson

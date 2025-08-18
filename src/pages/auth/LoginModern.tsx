@@ -46,7 +46,7 @@ const LoginModern: React.FC = () => (
         {/* Logo */}
         <div className="flex items-center mb-10">
           <span className="text-4xl font-extrabold tracking-tight text-[#5C4DFF]">LEARN</span>
-          <span className="text-4xl font-extrabold tracking-tight text-emerald-500">.</span>
+          <span className="text-4xl font-extrabold tracking-tight text-primary-500">.</span>
         </div>
         {/* Heading */}
         <h1 className="text-5xl md:text-6xl font-black text-black mb-10 leading-tight">
@@ -102,7 +102,7 @@ const LoginModern: React.FC = () => (
             </div>
             <div className="p-5 flex-1 flex flex-col">
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-xs px-2 py-1 bg-emerald-100 text-emerald-600 rounded-full font-semibold">{course.category}</span>
+                <span className="text-xs px-2 py-1 bg-primary-100 text-primary-600 rounded-full font-semibold">{course.category}</span>
                 {course.tags.map(tag => (
                   <span key={tag} className="text-xs px-2 py-1 bg-purple-100 text-[#5C4DFF] rounded-full font-semibold">{tag}</span>
                 ))}

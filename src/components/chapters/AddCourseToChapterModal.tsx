@@ -129,7 +129,7 @@ export const AddCourseToChapterModal = ({ isOpen, onClose, chapterId, onCourseAd
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="glass-card border-white/10 max-w-2xl">
         <DialogHeader>
-          <DialogTitle className="gradient-text">Add Course to Chapter</DialogTitle>
+          <DialogTitle className="text-primary">Add Course to Chapter</DialogTitle>
         </DialogHeader>
         
         <div className="space-y-4">
@@ -191,7 +191,8 @@ export const AddCourseToChapterModal = ({ isOpen, onClose, chapterId, onCourseAd
                     <Button
                       onClick={() => handleAddCourse(course.id)}
                       disabled={adding === course.id}
-                      className="btn-primary ml-4"
+                      className=" ml-4"
+                      variant="default"
                     >
                       {adding === course.id ? (
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>

@@ -20,7 +20,7 @@ export const TeacherPageHeader: React.FC<TeacherPageHeaderProps> = ({
 }) => (
   <div className="flex items-center justify-between">
     <div>
-      <h2 className="text-2xl md:text-3xl font-bold gradient-text">{title}</h2>
+      <h2 className="text-2xl md:text-3xl font-bold text-primary">{title}</h2>
       <p className="text-muted-foreground mt-1">{subtitle}</p>
     </div>
     {actionLabel && (

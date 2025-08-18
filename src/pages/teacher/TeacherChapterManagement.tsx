@@ -223,7 +223,7 @@ export const TeacherChapterManagement = () => {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center min-h-[40vh]">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div>
         </div>
       </DashboardLayout>
     );
@@ -253,8 +253,8 @@ export const TeacherChapterManagement = () => {
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center">
-                  <BookOpen className="h-6 w-6 text-emerald-400" />
+                <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-xl flex items-center justify-center">
+                  <BookOpen className="h-6 w-6 text-primary-400" />
                 </div>
                 <div>
                   <CardTitle className="text-2xl gradient-text">
@@ -310,7 +310,7 @@ export const TeacherChapterManagement = () => {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="price">Price (Credits)</Label>
+                    <Label htmlFor="price">Price EGP</Label>
                     <Input
                       id="price"
                       type="number"
@@ -351,7 +351,7 @@ export const TeacherChapterManagement = () => {
               <div className="space-y-4">
                 <p className="text-muted-foreground">{chapter.description}</p>
                 <div className="flex items-center gap-6">
-                  <span className="text-lg font-semibold gradient-text">{chapter.price} credits</span>
+                  <span className="text-lg font-semibold text-primary">{chapter.price} EGP</span>
                   <span className="text-sm text-muted-foreground">
                     Created {new Date(chapter.created_at).toLocaleDateString()}
                   </span>
@@ -374,7 +374,7 @@ export const TeacherChapterManagement = () => {
                 <div className="flex items-center justify-between">
                   <CardTitle>Courses in Chapter ({chapterCourses.length})</CardTitle>
                   <Button 
-                    className="btn-primary"
+                    variant='default'
                     onClick={() => setIsAddCourseModalOpen(true)}
                   >
                     <Plus className="h-4 w-4 mr-2" />
@@ -392,8 +392,7 @@ export const TeacherChapterManagement = () => {
                     </p>
                     <Button 
                       onClick={() => setIsAddCourseModalOpen(true)}
-                      className="btn-primary"
-                    >
+                      variant='default'>
                       <Plus className="h-4 w-4 mr-2" />
                       Add First Course
                     </Button>

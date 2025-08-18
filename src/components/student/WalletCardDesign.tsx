@@ -9,7 +9,7 @@ interface WalletCardProps {
 
 const WalletCard: React.FC<WalletCardProps> = ({ wallet }) => {
   return (
-    <div className="relative w-full max-w-xs mx-auto rounded-2xl bg-gradient-to-br from-emerald-400/80 to-emerald-500/80 shadow-xl p-5 border border-white/30 backdrop-blur-md overflow-hidden flex flex-col">
+    <div className="relative w-full max-w-xs mx-auto rounded-2xl bg-gradient-to-br from-primary-400/80 to-primary-500/80 shadow-xl p-5 border border-white/30 backdrop-blur-md overflow-hidden flex flex-col">
       {/* Decorative Circles */}
       <div className="absolute -top-6 -left-6 w-24 h-24 bg-white/10 rounded-full z-0" />
       <div className="absolute -bottom-8 -right-8 w-32 h-32 bg-white/20 rounded-full z-0" />

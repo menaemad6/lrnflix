@@ -110,7 +110,7 @@ export const StudentDashboard = () => {
                   </Link>
                   <Link to="/groups">
                     <div className="p-4 rounded-xl hover:bg-white/5 transition-colors border border-white/10 group cursor-pointer">
-                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500/20 to-accent-500/20 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                         <Users className="h-5 w-5 text-blue-400" />
                       </div>
                       <h3 className="font-medium mb-1">Study Groups</h3>

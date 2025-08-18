@@ -83,7 +83,7 @@ export const StudentTransactions = () => {
   const getTransactionIcon = (type: string) => {
     switch (type) {
       case 'credit':
-        return <TrendingUp className="h-5 w-5 text-emerald-400" />;
+        return <TrendingUp className="h-5 w-5 text-primary-400" />;
       case 'debit':
         return <TrendingDown className="h-5 w-5 text-red-400" />;
       case 'course_purchase':
@@ -145,14 +145,14 @@ export const StudentTransactions = () => {
       <div className="w-full px-2 sm:px-4 py-6 space-y-6">
         {/* Wallet Balance Card - Full Width */}
         <div className="w-full">
-          <div className="w-full p-6 bg-gradient-to-br from-emerald-500/30 to-teal-500/30 rounded-2xl border border-emerald-500/40 shadow-lg flex flex-col items-start">
+          <div className="w-full p-6 bg-gradient-to-br from-primary-500/30 to-secondary-500/30 rounded-2xl border border-primary-500/40 shadow-lg flex flex-col items-start">
             <div className="text-3xl font-extrabold gradient-text mb-1">{wallet}</div>
-            <div className="text-base text-emerald-400 font-medium mb-4">Current Balance</div>
+            <div className="text-base text-primary-400 font-medium mb-4">Current Balance</div>
             {/* Statistics Row */}
             <div className="flex flex-col sm:flex-row gap-4 w-full">
               <div className="flex-1">
                 <div className="text-xs text-muted-foreground">Total Credited</div>
-                <div className="font-semibold text-emerald-500">+{totalCredited}</div>
+                <div className="font-semibold text-primary-500">+{totalCredited}</div>
               </div>
               <div className="flex-1">
                 <div className="text-xs text-muted-foreground">Total Debited</div>
@@ -178,7 +178,7 @@ export const StudentTransactions = () => {
                 placeholder="Search transactions..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-12 glass-input border-emerald-500/40 focus:border-emerald-500/70 w-full h-12 rounded-xl text-base"
+                className="pl-12 glass-input border-primary-500/40 focus:border-primary-500/70 w-full h-12 rounded-xl text-base"
               />
             </div>
           </div>
@@ -253,8 +253,8 @@ export const StudentTransactions = () => {
         ) : filteredTransactions.length === 0 ? (
           <Card className="glass-card border-0">
             <CardContent className="text-center py-16">
-              <div className="w-20 h-20 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-glow-pulse">
-                <History className="h-10 w-10 text-emerald-400" />
+              <div className="w-20 h-20 bg-gradient-to-br from-primary-500/20 to-secondary-500/20 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-glow-pulse">
+                <History className="h-10 w-10 text-primary-400" />
               </div>
               <h3 className="text-xl font-semibold mb-3 gradient-text">No transactions found</h3>
               <p className="text-muted-foreground mb-6 max-w-md mx-auto">
@@ -266,8 +266,8 @@ export const StudentTransactions = () => {
           <Card className="glass-card border-0 w-full">
             <CardHeader>
               <CardTitle className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-xl flex items-center justify-center">
-                  <History className="h-5 w-5 text-emerald-400" />
+                <div className="w-10 h-10 bg-gradient-to-br from-primary-500/20 to-secondary-500/20 rounded-xl flex items-center justify-center">
+                  <History className="h-5 w-5 text-primary-400" />
                 </div>
                 All Transactions
               </CardTitle>
@@ -282,9 +282,9 @@ export const StudentTransactions = () => {
                   const badgeVariant = transaction.transaction_type === 'chapter_purchase' ? 'secondary' : getTransactionVariant(transaction.transaction_type);
                   switch (transaction.transaction_type) {
                     case 'credit':
-                      borderColor = 'border-l-emerald-500';
-                      bgColor = 'bg-emerald-500/10 hover:bg-emerald-500/20';
-                      amountColor = 'text-emerald-500';
+                      borderColor = 'border-l-primary-500';
+                      bgColor = 'bg-primary-500/10 hover:bg-primary-500/20';
+                      amountColor = 'text-primary-500';
                       break;
                     case 'debit':
                       borderColor = 'border-l-red-500';
@@ -297,9 +297,9 @@ export const StudentTransactions = () => {
                       amountColor = 'text-blue-500';
                       break;
                     case 'chapter_purchase':
-                      borderColor = 'border-l-teal-500';
-                      bgColor = 'bg-teal-500/10 hover:bg-teal-500/20';
-                      amountColor = 'text-teal-500';
+                      borderColor = 'border-l-secondary-500';
+                      bgColor = 'bg-secondary-500/10 hover:bg-secondary-500/20';
+                      amountColor = 'text-secondary-500';
                       break;
                     case 'code_redemption':
                       borderColor = 'border-l-purple-500';
@@ -329,7 +329,7 @@ export const StudentTransactions = () => {
                         <div className="flex flex-col min-w-0 flex-1">
                           <div className="font-semibold text-base break-words whitespace-normal mb-1 sm:mb-0" title={transaction.description}>{transaction.description}</div>
                           <div className="flex items-center gap-3 mt-1 flex-wrap">
-                            <Badge variant={badgeVariant} className={`text-xs ${transaction.transaction_type === 'chapter_purchase' ? 'bg-teal-500 text-white' : ''}`}>
+                            <Badge variant={badgeVariant} className={`text-xs ${transaction.transaction_type === 'chapter_purchase' ? 'bg-secondary-500 text-white' : ''}`}>
                               {getTransactionTypeLabel(transaction.transaction_type)}
                             </Badge>
                             <div className="flex items-center gap-1 text-xs text-muted-foreground">

@@ -41,7 +41,7 @@ const AuroraHeroHeader: React.FC<AuroraHeroHeaderProps> = ({
           </p>
         )}
         {buttonText && (
-          <Button size="lg" className="rounded-full px-8 py-4 text-lg font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xl transition-all" onClick={onButtonClick}>
+          <Button size="lg" className="rounded-full px-8 py-4 text-lg font-semibold bg-primary-600 hover:bg-primary-700 text-white shadow-xl transition-all" onClick={onButtonClick}>
             {buttonText}
           </Button>
         )}

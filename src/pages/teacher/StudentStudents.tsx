@@ -111,7 +111,7 @@ export const StudentStudents = () => {
           <Card className="glass-card border-0">
             <CardContent className="p-6">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-xl flex items-center justify-center">
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-500/20 to-accent-500/20 rounded-xl flex items-center justify-center">
                   <Users className="h-5 w-5 text-blue-400" />
                 </div>
                 <div>
@@ -125,8 +125,8 @@ export const StudentStudents = () => {
           <Card className="glass-card border-0">
             <CardContent className="p-6">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-emerald-500/20 to-green-500/20 rounded-xl flex items-center justify-center">
-                  <TrendingUp className="h-5 w-5 text-emerald-400" />
+                <div className="w-10 h-10 bg-gradient-to-br from-primary-500/20 to-green-500/20 rounded-xl flex items-center justify-center">
+                  <TrendingUp className="h-5 w-5 text-primary-400" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold gradient-text">{activeStudents}</p>
@@ -250,7 +250,7 @@ export const StudentStudents = () => {
                           {student.full_name}
                         </h3>
                         {student.averageScore >= 80 && (
-                          <Badge variant="outline" className="text-emerald-400 border-emerald-500/30">
+                          <Badge variant="outline" className="text-primary-400 border-primary-500/30">
                             <Star className="h-3 w-3 mr-1 fill-current" />
                             Top Performer
                           </Badge>
@@ -267,7 +267,7 @@ export const StudentStudents = () => {
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <TrendingUp className="h-4 w-4 text-emerald-400" />
+                        <TrendingUp className="h-4 w-4 text-primary-400" />
                         <span className="text-muted-foreground">
                           {student.totalSpent} credits spent
                         </span>

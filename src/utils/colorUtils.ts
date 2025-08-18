@@ -217,3 +217,73 @@ export function generateColorPalette(primary: string): Record<string, string> {
     '--primary-900': darker(primary, 0.8),
   };
 }
+
+// Generate a secondary color (analogous, 30 degrees apart)
+export function generateSecondary(primary: string): string {
+  return analogous(primary, 'right');
+}
+
+// Generate an accent color (triadic, 120 degrees apart)
+export function generateAccent(primary: string): string {
+  return triadic(primary, 1);
+}
+
+// Generate a complete color scheme from a primary color
+export function generateColorScheme(primary: string): {
+  primary: string;
+  secondary: string;
+  accent: string;
+  primaryLight: string;
+  primaryDark: string;
+  secondaryLight: string;
+  secondaryDark: string;
+  accentLight: string;
+  accentDark: string;
+} {
+  const secondary = generateSecondary(primary);
+  const accent = generateAccent(primary);
+  
+  return {
+    primary,
+    secondary,
+    accent,
+    primaryLight: lighter(primary, 0.2),
+    primaryDark: darker(primary, 0.2),
+    secondaryLight: lighter(secondary, 0.2),
+    secondaryDark: darker(secondary, 0.2),
+    accentLight: lighter(accent, 0.2),
+    accentDark: darker(accent, 0.2),
+  };
+}
+
+// Generate neutral colors with primary tint
+export function generateNeutralColors(primary: string): Record<string, string> {
+  const hsl = hexToHsl(primary);
+  const baseHue = hsl.h;
+  const baseSaturation = Math.min(hsl.s, 15); // Keep saturation low for neutrals
+  
+  return {
+    '50': hslToHex(baseHue, baseSaturation, 98),
+    '100': hslToHex(baseHue, baseSaturation, 96),
+    '200': hslToHex(baseHue, baseSaturation, 91),
+    '300': hslToHex(baseHue, baseSaturation, 84),
+    '400': hslToHex(baseHue, baseSaturation, 64),
+    '500': hslToHex(baseHue, baseSaturation, 47),
+    '600': hslToHex(baseHue, baseSaturation, 35),
+    '700': hslToHex(baseHue, baseSaturation, 27),
+    '800': hslToHex(baseHue, baseSaturation, 17),
+    '900': hslToHex(baseHue, baseSaturation, 9),
+  };
+}
+
+// Generate semantic colors with primary influence
+export function generateSemanticColors(primary: string): Record<string, string> {
+  const hsl = hexToHsl(primary);
+  
+  return {
+    success: hslToHex(142, 76, 36),      // Green
+    warning: hslToHex(25, 95, 53),       // Orange
+    error: hslToHex(0, 84, 60),          // Red
+    info: hslToHex(217, 91, 60),         // Blue
+  };
+}

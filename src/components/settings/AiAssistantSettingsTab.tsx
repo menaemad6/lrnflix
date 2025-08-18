@@ -17,7 +17,7 @@ export const AiAssistantSettingsTab: React.FC = () => {
   } = useAiAssistantSettings();
 
   return (
-    <Card className="max-w-xl shadow-xl bg-gradient-to-br from-background via-card/80 to-emerald-900/5 backdrop-blur-lg border">
+    <Card className="max-w-xl shadow-xl bg-gradient-to-br from-background via-card/80 to-primary-900/5 backdrop-blur-lg border">
       <CardHeader>
         <CardTitle className="flex gap-3 items-center text-lg">AI Assistant Settings</CardTitle>
       </CardHeader>
