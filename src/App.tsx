@@ -18,6 +18,7 @@ import { MessageSquare } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Suspense } from 'react';
 import { SparkLoader } from "@/components/ui/SparkLoader";
+import { useScrollToTop } from '@/hooks/useScrollToTop';
 
 // Pages
 import Index from "./pages/Index";
@@ -109,6 +110,8 @@ const ChatSidebarToggle = () => {
 
 const AppRoutes = () => {
   const location = useLocation();
+  // Auto-scroll to top on route change
+  useScrollToTop();
   // Hide Navbar on auth pages
   const hideNavbar = location.pathname.startsWith('/auth');
   return (
@@ -129,8 +132,10 @@ const AppRoutes = () => {
           <Route path="/teacher/courses" element={<ProtectedRoute requiredRole={['teacher']}><TeacherCoursesPage /></ProtectedRoute>} />
           <Route path="/teacher/courses/:id" element={<ProtectedRoute requiredRole={['teacher']}><CourseDetails /></ProtectedRoute>} />
           <Route path="/teacher/courses/:id/manage" element={<ProtectedRoute requiredRole={['teacher']}><TeacherCourseManagement /></ProtectedRoute>} />
-          <Route path="/teacher/courses/:courseId/quiz/:quizId" element={<ProtectedRoute requiredRole={['teacher']}><QuizEditor /></ProtectedRoute>} />
-          <Route path="/teacher/lesson/:id" element={<ProtectedRoute requiredRole={['teacher']}><LessonDetails /></ProtectedRoute>} />
+          <Route path="/teacher/courses/:id/manage/lessons" element={<ProtectedRoute requiredRole={['teacher']}><TeacherCourseManagement /></ProtectedRoute>} />
+          <Route path="/teacher/courses/:id/manage/quizzes" element={<ProtectedRoute requiredRole={['teacher']}><TeacherCourseManagement /></ProtectedRoute>} />
+          <Route path="/teacher/courses/:id/manage/lessons/:lessonId" element={<ProtectedRoute requiredRole={['teacher']}><TeacherCourseManagement /></ProtectedRoute>} />
+          <Route path="/teacher/courses/:id/manage/quizzes/:quizId" element={<ProtectedRoute requiredRole={['teacher']}><TeacherCourseManagement /></ProtectedRoute>} />
           <Route path="/teacher/groups" element={<ProtectedRoute requiredRole={['teacher']}><TeacherGroups /></ProtectedRoute>} />
           <Route path="/teacher/chapters" element={<ProtectedRoute requiredRole={['teacher']}><TeacherChaptersPage /></ProtectedRoute>} />
           <Route path="/teacher/chapter/:chapterId" element={<ProtectedRoute requiredRole={['teacher']}><TeacherChapterManagement /></ProtectedRoute>} />
@@ -155,6 +160,7 @@ const AppRoutes = () => {
           <Route path="/courses/:id/progress" element={<ProtectedRoute><CourseProgress /></ProtectedRoute>} />
           <Route path="/courses/:id/progress/lesson/:lessonId" element={<ProtectedRoute><CourseProgress /></ProtectedRoute>} />
           <Route path="/courses/:id/progress/quiz/:quizId" element={<ProtectedRoute><CourseProgress /></ProtectedRoute>} />
+          <Route path="/courses/:id/progress/quiz/:quizId/attempt/:attemptId" element={<ProtectedRoute><CourseProgress /></ProtectedRoute>} />
           <Route path="/chapters" element={<ProtectedRoute><ChaptersPage /></ProtectedRoute>} />
           <Route path="/chapters/:id" element={<ProtectedRoute><ChapterDetailPage /></ProtectedRoute>} />
           <Route path="/student/notifications" element={<ProtectedRoute requiredRole={['student']}><StudentNotificationsPage /></ProtectedRoute>} />

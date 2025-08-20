@@ -53,6 +53,7 @@ interface Course {
   price: number;
   instructor_id: string;
   created_at: string;
+  cover_image_url?: string;
   profiles?: {
     full_name: string;
   };
@@ -689,6 +690,17 @@ export const CourseView = () => {
               <div className="sticky top-6">
                 <Card className="glass-card border-white/10 shadow-2xl">
                   <CardContent className="p-8 space-y-6">
+                    {/* Course Thumbnail */}
+                    {course.cover_image_url && (
+                      <div className="text-center">
+                        <img 
+                          src={course.cover_image_url} 
+                          alt={course.title}
+                          className="w-full mx-auto rounded-lg object-cover border border-border/20 shadow-lg"
+                        />
+                      </div>
+                    )}
+                    
                     {/* Price */}
                     <div className="text-center space-y-2">
                       <div className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">

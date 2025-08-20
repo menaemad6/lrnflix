@@ -11,12 +11,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Plus, Trash2, Save, Sparkles, Zap, FileJson, ArrowDown, ArrowUp, Image as ImageIcon } from 'lucide-react';
 import { PdfQuestionExtractor } from './PdfQuestionExtractor';
+import { ContentManagementSkeleton } from '@/components/ui/skeletons';
 import { answerSingleQuestion, answerAllQuestions } from '@/utils/geminiApi';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Link } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { ImageUploader } from '@/components/ui/ImageUploader';
 import { IMAGE_UPLOAD_BUCKETS } from '@/data/constants';
+import { normalizeAnswers, setAnswerCorrectness, calculateScore as calculateScoreUtil } from '@/utils/quizAnswerUtils';
 
 interface Quiz {
   id: string;
@@ -503,11 +505,7 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>
-    );
+    return <ContentManagementSkeleton />;
   }
 
   const getFilteredAttempts = () => {
@@ -573,14 +571,7 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
   }
 
   const computeScoreFromAnswers = (answers: Record<string, string>) => {
-    let newScore = 0;
-    modalQuestions.forEach((q: any) => {
-      const a = answers[q.id];
-      if (typeof q.points === 'number' && q.correct_answer && a === q.correct_answer) {
-        newScore += q.points;
-      }
-    });
-    return newScore;
+    return calculateScoreUtil(answers, modalQuestions);
   };
 
   const markWrittenAnswerCorrect = async (questionId: string) => {
@@ -590,10 +581,10 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
     const studentAnswer = modalAnswers?.[questionId];
     if (!studentAnswer) return;
     if (q.question_type !== 'written') return;
-    if (!q.correct_answer) return; // require a canonical correct answer to align state/UI
 
-    const updatedAnswers = { ...(modalAnswers || {}), [questionId]: q.correct_answer };
-    const newScore = computeScoreFromAnswers(updatedAnswers);
+    // Use the new answer structure - mark as correct without changing the student's answer
+    const updatedAnswers = setAnswerCorrectness(modalAnswers || {}, questionId, true);
+    const newScore = calculateScoreUtil(updatedAnswers, modalQuestions);
 
     try {
       const { error } = await supabase
@@ -607,8 +598,37 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
       // reflect in attempts table list
       setAttempts(prev => prev.map(a => a.id === modalAttempt.id ? { ...a, score: newScore, answers: updatedAnswers } : a));
       toast({ title: 'Updated', description: 'Answer marked as correct.' });
-    } catch (e: any) {
-      toast({ title: 'Error', description: e.message || 'Failed to update attempt', variant: 'destructive' });
+    } catch (e: unknown) {
+      toast({ title: 'Error', description: e instanceof Error ? e.message : 'Failed to update attempt', variant: 'destructive' });
+    }
+  };
+
+  const markWrittenAnswerIncorrect = async (questionId: string) => {
+    if (!modalAttempt) return;
+    const q = modalQuestions.find((mq: any) => mq.id === questionId);
+    if (!q) return;
+    const studentAnswer = modalAnswers?.[questionId];
+    if (!studentAnswer) return;
+    if (q.question_type !== 'written') return;
+
+    // Use the new answer structure - mark as incorrect without changing the student's answer
+    const updatedAnswers = setAnswerCorrectness(modalAnswers || {}, questionId, false);
+    const newScore = calculateScoreUtil(updatedAnswers, modalQuestions);
+
+    try {
+      const { error } = await supabase
+        .from('quiz_attempts')
+        .update({ answers: updatedAnswers, score: newScore })
+        .eq('id', modalAttempt.id);
+      if (error) throw error;
+
+      setModalAnswers(updatedAnswers);
+      setModalScore(newScore);
+      // reflect in attempts table list
+      setAttempts(prev => prev.map(a => a.id === modalAttempt.id ? { ...a, score: newScore, answers: updatedAnswers } : a));
+      toast({ title: 'Updated', description: 'Answer marked as incorrect.' });
+    } catch (e: unknown) {
+      toast({ title: 'Error', description: e instanceof Error ? e.message : 'Failed to update attempt', variant: 'destructive' });
     }
   };
 
@@ -1156,33 +1176,43 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
                 {modalQuestions.length > 0 ? (
                   [...modalQuestions].sort((a, b) => {
                     if (modalSort === 'none') return 0;
-                    const aCorrect = modalAnswers[a.id] === a.correct_answer;
-                    const bCorrect = modalAnswers[b.id] === b.correct_answer;
+                    const aCorrect = modalAnswers[a.id]?.isCorrect === true || modalAnswers[a.id] === a.correct_answer;
+                    const bCorrect = modalAnswers[b.id]?.isCorrect === true || modalAnswers[b.id] === b.correct_answer;
                     if (modalSort === 'correct') return aCorrect === bCorrect ? 0 : aCorrect ? -1 : 1;
                     if (modalSort === 'incorrect') return aCorrect === bCorrect ? 0 : aCorrect ? 1 : -1;
                     return 0;
                   }).map((q) => {
-                    const studentAnswer = modalAnswers[q.id];
-                    const correct = studentAnswer === q.correct_answer;
+                    const answerData = modalAnswers[q.id];
+                    const studentAnswer = typeof answerData === 'object' && answerData !== null && 'answer' in answerData 
+                      ? answerData.answer 
+                      : answerData; // Legacy support
+                    const isCorrect = answerData?.isCorrect === true || studentAnswer === q.correct_answer;
+                    
                     return (
                       <li key={q.id} className="border-b border-border pb-2">
                         <div className="font-medium text-primary-300">{q.question_text}</div>
                         <div className="text-sm text-muted-foreground">Correct Answer: <span className="text-primary-400">{q.correct_answer ?? '-'}</span></div>
-                        <div className="text-sm">Student Answer: <span className={correct ? 'text-primary-400' : 'text-destructive'}>{studentAnswer ?? '-'}</span></div>
+                        <div className="text-sm">Student Answer: <span className={isCorrect ? 'text-green-600' : 'text-red-600'}>{studentAnswer ?? '-'}</span></div>
                         <div className="text-xs mt-1">
                           {studentAnswer == null ? (
-                            <span className="text-destructive">No answer</span>
-                          ) : correct ? (
-                            <span className="text-primary-400 font-semibold">Correct</span>
+                            <span className="text-red-600">No answer</span>
+                          ) : isCorrect ? (
+                            <span className="text-green-600 font-semibold">Correct</span>
                           ) : (
-                            <span className="text-destructive font-semibold">Incorrect</span>
+                            <span className="text-red-600 font-semibold">Incorrect</span>
                           )}
                         </div>
-                        {q.question_type === 'written' && studentAnswer && studentAnswer !== q.correct_answer && (
-                          <div className="mt-2">
-                            <Button size="sm" variant="outline" onClick={() => markWrittenAnswerCorrect(q.id)}>
-                              Mark Correct
-                            </Button>
+                        {q.question_type === 'written' && studentAnswer && (
+                          <div className="mt-2 flex gap-2">
+                            {!isCorrect ? (
+                              <Button size="sm" variant="outline" onClick={() => markWrittenAnswerCorrect(q.id)}>
+                                Mark Correct
+                              </Button>
+                            ) : (
+                              <Button size="sm" variant="outline" onClick={() => markWrittenAnswerIncorrect(q.id)}>
+                                Mark False
+                              </Button>
+                            )}
                           </div>
                         )}
                       </li>

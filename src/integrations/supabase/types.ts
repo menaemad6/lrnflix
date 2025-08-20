@@ -6,6 +6,19 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
+// Quiz answer structure types
+export interface QuizAnswer {
+  answer: string;
+  isCorrect: boolean | null;
+}
+
+export interface QuizAttemptAnswers {
+  [questionId: string]: QuizAnswer;
+}
+
+// Legacy support for backward compatibility
+export type LegacyQuizAnswers = Record<string, string>;
+
 export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)

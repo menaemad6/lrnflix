@@ -11,6 +11,7 @@ import { QuizQuestion } from './QuizQuestion';
 import { QuizResults } from './QuizResults';
 import { ArrowLeft, PlayCircle, ChevronLeft, ChevronRight, Send, Trophy, Target, BookOpen, CheckCircle, Eye, Clock, AlertTriangle } from 'lucide-react';
 import { QuizTakerSkeleton } from '@/components/student/skeletons';
+import { createAnswerEntry, calculateScore as calculateScoreUtil, normalizeAnswers } from '@/utils/quizAnswerUtils';
 
 interface Quiz {
   id: string;
@@ -49,6 +50,7 @@ interface StudentQuizTakerProps {
   quiz: Quiz;
   courseId: string;
   onBackToCourse: () => void;
+  attemptId?: string;
 }
 
 // Local storage keys
@@ -56,13 +58,13 @@ const QUIZ_ANSWERS_KEY = (quizId: string) => `quiz_answers_${quizId}`;
 const QUIZ_ATTEMPT_KEY = (quizId: string) => `quiz_attempt_${quizId}`;
 const QUIZ_TIME_LEFT_KEY = (quizId: string) => `quiz_time_left_${quizId}`;
 
-export const StudentQuizTaker = ({ quiz, courseId, onBackToCourse }: StudentQuizTakerProps) => {
+export const StudentQuizTaker = ({ quiz, courseId, onBackToCourse, attemptId }: StudentQuizTakerProps) => {
   const { toast } = useToast();
   
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [attempts, setAttempts] = useState<QuizAttempt[]>([]);
   const [currentAttempt, setCurrentAttempt] = useState<any>(null);
-  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [answers, setAnswers] = useState<Record<string, { answer: string; isCorrect: boolean | null }>>({});
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
@@ -191,6 +193,13 @@ export const StudentQuizTaker = ({ quiz, courseId, onBackToCourse }: StudentQuiz
     }
   }, [timeLeft, currentAttempt, quiz.id]);
 
+  // Handle attemptId from URL - load attempt data if provided
+  useEffect(() => {
+    if (attemptId && !showResults && !currentAttempt) {
+      handleReviewAttempt(attemptId);
+    }
+  }, [attemptId, showResults, currentAttempt]);
+
   const fetchQuizData = async () => {
     try {
       // Fetch questions
@@ -232,10 +241,10 @@ export const StudentQuizTaker = ({ quiz, courseId, onBackToCourse }: StudentQuiz
           setIsResuming(true);
           setCurrentAttempt(inProgressAttempt);
           
-          // Safely parse answers from JSON
+          // Safely parse answers from JSON and normalize to new format
           const attemptAnswers = inProgressAttempt.answers;
           if (attemptAnswers && typeof attemptAnswers === 'object') {
-            setAnswers(attemptAnswers as Record<string, string>);
+            setAnswers(normalizeAnswers(attemptAnswers));
           }
           
           // Calculate time left if there's a time limit
@@ -335,7 +344,7 @@ export const StudentQuizTaker = ({ quiz, courseId, onBackToCourse }: StudentQuiz
   };
 
   const handleAnswerChange = (questionId: string, answer: string) => {
-    setAnswers(prev => ({ ...prev, [questionId]: answer }));
+    setAnswers(prev => ({ ...prev, [questionId]: createAnswerEntry(answer) }));
     if (currentAttempt) {
       setSubmitDisabled(true);
       setTimeout(() => {
@@ -352,14 +361,8 @@ export const StudentQuizTaker = ({ quiz, courseId, onBackToCourse }: StudentQuiz
     try {
       // Flush any pending answer state
       await new Promise(resolve => setTimeout(resolve, 10));
-      // Calculate score
-      let score = 0;
-      questions.forEach(question => {
-        const userAnswer = answers[question.id];
-        if (userAnswer && question.correct_answer && userAnswer === question.correct_answer) {
-          score += question.points;
-        }
-      });
+      // Calculate score using the new utility function
+      const score = calculateScoreUtil(answers, questions);
       const { error } = await supabase
         .from('quiz_attempts')
         .update({
@@ -385,6 +388,9 @@ export const StudentQuizTaker = ({ quiz, courseId, onBackToCourse }: StudentQuiz
       }
       if (quiz.show_results) {
         setShowResults(true);
+        // Update URL to include attempt ID for persistence
+        const newUrl = `/courses/${courseId}/progress/quiz/${quiz.id}/attempt/${currentAttempt.id}`;
+        window.history.replaceState({}, '', newUrl);
       } else {
         toast({
           title: 'Quiz Submitted',
@@ -449,11 +455,8 @@ export const StudentQuizTaker = ({ quiz, courseId, onBackToCourse }: StudentQuiz
         correct_answer: q.correct_answer || ''
       }));
 
-      // Process the answers to ensure they match the question IDs
-      const processedAnswers = Object.entries(attemptData.answers || {}).reduce((acc, [questionId, answer]) => {
-        acc[questionId] = answer || '';
-        return acc;
-      }, {} as Record<string, string>);
+      // Keep the full answer structure to preserve isCorrect flags
+      const processedAnswers = attemptData.answers || {};
 
       setQuizResults({
         score: attemptData.score,
@@ -462,6 +465,10 @@ export const StudentQuizTaker = ({ quiz, courseId, onBackToCourse }: StudentQuiz
         userAnswers: processedAnswers
       });
       setShowResults(true);
+      
+      // Update URL to include attempt ID for persistence
+      const newUrl = `/courses/${courseId}/progress/quiz/${quiz.id}/attempt/${attemptId}`;
+      window.history.replaceState({}, '', newUrl);
     } catch (error: any) {
       console.error('Error fetching attempt data:', error);
       toast({
@@ -486,6 +493,13 @@ export const StudentQuizTaker = ({ quiz, courseId, onBackToCourse }: StudentQuiz
           userAnswers={quizResults.userAnswers}
           showCorrectAnswers={quiz.show_correct_answers}
           onBackToCourse={onBackToCourse}
+          onBackToQuiz={() => {
+            setShowResults(false);
+            setQuizResults(null);
+            // Update URL to remove attempt ID and go back to quiz home
+            const newUrl = `/courses/${courseId}/progress/quiz/${quiz.id}`;
+            window.history.replaceState({}, '', newUrl);
+          }}
         />
       </div>
     );
@@ -609,7 +623,7 @@ export const StudentQuizTaker = ({ quiz, courseId, onBackToCourse }: StudentQuiz
             question={currentQuestion}
             questionNumber={currentQuestionIndex + 1}
             totalQuestions={questions.length}
-            answer={answers[currentQuestion.id] || ''}
+            answer={answers[currentQuestion.id]?.answer || ''}
             onAnswerChange={(answer) => handleAnswerChange(currentQuestion.id, answer)}
           />
 
@@ -701,7 +715,7 @@ export const StudentQuizTaker = ({ quiz, courseId, onBackToCourse }: StudentQuiz
                       <span className="font-medium">Attempts Used:</span>
                     </div>
                     <Badge 
-                      variant={attempts.length >= quiz.max_attempts ? "destructive" : "secondary"}
+                      variant={attempts.length >= quiz.max_attempts ? "destructive" : "default"}
                       className="text-lg px-3 py-1"
                     >
                       {attempts.length}
@@ -747,7 +761,7 @@ export const StudentQuizTaker = ({ quiz, courseId, onBackToCourse }: StudentQuiz
                             <span className="font-medium">Attempt {attempts.length - index}</span>
                           </div>
                           <div className="flex items-center gap-3">
-                            <Badge variant={attempt.score >= attempt.max_score * 0.7 ? 'default' : 'secondary'}>
+                            <Badge variant={attempt.score >= attempt.max_score * 0.7 ? 'default' : 'destructive'}>
                               {attempt.score}/{attempt.max_score}
                             </Badge>
                             <span className="text-sm text-muted-foreground">

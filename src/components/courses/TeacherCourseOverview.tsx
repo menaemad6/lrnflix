@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -53,7 +53,6 @@ interface TeacherCourseOverviewProps {
   course: Course;
   lessons: Lesson[];
   quizzes: Quiz[];
-  onViewModeChange: (mode: 'lessons' | 'quizzes') => void;
   onItemSelect: (type: 'lesson' | 'quiz', id: string) => void;
 }
 
@@ -65,6 +64,7 @@ export const TeacherCourseOverview = ({
   onItemSelect
 }: TeacherCourseOverviewProps) => {
   const { id: courseId } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [showLessonModal, setShowLessonModal] = useState(false);
   const [showQuizModal, setShowQuizModal] = useState(false);
   
@@ -114,14 +114,14 @@ export const TeacherCourseOverview = ({
             </div>
             <div className="flex gap-2 sm:gap-3 flex-wrap justify-end">
               <Button 
-                onClick={() => onViewModeChange('lessons')}
+                onClick={() => navigate(`/teacher/courses/${course.id}/manage/lessons`)}
                 variant="default"
               >
                 <Video className="h-4 w-4 mr-2" />
                 Manage Lessons
               </Button>
               <Button 
-                onClick={() => onViewModeChange('quizzes')}
+                onClick={() => navigate(`/teacher/courses/${course.id}/manage/quizzes`)}
                 variant="default" >
                 <Brain className="h-4 w-4 mr-2" />
                 Manage Quizzes

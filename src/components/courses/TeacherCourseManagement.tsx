@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { TeacherCourseSidebar } from './TeacherCourseSidebar';
@@ -10,6 +10,7 @@ import { QuizEditor } from '@/components/quizzes/QuizEditor';
 import { LessonEditor } from '@/components/lessons/LessonEditor';
 import { TeacherCourseOverview } from './TeacherCourseOverview';
 import { GoogleMeetIntegration } from '../lectures/GoogleMeetIntegration';
+import { TeacherCourseManagementSkeleton } from '@/components/ui/skeletons';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Menu } from 'lucide-react';
@@ -45,7 +46,9 @@ interface Quiz {
 type ViewMode = 'overview' | 'lessons' | 'quizzes' | 'edit-lesson' | 'edit-quiz'| 'live-lectures';
 
 export const TeacherCourseManagement = () => {
-  const { id } = useParams<{ id: string }>();
+  const { id, lessonId, quizId } = useParams<{ id: string; lessonId?: string; quizId?: string }>();
+  const location = useLocation();
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [course, setCourse] = useState<Course | null>(null);
   const [lessons, setLessons] = useState<Lesson[]>([]);
@@ -61,6 +64,32 @@ export const TeacherCourseManagement = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
+
+  // Handle URL parameters to set appropriate view mode
+  useEffect(() => {
+    if (lessonId) {
+      setCurrentItem({ type: 'lesson', id: lessonId });
+      setViewMode('edit-lesson');
+    } else if (quizId) {
+      setCurrentItem({ type: 'quiz', id: quizId });
+      setViewMode('edit-quiz');
+    }
+  }, [lessonId, quizId]);
+
+  // Handle route-based view mode changes
+  useEffect(() => {
+    const path = location.pathname;
+    if (path.includes('/manage/lessons') && !path.includes('/manage/lessons/')) {
+      setViewMode('lessons');
+      setCurrentItem({ type: null, id: null });
+    } else if (path.includes('/manage/quizzes') && !path.includes('/manage/quizzes/')) {
+      setViewMode('quizzes');
+      setCurrentItem({ type: null, id: null });
+    } else if (path.endsWith('/manage')) {
+      setViewMode('overview');
+      setCurrentItem({ type: null, id: null });
+    }
+  }, [location.pathname]);
 
   const fetchCourseData = async () => {
     try {
@@ -165,14 +194,48 @@ export const TeacherCourseManagement = () => {
 
   const handleViewModeChange = (mode: ViewMode) => {
     setViewMode(mode);
+    // Update URL based on the new view mode
+    if (mode === 'lessons') {
+      navigate(`/teacher/courses/${id}/manage/lessons`);
+    } else if (mode === 'quizzes') {
+      navigate(`/teacher/courses/${id}/manage/quizzes`);
+    } else if (mode === 'overview') {
+      navigate(`/teacher/courses/${id}/manage`);
+    }
   };
 
   const renderMainContent = (itemId? : string) => {
     if (loading) {
+      return <TeacherCourseManagementSkeleton />;
+    }
+
+    // Check if we have URL parameters that should override the view mode
+    if (lessonId && currentItem.type === 'lesson' && currentItem.id === lessonId) {
       return (
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-        </div>
+        <LessonEditor 
+          lessonId={lessonId}
+          onBack={() => {
+            setViewMode('overview');
+            setCurrentItem({ type: null, id: null });
+            // Update URL to remove lessonId
+            navigate(`/teacher/courses/${id}/manage`);
+          }}
+        />
+      );
+    }
+
+    if (quizId && currentItem.type === 'quiz' && currentItem.id === quizId) {
+      return (
+        <QuizEditor 
+          courseId={id!} 
+          quizId={quizId}
+          onBack={() => {
+            setViewMode('overview');
+            setCurrentItem({ type: null, id: null });
+            // Update URL to remove quizId
+            navigate(`/teacher/courses/${id}/manage`);
+          }}
+        />
       );
     }
 
@@ -202,18 +265,15 @@ export const TeacherCourseManagement = () => {
           />
         );
       case 'edit-quiz':
-
         return (
           <QuizEditor 
-          courseId={course.id!} 
-          quizId={currentItem.id!}
-          // onQuizUpdated={handleQuizUpdated}
-          // onQuizUpdated={() => console.log('quiz updated')}
-          onBack={() => {
-            setViewMode('overview');
-            setCurrentItem({ type: null, id: null });
-          }}
-      />
+            courseId={course.id!} 
+            quizId={currentItem.id!}
+            onBack={() => {
+              setViewMode('overview');
+              setCurrentItem({ type: null, id: null });
+            }}
+          />
         );
       case 'live-lectures':
         return (
@@ -223,28 +283,25 @@ export const TeacherCourseManagement = () => {
           />
         );
 
-      default:
-        return (
-          <TeacherCourseOverview
-            course={course}
-            lessons={lessons}
-            quizzes={quizzes}
-            onViewModeChange={(mode) => setViewMode(mode)}
-            onItemSelect={(type, id) => {
-              setCurrentItem({ type, id });
-              setViewMode(type === 'lesson' ? 'edit-lesson' : 'edit-quiz');
-            }}
-          />
-        );
+              default:
+          return (
+            <TeacherCourseOverview
+              course={course}
+              lessons={lessons}
+              quizzes={quizzes}
+              onItemSelect={(type, id) => {
+                setCurrentItem({ type, id });
+                setViewMode(type === 'lesson' ? 'edit-lesson' : 'edit-quiz');
+                // Update URL to include the item ID
+                navigate(`/teacher/courses/${id}/manage/${type === 'lesson' ? 'lessons' : 'quizzes'}/${id}`);
+              }}
+            />
+          );
     }
   };
 
   if (!course) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
+    return <TeacherCourseManagementSkeleton />;
   }
 
   return (

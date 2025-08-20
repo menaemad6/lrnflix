@@ -19,6 +19,7 @@ import { Video, Calendar, Clock, Users, ExternalLink, Edit, Trash2, MoreVertical
 import { CreateLectureModal } from './CreateLectureModal';
 import { EditLectureModal } from './EditLectureModal';
 import { useLiveLectures } from '@/hooks/useLiveLectures';
+import { ContentManagementSkeleton } from '@/components/ui/skeletons';
 import { getLectureStatusInfo, formatLectureTime } from '@/utils/lectureUtils';
 import {
   DropdownMenu,
@@ -257,7 +258,7 @@ export const GoogleMeetIntegration = ({ courseId, onBack }: GoogleMeetIntegratio
   const canDeleteLecture = (lecture: any) => lecture.status === 'cancelled';
 
   if (loading) {
-    return <div className="animate-pulse">Loading Google Meet integration...</div>;
+    return <ContentManagementSkeleton />;
   }
 
   return (

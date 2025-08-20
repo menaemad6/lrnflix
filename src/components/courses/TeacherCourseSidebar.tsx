@@ -55,7 +55,6 @@ interface TeacherCourseSidebarProps {
   onDeleteLesson: (lessonId: string) => void;
   onDeleteQuiz: (quizId: string) => void;
   onContentUpdate: () => void;
-  onViewModeChange: (mode: ViewMode) => void;
   viewMode: ViewMode;
 }
 
@@ -132,6 +131,8 @@ export const TeacherCourseSidebar: React.FC<TeacherCourseSidebarProps> = ({
     console.log('Sidebar item clicked:', type, id);
     onItemSelect(type, id);
     onViewModeChange(type === 'lesson' ? 'edit-lesson' : 'edit-quiz');
+    // Navigate to the edit page for the selected item
+    navigate(`/teacher/courses/${course.id}/manage/${type === 'lesson' ? 'lessons' : 'quizzes'}/${id}`);
   };
 
   const totalContent = lessons.length + quizzes.length;
@@ -185,7 +186,7 @@ export const TeacherCourseSidebar: React.FC<TeacherCourseSidebarProps> = ({
           
           <div className="grid grid-cols-2 gap-2 sm:gap-3">
             <Button 
-              onClick={() => onViewModeChange('lessons')}
+              onClick={() => navigate(`/teacher/courses/${course.id}/manage/lessons`)}
               variant={viewMode === 'lessons' ? 'default' : 'outline'}
               className="h-auto p-4 flex flex-col gap-2"
             >
@@ -196,7 +197,7 @@ export const TeacherCourseSidebar: React.FC<TeacherCourseSidebarProps> = ({
               </Badge>
             </Button>
             <Button 
-              onClick={() => onViewModeChange('quizzes')}
+              onClick={() => navigate(`/teacher/courses/${course.id}/manage/quizzes`)}
               variant={viewMode === 'quizzes' ? 'default' : 'outline'}
               className="h-auto p-4 flex flex-col gap-2"
             >

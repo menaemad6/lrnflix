@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { QuizCreator } from './QuizCreator';
 import { QuizEditor } from './QuizEditor';
+import { ContentManagementSkeleton } from '@/components/ui/skeletons';
 import { ArrowLeft, Plus, Edit, Trash2, Clock, Users, FileText, Brain, Target, Zap } from 'lucide-react';
 
 interface Quiz {
@@ -26,6 +28,9 @@ interface QuizManagerProps {
 
 export const QuizManager = ({ courseId, onBack, editingQuizId }: QuizManagerProps) => {
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const { id: courseIdFromParams } = useParams<{ id: string }>();
+  const actualCourseId = courseId || courseIdFromParams;
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreator, setShowCreator] = useState(false);
@@ -101,11 +106,7 @@ export const QuizManager = ({ courseId, onBack, editingQuizId }: QuizManagerProp
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div>
-      </div>
-    );
+    return <ContentManagementSkeleton />;
   }
 
   if (editingQuiz) {
@@ -129,16 +130,13 @@ export const QuizManager = ({ courseId, onBack, editingQuizId }: QuizManagerProp
         <div className="card p-4 sm:p-8 border border-border bg-card">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3 sm:gap-6">
-              {onBack && (
-                <Button 
-                  variant="outline" 
-                  onClick={onBack}
-                  
-                >
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back
-                </Button>
-              )}
+              <Button 
+                variant="outline" 
+                onClick={() => navigate(`/teacher/courses/${actualCourseId}/manage`)}
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back
+              </Button>
               <div className="space-y-1 sm:space-y-2">
                 <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary">
                   Quiz Management
@@ -191,7 +189,7 @@ export const QuizManager = ({ courseId, onBack, editingQuizId }: QuizManagerProp
                     <Button 
                       variant="outline" 
                       size="sm"
-                      onClick={() => setEditingQuiz(quiz.id)}
+                      onClick={() => navigate(`/teacher/courses/${actualCourseId}/manage/quizzes/${quiz.id}`)}
                       className="bg-primary-500/10 border-primary-500/30 hover:bg-primary-500/20 hover:border-primary-500/50 text-primary-300 backdrop-blur-sm transition-all duration-300 hover:shadow-lg hover:shadow-primary-500/20"
                     >
                       <Edit className="h-4 w-4" />

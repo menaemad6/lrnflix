@@ -8,6 +8,8 @@ import { useVapiCall } from '@/hooks/useVapiCall';
 import { useChatbot } from '@/contexts/ChatbotContext';
 import { Progress } from '@/components/ui/progress';
 import { CheckCircle2 } from 'lucide-react';
+import { getStudentAnswer, getAnswerCorrectness } from '@/utils/quizAnswerUtils';
+import { cn } from '@/lib/utils';
 
 interface QuizResultsProps {
   score: number;
@@ -20,9 +22,10 @@ interface QuizResultsProps {
     type: string;
     question_image?: string | null;
   }>;
-  userAnswers: Record<string, string>;
+  userAnswers: Record<string, string> | Record<string, { answer: string; isCorrect: boolean | null }>;
   showCorrectAnswers?: boolean;
   onBackToCourse: () => void;
+  onBackToQuiz?: () => void;
 }
 
 export const QuizResults: React.FC<QuizResultsProps> = ({
@@ -31,8 +34,14 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
   questions,
   userAnswers,
   showCorrectAnswers = false,
-  onBackToCourse
+  onBackToCourse,
+  onBackToQuiz
 }) => {
+  // Debug logging for userAnswers structure
+  console.log('QuizResults received userAnswers:', userAnswers);
+  console.log('QuizResults userAnswers type:', typeof userAnswers);
+  console.log('QuizResults userAnswers keys:', Object.keys(userAnswers || {}));
+  
   const percentage = (score / maxScore) * 100;
   const passed = percentage >= 70;
   const { isCallActive, endCall } = useVapiCall();
@@ -44,40 +53,46 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
   const [showChoiceModal, setShowChoiceModal] = useState(false);
 
   const getAnswerStatus = (questionId: string) => {
-    const userAnswer = userAnswers[questionId];
     const question = questions.find(q => q.id === questionId);
-    
-    if (!question || !userAnswer) return false;
+    if (!question) return false;
 
+    // Get the student's answer and correctness status
+    const studentAnswer = getStudentAnswer(userAnswers, questionId);
+    const isCorrect = getAnswerCorrectness(userAnswers, questionId);
+    
     // Debug logging
-    console.log('Question:', {
-      id: questionId,
-      text: question.question_text,
-      type: question.type,
-      userAnswer: userAnswer,
+    console.log(`Question ${questionId}:`, {
+      studentAnswer,
+      isCorrect,
       correctAnswer: question.correct_answer,
-      userAnswerType: typeof userAnswer,
-      correctAnswerType: typeof question.correct_answer
+      questionType: question.type,
+      fullUserAnswers: userAnswers[questionId]
     });
     
-    // Convert both answers to strings and normalize
-    const normalizedUserAnswer = String(userAnswer).toLowerCase().trim();
-    const normalizedCorrectAnswer = String(question.correct_answer).toLowerCase().trim();
-    
-    // Debug logging for normalized values
-    console.log('Normalized answers:', {
-      userAnswer: normalizedUserAnswer,
-      correctAnswer: normalizedCorrectAnswer,
-      areEqual: normalizedUserAnswer === normalizedCorrectAnswer
-    });
+    if (!studentAnswer) return false;
 
-    // Simple direct comparison
-    return normalizedUserAnswer === normalizedCorrectAnswer;
+    // If isCorrect is explicitly set (true/false), use that
+    if (isCorrect !== null) {
+      console.log(`Question ${questionId}: Using explicit isCorrect: ${isCorrect}`);
+      return isCorrect;
+    }
+
+    // If isCorrect is null, check against correct_answer for similarity
+    if (question.correct_answer) {
+      const normalizedUserAnswer = String(studentAnswer).toLowerCase().trim();
+      const normalizedCorrectAnswer = String(question.correct_answer).toLowerCase().trim();
+      const similarityMatch = normalizedUserAnswer === normalizedCorrectAnswer;
+      console.log(`Question ${questionId}: Using similarity match: ${similarityMatch}`);
+      return similarityMatch;
+    }
+
+    return false;
   };
 
-  const handleTalkToHossam = (question: any, userAnswer: string) => {
+  const handleTalkToHossam = (question: any, userAnswer: any) => {  
     if (!question) return;
-    setSelectedQuestion({ ...question, userAnswer });
+    const studentAnswer = getStudentAnswer(userAnswers, question.id);
+    setSelectedQuestion({ ...question, userAnswer: studentAnswer });
     setShowChoiceModal(true);
   };
 
@@ -115,15 +130,15 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
         {/* Results Header */}
         <Card className={`relative overflow-hidden shadow-2xl ${
           passed 
-            ? 'bg-gradient-to-br from-primary/10 via-primary/5 to-background border-2 border-primary/20' 
-            : 'bg-gradient-to-br from-orange-500/10 via-orange-500/5 to-background border-2 border-orange-500/20'
+            ? 'bg-gradient-to-br from-green-500/10 via-green-500/5 to-background border-2 border-green-500/20' 
+            : 'bg-gradient-to-br from-red-500/10 via-red-500/5 to-background border-2 border-red-500/20'
         }`}>
           <div className="absolute top-0 right-0 w-32 h-32 opacity-5">
             <Award className="w-full h-full" />
           </div>
           <CardHeader className="text-center pb-4 relative">
             <div className={`mx-auto w-24 h-24 rounded-full flex items-center justify-center mb-6 shadow-lg ${
-              passed ? 'bg-gradient-to-r from-primary to-primary/80' : 'bg-gradient-to-r from-orange-500 to-orange-600'
+              passed ? 'bg-gradient-to-r from-green-500 to-green-600' : 'bg-gradient-to-r from-red-500 to-red-600'
             }`}>
               <Award className="h-12 w-12 text-white" />
             </div>
@@ -132,12 +147,18 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
           </CardHeader>
           <CardContent className="text-center space-y-8 pb-8">
             <div className="space-y-4">
-              <div className="text-7xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent">
+              <div className={`text-7xl font-bold bg-clip-text text-transparent ${
+                passed 
+                  ? 'bg-gradient-to-r from-green-600 via-green-700 to-green-800' 
+                  : 'bg-gradient-to-r from-red-600 via-red-700 to-red-800'
+              }`}>
                 {score}/{maxScore}
               </div>
               <Badge 
                 variant={passed ? "default" : "destructive"}
-                className="text-2xl px-8 py-3 font-bold shadow-lg"
+                className={`text-2xl px-8 py-3 font-bold shadow-lg ${
+                  passed ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'
+                }`}
               >
                 {percentage.toFixed(1)}% - {passed ? 'Passed' : 'Failed'}
               </Badge>
@@ -153,7 +174,7 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
                 <div className="text-muted-foreground font-medium">Answered</div>
               </div>
               <div className="p-6 bg-card/80 backdrop-blur-sm rounded-2xl border shadow-lg">
-                <div className="text-3xl font-bold text-primary mb-2">{correctCount}</div>
+                <div className={cn("text-3xl font-bold mb-2", passed ? 'text-green-600' : 'text-red-600')}>{correctCount}</div>
                 <div className="text-muted-foreground font-medium">Correct</div>
               </div>
             </div>
@@ -192,7 +213,7 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
             <div className="space-y-6">
               {questions.map((question) => {
                 const isCorrect = getAnswerStatus(question.id);
-                const userAnswer = userAnswers[question.id];
+                const userAnswer = getStudentAnswer(userAnswers, question.id);
                 const correctAnswer = question.correct_answer;
 
                 // Debug logging for each question's result
@@ -205,14 +226,14 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
 
                 return (
                   <Card key={question.id} className={`border-l-4 shadow-lg hover:shadow-xl transition-all duration-300 ${
-                    isCorrect ? 'border-l-primary bg-primary/5' : 'border-l-orange-500 bg-orange-500/5'
+                    isCorrect ? 'border-l-green-500 bg-green-500/5' : 'border-l-red-500 bg-red-500/5'
                   }`}>
                     <CardContent className="p-8">
                       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                         {/* Status Icon */}
                         <div className="lg:col-span-1 flex justify-center">
                           <div className={`w-12 h-12 rounded-full flex items-center justify-center shadow-lg ${
-                            isCorrect ? 'bg-primary/10 text-primary' : 'bg-orange-500/10 text-orange-500'
+                            isCorrect ? 'bg-green-500/10 text-green-600' : 'bg-red-500/10 text-red-600'
                           }`}>
                             {isCorrect ? (
                               <CheckCircle className="h-6 w-6" />
@@ -246,8 +267,8 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
                                 </div>
                                 <div className={`p-4 rounded-xl border-2 font-medium ${
                                   isCorrect 
-                                    ? 'bg-primary/10 border-primary/30 text-primary' 
-                                    : 'bg-orange-500/10 border-orange-500/30 text-orange-600'
+                                    ? 'bg-green-500/10 border-green-500/30 text-green-700' 
+                                    : 'bg-red-500/10 border-red-500/30 text-red-700'
                                 }`}>
                                   {userAnswer || 'Not answered'}
                                 </div>
@@ -307,9 +328,9 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
 
         {/* Back Button */}
         <div className="text-center pt-8">
-          <Button onClick={onBackToCourse} size="lg" className="px-12 py-4 text-lg shadow-lg">
+          <Button onClick={onBackToQuiz || onBackToCourse} size="lg" className="px-12 py-4 text-lg shadow-lg">
             <ArrowLeft className="h-5 w-5 mr-3" />
-            Back to Course
+            {onBackToQuiz ? 'Back to Quiz' : 'Back to Course'}
           </Button>
         </div>
       </div>

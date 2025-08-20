@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Clock, CheckCircle } from 'lucide-react';
+import { createAnswerEntry, calculateScore as calculateScoreUtil } from '@/utils/quizAnswerUtils';
 
 interface Question {
   id: string;
@@ -26,9 +27,9 @@ interface QuizTakerProps {
 
 export const QuizTaker = ({ quizId, onComplete }: QuizTakerProps) => {
   const { toast } = useToast();
-  const [quiz, setQuiz] = useState<any>(null);
+  const [quiz, setQuiz] = useState<{ title?: string; description?: string; time_limit?: number } | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
-  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [answers, setAnswers] = useState<Record<string, { answer: string; isCorrect: boolean | null }>>({});
   const [timeRemaining, setTimeRemaining] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -99,11 +100,11 @@ export const QuizTaker = ({ quizId, onComplete }: QuizTakerProps) => {
       setQuestions(transformedQuestions);
       setAttemptId(attempt.id);
       setTimeRemaining(quizData.time_limit ? quizData.time_limit * 60 : 0);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching quiz:', error);
       toast({
         title: 'Error',
-        description: error.message,
+        description: error instanceof Error ? error.message : 'An error occurred',
         variant: 'destructive',
       });
     } finally {
@@ -112,29 +113,12 @@ export const QuizTaker = ({ quizId, onComplete }: QuizTakerProps) => {
   };
 
   const handleAnswerChange = (questionId: string, answer: string) => {
-    setAnswers({ ...answers, [questionId]: answer });
+    setAnswers({ ...answers, [questionId]: createAnswerEntry(answer) });
   };
 
   const calculateScore = () => {
-    let score = 0;
-    let maxScore = 0;
-
-    questions.forEach(question => {
-      maxScore += question.points;
-      const answer = answers[question.id];
-      
-      if (question.question_type === 'mcq') {
-        // For MCQ, we'll need to fetch correct answers (in a real app, this would be done server-side)
-        // For now, we'll just award points for any answer
-        if (answer) {
-          score += question.points;
-        }
-      } else {
-        // For written answers, we'll need manual grading
-        // For now, we'll set score to null to indicate pending grading
-      }
-    });
-
+    const maxScore = questions.reduce((sum, q) => sum + q.points, 0);
+    const score = calculateScoreUtil(answers, questions);
     return { score, maxScore };
   };
 
@@ -161,11 +145,11 @@ export const QuizTaker = ({ quizId, onComplete }: QuizTakerProps) => {
       });
 
       onComplete();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error submitting quiz:', error);
       toast({
         title: 'Error',
-        description: error.message,
+        description: error instanceof Error ? error.message : 'An error occurred',
         variant: 'destructive',
       });
     } finally {
@@ -224,7 +208,7 @@ export const QuizTaker = ({ quizId, onComplete }: QuizTakerProps) => {
             
             {question.question_type === 'mcq' ? (
               <RadioGroup
-                value={answers[question.id] || ''}
+                value={answers[question.id]?.answer || ''}
                 onValueChange={(value) => handleAnswerChange(question.id, value)}
               >
                 {question.options?.map((option, optIndex) => (
@@ -237,7 +221,7 @@ export const QuizTaker = ({ quizId, onComplete }: QuizTakerProps) => {
             ) : (
               <Textarea
                 placeholder="Enter your answer..."
-                value={answers[question.id] || ''}
+                value={answers[question.id]?.answer || ''}
                 onChange={(e) => handleAnswerChange(question.id, e.target.value)}
                 rows={4}
               />

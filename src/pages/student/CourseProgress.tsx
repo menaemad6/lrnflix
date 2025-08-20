@@ -56,7 +56,7 @@ interface QuizAttempt {
 }
 
 export const CourseProgress = () => {
-  const { id, lessonId, quizId } = useParams<{ id: string; lessonId?: string; quizId?: string }>();
+  const { id, lessonId, quizId, attemptId } = useParams<{ id: string; lessonId?: string; quizId?: string; attemptId?: string }>();
   const { toast } = useToast();
   const [course, setCourse] = useState<Course | null>(null);
   const [lessons, setLessons] = useState<Lesson[]>([]);
@@ -247,6 +247,7 @@ export const CourseProgress = () => {
               quiz={currentQuiz}
               courseId={id!}
               onBackToCourse={handleBackToCourse}
+              attemptId={attemptId}
             />
           ) : currentLesson ? (
                          <LessonContent

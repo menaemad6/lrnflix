@@ -26,6 +26,7 @@ import {
   Upload
 } from 'lucide-react';
 import { usePdfAi } from '@/hooks/usePdfAi';
+import { ContentManagementSkeleton } from '@/components/ui/skeletons';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import {
   Table,
@@ -291,11 +292,7 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div>
-      </div>
-    );
+    return <ContentManagementSkeleton />;
   }
 
   if (!lesson) {

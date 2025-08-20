@@ -1088,28 +1088,43 @@ export const GroupDetailPage = () => {
               <ArrowLeft className="h-4 w-4" />
             </Button>
             <div className="min-w-0 flex-1">
-              <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
-                {isOwner ? (
-                  <Crown className="w-5 h-5 text-primary flex-shrink-0" />
-                ) : (
-                  <UserCheck className="w-5 h-5 text-primary flex-shrink-0" />
-                )}
-                <Badge variant={group.is_public ? 'default' : undefined} className={`flex-shrink-0 ${group.is_public ? '' : 'bg-yellow-400 text-yellow-900 font-bold rounded-full shadow px-3 py-1 border border-yellow-300 hover:bg-yellow-300 hover:border-yellow-500 transition-colors'}`}>
-                  {group.is_public ? 'Public Group' : 'Private Group'}
-                </Badge>
-              </div>
-              <h1 className="text-2xl sm:text-3xl font-bold break-words">{group.name}</h1>
-              <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-muted-foreground text-sm sm:text-base">
-                <div className="flex items-center gap-2">
-                  <Users className="w-4 h-4 flex-shrink-0" />
-                  <span>{members.length} members</span>
-                </div>
-                {showGroupCodeAndShare && (userRole === 'teacher' || isOwner || group.is_code_visible) && (
-                  <div className="flex items-center gap-2">
-                    <Hash className="w-4 h-4 flex-shrink-0" />
-                    <span className="break-all">{group.group_code}</span>
+              <div className="flex items-start gap-3 sm:gap-4 mb-3">
+                {/* Group Thumbnail */}
+                {group.thumbnail_url && (
+                  <div className="flex-shrink-0">
+                    <img 
+                      src={group.thumbnail_url} 
+                      alt={group.name}
+                      className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-2 border-border/20 shadow-lg"
+                    />
                   </div>
                 )}
+                
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
+                    {isOwner ? (
+                      <Crown className="w-5 h-5 text-primary flex-shrink-0" />
+                    ) : (
+                      <UserCheck className="w-5 h-5 text-primary flex-shrink-0" />
+                    )}
+                    <Badge variant={group.is_public ? 'default' : undefined} className={`flex-shrink-0 ${group.is_public ? '' : 'bg-yellow-400 text-yellow-900 font-bold rounded-full shadow px-3 py-1 border border-yellow-300 hover:bg-yellow-300 hover:border-yellow-500 transition-colors'}`}>
+                      {group.is_public ? 'Public Group' : 'Private Group'}
+                    </Badge>
+                  </div>
+                  <h1 className="text-2xl sm:text-3xl font-bold break-words">{group.name}</h1>
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-muted-foreground text-sm sm:text-base">
+                    <div className="flex items-center gap-2">
+                      <Users className="w-4 h-4 flex-shrink-0" />
+                      <span>{members.length} members</span>
+                    </div>
+                    {showGroupCodeAndShare && (userRole === 'teacher' || isOwner || group.is_code_visible) && (
+                      <div className="flex items-center gap-2">
+                        <Hash className="w-4 h-4 flex-shrink-0" />
+                        <span className="break-all">{group.group_code}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
           </div>

@@ -55,7 +55,7 @@ const DashboardModernHeader: React.FC<DashboardModernHeaderProps> = ({
       {/* Overlay removed so icons float over the card's normal background */}
     </div>
     <div className="relative z-10 flex flex-col items-center justify-center">
-      <h1 className="text-4xl md:text-5xl lg:text-6xl font-black leading-tight mb-3 gradient-text drop-shadow-2xl text-balance text-center">
+      <h1 className="text-4xl md:text-5xl lg:text-6xl font-black leading-tight mb-3 text-primary drop-shadow-2xl text-balance text-center">
         {title}
       </h1>
       {subtitle && (
@@ -64,7 +64,7 @@ const DashboardModernHeader: React.FC<DashboardModernHeaderProps> = ({
         </p>
       )}
       {buttonText && (
-        <Button size="lg" className="btn-primary" onClick={onButtonClick}>
+        <Button size="lg" variant='default' onClick={onButtonClick}>
           {buttonText}
         </Button>
       )}

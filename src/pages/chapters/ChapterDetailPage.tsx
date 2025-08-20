@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { useRandomBackground } from "../../hooks/useRandomBackground";
 import { PremiumCourseCard } from '@/components/courses/PremiumCourseCard';
+import { CourseViewSkeleton } from '@/components/student/skeletons/CourseViewSkeleton';
 
 interface Chapter {
   id: string;
@@ -199,11 +200,7 @@ export const ChapterDetailPage = () => {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
+    return <CourseViewSkeleton />;
   }
 
   if (!chapter) {
@@ -327,6 +324,17 @@ export const ChapterDetailPage = () => {
             <div className="lg:col-span-1">
               <Card className="glass-card sticky top-24">
                 <CardContent className="p-6 space-y-6">
+                  {/* Chapter Thumbnail */}
+                  {chapter.cover_image_url && (
+                    <div className="text-center">
+                      <img 
+                        src={chapter.cover_image_url} 
+                        alt={chapter.title}
+                        className="w-full mx-auto rounded-lg object-cover border border-border/20 shadow-lg"
+                      />
+                    </div>
+                  )}
+                  
                   <div className="text-center space-y-2">
                     <div className="text-3xl font-bold gradient-text">
                       {chapter.price} credits
