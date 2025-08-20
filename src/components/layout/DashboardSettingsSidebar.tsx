@@ -1,41 +1,100 @@
 
-import React from "react";
-import { Brain, MessageSquare } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Brain, MessageSquare, User } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/store";
+import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "../ui/button";
 
 interface DashboardSettingsSidebarProps {
   activeTab: string;
   onTabChange?: (tab: string) => void;
 }
 
-export const DashboardSettingsSidebar: React.FC<DashboardSettingsSidebarProps> = ({ activeTab, onTabChange }) => (
-  <aside className="w-full lg:w-64 lg:min-w-[220px] h-fit bg-card border border-border rounded-2xl shadow-xl p-4 mt-2 lg:sticky lg:top-24">
-    <nav className="flex flex-row lg:flex-col gap-2 overflow-x-auto lg:overflow-x-visible">
-      <button
-        onClick={() => onTabChange?.("ai-assistant")}
-        className={cn(
-          "group flex items-center justify-center lg:justify-start gap-3 px-3 py-3 rounded-xl text-sm lg:text-base font-medium transition-all w-full text-center lg:text-left whitespace-nowrap lg:whitespace-normal",
-          activeTab === "ai-assistant"
-            ? "bg-gradient-to-r from-primary to-primary-400 text-primary-foreground shadow"
-            : "hover:bg-accent"
+export const DashboardSettingsSidebar: React.FC<DashboardSettingsSidebarProps> = ({ activeTab, onTabChange }) => {
+  const { user } = useSelector((state: RootState) => state.auth);
+  const [teacherSlug, setTeacherSlug] = useState<string | null>(null);
+  const [isTeacher, setIsTeacher] = useState(false);
+
+  // Check if user is a teacher and fetch their slug
+  useEffect(() => {
+    const checkTeacherStatus = async () => {
+      if (user?.role === 'teacher') {
+        setIsTeacher(true);
+        try {
+          const { data: teacherData, error } = await supabase
+            .from('teachers')
+            .select('slug, display_name')
+            .eq('user_id', user.id)
+            .single();
+          
+          if (!error && teacherData) {
+            setTeacherSlug(teacherData.slug);
+          } else if (error && error.code === 'PGRST116') {
+            // Teacher profile doesn't exist yet - this is normal for new teachers
+            console.log('Teacher profile not found - may need to be created');
+          } else {
+            console.error('Error fetching teacher slug:', error);
+          }
+        } catch (error) {
+          console.error('Error fetching teacher slug:', error);
+        }
+      }
+    };
+
+    checkTeacherStatus();
+  }, [user]);
+
+  return (
+    <aside className="w-full lg:w-64 lg:min-w-[220px] h-fit bg-card border border-border rounded-2xl shadow-xl p-4 mt-2 lg:sticky lg:top-24">
+      <nav className="flex flex-row lg:flex-col gap-2 overflow-x-auto lg:overflow-x-visible">
+        <Button
+          onClick={() => onTabChange?.("ai-assistant")}
+          variant={activeTab === "ai-assistant" ? "default" : "outline"}
+        >
+          <Brain className="h-4 w-4 lg:h-5 lg:w-5 flex-shrink-0" />
+          <span className="hidden sm:inline">AI Assistant</span>
+        </Button>
+        
+        <Button
+          onClick={() => onTabChange?.("announcements")}
+          variant={activeTab === "announcements" ? "default" : "outline"}
+        >
+          <MessageSquare className="h-4 w-4 lg:h-5 lg:w-5 flex-shrink-0" />
+          <span className="hidden sm:inline">Announcements</span>
+        </Button>
+
+        {/* Teacher Profile Link - Only show for teachers */}
+        {isTeacher && (
+          <>
+            {teacherSlug ? (
+            <Button
+            variant={"outline"}>
+               <Link
+                  to={`/teachers/${teacherSlug}`}
+                  className="w-full flex items-center justify-center gap-2"
+                  >
+                  <User className="h-4 w-4 lg:h-5 lg:w-5 flex-shrink-0" />
+                  <span className="hidden sm:inline">My Profile</span>
+                </Link>
+            </Button>
+              
+            ) : (
+              <div className="px-3 py-3 rounded-xl text-sm lg:text-base text-muted-foreground bg-muted/50">
+                <div className="flex items-center gap-3">
+                  <User className="h-4 w-4 lg:h-5 lg:w-5 flex-shrink-0" />
+                  <span className="hidden sm:inline">Profile Setup Required</span>
+                </div>
+                <p className="text-xs mt-1 text-muted-foreground">
+                  Contact admin to set up your teacher profile
+                </p>
+              </div>
+            )}
+          </>
         )}
-      >
-        <Brain className="h-4 w-4 lg:h-5 lg:w-5 flex-shrink-0" />
-        <span className="hidden sm:inline">AI Assistant</span>
-      </button>
-      
-      <button
-        onClick={() => onTabChange?.("announcements")}
-        className={cn(
-          "group flex items-center justify-center lg:justify-start gap-3 px-3 py-3 rounded-xl text-sm lg:text-base font-medium transition-all w-full text-center lg:text-left whitespace-nowrap lg:whitespace-normal",
-          activeTab === "announcements"
-            ? "bg-gradient-to-r from-primary to-primary-400 text-primary-foreground shadow"
-            : "hover:bg-accent"
-        )}
-      >
-        <MessageSquare className="h-4 w-4 lg:h-5 lg:w-5 flex-shrink-0" />
-        <span className="hidden sm:inline">Announcements</span>
-      </button>
-    </nav>
-  </aside>
-);
+      </nav>
+    </aside>
+  );
+};

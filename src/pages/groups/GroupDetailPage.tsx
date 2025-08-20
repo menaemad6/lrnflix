@@ -11,6 +11,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { useToast } from '@/hooks/use-toast';
+import { ImageUploader } from '@/components/ui/ImageUploader';
+import { IMAGE_UPLOAD_BUCKETS } from '@/data/constants';
+import type { UploadedImage } from '@/hooks/useImageUpload';
 import { 
   Users, 
   Settings, 
@@ -26,7 +29,8 @@ import {
   UserCheck,
   Send,
   Share2,
-  UserMinus
+  UserMinus,
+  Sparkles
 } from 'lucide-react';
 import type { RootState } from '@/store/store';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -46,6 +50,7 @@ interface GroupDetails {
   is_public: boolean;
   is_code_visible: boolean;
   is_members_visible: boolean;
+  thumbnail_url?: string;
 }
 
 interface GroupMember {
@@ -101,6 +106,7 @@ export const GroupDetailPage = () => {
   const [objectRefreshTrigger, setObjectRefreshTrigger] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string>('student');
+  const [uploadedImage, setUploadedImage] = useState<UploadedImage | null>(null);
   const [groupSettings, setGroupSettings] = useState({
     name: '',
     description: '',
@@ -109,6 +115,8 @@ export const GroupDetailPage = () => {
     is_code_visible: true,
     is_members_visible: true
   });
+  const [groupCodeInput, setGroupCodeInput] = useState('');
+  const [showCodeInput, setShowCodeInput] = useState(false);
 
   useEffect(() => {
     console.log('=== GroupDetailPage Mount ===');
@@ -121,12 +129,15 @@ export const GroupDetailPage = () => {
     if (groupId) {
       fetchGroupDetails();
       fetchMessages();
+    } else if (joinCode) {
+      // If no groupId but we have a join code, fetch group by code first
+      fetchGroupByCode();
     } else {
-      console.error('No groupId provided in URL parameters');
-      setError('No group ID found in URL');
+      console.error('No groupId or join code provided in URL parameters');
+      setError('No group ID or join code found in URL');
       setLoading(false);
     }
-  }, [groupId]);
+  }, [groupId, joinCode]);
 
   useEffect(() => {
     if (!groupId || !user?.id) {
@@ -539,49 +550,343 @@ export const GroupDetailPage = () => {
     }
   };
 
+  const fetchGroupByCode = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      console.log('=== Starting fetchGroupByCode ===');
+      console.log('Fetching group with code:', joinCode);
+
+      // Get current user
+      const { data: { user: currentUser }, error: userError } = await supabase.auth.getUser();
+      console.log('Auth check result:', { currentUser: currentUser?.id, userError });
+      
+      if (userError) {
+        console.error('Auth error:', userError);
+        throw new Error(`Authentication error: ${userError.message}`);
+      }
+      
+      if (!currentUser) {
+        console.log('No authenticated user found');
+        setError('You must be logged in to view this group');
+        navigate('/auth');
+        return;
+      }
+
+      console.log('Authenticated user ID:', currentUser.id);
+
+      // Get user role
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', currentUser.id)
+        .single();
+
+      if (profileError) {
+        console.error('Profile error:', profileError);
+      } else {
+        setUserRole(profile.role || 'student');
+      }
+
+      // Fetch group details by code
+      console.log('Fetching group data for code:', joinCode);
+      const { data: groupData, error: groupError } = await supabase
+        .from('groups')
+        .select('*')
+        .eq('group_code', joinCode)
+        .single();
+
+      console.log('Group by code query result:', { groupData, groupError });
+
+      if (groupError) {
+        console.error('Group fetch error:', groupError);
+        setError(`Failed to load group: ${groupError.message}`);
+        setGroup(null);
+        return;
+      }
+
+      if (!groupData) {
+        console.log('No group data returned for code:', joinCode);
+        setError('Invalid group code');
+        setGroup(null);
+        return;
+      }
+
+      console.log('Group data retrieved successfully:', groupData);
+      setGroup(groupData);
+      setIsOwner(groupData.created_by === currentUser.id);
+      setGroupSettings({
+        name: groupData.name,
+        description: groupData.description || '',
+        max_members: groupData.max_members?.toString() || '',
+        is_public: groupData.is_public || false,
+        is_code_visible: groupData.is_code_visible !== false,
+        is_members_visible: groupData.is_members_visible !== false
+      });
+
+      // Set the groupId for future operations
+      const url = new URL(window.location.href);
+      url.pathname = `/groups/${groupData.id}`;
+      url.searchParams.set('code', joinCode);
+      window.history.replaceState({}, '', url.toString());
+
+      // Fetch group members
+      console.log('Fetching group members...');
+      const { data: membersData, error: membersError } = await supabase
+        .from('group_members')
+        .select('id, student_id, joined_at')
+        .eq('group_id', groupData.id);
+
+      console.log('Members query result:', { membersData, membersError });
+
+      if (membersError) {
+        console.error('Members fetch error:', membersError);
+        toast({
+          title: 'Warning',
+          description: 'Could not load group members',
+          variant: 'destructive',
+        });
+        setMembers([]);
+        setIsMember(false);
+        return;
+      }
+
+      const studentIds = membersData?.map(m => m.student_id) || [];
+      console.log('Student IDs to fetch profiles for:', studentIds);
+      
+      let profilesData: any[] = [];
+      
+      if (studentIds.length > 0) {
+        const { data: profiles, error: profilesError } = await supabase
+          .from('profiles')
+          .select('id, full_name, email, avatar_url')
+          .in('id', studentIds);
+
+        console.log('Profiles query result:', { profiles, profilesError });
+
+        if (profilesError) {
+          console.error('Profiles fetch error:', profilesError);
+        } else {
+          profilesData = profiles || [];
+        }
+      }
+
+      const formattedMembers: GroupMember[] = membersData?.map(member => {
+        const profile = profilesData.find(p => p.id === member.student_id);
+        return {
+          id: member.id,
+          student_id: member.student_id,
+          joined_at: member.joined_at,
+          profile: profile ? {
+            full_name: profile.full_name,
+            email: profile.email,
+            avatar_url: profile.avatar_url
+          } : null
+        };
+      }) || [];
+
+      console.log('Final formatted members:', formattedMembers);
+      setMembers(formattedMembers);
+      setIsMember(formattedMembers.some(m => m.student_id === currentUser.id));
+      console.log('User is member:', formattedMembers.some(m => m.student_id === currentUser.id));
+
+      // Fetch messages after setting up the group
+      await fetchMessages();
+
+    } catch (error: any) {
+      console.error('Error in fetchGroupByCode:', error);
+      setError(error.message || 'An unexpected error occurred');
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to load group details',
+        variant: 'destructive',
+      });
+      setGroup(null);
+    } finally {
+      setLoading(false);
+      console.log('=== fetchGroupByCode completed ===');
+    }
+  };
+
+  const handleJoinWithCode = async () => {
+    if (!groupCodeInput.trim()) {
+      toast({
+        title: 'Error',
+        description: 'Please enter a group code',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      console.log('Joining group with entered code:', groupCodeInput.trim());
+      
+      // Check if the entered code matches the group's code
+      if (groupCodeInput.trim().toUpperCase() !== group?.group_code) {
+        toast({
+          title: 'Invalid Code',
+          description: 'The group code you entered is incorrect',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Check if user is already a member
+      const { data: existingMember, error: checkError } = await supabase
+        .from('group_members')
+        .select('id')
+        .eq('group_id', group.id)
+        .eq('student_id', user?.id)
+        .single();
+
+      if (checkError && checkError.code !== 'PGRST116') {
+        console.error('Error checking membership:', checkError);
+        throw checkError;
+      }
+
+      if (existingMember) {
+        toast({
+          title: 'Already a member',
+          description: 'You are already a member of this group',
+        });
+        return;
+      }
+
+      // Check if group is full
+      if (group.max_members) {
+        const { count: currentMembers, error: countError } = await supabase
+          .from('group_members')
+          .select('*', { count: 'exact', head: true })
+          .eq('group_id', group.id);
+
+        if (countError) {
+          console.error('Error counting members:', countError);
+        } else if (currentMembers && currentMembers >= group.max_members) {
+          toast({
+            title: 'Group is full',
+            description: 'This group has reached its maximum capacity',
+            variant: 'destructive',
+          });
+          return;
+        }
+      }
+
+      // Add user to group
+      const { error: joinError } = await supabase
+        .from('group_members')
+        .insert({
+          group_id: group.id,
+          student_id: user?.id
+        });
+
+      if (joinError) {
+        console.error('Join group error:', joinError);
+        throw joinError;
+      }
+
+      toast({
+        title: 'Success',
+        description: `Joined group: ${group.name}`,
+      });
+
+      // Hide the code input and refresh data
+      setShowCodeInput(false);
+      setGroupCodeInput('');
+      
+      // Refresh group details and fetch messages after joining
+      await fetchGroupDetails();
+      await fetchMessages();
+
+    } catch (error: any) {
+      console.error('Error joining group with code:', error);
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to join group',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const handleJoinGroup = async () => {
     if (!group) return;
 
     try {
       console.log('Joining group with code:', group.group_code);
-      const { data, error } = await supabase.rpc('join_group_by_code', {
-        p_group_code: group.group_code
+      
+      // Check if user is already a member
+      const { data: existingMember, error: checkError } = await supabase
+        .from('group_members')
+        .select('id')
+        .eq('group_id', group.id)
+        .eq('student_id', user?.id)
+        .single();
+
+      if (checkError && checkError.code !== 'PGRST116') {
+        console.error('Error checking membership:', checkError);
+        throw checkError;
+      }
+
+      if (existingMember) {
+        toast({
+          title: 'Already a member',
+          description: 'You are already a member of this group',
+        });
+        return;
+      }
+
+      // Check if group is full
+      if (group.max_members) {
+        const { count: currentMembers, error: countError } = await supabase
+          .from('group_members')
+          .select('*', { count: 'exact', head: true })
+          .eq('group_id', group.id);
+
+        if (countError) {
+          console.error('Error counting members:', countError);
+        } else if (currentMembers && currentMembers >= group.max_members) {
+          toast({
+            title: 'Group is full',
+            description: 'This group has reached its maximum capacity',
+            variant: 'destructive',
+          });
+          return;
+        }
+      }
+
+      // Add user to group
+      const { error: joinError } = await supabase
+        .from('group_members')
+        .insert({
+          group_id: group.id,
+          student_id: user?.id
+        });
+
+      if (joinError) {
+        console.error('Join group error:', joinError);
+        throw joinError;
+      }
+
+      toast({
+        title: 'Success',
+        description: `Joined group: ${group.name}`,
       });
 
-      if (error) {
-        console.error('Join group error:', error);
-        throw error;
+      // Remove ?code=... from the URL if present
+      if (joinCode) {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('code');
+        window.history.replaceState({}, '', url.pathname + url.search);
       }
 
-      const result = data as unknown as JoinGroupResponse;
-      console.log('Join group result:', result);
+      // Refresh group details and fetch messages after joining
+      await fetchGroupDetails();
+      await fetchMessages();
 
-      if (result.success) {
-        toast({
-          title: 'Success',
-          description: `Joined group: ${group.name}`,
-        });
-        // Remove ?code=... from the URL if present
-        if (joinCode) {
-          const url = new URL(window.location.href);
-          url.searchParams.delete('code');
-          window.history.replaceState({}, '', url.pathname + url.search);
-        }
-        // Refresh group details and fetch messages after joining
-        await fetchGroupDetails();
-        await fetchMessages();
-      } else {
-        toast({
-          title: 'Error',
-          description: result.error || 'Failed to join group',
-          variant: 'destructive',
-        });
-      }
     } catch (error: any) {
       console.error('Error joining group:', error);
       toast({
         title: 'Error',
-        description: error.message,
+        description: error.message || 'Failed to join group',
         variant: 'destructive',
       });
     }
@@ -617,17 +922,34 @@ export const GroupDetailPage = () => {
     }
   };
 
+  const handleImageUploaded = (image: UploadedImage) => {
+    setUploadedImage(image);
+    toast({
+      title: 'Success',
+      description: 'Group thumbnail uploaded successfully!',
+    });
+  };
+
+  const handleImageDeleted = (path: string) => {
+    setUploadedImage(null);
+    toast({
+      title: 'Success',
+      description: 'Group thumbnail removed',
+    });
+  };
+
   const handleUpdateGroup = async () => {
     try {
       const { error } = await supabase
         .from('groups')
         .update({
           name: groupSettings.name,
-          description: groupSettings.description || null,
+          description: groupSettings.description,
           max_members: groupSettings.max_members ? parseInt(groupSettings.max_members) : null,
           is_public: groupSettings.is_public,
           is_code_visible: groupSettings.is_code_visible,
-          is_members_visible: groupSettings.is_members_visible
+          is_members_visible: groupSettings.is_members_visible,
+          thumbnail_url: uploadedImage?.url || group?.thumbnail_url || null
         })
         .eq('id', groupId);
 
@@ -635,16 +957,18 @@ export const GroupDetailPage = () => {
 
       toast({
         title: 'Success',
-        description: 'Group settings updated!',
+        description: 'Group settings updated successfully!',
       });
 
-      setShowSettings(false);
+      // Refresh group data
       fetchGroupDetails();
+      setUploadedImage(null);
+      setShowSettings(false);
     } catch (error: any) {
       console.error('Error updating group:', error);
       toast({
         title: 'Error',
-        description: error.message,
+        description: 'Failed to update group settings',
         variant: 'destructive',
       });
     }
@@ -869,19 +1193,64 @@ export const GroupDetailPage = () => {
                       <span className="sm:hidden">Share</span>
                     </Button>
                   )}
+                  
+                  {/* Show join options based on membership and group privacy */}
                   {!isMember && (
-                    <Button onClick={handleJoinGroup} size="sm" className="text-xs sm:text-sm">
-                      <Plus className="w-4 h-4 mr-1 sm:mr-2" />
-                      <span className="hidden sm:inline">Join Group</span>
-                      <span className="sm:hidden">Join</span>
+                    <>
+                      {group.is_public ? (
+                        // Public group - direct join
+                        <Button onClick={handleJoinGroup} size="sm" className="text-xs sm:text-sm">
+                          <Plus className="w-4 h-4 mr-1 sm:mr-2" />
+                          <span className="hidden sm:inline">Join Group</span>
+                          <span className="sm:hidden">Join</span>
+                        </Button>
+                      ) : (
+                        // Private group - show code input
+                        <>
+                          {!showCodeInput ? (
+                            <Button onClick={() => setShowCodeInput(true)} size="sm" className="text-xs sm:text-sm">
+                              <Hash className="w-4 h-4 mr-1 sm:mr-2" />
+                              <span className="hidden sm:inline">Enter Code to Join</span>
+                              <span className="sm:hidden">Enter Code</span>
+                            </Button>
+                          ) : (
+                            <div className="flex gap-2 items-center">
+                              <Input
+                                placeholder="Enter group code"
+                                value={groupCodeInput}
+                                onChange={(e) => setGroupCodeInput(e.target.value.toUpperCase())}
+                                className="w-32 text-center font-mono text-sm"
+                                maxLength={8}
+                              />
+                              <Button onClick={handleJoinWithCode} size="sm" className="text-xs sm:text-sm">
+                                <UserCheck className="w-4 h-4 mr-1 sm:mr-2" />
+                                <span className="hidden sm:inline">Join</span>
+                                <span className="sm:hidden">Join</span>
+                              </Button>
+                              <Button 
+                                variant="outline" 
+                                onClick={() => {
+                                  setShowCodeInput(false);
+                                  setGroupCodeInput('');
+                                }} 
+                                size="sm" 
+                                className="text-xs sm:text-sm"
+                              >
+                                Cancel
+                              </Button>
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </>
+                  )}
+                  
+                  {isMember && !isOwner && (
+                    <Button variant="destructive" onClick={() => setShowLeaveConfirmation(true)} size="sm" className="text-xs sm:text-sm">
+                      <span className="hidden sm:inline">Leave Group</span>
+                      <span className="sm:hidden">Leave</span>
                     </Button>
                   )}
-                                     {isMember && !isOwner && (
-                     <Button variant="destructive" onClick={() => setShowLeaveConfirmation(true)} size="sm" className="text-xs sm:text-sm">
-                       <span className="hidden sm:inline">Leave Group</span>
-                       <span className="sm:hidden">Leave</span>
-                     </Button>
-                   )}
                 </div>
               </CardContent>
             </Card>
@@ -1081,67 +1450,170 @@ export const GroupDetailPage = () => {
 
                  {/* Settings Dialog */}
          <Dialog open={showSettings} onOpenChange={setShowSettings}>
-           <DialogContent>
-             <DialogHeader>
-               <DialogTitle>Group Settings</DialogTitle>
+           <DialogContent className="max-w-5xl max-h-[95vh] overflow-hidden p-0">
+             <DialogHeader className="px-6 py-4 border-b">
+               <DialogTitle className="text-xl font-semibold">Group Settings</DialogTitle>
              </DialogHeader>
-             <div className="space-y-4">
-               <div>
-                 <label className="block text-sm font-medium mb-2">Group Name</label>
-                 <Input
-                   value={groupSettings.name}
-                   onChange={(e) => setGroupSettings({ ...groupSettings, name: e.target.value })}
-                 />
+             <div className="overflow-y-auto max-h-[calc(95vh-140px)] px-6 py-4">
+               <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                 {/* Left Column - Basic Settings */}
+                 <div className="space-y-6">
+                   <div>
+                     <label className="block text-sm font-medium mb-2">Group Name</label>
+                     <Input
+                       value={groupSettings.name}
+                       onChange={(e) => setGroupSettings({ ...groupSettings, name: e.target.value })}
+                       className="w-full"
+                     />
+                   </div>
+                   
+                   <div>
+                     <label className="block text-sm font-medium mb-2">Description</label>
+                     <Textarea
+                       value={groupSettings.description}
+                       onChange={(e) => setGroupSettings({ ...groupSettings, description: e.target.value })}
+                       rows={4}
+                       className="w-full"
+                     />
+                   </div>
+                   
+                   <div>
+                     <label className="block text-sm font-medium mb-2">Max Members</label>
+                     <Input
+                       type="number"
+                       value={groupSettings.max_members}
+                       onChange={(e) => setGroupSettings({ ...groupSettings, max_members: e.target.value })}
+                       placeholder="No limit"
+                       min="1"
+                       className="w-full"
+                     />
+                   </div>
+
+                   {/* Privacy Settings */}
+                   <div className="space-y-4">
+                     <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Privacy Settings</h3>
+                     
+                     <div className="flex items-center justify-between p-4 rounded-lg border bg-card/50 hover:bg-card/70 transition-colors">
+                       <div className="space-y-1">
+                         <label htmlFor="is_public_setting" className="text-sm font-medium">Make group public</label>
+                         <p className="text-xs text-muted-foreground">Anyone can see and join this group</p>
+                       </div>
+                       <Switch
+                         id="is_public_setting"
+                         checked={groupSettings.is_public}
+                         onCheckedChange={(checked) => setGroupSettings({ ...groupSettings, is_public: checked })}
+                       />
+                     </div>
+                     
+                     <div className="flex items-center justify-between p-4 rounded-lg border bg-card/50 hover:bg-card/70 transition-colors">
+                       <div className="space-y-1">
+                         <label htmlFor="is_code_visible_setting" className="text-sm font-medium">Show group code</label>
+                         <p className="text-xs text-muted-foreground">Students can see the group invitation code</p>
+                       </div>
+                       <Switch
+                         id="is_code_visible_setting"
+                         checked={groupSettings.is_code_visible}
+                         onCheckedChange={(checked) => setGroupSettings({ ...groupSettings, is_code_visible: checked })}
+                       />
+                     </div>
+                     
+                     <div className="flex items-center justify-between p-4 rounded-lg border bg-card/50 hover:bg-card/70 transition-colors">
+                       <div className="space-y-1">
+                         <label htmlFor="is_members_visible_setting" className="text-sm font-medium">Show members</label>
+                         <p className="text-xs text-muted-foreground">Students can see who's in the group</p>
+                       </div>
+                       <Switch
+                         id="is_members_visible_setting"
+                         checked={groupSettings.is_members_visible}
+                         onCheckedChange={(checked) => setGroupSettings({ ...groupSettings, is_members_visible: checked })}
+                       />
+                     </div>
+                   </div>
+                 </div>
+
+                 {/* Right Column - Thumbnail Management */}
+                 <div className="space-y-6">
+                   {/* Current Thumbnail Display */}
+                   <div>
+                     <label className="block text-sm font-medium mb-2">Current Thumbnail</label>
+                     <div className="w-full h-48 overflow-hidden rounded-xl border border-input bg-card/50 hover:bg-card/70 transition-colors">
+                       {group?.thumbnail_url ? (
+                         <img
+                           src={group.thumbnail_url}
+                           alt={group.name}
+                           className="w-full h-full object-cover"
+                         />
+                       ) : (
+                         <div className="w-full h-full bg-gradient-to-br from-primary/10 via-secondary/10 to-muted/20 flex items-center justify-center">
+                           <div className="text-center">
+                             <Sparkles className="w-16 h-16 text-primary/60 mx-auto mb-2" />
+                             <p className="text-sm text-muted-foreground">No thumbnail set</p>
+                           </div>
+                         </div>
+                       )}
+                     </div>
+                   </div>
+
+                   {/* Thumbnail Uploader */}
+                   <div>
+                     <label className="block text-sm font-medium mb-2">Update Thumbnail</label>
+                     <ImageUploader
+                       bucket={IMAGE_UPLOAD_BUCKETS.GROUPS_THUMBNAILS}
+                       folder="groups"
+                       compress={true}
+                       generateThumbnail={true}
+                       onImageUploaded={handleImageUploaded}
+                       onImageDeleted={handleImageDeleted}
+                       onError={(error) => {
+                         toast({
+                           title: 'Error',
+                           description: error,
+                           variant: 'destructive',
+                         });
+                       }}
+                       variant="compact"
+                       size="sm"
+                       placeholder="Upload group thumbnail"
+                     />
+                     <p className="text-xs text-muted-foreground mt-2">
+                       Recommended size: 800x600px. Max file size: 5MB.
+                     </p>
+                   </div>
+
+                   {/* Group Stats */}
+                   <div className="space-y-3">
+                     <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Group Information</h3>
+                     
+                     <div className="grid grid-cols-2 gap-3">
+                       <div className="p-4 rounded-lg border bg-card/50 text-center hover:bg-card/70 transition-colors">
+                         <div className="text-2xl font-bold text-primary">{members.length}</div>
+                         <div className="text-xs text-muted-foreground">Current Members</div>
+                       </div>
+                       
+                       <div className="p-4 rounded-lg border bg-card/50 text-center hover:bg-card/70 transition-colors">
+                         <div className="text-2xl font-bold text-secondary">
+                           {group?.max_members || '∞'}
+                         </div>
+                         <div className="text-xs text-muted-foreground">Max Members</div>
+                       </div>
+                     </div>
+                     
+                     <div className="p-4 rounded-lg border bg-card/50 hover:bg-card/70 transition-colors">
+                       <div className="text-sm text-muted-foreground">Created</div>
+                       <div className="font-medium">
+                         {group?.created_at ? new Date(group.created_at).toLocaleDateString() : 'Unknown'}
+                       </div>
+                     </div>
+                   </div>
+                 </div>
                </div>
-               <div>
-                 <label className="block text-sm font-medium mb-2">Description</label>
-                 <Textarea
-                   value={groupSettings.description}
-                   onChange={(e) => setGroupSettings({ ...groupSettings, description: e.target.value })}
-                   rows={4}
-                 />
-               </div>
-               <div>
-                 <label className="block text-sm font-medium mb-2">Max Members</label>
-                 <Input
-                   type="number"
-                   value={groupSettings.max_members}
-                   onChange={(e) => setGroupSettings({ ...groupSettings, max_members: e.target.value })}
-                   placeholder="No limit"
-                   min="1"
-                 />
-               </div>
-               <div className="flex items-center gap-3">
-                 <Switch
-                   id="is_public_setting"
-                   checked={groupSettings.is_public}
-                   onCheckedChange={(checked) => setGroupSettings({ ...groupSettings, is_public: checked })}
-                 />
-                 <label htmlFor="is_public_setting" className="text-sm font-medium">Make group public</label>
-               </div>
-               <div className="flex items-center gap-3">
-                 <Switch
-                   id="is_code_visible_setting"
-                   checked={groupSettings.is_code_visible}
-                   onCheckedChange={(checked) => setGroupSettings({ ...groupSettings, is_code_visible: checked })}
-                 />
-                 <label htmlFor="is_code_visible_setting" className="text-sm font-medium">Show group code to students</label>
-               </div>
-               <div className="flex items-center gap-3">
-                 <Switch
-                   id="is_members_visible_setting"
-                   checked={groupSettings.is_members_visible}
-                   onCheckedChange={(checked) => setGroupSettings({ ...groupSettings, is_members_visible: checked })}
-                 />
-                 <label htmlFor="is_members_visible_setting" className="text-sm font-medium">
-                   Show members to students
-                 </label>
-               </div>
-               <div className="flex gap-3 pt-4">
-                 <Button onClick={handleUpdateGroup}>
+
+               {/* Action Buttons - Full Width */}
+               <div className="flex gap-3 pt-6 mt-6 border-t">
+                 <Button onClick={handleUpdateGroup} className="flex-1 h-11">
                    Save Changes
                  </Button>
-                 <Button variant="outline" onClick={() => setShowSettings(false)}>
+                 <Button variant="outline" onClick={() => setShowSettings(false)} className="flex-1 h-11">
                    Cancel
                  </Button>
                </div>

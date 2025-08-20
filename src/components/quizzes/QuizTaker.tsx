@@ -16,6 +16,7 @@ interface Question {
   options?: string[];
   points: number;
   order_index: number;
+  question_image?: string | null;
 }
 
 interface QuizTakerProps {
@@ -75,7 +76,8 @@ export const QuizTaker = ({ quizId, onComplete }: QuizTakerProps) => {
         question_type: q.question_type as 'mcq' | 'written',
         options: q.options ? (Array.isArray(q.options) ? q.options : JSON.parse(q.options as string)) : undefined,
         points: q.points || 1,
-        order_index: q.order_index
+        order_index: q.order_index,
+        question_image: q.question_image || null
       })) || [];
 
       // Start attempt
@@ -209,6 +211,16 @@ export const QuizTaker = ({ quizId, onComplete }: QuizTakerProps) => {
           </CardHeader>
           <CardContent>
             <p className="mb-4">{question.question_text}</p>
+            
+            {question.question_image && (
+              <div className="mb-4">
+                <img
+                  src={question.question_image}
+                  alt="Question"
+                  className="max-w-full max-h-64 object-contain rounded-lg border border-border"
+                />
+              </div>
+            )}
             
             {question.question_type === 'mcq' ? (
               <RadioGroup

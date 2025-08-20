@@ -1142,6 +1142,7 @@ export type Database = {
           options: Json | null
           order_index: number
           points: number | null
+          question_image: string | null
           question_text: string
           question_type: string
           quiz_id: string
@@ -1152,6 +1153,7 @@ export type Database = {
           options?: Json | null
           order_index?: number
           points?: number | null
+          question_image?: string | null
           question_text: string
           question_type: string
           quiz_id: string
@@ -1162,6 +1164,7 @@ export type Database = {
           options?: Json | null
           order_index?: number
           points?: number | null
+          question_image?: string | null
           question_text?: string
           question_type?: string
           quiz_id?: string

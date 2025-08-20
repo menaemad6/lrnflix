@@ -37,6 +37,17 @@ export const QuizQuestion = ({
         <CardTitle className="text-xl leading-relaxed text-foreground">
           {question.question_text}
         </CardTitle>
+        
+        {question.question_image && (
+          <div className="mt-5 w-full flex items-center justify-center">
+            <img
+              src={question.question_image}
+              alt="Question"
+              className="max-w-full object-contain rounded-lg border border-border"
+            />
+          </div>
+        )}
+        
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <span>Points: {question.points}</span>
         </div>

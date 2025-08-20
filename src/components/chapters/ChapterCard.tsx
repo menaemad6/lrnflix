@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { BookOpen, CheckCircle, Users, Star, Sparkles } from 'lucide-react';
+import { CheckCircle, Users, Star, Sparkles } from 'lucide-react';
 
 /**
  * Props for ChapterCard
@@ -51,11 +51,13 @@ const ChapterCard: React.FC<ChapterCardProps> = ({
           <img
             src={coverImageUrl}
             alt={title}
-            className="object-cover w-full h-full"
+            className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
             loading="lazy"
           />
         ) : (
-          <BookOpen className="w-16 h-16 text-primary/60" />
+          <div className="w-full h-full bg-gradient-to-br from-primary/10 via-secondary/10 to-muted/20 flex items-center justify-center">
+            <Sparkles className="w-16 h-16 text-primary/60" />
+          </div>
         )}
         {/* Enrolled badge */}
         {isEnrolled && (
@@ -90,7 +92,7 @@ const ChapterCard: React.FC<ChapterCardProps> = ({
         <div className="flex flex-col sm:flex-row gap-2 w-full mt-4">
           {isEnrolled ? (
             <Button className="flex-1 bg-gradient-to-r from-primary to-secondary text-white font-bold min-w-0" onClick={onContinue}>
-              <BookOpen className="h-4 w-4 mr-2" />
+              <Sparkles className="h-4 w-4 mr-2" />
               Continue Learning
             </Button>
           ) : (

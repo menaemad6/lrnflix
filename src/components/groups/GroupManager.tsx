@@ -9,6 +9,9 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { Users, Plus, Trash2, MessageCircle } from 'lucide-react';
+import { ImageUploader } from '@/components/ui/ImageUploader';
+import { IMAGE_UPLOAD_BUCKETS } from '@/data/constants';
+import type { UploadedImage } from '@/hooks/useImageUpload';
 
 interface Group {
   id: string;
@@ -43,6 +46,7 @@ export const GroupManager = ({ courseId, onGroupSelect }: GroupManagerProps) => 
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [showNewGroup, setShowNewGroup] = useState(false);
+  const [uploadedImage, setUploadedImage] = useState<UploadedImage | null>(null);
   const [newGroup, setNewGroup] = useState({ 
     name: '', 
     description: '', 
@@ -159,6 +163,22 @@ export const GroupManager = ({ courseId, onGroupSelect }: GroupManagerProps) => 
     }
   };
 
+  const handleImageUploaded = (image: UploadedImage) => {
+    setUploadedImage(image);
+    toast({
+      title: 'Success',
+      description: 'Group thumbnail uploaded successfully!',
+    });
+  };
+
+  const handleImageDeleted = (path: string) => {
+    setUploadedImage(null);
+    toast({
+      title: 'Success',
+      description: 'Group thumbnail removed',
+    });
+  };
+
   const createGroup = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -173,7 +193,8 @@ export const GroupManager = ({ courseId, onGroupSelect }: GroupManagerProps) => 
           created_by: user.id,
           is_public: newGroup.is_public,
           max_members: newGroup.max_members ? parseInt(newGroup.max_members) : null,
-          group_code: 'TEMP' // This will be overwritten by the database trigger
+          group_code: 'TEMP', // This will be overwritten by the database trigger
+          thumbnail_url: uploadedImage?.url || null
         })
         .select()
         .single();
@@ -201,13 +222,15 @@ export const GroupManager = ({ courseId, onGroupSelect }: GroupManagerProps) => 
 
       setNewGroup({ name: '', description: '', is_public: false, max_members: '' });
       setSelectedStudents([]);
+      setUploadedImage(null);
       setShowNewGroup(false);
       fetchGroups();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error creating group:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to create group';
       toast({
         title: 'Error',
-        description: error.message,
+        description: errorMessage,
         variant: 'destructive',
       });
     }
@@ -291,6 +314,13 @@ export const GroupManager = ({ courseId, onGroupSelect }: GroupManagerProps) => 
     }
   };
 
+  const handleCloseNewGroup = () => {
+    setNewGroup({ name: '', description: '', is_public: false, max_members: '' });
+    setSelectedStudents([]);
+    setUploadedImage(null);
+    setShowNewGroup(false);
+  };
+
   if (loading) {
     return <div>Loading groups...</div>;
   }
@@ -324,6 +354,29 @@ export const GroupManager = ({ courseId, onGroupSelect }: GroupManagerProps) => 
                 onChange={(e) => setNewGroup({ ...newGroup, description: e.target.value })}
                 rows={3}
               />
+              
+              <div>
+                <label className="text-sm font-medium mb-2 block">Group Thumbnail</label>
+                <ImageUploader
+                  bucket={IMAGE_UPLOAD_BUCKETS.GROUPS_THUMBNAILS}
+                  folder="groups"
+                  compress={true}
+                  generateThumbnail={true}
+                  onImageUploaded={handleImageUploaded}
+                  onImageDeleted={handleImageDeleted}
+                  onError={(error) => {
+                    toast({
+                      title: 'Error',
+                      description: error,
+                      variant: 'destructive',
+                    });
+                  }}
+                  variant="compact"
+                  size="sm"
+                  placeholder="Upload group thumbnail"
+                />
+              </div>
+              
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input
                   type="number"
@@ -372,7 +425,7 @@ export const GroupManager = ({ courseId, onGroupSelect }: GroupManagerProps) => 
 
               <div className="flex gap-2">
                 <Button type="submit">Create Group</Button>
-                <Button type="button" variant="outline" onClick={() => setShowNewGroup(false)}>
+                <Button type="button" variant="outline" onClick={handleCloseNewGroup}>
                   Cancel
                 </Button>
               </div>

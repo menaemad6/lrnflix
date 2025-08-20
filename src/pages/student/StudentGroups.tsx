@@ -26,6 +26,7 @@ interface Group {
   member_count: number;
   is_public: boolean;
   max_members: number | null;
+  thumbnail_url?: string;
 }
 
 export const StudentGroups = () => {
@@ -187,6 +188,20 @@ export const StudentGroups = () => {
                     key={group.id}
                     className={`glass-card ${borderColor} rounded-2xl shadow-lg hover:shadow-primary-500/30 hover:scale-[1.02] transition-all duration-200 group-card w-full`}
                   >
+                    {/* Group Thumbnail */}
+                    <div className="w-full h-48 overflow-hidden rounded-t-2xl">
+                      {group.thumbnail_url ? (
+                        <img
+                          src={group.thumbnail_url}
+                          alt={group.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-primary/10 via-secondary/10 to-muted/20 flex items-center justify-center">
+                          <Users className="w-16 h-16 text-primary/60" />
+                        </div>
+                      )}
+                    </div>
                     <CardHeader className="pb-3">
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1 min-w-0">

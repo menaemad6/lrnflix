@@ -18,6 +18,7 @@ interface QuizResultsProps {
     options: string[];
     correct_answer: string;
     type: string;
+    question_image?: string | null;
   }>;
   userAnswers: Record<string, string>;
   showCorrectAnswers?: boolean;
@@ -227,6 +228,16 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
                             <h4 className="font-bold text-xl mb-4">
                               Question {questions.indexOf(question) + 1}: {question.question_text}
                             </h4>
+                            
+                            {question.question_image && (
+                              <div className="mb-4">
+                                <img
+                                  src={question.question_image}
+                                  alt="Question"
+                                  className="max-w-full max-h-64 object-contain rounded-lg border border-border"
+                                />
+                              </div>
+                            )}
                             
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                               <div className="space-y-3">

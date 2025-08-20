@@ -7,6 +7,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { ImageUploader } from '@/components/ui/ImageUploader';
+import { IMAGE_UPLOAD_BUCKETS } from '@/data/constants';
+import type { UploadedImage } from '@/hooks/useImageUpload';
 
 interface CreateChapterModalProps {
   isOpen: boolean;
@@ -17,12 +20,29 @@ interface CreateChapterModalProps {
 export const CreateChapterModal = ({ isOpen, onClose, onChapterCreated }: CreateChapterModalProps) => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [uploadedImage, setUploadedImage] = useState<UploadedImage | null>(null);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     price: 0,
     status: 'draft'
   });
+
+  const handleImageUploaded = (image: UploadedImage) => {
+    setUploadedImage(image);
+    toast({
+      title: 'Success',
+      description: 'Chapter thumbnail uploaded successfully!',
+    });
+  };
+
+  const handleImageDeleted = (path: string) => {
+    setUploadedImage(null);
+    toast({
+      title: 'Success',
+      description: 'Chapter thumbnail removed',
+    });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,6 +60,7 @@ export const CreateChapterModal = ({ isOpen, onClose, onChapterCreated }: Create
           description: formData.description,
           price: formData.price,
           status: formData.status,
+          cover_image_url: uploadedImage?.url || null
         });
 
       if (error) throw error;
@@ -55,6 +76,7 @@ export const CreateChapterModal = ({ isOpen, onClose, onChapterCreated }: Create
         price: 0,
         status: 'draft'
       });
+      setUploadedImage(null);
       
       onChapterCreated();
       onClose();
@@ -78,6 +100,7 @@ export const CreateChapterModal = ({ isOpen, onClose, onChapterCreated }: Create
       price: 0,
       status: 'draft'
     });
+    setUploadedImage(null);
     onClose();
   };
 
@@ -110,6 +133,28 @@ export const CreateChapterModal = ({ isOpen, onClose, onChapterCreated }: Create
               placeholder="Describe what students will learn in this chapter"
               rows={3}
               className="glass"
+            />
+          </div>
+
+          <div>
+            <Label>Chapter Thumbnail</Label>
+            <ImageUploader
+              bucket={IMAGE_UPLOAD_BUCKETS.CHAPTERS_THUMBNAILS}
+              folder="chapters"
+              compress={true}
+              generateThumbnail={true}
+              onImageUploaded={handleImageUploaded}
+              onImageDeleted={handleImageDeleted}
+              onError={(error) => {
+                toast({
+                  title: 'Error',
+                  description: error,
+                  variant: 'destructive',
+                });
+              }}
+              variant="compact"
+              size="sm"
+              placeholder="Upload chapter thumbnail"
             />
           </div>
 

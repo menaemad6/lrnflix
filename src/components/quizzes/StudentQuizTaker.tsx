@@ -33,6 +33,7 @@ interface QuizQuestion {
   order_index: number;
   points: number;
   correct_answer?: string;
+  question_image?: string | null;
 }
 
 interface QuizAttempt {

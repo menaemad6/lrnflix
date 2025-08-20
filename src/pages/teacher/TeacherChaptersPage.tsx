@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { BookOpen, Plus, Sparkles, Search } from 'lucide-react';
+import { Plus, Sparkles, Search } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { CreateChapterModal } from '@/components/chapters/CreateChapterModal';
@@ -20,6 +20,7 @@ interface Chapter {
   created_at: string;
   course_count?: number;
   enrollment_count?: number;
+  cover_image_url?: string;
 }
 
 const ChapterCardSkeleton = React.lazy(() => import('@/components/student/skeletons/ChapterCardSkeleton').then(m => ({ default: m.ChapterCardSkeleton })));
@@ -72,7 +73,7 @@ export const TeacherChaptersPage = () => {
           <Card className="glass-card border-0 hover-glow">
             <CardContent className="text-center py-16">
               <div className="w-20 h-20 bg-gradient-to-br from-primary-500/20 to-secondary-500/20 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-glow-pulse">
-                <BookOpen className="h-10 w-10 text-primary-400" />
+                <Sparkles className="h-10 w-10 text-primary-400" />
               </div>
               <h3 className="text-xl font-semibold mb-3 gradient-text">Create Your First Chapter</h3>
               <p className="text-muted-foreground mb-6 max-w-md mx-auto">
@@ -91,27 +92,40 @@ export const TeacherChaptersPage = () => {
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {filteredChapters.map((chapter) => (
               <Card key={chapter.id} className="glass-card border-0 hover-glow group">
-                <CardHeader>
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-xl flex items-center justify-center">
-                      <BookOpen className="h-6 w-6 text-primary-400" />
-                    </div>
-                    <div className="flex-1">
-                      <CardTitle className="text-lg group-hover:text-primary-400 transition-colors">
-                        {chapter.title}
-                      </CardTitle>
-                      <div className="flex items-center gap-2 mt-1">
-                        <Badge variant={chapter.status === 'published' ? 'default' : 'outline'} 
-                               className={chapter.status === 'published' ? 'bg-primary-500 text-black' : ''}>
-                          {chapter.status}
-                        </Badge>
-                        <span className="text-xs text-muted-foreground">
-                          {chapter.enrollment_count || 0} students
-                        </span>
+                <CardHeader className="p-0">
+                  {/* Thumbnail Image */}
+                  <div className="w-full h-48 overflow-hidden rounded-t-xl">
+                    {chapter.cover_image_url ? (
+                      <img
+                        src={chapter.cover_image_url}
+                        alt={chapter.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-primary-500/20 to-secondary-500/20 flex items-center justify-center">
+                        <Sparkles className="h-16 w-16 text-primary-400/60" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-6">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="flex-1">
+                        <CardTitle className="text-lg group-hover:text-primary-400 transition-colors">
+                          {chapter.title}
+                        </CardTitle>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Badge variant={chapter.status === 'published' ? 'default' : 'outline'} 
+                                 className={chapter.status === 'published' ? 'bg-primary-500 text-black' : ''}>
+                            {chapter.status}
+                          </Badge>
+                          <span className="text-xs text-muted-foreground">
+                            {chapter.enrollment_count || 0} students
+                          </span>
+                        </div>
                       </div>
                     </div>
+                    <CardDescription className="text-sm">{chapter.description}</CardDescription>
                   </div>
-                  <CardDescription className="text-sm">{chapter.description}</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center justify-between mb-4">

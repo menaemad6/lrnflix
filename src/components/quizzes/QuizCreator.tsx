@@ -6,8 +6,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Trash2 } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Plus, Trash2, Image as ImageIcon } from 'lucide-react';
 import { PdfQuestionExtractor } from './PdfQuestionExtractor';
+import { ImageUploader } from '@/components/ui/ImageUploader';
+import { IMAGE_UPLOAD_BUCKETS } from '@/data/constants';
 
 interface Question {
   id: string;
@@ -16,6 +19,7 @@ interface Question {
   options?: string[];
   correct_answer?: string;
   points: number;
+  question_image?: string | null;
 }
 
 interface QuizCreatorProps {
@@ -27,6 +31,10 @@ interface QuizCreatorProps {
 export const QuizCreator = ({ courseId, onQuizCreated, onCancel }: QuizCreatorProps) => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [imageUploadModal, setImageUploadModal] = useState<{ isOpen: boolean; questionId: string | null }>({
+    isOpen: false,
+    questionId: null
+  });
   const [quizData, setQuizData] = useState({
     title: '',
     description: '',
@@ -43,7 +51,8 @@ export const QuizCreator = ({ courseId, onQuizCreated, onCancel }: QuizCreatorPr
       question_type: 'mcq',
       options: ['', '', '', ''],
       correct_answer: '',
-      points: 1
+      points: 1,
+      question_image: null
     };
     setQuestions([...questions, newQuestion]);
   };
@@ -55,7 +64,8 @@ export const QuizCreator = ({ courseId, onQuizCreated, onCancel }: QuizCreatorPr
       question_type: q.question_type,
       options: q.question_type === 'mcq' ? (q.options || ['', '', '', '']) : ['', '', '', ''],
       correct_answer: q.correct_answer || '',
-      points: q.points
+      points: q.points,
+      question_image: null
     }));
     
     setQuestions([...questions, ...newQuestions]);
@@ -77,6 +87,23 @@ export const QuizCreator = ({ courseId, onQuizCreated, onCancel }: QuizCreatorPr
 
   const removeQuestion = (id: string) => {
     setQuestions(questions.filter(q => q.id !== id));
+  };
+
+  const handleImageUpload = (questionId: string, imageUrl: string) => {
+    updateQuestion(questionId, 'question_image', imageUrl);
+    setImageUploadModal({ isOpen: false, questionId: null });
+    toast({
+      title: 'Success',
+      description: 'Question image uploaded successfully.',
+    });
+  };
+
+  const handleRemoveImage = (questionId: string) => {
+    updateQuestion(questionId, 'question_image', null);
+    toast({
+      title: 'Success',
+      description: 'Question image removed.',
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -109,7 +136,8 @@ export const QuizCreator = ({ courseId, onQuizCreated, onCancel }: QuizCreatorPr
           options: q.question_type === 'mcq' ? q.options : null,
           correct_answer: q.correct_answer,
           points: q.points,
-          order_index: index
+          order_index: index,
+          question_image: q.question_image || null
         }));
 
         const { error: questionsError } = await supabase
@@ -224,6 +252,45 @@ export const QuizCreator = ({ courseId, onQuizCreated, onCancel }: QuizCreatorPr
                     onChange={(e) => updateQuestion(question.id, 'question_text', e.target.value)}
                   />
 
+                  {/* Question Image Section */}
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <label className="text-sm font-medium">Question Image</label>
+                      <div className="flex gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setImageUploadModal({ isOpen: true, questionId: question.id })}
+                        >
+                          <ImageIcon className="h-4 w-4 mr-2" />
+                          {question.question_image ? 'Change Image' : 'Add Image'}
+                        </Button>
+                        {question.question_image && (
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleRemoveImage(question.id)}
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Remove
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {question.question_image && (
+                      <div className="relative">
+                        <img
+                          src={question.question_image}
+                          alt="Question"
+                          className="max-w-full max-h-48 object-contain rounded-lg border border-border"
+                        />
+                      </div>
+                    )}
+                  </div>
+
                   <div className="grid grid-cols-3 gap-4">
                     <Select
                       value={question.question_type}
@@ -285,6 +352,41 @@ export const QuizCreator = ({ courseId, onQuizCreated, onCancel }: QuizCreatorPr
           </Button>
         </form>
       </CardContent>
+
+      {/* Image Upload Modal */}
+      <Dialog open={imageUploadModal.isOpen} onOpenChange={(open) => setImageUploadModal({ isOpen: open, questionId: null })}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Upload Question Image</DialogTitle>
+            <DialogDescription>
+              Upload an image for the selected question
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <ImageUploader
+              bucket={IMAGE_UPLOAD_BUCKETS.QUIZ_QUESTIONS}
+              folder="new_quiz"
+              fileName="question_image"
+              onImageUploaded={(image) => {
+                if (imageUploadModal.questionId) {
+                  handleImageUpload(imageUploadModal.questionId, image.url);
+                }
+              }}
+              onError={(error) => {
+                toast({
+                  title: 'Upload Error',
+                  description: error,
+                  variant: 'destructive',
+                });
+              }}
+              variant="default"
+              size="lg"
+              showPreview={true}
+              placeholder="Drag & drop an image here, or click to select"
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 };

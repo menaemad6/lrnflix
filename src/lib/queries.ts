@@ -777,7 +777,8 @@ export const fetchStudentEnrolledChapters = async (user, teacher) => {
                 id,
                 title,
                 description,
-                price
+                price,
+                cover_image_url
             )
         `)
         .eq('student_id', user.id)

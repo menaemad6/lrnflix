@@ -37,6 +37,7 @@ interface EnrolledChapter {
     title: string;
     description: string;
     price: number;
+    cover_image_url?: string;
   };
   enrolled_at: string;
   totalCourses?: number;
@@ -154,7 +155,7 @@ export const StudentChaptersPage = () => {
           <Card className="glass-card border-0 hover-glow">
             <CardContent className="text-center py-16">
               <div className="w-20 h-20 bg-gradient-to-br from-primary-500/20 to-secondary-500/20 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-glow-pulse">
-                <BookOpen className="h-10 w-10 text-primary-400" />
+                <Sparkles className="h-10 w-10 text-primary-400" />
               </div>
               <h3 className="text-xl font-semibold mb-3 gradient-text">No chapters found</h3>
               <p className="text-muted-foreground mb-6 max-w-md mx-auto">
@@ -174,11 +175,22 @@ export const StudentChaptersPage = () => {
               <Card key={enrollment.id} className="glass-card border-0 hover:shadow-xl group rounded-2xl transition-transform min-w-0">
                 <CardContent className="p-0">
                   <div className="flex flex-col h-full">
+                    {/* Thumbnail Image */}
+                    <div className="w-full h-48 overflow-hidden rounded-t-2xl">
+                      {enrollment.chapter.cover_image_url ? (
+                        <img
+                          src={enrollment.chapter.cover_image_url}
+                          alt={enrollment.chapter.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-primary/10 via-secondary/10 to-muted/20 flex items-center justify-center">
+                          <Sparkles className="w-16 h-16 text-primary/60" />
+                        </div>
+                      )}
+                    </div>
                     {/* Header Section */}
                     <div className="relative flex flex-col sm:flex-row sm:items-center gap-4 p-6 pb-3">
-                      <div className="w-14 h-14 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0">
-                        <BookOpen className="h-7 w-7 text-primary-100" />
-                      </div>
                       <div className="flex-1 min-w-0">
                         <h3 className="text-2xl font-extrabold gradient-text mb-1 break-words whitespace-normal leading-tight">
                           {enrollment.chapter.title}
@@ -204,7 +216,7 @@ export const StudentChaptersPage = () => {
                           <Card key={obj.id} className="border-0 glass-card bg-card/80 rounded-xl shadow-md">
                             <CardContent className="p-3 flex items-center gap-3">
                               <div className="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center">
-                                <BookOpen className="h-5 w-5 text-primary-foreground" />
+                                <Sparkles className="h-5 w-5 text-primary-foreground" />
                               </div>
                               <div className="flex-1 min-w-0">
                                 <h4 className="font-semibold truncate text-base mb-0.5">{obj.course?.title || obj.title || 'Unknown Course'}</h4>

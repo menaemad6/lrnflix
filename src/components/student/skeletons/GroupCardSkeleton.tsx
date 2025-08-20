@@ -4,13 +4,17 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 export function GroupCardSkeleton() {
   return (
     <Card className="glass-card border-l-8 border-primary-500 rounded-2xl shadow-lg w-full">
+      {/* Thumbnail skeleton */}
+      <div className="relative">
+        <Skeleton className="w-full h-48 rounded-t-2xl" />
+      </div>
+      
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
             <Skeleton className="h-8 w-40 mb-2" />
             <Skeleton className="h-4 w-3/4 mb-2" />
           </div>
-          <Skeleton className="w-16 h-8 rounded-full" />
         </div>
       </CardHeader>
       <CardContent className="space-y-4">

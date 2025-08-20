@@ -8,6 +8,9 @@ import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, BookOpen } from 'lucide-react';
+import { ImageUploader } from '@/components/ui/ImageUploader';
+import { IMAGE_UPLOAD_BUCKETS } from '@/data/constants';
+import type { UploadedImage } from '@/hooks/useImageUpload';
 
 interface CreateCourseModalProps {
   isOpen: boolean;
@@ -21,8 +24,25 @@ export const CreateCourseModal = ({ isOpen, onClose, onCourseCreated }: CreateCo
     description: '',
     price: 0,
   });
+  const [uploadedImage, setUploadedImage] = useState<UploadedImage | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+
+  const handleImageUploaded = (image: UploadedImage) => {
+    setUploadedImage(image);
+    toast({
+      title: "Success",
+      description: "Course thumbnail uploaded successfully!",
+    });
+  };
+
+  const handleImageDeleted = (path: string) => {
+    setUploadedImage(null);
+    toast({
+      title: "Success",
+      description: "Course thumbnail removed",
+    });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,7 +68,8 @@ export const CreateCourseModal = ({ isOpen, onClose, onCourseCreated }: CreateCo
             description: formData.description,
             price: formData.price,
             instructor_id: user.id,
-            status: 'draft'
+            status: 'draft',
+            cover_image_url: uploadedImage?.url || null
           }
         ]);
 
@@ -60,13 +81,15 @@ export const CreateCourseModal = ({ isOpen, onClose, onCourseCreated }: CreateCo
       });
 
       setFormData({ title: '', description: '', price: 0 });
+      setUploadedImage(null);
       onCourseCreated();
       onClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error creating course:', error);
+      const errorMessage = error instanceof Error ? error.message : "Failed to create course";
       toast({
         title: "Error",
-        description: error.message || "Failed to create course",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -77,6 +100,7 @@ export const CreateCourseModal = ({ isOpen, onClose, onCourseCreated }: CreateCo
   const handleClose = () => {
     if (!isLoading) {
       setFormData({ title: '', description: '', price: 0 });
+      setUploadedImage(null);
       onClose();
     }
   };
@@ -86,7 +110,6 @@ export const CreateCourseModal = ({ isOpen, onClose, onCourseCreated }: CreateCo
       <DialogContent className="glass-card border-0 max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 gradient-text">
-            <BookOpen className="h-5 w-5" />
             Create New Course
           </DialogTitle>
         </DialogHeader>
@@ -113,6 +136,28 @@ export const CreateCourseModal = ({ isOpen, onClose, onCourseCreated }: CreateCo
               placeholder="Describe your course"
               className="bg-white/10 border-white/20 min-h-[100px]"
               disabled={isLoading}
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label>Course Thumbnail</Label>
+            <ImageUploader
+              bucket={IMAGE_UPLOAD_BUCKETS.LECTURES_THUMBNAILS}
+              folder="courses"
+              compress={true}
+              generateThumbnail={true}
+              onImageUploaded={handleImageUploaded}
+              onImageDeleted={handleImageDeleted}
+              onError={(error) => {
+                toast({
+                  title: "Error",
+                  description: error,
+                  variant: "destructive",
+                });
+              }}
+              variant="compact"
+              size="sm"
+              placeholder="Upload course thumbnail"
             />
           </div>
           

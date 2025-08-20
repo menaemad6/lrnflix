@@ -24,6 +24,9 @@ import { DiscussionForum } from '@/components/discussions/DiscussionForum';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
+import { ImageUploader } from '@/components/ui/ImageUploader';
+import { IMAGE_UPLOAD_BUCKETS } from '@/data/constants';
+import type { UploadedImage } from '@/hooks/useImageUpload';
 import { 
   ArrowLeft, 
   MessageSquare, 
@@ -58,6 +61,7 @@ interface Course {
   created_at: string;
   category: string | null;
   price: number;
+  cover_image_url?: string;
 }
 
 interface Quiz {
@@ -85,6 +89,7 @@ export const CourseDetails = () => {
     category: '',
     price: 0
   });
+  const [uploadedImage, setUploadedImage] = useState<UploadedImage | null>(null);
   
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -192,6 +197,22 @@ export const CourseDetails = () => {
     }
   };
 
+  const handleImageUploaded = (image: UploadedImage) => {
+    setUploadedImage(image);
+    toast({
+      title: 'Success',
+      description: 'Course thumbnail uploaded successfully!',
+    });
+  };
+
+  const handleImageDeleted = (path: string) => {
+    setUploadedImage(null);
+    toast({
+      title: 'Success',
+      description: 'Course thumbnail removed',
+    });
+  };
+
   const updateCourseDetails = async () => {
     try {
       const { error } = await supabase
@@ -200,24 +221,21 @@ export const CourseDetails = () => {
           title: editForm.title,
           description: editForm.description,
           category: editForm.category,
-          price: editForm.price
+          price: editForm.price,
+          cover_image_url: uploadedImage?.url || course?.cover_image_url || null
         })
         .eq('id', courseId);
 
       if (error) throw error;
 
-      setCourse(prev => prev ? {
-        ...prev,
-        title: editForm.title,
-        description: editForm.description,
-        category: editForm.category,
-        price: editForm.price
-      } : null);
-
       toast({
         title: 'Success',
         description: 'Course details updated successfully!',
       });
+
+      // Refresh course data
+      fetchCourseDetails();
+      setUploadedImage(null);
     } catch (error: unknown) {
       console.error('Error updating course:', error);
       toast({
@@ -434,6 +452,8 @@ export const CourseDetails = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
+
+
                 <div className="space-y-4">
                   <div>
                     <label className="text-sm font-medium">Course Title</label>
@@ -478,6 +498,47 @@ export const CourseDetails = () => {
                     />
                   </div>
                   
+                                  {/* Current Thumbnail Display */}
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Current Thumbnail</label>
+                  <div className="w-full h-48 overflow-hidden rounded-xl border border-white/10">
+                    {course?.cover_image_url ? (
+                      <img
+                        src={course.cover_image_url}
+                        alt={course.title}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-primary/10 via-secondary/10 to-muted/20 flex items-center justify-center">
+                        <Sparkles className="w-16 h-16 text-primary/60" />
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Thumbnail Uploader */}
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Update Thumbnail</label>
+                  <ImageUploader
+                    bucket={IMAGE_UPLOAD_BUCKETS.LECTURES_THUMBNAILS}
+                    folder="courses"
+                    compress={true}
+                    generateThumbnail={true}
+                    onImageUploaded={handleImageUploaded}
+                    onImageDeleted={handleImageDeleted}
+                    onError={(error) => {
+                      toast({
+                        title: 'Error',
+                        description: error,
+                        variant: 'destructive',
+                      });
+                    }}
+                    variant="compact"
+                    size="sm"
+                    placeholder="Upload course thumbnail"
+                  />
+                </div>
+                
                   <Button onClick={updateCourseDetails} className="w-full btn-primary">
                     <Save className="h-4 w-4 mr-2" />
                     Save Changes

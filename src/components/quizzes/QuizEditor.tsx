@@ -9,12 +9,14 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Plus, Trash2, Save, Sparkles, Zap, FileJson, ArrowDown, ArrowUp } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Save, Sparkles, Zap, FileJson, ArrowDown, ArrowUp, Image as ImageIcon } from 'lucide-react';
 import { PdfQuestionExtractor } from './PdfQuestionExtractor';
 import { answerSingleQuestion, answerAllQuestions } from '@/utils/geminiApi';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Link } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { ImageUploader } from '@/components/ui/ImageUploader';
+import { IMAGE_UPLOAD_BUCKETS } from '@/data/constants';
 
 interface Quiz {
   id: string;
@@ -38,6 +40,7 @@ interface Question {
   correct_answer?: string;
   points: number;
   order_index: number;
+  question_image?: string | null;
 }
 
 interface QuizEditorProps {
@@ -85,6 +88,10 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
   const [modalQuestions, setModalQuestions] = useState<any[]>([]);
   const [modalScore, setModalScore] = useState<number | null>(null);
   const [modalSort, setModalSort] = useState<'none' | 'correct' | 'incorrect'>('none');
+  const [imageUploadModal, setImageUploadModal] = useState<{ isOpen: boolean; questionIndex: number | null }>({
+    isOpen: false,
+    questionIndex: null
+  });
 
   const isNewQuiz = quizId === 'new';
 
@@ -194,7 +201,8 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
           : ['', '', '', ''],
         correct_answer: q.correct_answer || '',
         points: q.points || 1,
-        order_index: q.order_index
+        order_index: q.order_index,
+        question_image: q.question_image || null
       })) || [];
 
       setQuestions(transformedQuestions);
@@ -291,6 +299,23 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
     }
   };
 
+  const handleImageUpload = (questionIndex: number, imageUrl: string) => {
+    updateQuestion(questionIndex, 'question_image', imageUrl);
+    setImageUploadModal({ isOpen: false, questionIndex: null });
+    toast({
+      title: 'Success',
+      description: 'Question image uploaded successfully.',
+    });
+  };
+
+  const handleRemoveImage = (questionIndex: number) => {
+    updateQuestion(questionIndex, 'question_image', null);
+    toast({
+      title: 'Success',
+      description: 'Question image removed.',
+    });
+  };
+
   const handleAnswerAllQuestions = async () => {
     const validQuestions = questions.filter(q => q.question_text.trim());
     if (validQuestions.length === 0) {
@@ -341,7 +366,8 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
       options: ['', '', '', ''],
       correct_answer: '',
       points: 1,
-      order_index: questions.length
+      order_index: questions.length,
+      question_image: null
     };
     setQuestions([...questions, newQuestion]);
   };
@@ -353,7 +379,8 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
       options: q.question_type === 'mcq' ? (Array.isArray(q.options) && q.options.length > 0 ? q.options : ['', '', '', '']) : ['', '', '', ''],
       correct_answer: q.correct_answer || '',
       points: typeof q.points === 'number' ? q.points : 1,
-      order_index: questions.length + index
+      order_index: questions.length + index,
+      question_image: null
     }));
     
     setQuestions([...questions, ...newQuestions]);
@@ -444,7 +471,8 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
           options: q.question_type === 'mcq' ? { options: q.options } : null,
           correct_answer: q.correct_answer,
           points: q.points,
-          order_index: index
+          order_index: index,
+          question_image: q.question_image || null
         }));
 
         const { error: questionsError } = await supabase
@@ -806,6 +834,45 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
                       onChange={(e) => updateQuestion(index, 'question_text', e.target.value)}
                     />
 
+                    {/* Question Image Section */}
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <label className="text-sm font-medium">Question Image</label>
+                        <div className="flex gap-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setImageUploadModal({ isOpen: true, questionIndex: index })}
+                          >
+                            <ImageIcon className="h-4 w-4 mr-2" />
+                            {question.question_image ? 'Change Image' : 'Add Image'}
+                          </Button>
+                          {question.question_image && (
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => handleRemoveImage(index)}
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Remove
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {question.question_image && (
+                        <div className="relative">
+                          <img
+                            src={question.question_image}
+                            alt="Question"
+                            className="max-w-full max-h-48 object-contain rounded-lg border border-border"
+                          />
+                        </div>
+                      )}
+                    </div>
+
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                       <Select
                         value={question.question_type}
@@ -1133,6 +1200,41 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
             ) : (
               <div className="text-muted-foreground">No answers found for this attempt.</div>
             )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Image Upload Modal */}
+      <Dialog open={imageUploadModal.isOpen} onOpenChange={(open) => setImageUploadModal({ isOpen: open, questionIndex: null })}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Upload Question Image</DialogTitle>
+            <DialogDescription>
+              Upload an image for question {imageUploadModal.questionIndex !== null ? imageUploadModal.questionIndex + 1 : ''}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <ImageUploader
+              bucket={IMAGE_UPLOAD_BUCKETS.QUIZ_QUESTIONS}
+              folder={`quiz_${quizId}`}
+              fileName={`question_${imageUploadModal.questionIndex !== null ? imageUploadModal.questionIndex + 1 : ''}_${Date.now()}`}
+              onImageUploaded={(image) => {
+                if (imageUploadModal.questionIndex !== null) {
+                  handleImageUpload(imageUploadModal.questionIndex, image.url);
+                }
+              }}
+              onError={(error) => {
+                toast({
+                  title: 'Upload Error',
+                  description: error,
+                  variant: 'destructive',
+                });
+              }}
+              variant="default"
+              size="lg"
+              showPreview={true}
+              placeholder="Drag & drop an image here, or click to select"
+            />
           </div>
         </DialogContent>
       </Dialog>

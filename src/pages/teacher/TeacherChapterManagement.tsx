@@ -10,7 +10,10 @@ import { Label } from '@/components/ui/label';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { useToast } from '@/hooks/use-toast';
 import { AddCourseToChapterModal } from '@/components/chapters/AddCourseToChapterModal';
-import { BookOpen, Plus, Trash2, Edit, Save, X } from 'lucide-react';
+import { ImageUploader } from '@/components/ui/ImageUploader';
+import { IMAGE_UPLOAD_BUCKETS } from '@/data/constants';
+import type { UploadedImage } from '@/hooks/useImageUpload';
+import { BookOpen, Plus, Trash2, Edit, Save, X, Settings, Sparkles } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
@@ -22,6 +25,7 @@ interface Chapter {
   status: string;
   price: number;
   created_at: string;
+  cover_image_url?: string;
 }
 
 interface Course {
@@ -54,6 +58,7 @@ export const TeacherChapterManagement = () => {
   const [students, setStudents] = useState<{ student_id: string, profiles?: { full_name: string | null, email: string } }[]>([]);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [chapterCourses, setChapterCourses] = useState<any[]>([]);
+  const [uploadedImage, setUploadedImage] = useState<UploadedImage | null>(null);
 
   useEffect(() => {
     if (chapterId) {
@@ -219,6 +224,56 @@ export const TeacherChapterManagement = () => {
     }
   };
 
+  const handleImageUploaded = (image: UploadedImage) => {
+    setUploadedImage(image);
+    toast({
+      title: 'Success',
+      description: 'Chapter thumbnail uploaded successfully!',
+    });
+  };
+
+  const handleImageDeleted = (path: string) => {
+    setUploadedImage(null);
+    toast({
+      title: 'Success',
+      description: 'Chapter thumbnail removed',
+    });
+  };
+
+  const updateChapterDetails = async () => {
+    try {
+      const { error } = await supabase
+        .from('chapters')
+        .update({
+          title: editForm.title,
+          description: editForm.description,
+          price: editForm.price,
+          status: editForm.status,
+          cover_image_url: uploadedImage?.url || chapter?.cover_image_url || null
+        })
+        .eq('id', chapterId);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Success',
+        description: 'Chapter details updated successfully!',
+      });
+
+      // Refresh chapter data
+      fetchChapterData();
+      setUploadedImage(null);
+      setIsEditing(false);
+    } catch (error: any) {
+      console.error('Error updating chapter:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to update chapter',
+        variant: 'destructive',
+      });
+    }
+  };
+
   if (loading) {
     return (
       <DashboardLayout>
@@ -366,6 +421,7 @@ export const TeacherChapterManagement = () => {
           <TabsList className="mb-4">
             <TabsTrigger value="courses">Courses</TabsTrigger>
             <TabsTrigger value="students">Enrolled Students</TabsTrigger>
+            <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
           <TabsContent value="courses">
             {/* Courses Management */}
@@ -486,6 +542,111 @@ export const TeacherChapterManagement = () => {
                       )}
                     </TableBody>
                   </Table>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value="settings">
+            {/* Chapter Settings */}
+            <Card className="glass-card border-0">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Settings className="h-5 w-5" />
+                  Chapter Settings
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Current Thumbnail Display */}
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Current Thumbnail</label>
+                  <div className="w-full h-48 overflow-hidden rounded-xl border border-white/10">
+                    {chapter?.cover_image_url ? (
+                      <img
+                        src={chapter.cover_image_url}
+                        alt={chapter.title}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-primary/10 via-secondary/10 to-muted/20 flex items-center justify-center">
+                        <Sparkles className="w-16 h-16 text-primary/60" />
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Thumbnail Uploader */}
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Update Thumbnail</label>
+                  <ImageUploader
+                    bucket={IMAGE_UPLOAD_BUCKETS.CHAPTERS_THUMBNAILS}
+                    folder="chapters"
+                    compress={true}
+                    generateThumbnail={true}
+                    onImageUploaded={handleImageUploaded}
+                    onImageDeleted={handleImageDeleted}
+                    onError={(error) => {
+                      toast({
+                        title: 'Error',
+                        description: error,
+                        variant: 'destructive',
+                      });
+                    }}
+                    variant="compact"
+                    size="sm"
+                    placeholder="Upload chapter thumbnail"
+                  />
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium">Chapter Title</label>
+                    <Input
+                      value={editForm.title}
+                      onChange={(e) => setEditForm(prev => ({ ...prev, title: e.target.value }))}
+                      placeholder="Enter chapter title"
+                      className="glass-input"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="text-sm font-medium">Description</label>
+                    <Textarea
+                      value={editForm.description}
+                      onChange={(e) => setEditForm(prev => ({ ...prev, description: e.target.value }))}
+                      placeholder="Enter chapter description"
+                      rows={4}
+                      className="glass-input"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="text-sm font-medium">Price (Credits)</label>
+                    <Input
+                      type="number"
+                      min="0"
+                      value={editForm.price}
+                      onChange={(e) => setEditForm(prev => ({ ...prev, price: parseInt(e.target.value) || 0 }))}
+                      placeholder="Enter chapter price"
+                      className="glass-input"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="text-sm font-medium">Status</label>
+                    <select
+                      value={editForm.status}
+                      onChange={(e) => setEditForm(prev => ({ ...prev, status: e.target.value }))}
+                      className="w-full px-3 py-2 bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                    >
+                      <option value="draft">Draft</option>
+                      <option value="published">Published</option>
+                    </select>
+                  </div>
+                  
+                  <Button onClick={updateChapterDetails} className="w-full btn-primary">
+                    <Save className="h-4 w-4 mr-2" />
+                    Save Changes
+                  </Button>
                 </div>
               </CardContent>
             </Card>

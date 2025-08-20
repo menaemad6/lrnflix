@@ -319,3 +319,23 @@ export const getAllColors = () => {
     ...semanticColors,
   };
 };
+
+// Image Upload Buckets
+export const IMAGE_UPLOAD_BUCKETS = {
+  LECTURES_THUMBNAILS: 'lectures_thumbnails',
+  CHAPTERS_THUMBNAILS: 'chapters_thumbnails',
+  GROUPS_THUMBNAILS: 'groups_thumbnails',
+  QUIZ_QUESTIONS: 'quiz_questions',
+  TEACHERS_IMAGES: 'teachers_images',
+} as const;
+
+export type ImageBucketType = typeof IMAGE_UPLOAD_BUCKETS[keyof typeof IMAGE_UPLOAD_BUCKETS];
+
+// Image upload configuration
+export const IMAGE_UPLOAD_CONFIG = {
+  MAX_FILE_SIZE: 5 * 1024 * 1024, // 5MB
+  ALLOWED_TYPES: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'],
+  COMPRESSION_QUALITY: 0.8,
+  THUMBNAIL_SIZE: 300,
+  PREVIEW_SIZE: 800,
+} as const;

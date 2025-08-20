@@ -13,6 +13,9 @@ import { Users, Plus, MessageCircle, Search, Hash, Copy, Trash2, Share2, Calenda
 import { TeacherPageHeader } from '@/components/teacher/TeacherPageHeader';
 import { useTeacherGroups } from '@/lib/queries';
 import { GroupCardSkeleton } from '@/components/student/skeletons/GroupCardSkeleton';
+import { ImageUploader } from '@/components/ui/ImageUploader';
+import { IMAGE_UPLOAD_BUCKETS } from '@/data/constants';
+import type { UploadedImage } from '@/hooks/useImageUpload';
 
 interface Group {
   id: string;
@@ -23,6 +26,7 @@ interface Group {
   member_count: number;
   is_public: boolean;
   max_members: number | null;
+  thumbnail_url?: string;
 }
 
 export const TeacherGroups = () => {
@@ -32,6 +36,7 @@ export const TeacherGroups = () => {
   const [filteredGroups, setFilteredGroups] = useState<Group[]>([]);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [uploadedImage, setUploadedImage] = useState<UploadedImage | null>(null);
   const [newGroup, setNewGroup] = useState({
     name: '',
     description: '',
@@ -51,6 +56,22 @@ export const TeacherGroups = () => {
       setFilteredGroups(filtered);
     }
   }, [searchTerm, groups]);
+
+  const handleImageUploaded = (image: UploadedImage) => {
+    setUploadedImage(image);
+    toast({
+      title: 'Success',
+      description: 'Group thumbnail uploaded successfully!',
+    });
+  };
+
+  const handleImageDeleted = (path: string) => {
+    setUploadedImage(null);
+    toast({
+      title: 'Success',
+      description: 'Group thumbnail removed',
+    });
+  };
 
   const handleCreateGroup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,7 +98,8 @@ export const TeacherGroups = () => {
           created_by: user.id,
           is_public: newGroup.is_public,
           max_members: newGroup.max_members ? parseInt(newGroup.max_members) : null,
-          group_code: 'TEMP' // This will be replaced by the trigger
+          group_code: 'TEMP', // This will be replaced by the trigger
+          thumbnail_url: uploadedImage?.url || null
         })
         .select()
         .single();
@@ -95,13 +117,15 @@ export const TeacherGroups = () => {
       });
 
       setNewGroup({ name: '', description: '', is_public: false, max_members: '' });
+      setUploadedImage(null);
       setShowCreateForm(false);
       refetch();
     } catch (error: unknown) {
       console.error('Error creating group:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to create group';
       toast({
         title: 'Error',
-        description: error instanceof Error ? error.message : 'Unknown error',
+        description: errorMessage,
         variant: 'destructive',
       });
     }
@@ -151,7 +175,11 @@ export const TeacherGroups = () => {
     });
   };
 
-
+  const handleCloseForm = () => {
+    setNewGroup({ name: '', description: '', is_public: false, max_members: '' });
+    setUploadedImage(null);
+    setShowCreateForm(false);
+  };
 
 
   return (
@@ -159,55 +187,90 @@ export const TeacherGroups = () => {
       <div className="space-y-6">
         {/* Header */}
         <TeacherPageHeader
-          title="Manage Groups"
-          subtitle="Create and manage study groups for students"
-          actionLabel="Create Group"
-          onAction={() => setShowCreateForm(true)}
-          actionIcon={<Plus className="w-4 h-4 mr-2" />}
+          title="Study Groups"
+          subtitle="Create and manage study groups for your students"
         />
 
         {/* Search Bar */}
-        <div className="relative max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-          <Input
-            placeholder="Search groups..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <div className="relative max-w-md">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+              <Input
+                placeholder="Search groups..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          </div>
+          <Button onClick={() => setShowCreateForm(!showCreateForm)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Create Group
+          </Button>
         </div>
 
         {/* Create Group Form */}
         {showCreateForm && (
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Settings className="w-5 h-5" />
-                Create New Group
-              </CardTitle>
+              <CardTitle>Create New Group</CardTitle>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleCreateGroup} className="space-y-4">
-                <Input
-                  placeholder="Group name"
-                  value={newGroup.name}
-                  onChange={(e) => setNewGroup({ ...newGroup, name: e.target.value })}
-                  required
-                />
-                <Textarea
-                  placeholder="Group description (optional)"
-                  value={newGroup.description}
-                  onChange={(e) => setNewGroup({ ...newGroup, description: e.target.value })}
-                  rows={3}
-                />
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Group Name</label>
                   <Input
-                    type="number"
-                    placeholder="Max members (optional)"
-                    value={newGroup.max_members}
-                    onChange={(e) => setNewGroup({ ...newGroup, max_members: e.target.value })}
-                    min="1"
+                    value={newGroup.name}
+                    onChange={(e) => setNewGroup({ ...newGroup, name: e.target.value })}
+                    placeholder="Enter group name"
+                    required
                   />
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Description</label>
+                  <Textarea
+                    value={newGroup.description}
+                    onChange={(e) => setNewGroup({ ...newGroup, description: e.target.value })}
+                    placeholder="Describe the group's purpose"
+                    rows={3}
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Group Thumbnail</label>
+                  <ImageUploader
+                    bucket={IMAGE_UPLOAD_BUCKETS.GROUPS_THUMBNAILS}
+                    folder="groups"
+                    compress={true}
+                    generateThumbnail={true}
+                    onImageUploaded={handleImageUploaded}
+                    onImageDeleted={handleImageDeleted}
+                    onError={(error) => {
+                      toast({
+                        title: 'Error',
+                        description: error,
+                        variant: 'destructive',
+                      });
+                    }}
+                    variant="compact"
+                    size="sm"
+                    placeholder="Upload group thumbnail"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Max Members (Optional)</label>
+                    <Input
+                      type="number"
+                      value={newGroup.max_members}
+                      onChange={(e) => setNewGroup({ ...newGroup, max_members: e.target.value })}
+                      placeholder="No limit"
+                      min="1"
+                    />
+                  </div>
                   <div className="flex items-center space-x-2">
                     <Switch
                       id="is_public"
@@ -217,9 +280,12 @@ export const TeacherGroups = () => {
                     <label htmlFor="is_public" className="text-sm font-medium">Make group public</label>
                   </div>
                 </div>
-                <div className="flex gap-3">
-                  <Button type="submit">Create Group</Button>
-                  <Button type="button" variant="outline" onClick={() => setShowCreateForm(false)}>
+
+                <div className="flex gap-2 pt-4">
+                  <Button type="submit" disabled={!newGroup.name.trim()}>
+                    Create Group
+                  </Button>
+                  <Button type="button" variant="outline" onClick={handleCloseForm}>
                     Cancel
                   </Button>
                 </div>
@@ -268,6 +334,20 @@ export const TeacherGroups = () => {
                   key={group.id}
                   className={`glass-card ${borderColor} rounded-2xl shadow-lg hover:shadow-primary-500/30 hover:scale-[1.02] transition-all duration-200 group-card w-full`}
                 >
+                  {/* Group Thumbnail */}
+                  <div className="w-full h-48 overflow-hidden rounded-t-2xl">
+                    {group.thumbnail_url ? (
+                      <img
+                        src={group.thumbnail_url}
+                        alt={group.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-primary/10 via-secondary/10 to-muted/20 flex items-center justify-center">
+                        <Users className="w-16 h-16 text-primary/60" />
+                      </div>
+                    )}
+                  </div>
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1 min-w-0">
