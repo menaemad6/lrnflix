@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -67,6 +68,7 @@ export const TeacherCourseOverview = ({
   const navigate = useNavigate();
   const [showLessonModal, setShowLessonModal] = useState(false);
   const [showQuizModal, setShowQuizModal] = useState(false);
+  const { t } = useTranslation('dashboard');
   
   const totalContent = lessons.length + quizzes.length;
   const lastUpdated = new Date(
@@ -102,7 +104,7 @@ export const TeacherCourseOverview = ({
                   className="border border-primary-500/30 text-primary-300 transition-all duration-300"
                 >
                   <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back to Course
+                  {t('teacherCourseOverview.backToCourse')}
                 </Button>
               </Link>
               <div className="space-y-1 sm:space-y-2 min-w-0">
@@ -118,13 +120,13 @@ export const TeacherCourseOverview = ({
                 variant="default"
               >
                 <Video className="h-4 w-4 mr-2" />
-                Manage Lessons
+                                  {t('teacherCourseOverview.manageLessons')}
               </Button>
               <Button 
                 onClick={() => navigate(`/teacher/courses/${course.id}/manage/quizzes`)}
                 variant="default" >
                 <Brain className="h-4 w-4 mr-2" />
-                Manage Quizzes
+                                  {t('teacherCourseOverview.manageQuizzes')}
               </Button>
             </div>
           </div>
@@ -134,7 +136,7 @@ export const TeacherCourseOverview = ({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           <Card className="card border border-border bg-card">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-              <CardTitle className="text-sm font-medium text-primary-300">Total Content</CardTitle>
+                             <CardTitle className="text-sm font-medium text-primary-300">{t('teacherCourseOverview.totalContent')}</CardTitle>
               <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-xl flex items-center justify-center">
                 <BookOpen className="h-5 w-5 text-black" />
               </div>
@@ -144,14 +146,14 @@ export const TeacherCourseOverview = ({
                 {totalContent}
               </div>
               <p className="text-xs text-muted-foreground mt-2">
-                {lessons.length} lessons + {quizzes.length} quizzes
+                                 {t('teacherCourseOverview.lessonsAndQuizzes', { lessons: lessons.length, quizzes: quizzes.length })}
               </p>
             </CardContent>
           </Card>
 
           <Card className="card border border-border bg-card">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-              <CardTitle className="text-sm font-medium text-primary-300">Last Updated</CardTitle>
+                             <CardTitle className="text-sm font-medium text-primary-300">{t('teacherCourseOverview.lastUpdated')}</CardTitle>
               <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-xl flex items-center justify-center">
                 <Calendar className="h-5 w-5 text-black" />
               </div>
@@ -168,7 +170,7 @@ export const TeacherCourseOverview = ({
 
           <Card className="card border border-border bg-card">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-              <CardTitle className="text-sm font-medium text-primary-300">Content Progress</CardTitle>
+                             <CardTitle className="text-sm font-medium text-primary-300">{t('teacherCourseOverview.contentProgress')}</CardTitle>
               <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-xl flex items-center justify-center">
                 <TrendingUp className="h-5 w-5 text-black" />
               </div>
@@ -186,17 +188,17 @@ export const TeacherCourseOverview = ({
 
           <Card className="card border border-border bg-card">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-              <CardTitle className="text-sm font-medium text-primary-300">Course Status</CardTitle>
+                             <CardTitle className="text-sm font-medium text-primary-300">{t('teacherCourseOverview.courseStatus')}</CardTitle>
               <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-xl flex items-center justify-center">
                 <Target className="h-5 w-5 text-black" />
               </div>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-primary-300">
-                {totalContent > 0 ? 'Active' : 'Draft'}
+                                 {totalContent > 0 ? t('teacherCourseOverview.active') : t('teacherCourseOverview.draft')}
               </div>
               <p className="text-xs text-muted-foreground mt-2">
-                {totalContent > 0 ? 'Ready for students' : 'Add content to publish'}
+                                 {totalContent > 0 ? t('teacherCourseOverview.readyForStudents') : t('teacherCourseOverview.addContentToPublish')}
               </p>
             </CardContent>
           </Card>
@@ -210,7 +212,7 @@ export const TeacherCourseOverview = ({
                 <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-lg flex items-center justify-center">
                   <Video className="h-4 w-4 text-black" />
                 </div>
-                Recent Lessons
+                                 {t('teacherCourseOverview.recentLessons')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -230,7 +232,7 @@ export const TeacherCourseOverview = ({
                           {lesson.title}
                         </p>
                         <p className="text-sm text-muted-foreground">
-                          Order: {lesson.order_index}
+                                                     {t('teacherCourseOverview.order', { index: lesson.order_index })}
                         </p>
                       </div>
                     </div>
@@ -244,7 +246,7 @@ export const TeacherCourseOverview = ({
                     <div className="w-16 h-16 bg-gradient-to-br from-primary-500/20 to-secondary-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
                       <Video className="h-8 w-8 text-primary-400" />
                     </div>
-                    <p className="text-sm text-muted-foreground">No lessons added yet</p>
+                                         <p className="text-sm text-muted-foreground">{t('teacherCourseOverview.noLessonsYet')}</p>
                   </div>
                 )}
               </div>
@@ -257,7 +259,7 @@ export const TeacherCourseOverview = ({
                 <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-lg flex items-center justify-center">
                   <Brain className="h-4 w-4 text-black" />
                 </div>
-                Recent Quizzes
+                                 {t('teacherCourseOverview.recentQuizzes')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -282,7 +284,7 @@ export const TeacherCourseOverview = ({
                           </Badge>
                           {quiz.time_limit && (
                             <Badge variant="outline" className="text-xs border-primary-500/30 text-primary-400 bg-primary-500/10">
-                              {quiz.time_limit} min
+                              {quiz.time_limit} {t('minutes')}
                             </Badge>
                           )}
                         </div>
@@ -298,7 +300,7 @@ export const TeacherCourseOverview = ({
                     <div className="w-16 h-16 bg-gradient-to-br from-primary-500/20 to-secondary-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
                       <Brain className="h-8 w-8 text-primary-400" />
                     </div>
-                    <p className="text-sm text-muted-foreground">No quizzes added yet</p>
+                    <p className="text-sm text-muted-foreground">{t('teacherCourseOverview.noQuizzesYet')}</p>
                   </div>
                 )}
               </div>
@@ -313,7 +315,7 @@ export const TeacherCourseOverview = ({
               <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-lg flex items-center justify-center">
                 <Sparkles className="h-4 w-4 text-black" />
               </div>
-              Quick Actions
+              {t('teacherCourseOverview.quickActions')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -327,7 +329,7 @@ export const TeacherCourseOverview = ({
                   <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-xl flex items-center justify-center shadow-lg shadow-primary-500/25">
                     <Plus className="h-6 w-6 text-black" />
                   </div>
-                  <span className="font-semibold">Add New Lesson</span>
+                  <span className="font-semibold">{t('teacherCourseOverview.addNewLesson')}</span>
                 </div>
               </Button>
               <Button 
@@ -339,7 +341,7 @@ export const TeacherCourseOverview = ({
                   <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-xl flex items-center justify-center shadow-lg shadow-primary-500/25">
                     <Plus className="h-6 w-6 text-black" />
                   </div>
-                  <span className="font-semibold">Create New Quiz</span>
+                  <span className="font-semibold">{t('teacherCourseOverview.createNewQuiz')}</span>
                 </div>
               </Button>
 

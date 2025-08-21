@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import confetti from 'canvas-confetti';
+import { useTranslation } from 'react-i18next';
 import type { Player } from '@/hooks/useMultiplayerQuiz';
 
 interface MultiplayerQuizResultsProps {
@@ -29,6 +30,7 @@ export const MultiplayerQuizResults = ({
   onLeaveRoom,
   currentUserId
 }: MultiplayerQuizResultsProps) => {
+  const { t } = useTranslation('other');
   const sortedPlayers = [...players].sort((a, b) => b.score - a.score);
   const currentPlayer = players.find(p => p.user_id === currentUserId);
   const userRank = sortedPlayers.findIndex(p => p.user_id === currentUserId) + 1;
@@ -72,7 +74,7 @@ export const MultiplayerQuizResults = ({
   };
 
   return (
-    <div className="min-h-screen bg-background particle-bg flex items-center justify-center p-4 pt-24">
+    <div className="min-h-screen bg-background particle-bg flex items-center justify-center p-4 pt-28">
       <div className="max-w-4xl w-full">
         
         {/* Header */}
@@ -81,8 +83,8 @@ export const MultiplayerQuizResults = ({
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-8"
         >
-          <h1 className="text-4xl font-bold text-primary mb-2">Game Complete!</h1>
-          <p className="text-muted-foreground">Here's how everyone performed</p>
+          <h1 className="text-4xl font-bold text-primary mb-2">{t('multiplayerQuiz.results.gameComplete')}</h1>
+          <p className="text-muted-foreground">{t('multiplayerQuiz.results.performanceDescription')}</p>
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -93,7 +95,7 @@ export const MultiplayerQuizResults = ({
               <CardHeader>
                 <CardTitle className="text-foreground flex items-center">
                   <Trophy className="h-5 w-5 mr-2 text-primary" />
-                  Final Rankings
+                  {t('multiplayerQuiz.results.finalRankings')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
@@ -130,23 +132,23 @@ export const MultiplayerQuizResults = ({
                           </span>
                           {rank === 1 && (
                             <Badge className="bg-primary/20 text-primary">
-                              Winner!
+                              {t('multiplayerQuiz.results.winner')}
                             </Badge>
                           )}
                         </div>
                         <div className="flex items-center space-x-3 text-sm">
                           <span className="text-green-300 font-medium">
-                            {player.score} points
+                            {player.score} {t('multiplayerQuiz.results.points')}
                           </span>
                           {player.streak > 0 && (
                             <span className="text-orange-300 flex items-center">
                               <Zap className="h-3 w-3 mr-1" />
-                              {player.streak} streak
+                              {player.streak} {t('multiplayerQuiz.results.streak')}
                             </span>
                           )}
                           <span className="text-purple-300 flex items-center">
                             <Star className="h-3 w-3 mr-1" />
-                            +{player.xp_earned} XP
+                            +{player.xp_earned} {t('multiplayerQuiz.results.xp')}
                           </span>
                         </div>
                       </div>
@@ -161,7 +163,7 @@ export const MultiplayerQuizResults = ({
                             'text-gray-500'
                           }
                         `}>
-                          #{rank}
+                          {t('multiplayerQuiz.results.rankNumber', { rank })}
                         </div>
                       </div>
                     </motion.div>
@@ -180,11 +182,11 @@ export const MultiplayerQuizResults = ({
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.3 }}
             >
-              <Card className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border-white/20">
+              <Card className="bg-card backdrop-blur-xl">
                 <CardHeader>
                   <CardTitle className="text-white flex items-center">
                     <Target className="h-5 w-5 mr-2" />
-                    Your Performance
+                    {t('multiplayerQuiz.results.yourPerformance')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -192,12 +194,12 @@ export const MultiplayerQuizResults = ({
                     <div className="text-4xl mb-2">
                       {getRankBadge(userRank).emoji}
                     </div>
-                    <div className="text-2xl font-bold text-white mb-1">
-                      Rank #{userRank}
-                    </div>
-                    <div className="text-gray-300">
-                      out of {players.length} players
-                    </div>
+                                            <div className="text-2xl font-bold text-white mb-1">
+                          {t('multiplayerQuiz.results.rankNumber', { rank: userRank })}
+                        </div>
+                        <div className="text-gray-300">
+                          {t('multiplayerQuiz.results.outOfPlayersCount', { count: players.length })}
+                        </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4 pt-4">
@@ -205,13 +207,13 @@ export const MultiplayerQuizResults = ({
                       <div className="text-2xl font-bold text-green-400">
                         {userScore}
                       </div>
-                      <div className="text-xs text-gray-400">Total Score</div>
+                      <div className="text-xs text-gray-400">{t('multiplayerQuiz.results.totalScoreLabel')}</div>
                     </div>
                     <div className="text-center">
                       <div className="text-2xl font-bold text-purple-400">
                         +{Math.floor(userScore / 10)}
                       </div>
-                      <div className="text-xs text-gray-400">XP Earned</div>
+                      <div className="text-xs text-gray-400">{t('multiplayerQuiz.results.xpEarnedLabel')}</div>
                     </div>
                   </div>
                 </CardContent>
@@ -227,41 +229,42 @@ export const MultiplayerQuizResults = ({
             >
               <Button
                 onClick={onPlayAgain}
-                className="w-full h-12 bg-gradient-to-r from-green-500 to-secondary-600 hover:from-green-600 hover:to-secondary-700 text-white font-semibold"
+                className="w-full h-12  font-semibold"
+                variant='default'
               >
                 <RotateCcw className="h-4 w-4 mr-2" />
-                Play Again
+                {t('multiplayerQuiz.results.playAgain')}
               </Button>
               
               <Button
                 onClick={handleLeaveRoom}
-                variant="outline"
-                className="w-full h-12 border-white/20 bg-white/5 hover:bg-white/10 text-white"
+                variant="ghost"
+                className="w-full h-12  text-white"
               >
                 <Home className="h-4 w-4 mr-2" />
-                Back to Lobby
+                {t('multiplayerQuiz.results.backToLobby')}
               </Button>
             </motion.div>
 
             {/* Quick Stats */}
-            <Card className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border-white/20">
+            <Card className="bg-card backdrop-blur-xl ">
               <CardHeader>
-                <CardTitle className="text-white text-sm">Game Summary</CardTitle>
+                <CardTitle className="text-white text-sm">{t('multiplayerQuiz.results.gameSummary')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2 text-sm">
                 <div className="flex justify-between text-gray-300">
-                  <span>Questions:</span>
-                  <span className="text-white">10/10</span>
+                  <span>{t('multiplayerQuiz.results.questionsLabel')}</span>
+                  <span className="text-white">{t('multiplayerQuiz.results.questionsCompleted')}</span>
                 </div>
                 <div className="flex justify-between text-gray-300">
-                  <span>Accuracy:</span>
+                  <span>{t('multiplayerQuiz.results.accuracyLabel')}</span>
                   <span className="text-green-300">
                     {Math.round((userScore / 1000) * 100)}%
                   </span>
                 </div>
                 <div className="flex justify-between text-gray-300">
-                  <span>Avg. Speed:</span>
-                  <span className="text-blue-300">2.3s</span>
+                  <span>{t('multiplayerQuiz.results.avgSpeedLabel')}</span>
+                  <span className="text-blue-300">{t('multiplayerQuiz.results.avgSpeedValue')}</span>
                 </div>
               </CardContent>
             </Card>

@@ -7,6 +7,7 @@ import { RootState } from "@/store/store";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "../ui/button";
+import { useTranslation } from 'react-i18next';
 
 interface DashboardSettingsSidebarProps {
   activeTab: string;
@@ -14,6 +15,7 @@ interface DashboardSettingsSidebarProps {
 }
 
 export const DashboardSettingsSidebar: React.FC<DashboardSettingsSidebarProps> = ({ activeTab, onTabChange }) => {
+  const { t } = useTranslation('navigation');
   const { user } = useSelector((state: RootState) => state.auth);
   const [teacherSlug, setTeacherSlug] = useState<string | null>(null);
   const [isTeacher, setIsTeacher] = useState(false);
@@ -55,7 +57,7 @@ export const DashboardSettingsSidebar: React.FC<DashboardSettingsSidebarProps> =
           variant={activeTab === "ai-assistant" ? "default" : "outline"}
         >
           <Brain className="h-4 w-4 lg:h-5 lg:w-5 flex-shrink-0" />
-          <span className="hidden sm:inline">AI Assistant</span>
+          <span className="hidden sm:inline">{t('sidebar.aiAssistant')}</span>
         </Button>
         
         <Button
@@ -63,7 +65,7 @@ export const DashboardSettingsSidebar: React.FC<DashboardSettingsSidebarProps> =
           variant={activeTab === "announcements" ? "default" : "outline"}
         >
           <MessageSquare className="h-4 w-4 lg:h-5 lg:w-5 flex-shrink-0" />
-          <span className="hidden sm:inline">Announcements</span>
+          <span className="hidden sm:inline">{t('sidebar.announcements')}</span>
         </Button>
 
         {/* Teacher Profile Link - Only show for teachers */}
@@ -77,7 +79,7 @@ export const DashboardSettingsSidebar: React.FC<DashboardSettingsSidebarProps> =
                   className="w-full flex items-center justify-center gap-2"
                   >
                   <User className="h-4 w-4 lg:h-5 lg:w-5 flex-shrink-0" />
-                  <span className="hidden sm:inline">My Profile</span>
+                  <span className="hidden sm:inline">{t('sidebar.myProfile')}</span>
                 </Link>
             </Button>
               
@@ -85,10 +87,10 @@ export const DashboardSettingsSidebar: React.FC<DashboardSettingsSidebarProps> =
               <div className="px-3 py-3 rounded-xl text-sm lg:text-base text-muted-foreground bg-muted/50">
                 <div className="flex items-center gap-3">
                   <User className="h-4 w-4 lg:h-5 lg:w-5 flex-shrink-0" />
-                  <span className="hidden sm:inline">Profile Setup Required</span>
+                  <span className="hidden sm:inline">{t('sidebar.profileSetupRequired')}</span>
                 </div>
                 <p className="text-xs mt-1 text-muted-foreground">
-                  Contact admin to set up your teacher profile
+                  {t('sidebar.contactAdminForProfile')}
                 </p>
               </div>
             )}

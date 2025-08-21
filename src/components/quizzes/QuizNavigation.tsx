@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { CheckCircle2, Circle, AlertCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface QuizNavigationProps {
   questions: any[];
@@ -16,10 +17,11 @@ interface QuizNavigationProps {
 export const QuizNavigation = ({ 
   questions, 
   currentQuestion, 
-  answers, 
+  answers,
   onQuestionSelect,
   allowNavigation = true 
 }: QuizNavigationProps) => {
+  const { t } = useTranslation('courses');
   const answeredCount = Object.keys(answers).length;
   const remainingCount = questions.length - answeredCount;
 
@@ -30,15 +32,15 @@ export const QuizNavigation = ({
       <CardContent className="p-4">
         <div className="flex flex-col space-y-4">
           <div className="flex justify-between items-center">
-            <h3 className="font-semibold text-lg text-foreground">Question Navigation</h3>
+            <h3 className="font-semibold text-lg text-foreground">{t('quizNavigation.questionNavigation')}</h3>
             <div className="flex gap-4 text-sm">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-primary" />
-                <span className="text-foreground">Answered: {answeredCount}</span>
+                <span className="text-foreground">{t('quizNavigation.answered', { count: answeredCount })}</span>
               </div>
               <div className="flex items-center gap-2">
                 <AlertCircle className="h-4 w-4 text-orange-500" />
-                <span className="text-foreground">Remaining: {remainingCount}</span>
+                <span className="text-foreground">{t('quizNavigation.remaining', { count: remainingCount })}</span>
               </div>
             </div>
           </div>

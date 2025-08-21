@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { TeacherCourseSidebar } from '@/components/courses/TeacherCourseSidebar';
@@ -44,6 +45,7 @@ type ViewMode = 'overview' | 'lessons' | 'quizzes' | 'edit-lesson' | 'edit-quiz'
 export const TeacherCourseManagement = () => {
   const { id } = useParams<{ id: string }>();
   const { toast } = useToast();
+  const { t } = useTranslation('teacher');
   const [course, setCourse] = useState<Course | null>(null);
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);

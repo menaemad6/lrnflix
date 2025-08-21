@@ -11,6 +11,7 @@ import { useVapiCall } from '@/hooks/useVapiCall';
 import { CallInterface } from '@/components/lessons/CallInterface';
 import { MinutesPurchaseModal } from '@/components/lessons/MinutesPurchaseModal';
 import { QuizVoiceTutorModal } from './QuizVoiceTutorModal';
+import { useTranslation } from 'react-i18next';
 
 interface QuizChoiceModalProps {
   open: boolean;
@@ -32,6 +33,7 @@ export const QuizChoiceModal: React.FC<QuizChoiceModalProps> = ({
   question,
   userAnswer
 }) => {
+  const { t } = useTranslation('courses');
   const [showVoiceTutorModal, setShowVoiceTutorModal] = useState(false);
   // Call state
   // const [showCallInterface, setShowCallInterface] = useState(false);
@@ -165,11 +167,11 @@ export const QuizChoiceModal: React.FC<QuizChoiceModalProps> = ({
         <DialogContent className="max-w-md">
           <div className="text-center p-8">
             <AlertCircle className="h-12 w-12 text-orange-500 mx-auto mb-3" />
-            <h3 className="font-semibold text-lg mb-2">Question Not Available</h3>
+            <h3 className="font-semibold text-lg mb-2">{t('aiVoiceTutor.questionNotAvailable')}</h3>
             <p className="text-muted-foreground mb-4">
-              The question data is not available for AI assistance.
+              {t('aiVoiceTutor.questionNotAvailableDescription')}
             </p>
-            <Button onClick={() => onOpenChange(false)}>Close</Button>
+            <Button onClick={() => onOpenChange(false)}>{t('aiVoiceTutor.close')}</Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -194,7 +196,7 @@ export const QuizChoiceModal: React.FC<QuizChoiceModalProps> = ({
               <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
                 <Brain className="h-5 w-5 text-primary" />
               </div>
-              Choose How to Ask Hossam
+              {t('quizChoiceModal.title')}
             </DialogTitle>
           </DialogHeader>
 
@@ -202,15 +204,15 @@ export const QuizChoiceModal: React.FC<QuizChoiceModalProps> = ({
             {/* Question Preview */}
             <Card>
               <CardContent className="p-4">
-                <h4 className="font-semibold mb-2">Question:</h4>
+                <h4 className="font-semibold mb-2">{t('quizChoiceModal.question')}:</h4>
                 <p className="text-sm text-muted-foreground mb-3 line-clamp-3">{question.question_text}</p>
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div>
-                    <span className="font-medium">Your Answer: </span>
-                    <span className="text-orange-600 truncate block">{userAnswer || 'Not answered'}</span>
+                    <span className="font-medium">{t('quizChoiceModal.yourAnswer')}: </span>
+                    <span className="text-orange-600 truncate block">{userAnswer || t('aiVoiceTutor.notAnswered')}</span>
                   </div>
                   <div>
-                    <span className="font-medium">Correct Answer: </span>
+                    <span className="font-medium">{t('quizChoiceModal.correctAnswer')}: </span>
                     <span className="text-primary truncate block">{question.correct_answer}</span>
                   </div>
                 </div>
@@ -232,8 +234,8 @@ export const QuizChoiceModal: React.FC<QuizChoiceModalProps> = ({
                       <Phone className="h-6 w-6 text-white" />
                     </div>
                     <div className="text-center w-full">
-                      <div className="font-bold text-lg break-words leading-tight w-full">Voice Call with Hossam</div>
-                      <div className="text-sm opacity-90 break-words w-full">Real-time voice conversation</div>
+                      <div className="font-bold text-lg break-words leading-tight w-full">{t('quizChoiceModal.voiceCallWithHossam')}</div>
+                      <div className="text-sm opacity-90 break-words w-full">{t('quizChoiceModal.realTimeVoiceConversation')}</div>
                     </div>
                     <div className="absolute top-2 right-2">
                       <Sparkles className="h-4 w-4 text-yellow-300 animate-pulse" />
@@ -257,8 +259,8 @@ export const QuizChoiceModal: React.FC<QuizChoiceModalProps> = ({
                     <MessageCircle className="h-5 w-5 text-white" />
                   </div>
                   <div className="text-center w-full">
-                    <div className="font-semibold break-words leading-tight w-full">Chat with Hossam</div>
-                    <div className="text-xs text-muted-foreground break-words w-full">Text-based conversation</div>
+                    <div className="font-semibold break-words leading-tight w-full">{t('quizChoiceModal.chatWithHossam')}</div>
+                    <div className="text-xs text-muted-foreground break-words w-full">{t('quizChoiceModal.textBasedConversation')}</div>
                   </div>
                 </div>
               </Button>
@@ -267,7 +269,7 @@ export const QuizChoiceModal: React.FC<QuizChoiceModalProps> = ({
             {/* Recommendation */}
             <div className="text-center p-3 bg-primary-500/10 rounded-xl border border-primary-500/20">
               <p className="text-sm text-primary-400 font-medium">
-                💡 Recommended: Voice call for personalized, interactive help
+                {t('quizChoiceModal.recommendation')}
               </p>
             </div>
           </div>

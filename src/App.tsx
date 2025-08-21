@@ -79,6 +79,7 @@ import { StudentStudents } from './pages/teacher/StudentStudents';
 import { StudentDetail } from './pages/teacher/StudentDetail';
 import TeacherSchedulePage from './pages/teacher/TeacherSchedulePage';
 import { TeacherColorSettings } from './pages/teacher/TeacherColorSettings';
+import { LanguageProvider } from './contexts/LanguageContext';
 
 const queryClient = new QueryClient();
 
@@ -212,21 +213,23 @@ const App = () => (
       <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
         <AuthProvider>
           <ChatbotProvider>
-            <TooltipProvider>
-              <Toaster />
-              <Sonner />
-              <TenantProvider>
-                                 <Suspense fallback={
-                   <div className="min-h-screen flex items-center justify-center bg-black">
-                     <SparkLoader text="It all starts with a spark" color="white" size={56} />
-                   </div>
-                 }>
-                  <BrowserRouter>
-                    <AppRoutesWithTenant />
-                  </BrowserRouter>
-                </Suspense>
-              </TenantProvider>
-            </TooltipProvider>
+            <LanguageProvider>
+              <TooltipProvider>
+                <Toaster />
+                <Sonner />
+                <TenantProvider>
+                  <Suspense fallback={
+                    <div className="min-h-screen flex items-center justify-center bg-black">
+                      <SparkLoader text="It all starts with a spark" color="white" size={56} />
+                    </div>
+                  }>
+                    <BrowserRouter>
+                      <AppRoutesWithTenant />
+                    </BrowserRouter>
+                  </Suspense>
+                </TenantProvider>
+              </TooltipProvider>
+            </LanguageProvider>
           </ChatbotProvider>
         </AuthProvider>
       </ThemeProvider>

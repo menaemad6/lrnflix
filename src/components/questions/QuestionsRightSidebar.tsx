@@ -17,41 +17,47 @@ import {
   Star,
   Activity
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface QuestionsRightSidebarProps {
   recentActivity?: Array<{
     action: string;
     time: string;
     user: string;
+    type?: string;
+    id?: string;
+    actualTime?: string;
   }>;
 }
 
 export const QuestionsRightSidebar = ({ recentActivity = [] }: QuestionsRightSidebarProps) => {
+  const { t } = useTranslation('other');
+  
   const aiFeatures = [
     {
-      title: 'Smart Suggestions',
-      description: 'Get AI-powered question suggestions',
+      title: t('questionsPage.smartSuggestions'),
+      description: t('questionsPage.smartSuggestionsDescription'),
       icon: Brain,
       color: 'text-purple-500',
       available: true
     },
     {
-      title: 'Auto-Categorization',
-      description: 'Questions are automatically categorized',
+      title: t('questionsPage.autoCategorization'),
+      description: t('questionsPage.autoCategorizationDescription'),
       icon: BookOpen,
       color: 'text-blue-500',
       available: true
     },
     {
-      title: 'Answer Quality Score',
-      description: 'AI evaluates answer helpfulness',
+      title: t('questionsPage.answerQualityScore'),
+      description: t('questionsPage.answerQualityScoreDescription'),
       icon: Zap,
       color: 'text-yellow-500',
       available: false
     },
     {
-      title: 'Learning Path',
-      description: 'Personalized study recommendations',
+      title: t('questionsPage.learningPath'),
+      description: t('questionsPage.learningPathDescription'),
       icon: Target,
       color: 'text-green-500',
       available: false
@@ -60,19 +66,19 @@ export const QuestionsRightSidebar = ({ recentActivity = [] }: QuestionsRightSid
 
   const studyInsights = [
     {
-      title: 'Most Active Time',
+      title: t('questionsPage.mostActiveTime'),
       value: '2-4 PM',
       icon: Clock,
       color: 'text-blue-500'
     },
     {
-      title: 'Popular Topics',
+      title: t('questionsPage.popularTopics'),
       value: 'Mathematics, Physics',
       icon: TrendingUp,
       color: 'text-green-500'
     },
     {
-      title: 'Success Rate',
+      title: t('questionsPage.successRate'),
       value: '87%',
       icon: Award,
       color: 'text-yellow-500'
@@ -80,8 +86,8 @@ export const QuestionsRightSidebar = ({ recentActivity = [] }: QuestionsRightSid
   ];
 
   const defaultActivity = [
-    { action: 'New question posted', time: '2 min ago', user: 'Anonymous' },
-    { action: 'Question resolved', time: '5 min ago', user: 'John Doe' },
+    { action: t('questionsPage.newQuestionPosted'), time: '2 min ago', user: t('questionsPage.anonymous') },
+    { action: t('questionsPage.status.resolved'), time: '5 min ago', user: 'John Doe' },
     { action: 'AI answer generated', time: '8 min ago', user: 'System' },
     { action: 'Student joined discussion', time: '12 min ago', user: 'Jane Smith' },
     { action: 'Answer marked as helpful', time: '15 min ago', user: 'Alex Brown' },
@@ -95,7 +101,7 @@ export const QuestionsRightSidebar = ({ recentActivity = [] }: QuestionsRightSid
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
             <Brain className="h-5 w-5 text-primary" />
-            AI Features
+            {t('questionsPage.aiFeatures')}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -108,11 +114,11 @@ export const QuestionsRightSidebar = ({ recentActivity = [] }: QuestionsRightSid
                   <span className="text-sm font-medium">{feature.title}</span>
                   {feature.available ? (
                     <Badge variant="secondary" className="text-xs bg-green-500/10 text-green-500">
-                      Active
+                      {t('questionsPage.active')}
                     </Badge>
                   ) : (
                     <Badge variant="secondary" className="text-xs bg-orange-500/10 text-orange-500">
-                      Coming Soon
+                      {t('questionsPage.comingSoon')}
                     </Badge>
                   )}
                 </div>
@@ -129,7 +135,7 @@ export const QuestionsRightSidebar = ({ recentActivity = [] }: QuestionsRightSid
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
             <Activity className="h-5 w-5 text-primary" />
-            Study Insights
+            {t('questionsPage.studyInsights')}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -154,7 +160,7 @@ export const QuestionsRightSidebar = ({ recentActivity = [] }: QuestionsRightSid
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
             <Clock className="h-5 w-5 text-primary" />
-            Recent Activity
+            {t('questionsPage.recentActivity')}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -174,21 +180,21 @@ export const QuestionsRightSidebar = ({ recentActivity = [] }: QuestionsRightSid
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
             <Rocket className="h-5 w-5 text-primary" />
-            Quick Actions
+            {t('questionsPage.quickActions')}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
           <Button variant="ghost" size="sm" className="w-full justify-start text-left">
             <Lightbulb className="h-4 w-4 mr-2" />
-            Get Study Tips
+            {t('questionsPage.getStudyTips')}
           </Button>
           <Button variant="ghost" size="sm" className="w-full justify-start text-left">
             <Star className="h-4 w-4 mr-2" />
-            Rate Questions
+            {t('questionsPage.rateQuestions')}
           </Button>
           <Button variant="ghost" size="sm" className="w-full justify-start text-left">
             <Users className="h-4 w-4 mr-2" />
-            Find Study Groups
+            {t('questionsPage.findStudyGroups')}
           </Button>
         </CardContent>
       </Card>

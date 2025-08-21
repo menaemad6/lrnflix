@@ -44,6 +44,17 @@ CREATE POLICY "Students can update their own questions"
   FOR UPDATE 
   USING (auth.uid() = student_id);
 
+CREATE POLICY "Teachers and admins can update any question" 
+  ON public.questions 
+  FOR UPDATE 
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles 
+      WHERE id = auth.uid() 
+      AND role IN ('teacher', 'admin')
+    )
+  );
+
 CREATE POLICY "Students can delete their own questions" 
   ON public.questions 
   FOR DELETE 

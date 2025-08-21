@@ -44,6 +44,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Input } from '@/components/ui/input';
 import { useRandomBackground } from "../../hooks/useRandomBackground";
 import { CourseViewSkeleton } from '@/components/student/skeletons/CourseViewSkeleton';
+import { useTranslation } from 'react-i18next';
 
 interface Course {
   id: string;
@@ -89,6 +90,7 @@ interface Quiz {
 export const CourseView = () => {
   const { id } = useParams<{ id: string }>();
   const { toast } = useToast();
+  const { t } = useTranslation('dashboard');
   const [course, setCourse] = useState<Course | null>(null);
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [isEnrolled, setIsEnrolled] = useState(false);
@@ -174,8 +176,8 @@ export const CourseView = () => {
     } catch (error: unknown) {
       console.error('Error fetching course:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to load course',
+        title: t('studentCourseView.error'),
+        description: t('studentCourseView.failedToLoadCourse'),
         variant: 'destructive',
       });
     } finally {
@@ -230,13 +232,13 @@ export const CourseView = () => {
       await navigator.clipboard.writeText(window.location.href);
       setShowShareModal(true);
       toast({
-        title: 'Link copied!',
-        description: 'Course URL copied to clipboard.',
+        title: t('studentCourseView.linkCopiedToast'),
+        description: t('studentCourseView.courseUrlCopied'),
       });
-    } catch (err: unknown) {
+          } catch (err: unknown) {
       toast({
-        title: 'Error',
-        description: 'Failed to copy link.',
+        title: t('studentCourseView.error'),
+        description: t('studentCourseView.failedToCopyLink'),
         variant: 'destructive',
       });
     }
@@ -246,13 +248,13 @@ export const CourseView = () => {
     try {
       await navigator.clipboard.writeText(window.location.href);
       toast({
-        title: 'Link copied!',
-        description: 'Course URL copied to clipboard.',
+        title: t('studentCourseView.linkCopiedToast'),
+        description: t('studentCourseView.courseUrlCopied'),
       });
     } catch (err: unknown) {
       toast({
-        title: 'Error',
-        description: 'Failed to copy link.',
+        title: t('studentCourseView.error'),
+        description: t('studentCourseView.failedToCopyLink'),
         variant: 'destructive',
       });
     }
@@ -262,7 +264,7 @@ export const CourseView = () => {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: course?.title || 'Course',
+          title: course?.title || t('studentCourseView.title'),
           text: course?.description || '',
           url: window.location.href,
         });
@@ -302,13 +304,13 @@ export const CourseView = () => {
                   {/* Error Message */}
                   <div className="space-y-4">
                     <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-red-400 via-orange-400 to-red-500 bg-clip-text text-transparent">
-                      Course Not Found
+                      {t('studentCourseView.courseNotFound')}
                     </h1>
                     <p className="text-xl text-muted-foreground leading-relaxed">
-                      The course you're looking for doesn't exist or may have been removed.
+                      {t('studentCourseView.courseNotFoundDescription')}
                     </p>
                     <p className="text-sm text-muted-foreground/80">
-                      It might be a draft, unpublished, or the URL might be incorrect.
+                      {t('studentCourseView.courseNotFoundSubtext')}
                     </p>
                   </div>
 
@@ -319,7 +321,7 @@ export const CourseView = () => {
                       className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 shadow-lg hover:shadow-xl transition-all duration-200"
                     >
                       <Search className="h-4 w-4 mr-2" />
-                      Browse Courses
+                      {t('studentCourseView.backToCourses')}
                     </Button>
                     <Button 
                       variant="outline"
@@ -327,7 +329,7 @@ export const CourseView = () => {
                       className="border-primary/20 text-primary hover:bg-primary/10 transition-all duration-200"
                     >
                       <Home className="h-4 w-4 mr-2" />
-                      Go to Dashboard
+                      {t('studentCourseView.home')}
                     </Button>
                   </div>
                 </CardContent>
@@ -340,24 +342,24 @@ export const CourseView = () => {
             <Card className="glass-card border-blue-500/20 bg-blue-500/5">
               <CardContent className="p-4 text-center">
                 <Search className="h-6 w-6 mx-auto mb-2 text-blue-400" />
-                <h3 className="font-medium text-sm">Check the URL</h3>
-                <p className="text-xs text-muted-foreground">Make sure the course link is correct</p>
+                <h3 className="font-medium text-sm">{t('studentCourseView.checkUrl')}</h3>
+                <p className="text-xs text-muted-foreground">{t('studentCourseView.checkUrlDescription')}</p>
               </CardContent>
             </Card>
             
             <Card className="glass-card border-primary-500/20 bg-primary-500/5">
               <CardContent className="p-4 text-center">
                 <BookOpen className="h-6 w-6 mx-auto mb-2 text-primary-400" />
-                <h3 className="font-medium text-sm">Browse Available</h3>
-                <p className="text-xs text-muted-foreground">Explore our published courses</p>
+                <h3 className="font-medium text-sm">{t('studentCourseView.browseAvailable')}</h3>
+                <p className="text-xs text-muted-foreground">{t('studentCourseView.browseAvailableDescription')}</p>
               </CardContent>
             </Card>
             
             <Card className="glass-card border-purple-500/20 bg-purple-500/5">
               <CardContent className="p-4 text-center">
                 <HelpCircle className="h-6 w-6 mx-auto mb-2 text-purple-400" />
-                <h3 className="font-medium text-sm">Need Help?</h3>
-                <p className="text-xs text-muted-foreground">Contact support if you need assistance</p>
+                <h3 className="font-medium text-sm">{t('studentCourseView.needHelp')}</h3>
+                <p className="text-xs text-muted-foreground">{t('studentCourseView.needHelpDescription')}</p>
               </CardContent>
             </Card>
           </div>
@@ -406,15 +408,15 @@ export const CourseView = () => {
                 <div className="flex flex-wrap items-center gap-6 text-sm">
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <User className="h-4 w-4" />
-                    <span>Created by <span className="font-medium text-foreground">{course.profiles?.full_name || 'Unknown Instructor'}</span></span>
+                    <span>{t('studentCourseView.createdBy')} <span className="font-medium text-foreground">{course.profiles?.full_name || t('studentCourseView.unknownInstructor')}</span></span>
                   </div>
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <Calendar className="h-4 w-4" />
-                    <span>Last updated {new Date(course.created_at).toLocaleDateString()}</span>
+                    <span>{t('studentCourseView.lastUpdated')} {new Date(course.created_at).toLocaleDateString()}</span>
                   </div>
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <Globe className="h-4 w-4" />
-                    <span>English</span>
+                    <span>{t('studentCourseView.language')}</span>
                   </div>
                 </div>
 
@@ -423,22 +425,22 @@ export const CourseView = () => {
                   <div className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-primary-500/10 to-secondary-500/10 border border-primary-500/20">
                     <PlayCircle className="h-8 w-8 text-primary-500" />
                     <div>
-                      <div className="font-semibold">{progress.totalLessons} Lessons, {progress.totalQuizzes} Quizzes</div>
-                      <div className="text-xs text-muted-foreground">High-quality content</div>
+                      <div className="font-semibold">{progress.totalLessons} {t('studentCourseView.lessons')}, {progress.totalQuizzes} {t('studentCourseView.quizzes')}</div>
+                      <div className="text-xs text-muted-foreground">{t('studentCourseView.highQualityContent')}</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-blue-500/10 to-accent-500/10 border border-blue-500/20">
                     <Clock className="h-8 w-8 text-blue-500" />
                     <div>
-                      <div className="font-semibold">{Math.round(totalCourseMinutes / 60) > 0 ? `${Math.round(totalCourseMinutes / 60)}+ Hours` : `${totalCourseMinutes} Minutes`}</div>
-                      <div className="text-xs text-muted-foreground">On-demand video</div>
+                      <div className="font-semibold">{Math.round(totalCourseMinutes / 60) > 0 ? `${Math.round(totalCourseMinutes / 60)}+ ${t('studentCourseView.hours')}` : `${totalCourseMinutes} ${t('studentCourseView.minutes')}`}</div>
+                      <div className="text-xs text-muted-foreground">{t('studentCourseView.onDemandVideo')}</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20">
                     <Infinity className="h-8 w-8 text-purple-500" />
                     <div>
-                      <div className="font-semibold">Lifetime</div>
-                      <div className="text-xs text-muted-foreground">Full access</div>
+                      <div className="font-semibold">{t('studentCourseView.lifetime')}</div>
+                      <div className="text-xs text-muted-foreground">{t('studentCourseView.fullAccess')}</div>
                     </div>
                   </div>
                 </div>
@@ -450,15 +452,15 @@ export const CourseView = () => {
                         <div className="flex items-center gap-3">
                           <Trophy className="h-6 w-6 text-primary-500" />
                           <div>
-                            <h3 className="font-semibold text-primary-700 dark:text-primary-300">Your Progress</h3>
-                            <p className="text-sm text-primary-600 dark:text-primary-400">Keep up the great work!</p>
+                            <h3 className="font-semibold text-primary-700 dark:text-primary-300">{t('studentCourseView.yourProgress')}</h3>
+                            <p className="text-sm text-primary-600 dark:text-primary-400">{t('studentCourseView.keepUpGreatWork')}</p>
                           </div>
                         </div>
                         <div className="text-right">
                           <div className="text-2xl font-bold text-primary-600 dark:text-primary-400">
                             {Math.round(progress.progressPercentage)}%
                           </div>
-                          <div className="text-xs text-primary-600 dark:text-primary-400">Complete</div>
+                          <div className="text-xs text-primary-600 dark:text-primary-400">{t('studentCourseView.complete')}</div>
                         </div>
                       </div>
                       <div className="w-full bg-primary-100 dark:bg-primary-900/40 rounded-full h-3 mb-2">
@@ -468,10 +470,10 @@ export const CourseView = () => {
                         />
                       </div>
                       <p className="text-sm text-primary-600 dark:text-primary-400">
-                        {progress.completedLessons + progress.completedQuizzes} of {progress.totalLessons + progress.totalQuizzes} items completed
+                        {progress.completedLessons + progress.completedQuizzes} {t('studentCourseView.itemsCompleted')} {progress.totalLessons + progress.totalQuizzes}
                       </p>
                       <p className="text-xs text-primary-600 dark:text-primary-400 mt-1">
-                        Lessons: {progress.completedLessons}/{progress.totalLessons}, Quizzes: {progress.completedQuizzes}/{progress.totalQuizzes}
+                        {t('studentCourseView.lessonsCompleted')} {progress.completedLessons}/{progress.totalLessons}, {t('studentCourseView.quizzesCompleted')} {progress.completedQuizzes}/{progress.totalQuizzes}
                       </p>
                     </CardContent>
                   </Card>
@@ -483,18 +485,18 @@ export const CourseView = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-3 text-xl">
                     <Target className="h-6 w-6 text-primary" />
-                    What you&apos;ll learn
+                    {t('studentCourseView.whatYoullLearn')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="grid sm:grid-cols-2 gap-4">
                     {[
-                      "Master the fundamentals and advanced concepts",
-                      "Build real-world projects from scratch",
-                      "Understand best practices and industry standards",
-                      "Develop problem-solving skills",
-                      "Learn modern tools and techniques",
-                      "Get hands-on experience with practical exercises"
+                      t('studentCourseView.masterFundamentals'),
+                      t('studentCourseView.buildRealWorldProjects'),
+                      t('studentCourseView.understandBestPractices'),
+                      t('studentCourseView.developProblemSolving'),
+                      t('studentCourseView.learnModernTools'),
+                      t('studentCourseView.getHandsOnExperience')
                     ].map((item, index) => (
                       <div key={index} className="flex items-start gap-3">
                         <CheckCircle className="h-5 w-5 text-primary-500 mt-0.5 flex-shrink-0" />
@@ -510,9 +512,9 @@ export const CourseView = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-3 text-xl">
                     <BookOpen className="h-6 w-6 text-primary" />
-                    Course Content
+                    {t('studentCourseView.courseContent')}
                     <Badge variant="default" className="ml-auto">
-                      {progress.totalLessons} lessons, {progress.totalQuizzes} quizzes
+                      {progress.totalLessons} {t('studentCourseView.lessons')}, {progress.totalQuizzes} {t('studentCourseView.quizzes')}
                     </Badge>
                   </CardTitle>
                 </CardHeader>
@@ -520,15 +522,15 @@ export const CourseView = () => {
                   {lessons.length === 0 ? (
                     <div className="text-center py-12 text-muted-foreground">
                       <BookOpen className="h-16 w-16 mx-auto mb-4 opacity-50" />
-                      <h3 className="text-lg font-medium mb-2">No content available yet</h3>
-                      <p>The instructor is still preparing the course content.</p>
+                      <h3 className="text-lg font-medium mb-2">{t('studentCourseView.noLessonsYet')}</h3>
+                      <p>{t('studentCourseView.instructorStillPreparing')}</p>
                     </div>
                   ) : (
                     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                       <TabsList className="grid w-full grid-cols-3">
-                        <TabsTrigger value="lessons">Lessons</TabsTrigger>
-                        <TabsTrigger value="quizzes">Quizzes</TabsTrigger>
-                        <TabsTrigger value="lectures">Live Lectures</TabsTrigger>
+                        <TabsTrigger value="lessons">{t('studentCourseView.lessons')}</TabsTrigger>
+                        <TabsTrigger value="quizzes">{t('studentCourseView.quizzes')}</TabsTrigger>
+                        <TabsTrigger value="lectures">{t('studentCourseView.liveLectures')}</TabsTrigger>
                       </TabsList>
 
                       <TabsContent value="lessons" className="space-y-6">
@@ -547,7 +549,7 @@ export const CourseView = () => {
                                   </div>
                                   <div className="flex items-center gap-3 text-sm text-muted-foreground">
                                     <PlayCircle className="h-4 w-4" />
-                                    <span>~{lesson.duration_minutes ? lesson.duration_minutes : 15} min</span>
+                                    <span>~{lesson.duration_minutes ? lesson.duration_minutes : 15} {t('studentCourseView.minutes')}</span>
                                   </div>
                                 </div>
                               </AccordionTrigger>
@@ -586,7 +588,7 @@ export const CourseView = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                           {quizzes.length === 0 ? (
                             <div className="text-center col-span-full text-muted-foreground py-8">
-                              No quizzes available for this course yet.
+                              {t('studentCourseView.noQuizzesYet')}
                             </div>
                           ) : (
                             quizzes.map((quiz) => (
@@ -597,8 +599,8 @@ export const CourseView = () => {
                                 </CardHeader>
                                 <CardContent>
                                   <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
-                                    <span>Max Attempts: {quiz.max_attempts}</span>
-                                    {quiz.time_limit && <span>• Time Limit: {quiz.time_limit} min</span>}
+                                    <span>{t('studentCourseView.maxAttempts')} {quiz.max_attempts}</span>
+                                    {quiz.time_limit && <span>• {t('studentCourseView.timeLimit')} {quiz.time_limit} {t('studentCourseView.minutes')}</span>}
                                   </div>
                                   <Button
                                     className="w-full"
@@ -606,7 +608,7 @@ export const CourseView = () => {
                                     disabled={!isEnrolled}
                                     onClick={() => isEnrolled && window.location.assign(`/courses/${id}/quiz/${quiz.id}`)}
                                   >
-                                    {isEnrolled ? 'Take Quiz' : 'Enroll to Take Quiz'}
+                                    {isEnrolled ? t('studentCourseView.takeQuiz') : t('studentCourseView.enrollToTakeQuiz')}
                                   </Button>
                                 </CardContent>
                               </Card>
@@ -628,7 +630,7 @@ export const CourseView = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-3 text-xl">
                     <User className="h-6 w-6 text-primary" />
-                    Instructor
+                    {t('studentCourseView.instructor')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -641,27 +643,27 @@ export const CourseView = () => {
                       />
                     ) : (
                       <div className="h-20 w-20 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-2xl font-bold text-primary-foreground">
-                        {teacherProfile?.display_name?.charAt(0) || 'I'}
+                        {teacherProfile?.display_name?.charAt(0) || t('studentCourseView.instructor').charAt(0)}
                       </div>
                     )}
                     <div className="flex-1 space-y-3">
                       <div>
-                        <h3 className="text-xl font-semibold">{teacherProfile?.display_name || 'Unknown Instructor'}</h3>
+                        <h3 className="text-xl font-semibold">{teacherProfile?.display_name || t('studentCourseView.unknownInstructor')}</h3>
                         {teacherProfile?.specialization && <p className="text-muted-foreground">{teacherProfile.specialization}</p>}
                         {teacherProfile?.bio && <p className="text-muted-foreground text-sm mt-1">{teacherProfile.bio}</p>}
                       </div>
                       <div className="flex items-center gap-6 text-sm">
                         <div className="flex items-center gap-2">
                           <Star className="h-4 w-4 text-yellow-400" />
-                          <span>4.8 Instructor Rating</span>
+                          <span>4.8 {t('studentCourseView.instructorRating')}</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <Award className="h-4 w-4 text-blue-500" />
-                          <span>15,234 Students</span>
+                          <span>15,234 {t('studentCourseView.students')}</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <PlayCircle className="h-4 w-4 text-primary-500" />
-                          <span>12 Courses</span>
+                          <span>12 {t('studentCourseView.courses')}</span>
                         </div>
                       </div>
                     </div>
@@ -675,7 +677,7 @@ export const CourseView = () => {
                   <CardHeader>
                     <CardTitle className="flex items-center gap-3 text-xl">
                       <MessageSquare className="h-6 w-6 text-primary" />
-                      Course Discussions
+                      {t('studentCourseView.courseDiscussions')}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -704,9 +706,9 @@ export const CourseView = () => {
                     {/* Price */}
                     <div className="text-center space-y-2">
                       <div className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                        {course.price} credits
+                        {course.price} {t('studentCourseView.egp')}
                       </div>
-                      <p className="text-sm text-muted-foreground">One-time purchase • Lifetime access</p>
+                      <p className="text-sm text-muted-foreground">{t('studentCourseView.oneTimePurchase')}</p>
                     </div>
                     
                     {/* Action Button */}
@@ -716,18 +718,18 @@ export const CourseView = () => {
                         variant='default'
                         className="w-full h-14 text-lg rounded-xl"
                       >
-                        Enroll Now
+                        {t('studentCourseView.enrollNow')}
                         <ArrowRight className="ml-2 h-5 w-5" />
                       </Button>
                     ) : (
                       <div className="space-y-4">
                         <div className="flex items-center justify-center gap-2 text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/20 p-4 rounded-xl">
                           <Trophy className="h-6 w-6" />
-                          <span className="font-semibold">You&apos;re enrolled!</span>
+                          <span className="font-semibold">{t('studentCourseView.youreEnrolled')}</span>
                         </div>
                         <Button asChild className="w-full h-14 text-lg font-semibold rounded-xl">
                           <Link to={`/courses/${course.id}/progress`}>
-                            Continue Learning
+                            {t('studentCourseView.continueLearning')}
                             <Play className="ml-2 h-5 w-5" />
                           </Link>
                         </Button>
@@ -736,14 +738,14 @@ export const CourseView = () => {
 
                     {/* Course Features */}
                     <div className="space-y-4 pt-4 border-t border-border/20">
-                      <h4 className="font-semibold">This course includes:</h4>
+                      <h4 className="font-semibold">{t('studentCourseView.thisCourseIncludes')}</h4>
                       <div className="space-y-3">
                         {[
-                          { icon: PlayCircle, text: `${progress.totalLessons} on-demand video lessons` },
-                          { icon: FileText, text: "Downloadable resources" },
-                          { icon: Infinity, text: "Full lifetime access" },
-                          { icon: Smartphone, text: "Access on mobile and TV" },
-                          { icon: Award, text: "Certificate of completion" }
+                          { icon: PlayCircle, text: `${progress.totalLessons} ${t('studentCourseView.onDemandVideoLessons')}` },
+                          { icon: FileText, text: t('studentCourseView.downloadableResources') },
+                          { icon: Infinity, text: t('studentCourseView.fullLifetimeAccess') },
+                          { icon: Smartphone, text: t('studentCourseView.accessOnMobileAndTv') },
+                          { icon: Award, text: t('studentCourseView.certificateOfCompletion') }
                         ].map((feature, index) => (
                           <div key={index} className="flex items-center gap-3 text-sm">
                             <feature.icon className="h-4 w-4 text-primary flex-shrink-0" />
@@ -757,11 +759,11 @@ export const CourseView = () => {
                     <div className="flex gap-2 pt-4 border-t border-border/20">
                       <Button variant="outline" size="sm" className="flex-1">
                         <Heart className="h-4 w-4 mr-2" />
-                        Wishlist
+                        {t('studentCourseView.wishlist')}
                       </Button>
                       <Button variant="outline" size="sm" className="flex-1" onClick={handleShareClick}>
                         <Share2 className="h-4 w-4 mr-2" />
-                        Share
+                        {t('studentCourseView.share')}
                       </Button>
                     </div>
                   </CardContent>
@@ -787,20 +789,20 @@ export const CourseView = () => {
       <Dialog open={showShareModal} onOpenChange={setShowShareModal}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Share this Course</DialogTitle>
-            <DialogDescription>Send this link to invite others to this course.</DialogDescription>
+            <DialogTitle>{t('studentCourseView.shareThisCourse')}</DialogTitle>
+            <DialogDescription>{t('studentCourseView.shareDescription')}</DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-4 mt-2">
             <Input readOnly value={window.location.href} className="font-mono text-xs" />
             <div className="flex gap-2">
               <Button className="flex-1" onClick={handleCopyAgain}>
-                <Share2 className="h-4 w-4 mr-2" />Copy Link
+                <Share2 className="h-4 w-4 mr-2" />{t('studentCourseView.copyLink')}
               </Button>
               <Button className="flex-1" variant="default" onClick={handleNativeShare}>
-                <Smartphone className="h-4 w-4 mr-2" />Share...
+                <Smartphone className="h-4 w-4 mr-2" />{t('studentCourseView.shareNative')}
               </Button>
             </div>
-            <div className="text-xs text-muted-foreground text-center">Link copied! You can now share it anywhere.</div>
+            <div className="text-xs text-muted-foreground text-center">{t('studentCourseView.linkCopied')}</div>
           </div>
         </DialogContent>
       </Dialog>
@@ -809,20 +811,20 @@ export const CourseView = () => {
       <Dialog open={showAuthModal} onOpenChange={setShowAuthModal}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Authentication Required</DialogTitle>
+            <DialogTitle>{t('studentCourseView.authenticationRequired')}</DialogTitle>
             <DialogDescription>
-              You need to be signed in to enroll in this course.
+              {t('studentCourseView.authDescription')}
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end gap-2 mt-4">
             <Button variant="outline" onClick={() => setShowAuthModal(false)}>
-              Cancel
+              {t('studentCourseView.cancel')}
             </Button>
             <Button onClick={() => navigate('/auth/login')}>
-              Sign In
+              {t('studentCourseView.signIn')}
             </Button>
             <Button onClick={() => navigate('/authsignup')}>
-              Create Account
+              {t('studentCourseView.createAccount')}
             </Button>
           </div>
         </DialogContent>

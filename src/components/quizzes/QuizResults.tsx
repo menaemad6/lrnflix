@@ -10,6 +10,7 @@ import { Progress } from '@/components/ui/progress';
 import { CheckCircle2 } from 'lucide-react';
 import { getStudentAnswer, getAnswerCorrectness } from '@/utils/quizAnswerUtils';
 import { cn } from '@/lib/utils';
+import { useTranslation } from 'react-i18next';
 
 interface QuizResultsProps {
   score: number;
@@ -37,6 +38,7 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
   onBackToCourse,
   onBackToQuiz
 }) => {
+  const { t } = useTranslation('courses');
   // Debug logging for userAnswers structure
   console.log('QuizResults received userAnswers:', userAnswers);
   console.log('QuizResults userAnswers type:', typeof userAnswers);
@@ -142,8 +144,8 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
             }`}>
               <Award className="h-12 w-12 text-white" />
             </div>
-            <CardTitle className="text-4xl font-bold mb-2">Quiz Completed!</CardTitle>
-            <p className="text-muted-foreground text-lg">Excellent work on completing the quiz</p>
+            <CardTitle className="text-4xl font-bold mb-2">{t('quizResults.quizCompleted')}</CardTitle>
+            <p className="text-muted-foreground text-lg">{t('quizResults.excellentWork')}</p>
           </CardHeader>
           <CardContent className="text-center space-y-8 pb-8">
             <div className="space-y-4">
@@ -160,22 +162,22 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
                   passed ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'
                 }`}
               >
-                {percentage.toFixed(1)}% - {passed ? 'Passed' : 'Failed'}
+                {percentage.toFixed(1)}% - {passed ? t('quizResults.passed') : t('quizResults.failed')}
               </Badge>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
               <div className="p-6 bg-card/80 backdrop-blur-sm rounded-2xl border shadow-lg">
                 <div className="text-3xl font-bold text-primary mb-2">{questions.length}</div>
-                <div className="text-muted-foreground font-medium">Total Questions</div>
+                <div className="text-muted-foreground font-medium">{t('quizResults.totalQuestions')}</div>
               </div>
               <div className="p-6 bg-card/80 backdrop-blur-sm rounded-2xl border shadow-lg">
                 <div className="text-3xl font-bold text-primary mb-2">{Object.keys(userAnswers).length}</div>
-                <div className="text-muted-foreground font-medium">Answered</div>
+                <div className="text-muted-foreground font-medium">{t('quizResults.answered')}</div>
               </div>
               <div className="p-6 bg-card/80 backdrop-blur-sm rounded-2xl border shadow-lg">
                 <div className={cn("text-3xl font-bold mb-2", passed ? 'text-green-600' : 'text-red-600')}>{correctCount}</div>
-                <div className="text-muted-foreground font-medium">Correct</div>
+                <div className="text-muted-foreground font-medium">{t('quizResults.correct')}</div>
               </div>
             </div>
           </CardContent>
@@ -188,13 +190,13 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
               <div className="flex items-center justify-center gap-3 mb-4">
                 <div className="w-4 h-4 bg-primary rounded-full animate-pulse"></div>
                 <Brain className="h-8 w-8 text-primary" />
-                <span className="font-bold text-primary text-xl">Connected to Hossam</span>
+                <span className="font-bold text-primary text-xl">{t('quizResults.connectedToHossam')}</span>
               </div>
               <p className="text-muted-foreground mb-4 text-lg">
-                Your AI tutor is ready to help you understand the quiz questions better
+                {t('quizResults.aiTutorReady')}
               </p>
               <Button onClick={endCall} variant="destructive" size="lg" className="px-8">
-                End Call
+                {t('quizResults.endCall')}
               </Button>
             </CardContent>
           </Card>
@@ -207,7 +209,7 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
               <div className="w-12 h-12 bg-gradient-to-r from-primary to-primary/80 rounded-xl flex items-center justify-center">
                 <Sparkles className="h-6 w-6 text-white" />
               </div>
-              <h2 className="text-3xl font-bold">Answer Review</h2>
+              <h2 className="text-3xl font-bold">{t('quizResults.answerReview')}</h2>
             </div>
             
             <div className="space-y-6">
@@ -247,7 +249,7 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
                         <div className="lg:col-span-9 space-y-6">
                           <div>
                             <h4 className="font-bold text-xl mb-4">
-                              Question {questions.indexOf(question) + 1}: {question.question_text}
+                              {t('quizResults.questionNumber', { number: questions.indexOf(question) + 1, questionText: question.question_text })}
                             </h4>
                             
                             {question.question_image && (
@@ -263,23 +265,23 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                               <div className="space-y-3">
                                 <div className="flex items-center gap-2">
-                                  <span className="font-semibold text-muted-foreground">Your Answer:</span>
+                                  <span className="font-semibold text-muted-foreground">{t('quizResults.yourAnswer')}</span>
                                 </div>
                                 <div className={`p-4 rounded-xl border-2 font-medium ${
                                   isCorrect 
                                     ? 'bg-green-500/10 border-green-500/30 text-green-700' 
                                     : 'bg-red-500/10 border-red-500/30 text-red-700'
                                 }`}>
-                                  {userAnswer || 'Not answered'}
+                                  {userAnswer || t('quizResults.notAnswered')}
                                 </div>
                               </div>
                               
                               <div className="space-y-3">
                                 <div className="flex items-center gap-2">
-                                  <span className="font-semibold text-muted-foreground">Correct Answer:</span>
+                                  <span className="font-semibold text-muted-foreground">{t('quizResults.correctAnswer')}</span>
                                 </div>
                                 <div className="p-4 rounded-xl bg-primary/10 border-2 border-primary/30 text-primary font-medium">
-                                  {correctAnswer || 'No answer provided'}
+                                  {correctAnswer || t('quizResults.noAnswerProvided')}
                                 </div>
                               </div>
                             </div>
@@ -300,8 +302,8 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
                               <div className="w-8 h-8 bg-gradient-to-r from-primary to-primary/80 rounded-full flex items-center justify-center mb-1">
                                 <Brain className="h-5 w-5 text-white" />
                               </div>
-                              <span className="font-semibold">Ask Hossam</span>
-                              <span className="text-xs opacity-80">Get AI Help</span>
+                              <span className="font-semibold">{t('quizResults.askHossam')}</span>
+                              <span className="text-xs opacity-80">{t('quizResults.getAiHelp')}</span>
                             </Button>
                           </div>
                         </div>
@@ -318,9 +320,9 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
         {questions.length === 0 && (
           <Card>
             <CardContent className="text-center py-12">
-              <h3 className="text-lg font-semibold mb-2">No questions to review</h3>
+              <h3 className="text-lg font-semibold mb-2">{t('quizResults.noQuestionsToReview')}</h3>
               <p className="text-muted-foreground mb-4">
-                There were no valid questions in this quiz to display.
+                {t('quizResults.noValidQuestionsMessage')}
               </p>
             </CardContent>
           </Card>
@@ -330,7 +332,7 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
         <div className="text-center pt-8">
           <Button onClick={onBackToQuiz || onBackToCourse} size="lg" className="px-12 py-4 text-lg shadow-lg">
             <ArrowLeft className="h-5 w-5 mr-3" />
-            {onBackToQuiz ? 'Back to Quiz' : 'Back to Course'}
+            {onBackToQuiz ? t('quizResults.backToQuiz') : t('quizTaker.backToCourse')}
           </Button>
         </div>
       </div>

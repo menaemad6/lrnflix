@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -34,6 +35,7 @@ export const LessonManager = ({ courseId, onBack }: LessonManagerProps) => {
   const [loading, setLoading] = useState(true);
   const [showCreator, setShowCreator] = useState(false);
   const [editingLesson, setEditingLesson] = useState<string | null>(null);
+  const { t } = useTranslation('dashboard');
 
   useEffect(() => {
     fetchLessons();
@@ -52,8 +54,8 @@ export const LessonManager = ({ courseId, onBack }: LessonManagerProps) => {
     } catch (error: any) {
       console.error('Error fetching lessons:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to load lessons',
+        title: t('error'),
+        description: t('lessonManager.failedToLoadLessons'),
         variant: 'destructive',
       });
     } finally {
@@ -62,7 +64,7 @@ export const LessonManager = ({ courseId, onBack }: LessonManagerProps) => {
   };
 
   const deleteLesson = async (lessonId: string, title: string) => {
-    if (!confirm(`Are you sure you want to delete "${title}"?`)) return;
+    if (!confirm(t('lessonManager.deleteConfirmation', { title }))) return;
 
     try {
       const { error } = await supabase
@@ -73,8 +75,8 @@ export const LessonManager = ({ courseId, onBack }: LessonManagerProps) => {
       if (error) throw error;
 
       toast({
-        title: 'Success',
-        description: 'Lesson deleted successfully',
+        title: t('success'),
+        description: t('lessonManager.lessonDeleted'),
       });
 
       fetchLessons();
@@ -123,13 +125,13 @@ export const LessonManager = ({ courseId, onBack }: LessonManagerProps) => {
                 onClick={() => navigate(`/teacher/courses/${actualCourseId}/manage`)}
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                Back
+                {t('lessonManager.back')}
               </Button>
               <div className="space-y-1 sm:space-y-2">
                 <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary">
-                  Lesson Management
+                  {t('lessonManager.lessonManagement')}
                 </h3>
-                <p className="text-muted-foreground text-sm sm:text-base lg:text-lg">Create and manage your course lessons</p>
+                <p className="text-muted-foreground text-sm sm:text-base lg:text-lg">{t('lessonManager.createAndManageLessons')}</p>
               </div>
             </div>
             <Button 
@@ -137,7 +139,7 @@ export const LessonManager = ({ courseId, onBack }: LessonManagerProps) => {
               variant="default"
             >
               <Plus className="h-5 w-5 mr-2" />
-              Create Lesson
+              {t('lessonManager.createLesson')}
             </Button>
           </div>
         </div>
@@ -181,7 +183,7 @@ export const LessonManager = ({ courseId, onBack }: LessonManagerProps) => {
                       onClick={() => navigate(`/teacher/courses/${actualCourseId}/manage/lessons/${lesson.id}`)}
                       className="bg-primary-500/10 border-primary-500/30 hover:bg-primary-500/20 hover:border-primary-500/50 text-primary-300 backdrop-blur-sm transition-all duration-300 hover:shadow-lg hover:shadow-primary-500/20"
                     >
-                      <Edit className="h-4 w-4" />
+                      {t('lessonManager.edit')}
                     </Button>
                     <Button 
                       variant="outline" 
@@ -189,7 +191,7 @@ export const LessonManager = ({ courseId, onBack }: LessonManagerProps) => {
                       onClick={() => deleteLesson(lesson.id, lesson.title)}
                       className="bg-red-500/10 border-red-500/30 hover:bg-red-500/20 hover:border-red-500/50 text-red-300 backdrop-blur-sm transition-all duration-300 hover:shadow-lg hover:shadow-red-500/20"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      {t('lessonManager.delete')}
                     </Button>
                   </div>
                 </div>
@@ -199,18 +201,18 @@ export const LessonManager = ({ courseId, onBack }: LessonManagerProps) => {
                   {lesson.video_url && (
                     <Badge className="bg-primary-500/20 text-primary-300 border-primary-500/40 hover:bg-primary-500/30 transition-colors duration-300">
                       <Video className="h-3 w-3 mr-1" />
-                      Video
+                      {t('lessonManager.video')}
                     </Badge>
                   )}
                   {lesson.view_limit && (
                     <Badge className="bg-secondary-500/20 text-secondary-300 border-secondary-500/40 hover:bg-secondary-500/30 transition-colors duration-300">
                       <Eye className="h-3 w-3 mr-1" />
-                      {lesson.view_limit} views
+                      {t('lessonManager.views', { count: lesson.view_limit })}
                     </Badge>
                   )}
                   <Badge className="bg-accent-500/20 text-accent-300 border-accent-500/40 hover:bg-accent-500/30 transition-colors duration-300">
                     <Zap className="h-3 w-3 mr-1" />
-                    Order: {lesson.order_index}
+                    {t('lessonManager.order', { index: lesson.order_index })}
                   </Badge>
                 </div>
               </CardContent>
@@ -227,10 +229,10 @@ export const LessonManager = ({ courseId, onBack }: LessonManagerProps) => {
               </div>
               <div className="space-y-3">
                 <h3 className="text-2xl font-semibold bg-gradient-to-r from-primary-400 to-secondary-400 bg-clip-text text-transparent">
-                  No lessons yet
+                  {t('lessonManager.noLessonsYet')}
                 </h3>
                 <p className="text-muted-foreground text-lg max-w-md mx-auto leading-relaxed">
-                  Create your first lesson to start building your course and engaging your students
+                  {t('lessonManager.noLessonsDescription')}
                 </p>
               </div>
               <Button 
@@ -238,7 +240,7 @@ export const LessonManager = ({ courseId, onBack }: LessonManagerProps) => {
                 className="bg-gradient-to-r from-primary-500 via-secondary-500 to-primary-600 hover:from-primary-600 hover:via-secondary-600 hover:to-primary-700 text-black font-semibold px-8 py-4 rounded-2xl shadow-lg shadow-primary-500/25 border border-primary-400/30 transition-all duration-300 hover:shadow-xl hover:shadow-primary-500/30"
               >
                 <Plus className="h-5 w-5 mr-2" />
-                Create First Lesson
+                {t('lessonManager.createFirstLesson')}
               </Button>
             </CardContent>
           </Card>

@@ -7,6 +7,7 @@ import { useCallLimitations } from '@/hooks/useCallLimitations';
 import { useVapiCall } from '@/hooks/useVapiCall';
 import { MinutesPurchaseModal } from '@/components/lessons/MinutesPurchaseModal';
 import { MessageCircle, Clock, Brain, AlertCircle, CreditCard, ShoppingCart, Sparkles } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface QuizVoiceTutorModalProps {
   open: boolean;
@@ -42,6 +43,7 @@ export const QuizVoiceTutorModal = ({
   selectedDuration,
   setSelectedDuration
 }: QuizVoiceTutorModalProps) => {
+  const { t } = useTranslation('courses');
   // Local modal open state for decoupling from call interface
   const [modalOpen, setModalOpen] = useState(open);
   useEffect(() => { setModalOpen(open); }, [open]);
@@ -65,10 +67,10 @@ export const QuizVoiceTutorModal = ({
   const hasPurchasedMinutesOnly = remainingMinutes === 0 && purchasedMinutes > 0;
 
   const callDurations = [
-    { minutes: 3, label: '3 minutes', description: 'Quick clarification' },
-    { minutes: 5, label: '5 minutes', description: 'Standard help' },
-    { minutes: 10, label: '10 minutes', description: 'Detailed explanation' },
-    { minutes: 15, label: '15 minutes', description: 'In-depth discussion' }
+    { minutes: 3, label: t('aiVoiceTutor.quickClarification'), description: t('aiVoiceTutor.quickClarification') },
+    { minutes: 5, label: t('aiVoiceTutor.standardHelp'), description: t('aiVoiceTutor.standardHelp') },
+    { minutes: 10, label: t('aiVoiceTutor.detailedExplanation'), description: t('aiVoiceTutor.detailedExplanation') },
+    { minutes: 15, label: t('aiVoiceTutor.inDepthDiscussion'), description: t('aiVoiceTutor.inDepthDiscussion') }
   ];
 
   // Cleanup timer on unmount
@@ -111,11 +113,11 @@ export const QuizVoiceTutorModal = ({
         <DialogContent className="max-w-md z-[10000]">
           <div className="text-center p-8">
             <AlertCircle className="h-12 w-12 text-orange-500 mx-auto mb-3" />
-            <h3 className="font-semibold text-lg mb-2">Question Not Available</h3>
+            <h3 className="font-semibold text-lg mb-2">{t('aiVoiceTutor.questionNotAvailable')}</h3>
             <p className="text-muted-foreground mb-4">
-              The question data is not available for AI assistance.
+              {t('aiVoiceTutor.questionNotAvailableDescription')}
             </p>
-            <Button onClick={() => onOpenChange(false)}>Close</Button>
+            <Button onClick={() => onOpenChange(false)}>{t('aiVoiceTutor.close')}</Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -155,7 +157,7 @@ export const QuizVoiceTutorModal = ({
               <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
                 <Brain className="h-5 w-5 text-primary" />
               </div>
-              {isCallActive ? 'Active Call with Hossam' : 'Ask Hossam for Help'}
+              {isCallActive ? t('aiVoiceTutor.activeCallWithHossam') : t('aiVoiceTutor.askHossamForHelp')}
             </DialogTitle>
           </DialogHeader>
 
@@ -163,15 +165,15 @@ export const QuizVoiceTutorModal = ({
             {/* Question Preview - Always visible */}
             <Card>
               <CardContent className="p-4">
-                <h4 className="font-semibold mb-2">Question:</h4>
+                <h4 className="font-semibold mb-2">{t('aiVoiceTutor.question')}:</h4>
                 <p className="text-sm text-muted-foreground mb-3">{question.question_text}</p>
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div>
-                    <span className="font-medium">Your Answer: </span>
-                    <span className={userAnswer === question.correct_answer ? 'text-primary-500' : 'text-destructive'}>{userAnswer || 'Not answered'}</span>
+                    <span className="font-medium">{t('aiVoiceTutor.yourAnswer')}: </span>
+                    <span className={userAnswer === question.correct_answer ? 'text-primary-500' : 'text-destructive'}>{userAnswer || t('aiVoiceTutor.notAnswered')}</span>
                   </div>
                   <div>
-                    <span className="font-medium">Correct Answer: </span>
+                    <span className="font-medium">{t('aiVoiceTutor.correctAnswer')}: </span>
                     <span className="text-primary">{question.correct_answer}</span>
                   </div>
                 </div>
@@ -187,25 +189,25 @@ export const QuizVoiceTutorModal = ({
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2">
                         <Clock className="h-5 w-5 text-primary" />
-                        <span className="font-semibold text-foreground">Daily Usage</span>
+                        <span className="font-semibold text-foreground">{t('aiVoiceTutor.dailyUsage')}</span>
                       </div>
                       {!canStartCall && (
                         <Badge variant="destructive">
-                          Limit Reached
+                          {t('aiVoiceTutor.limitReached')}
                         </Badge>
                       )}
                     </div>
                     <div className="grid grid-cols-3 gap-4 text-sm">
                       <div>
-                        <div className="text-muted-foreground">Used Today</div>
+                        <div className="text-muted-foreground">{t('aiVoiceTutor.usedToday')}</div>
                         <div className="font-bold text-lg text-orange-600">{minutesUsedToday} min</div>
                       </div>
                       <div>
-                        <div className="text-muted-foreground">Remaining</div>
+                        <div className="text-muted-foreground">{t('aiVoiceTutor.remaining')}</div>
                         <div className="font-bold text-lg text-primary">{remainingMinutes} min</div>
                       </div>
                       <div>
-                        <div className="text-muted-foreground">Daily Limit</div>
+                        <div className="text-muted-foreground">{t('aiVoiceTutor.dailyLimit')}</div>
                         <div className="font-bold text-lg text-secondary-foreground">{dailyMinutesLimit} min</div>
                       </div>
                     </div>
@@ -229,27 +231,27 @@ export const QuizVoiceTutorModal = ({
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-2">
                           <CreditCard className="h-5 w-5 text-primary-500" />
-                          <span className="font-semibold text-foreground">Purchased Minutes</span>
+                          <span className="font-semibold text-foreground">{t('aiVoiceTutor.purchasedMinutes')}</span>
                         </div>
                         {hasPurchasedMinutesOnly && (
                           <Badge className="bg-primary-500/20 text-primary-600 dark:text-primary-400 border-primary-500/30">
                             <Sparkles className="h-3 w-3 mr-1" />
-                            Active
+                            {t('aiVoiceTutor.status')}
                           </Badge>
                         )}
                       </div>
                       <div className="grid grid-cols-3 gap-4 text-sm">
                         <div>
-                          <div className="text-muted-foreground">Available</div>
+                          <div className="text-muted-foreground">{t('aiVoiceTutor.available')}</div>
                           <div className="font-bold text-lg text-primary-600">{purchasedMinutes} min</div>
                         </div>
                         <div>
-                          <div className="text-muted-foreground">Type</div>
-                          <div className="font-bold text-lg text-primary-600">Premium</div>
+                          <div className="text-muted-foreground">{t('aiVoiceTutor.type')}</div>
+                          <div className="font-bold text-lg text-primary-600">{t('aiVoiceTutor.premium')}</div>
                         </div>
                         <div>
-                          <div className="text-muted-foreground">Status</div>
-                          <div className="font-bold text-lg text-primary-600">Unlimited</div>
+                          <div className="text-muted-foreground">{t('aiVoiceTutor.status')}</div>
+                          <div className="font-bold text-lg text-primary-600">{t('aiVoiceTutor.unlimited')}</div>
                         </div>
                       </div>
                       {hasPurchasedMinutesOnly && (
@@ -262,7 +264,7 @@ export const QuizVoiceTutorModal = ({
                           </div>
                           <div className="mt-2 text-xs text-primary-600 flex items-center gap-1">
                             <Sparkles className="h-3 w-3" />
-                            <span>Using purchased minutes for this session</span>
+                            <span>{t('aiVoiceTutor.usingPurchasedMinutes')}</span>
                           </div>
                         </div>
                       )}
@@ -277,30 +279,30 @@ export const QuizVoiceTutorModal = ({
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-2">
                           <ShoppingCart className="h-5 w-5 text-destructive" />
-                          <span className="font-semibold text-foreground">Out of Minutes</span>
+                          <span className="font-semibold text-foreground">{t('aiVoiceTutor.outOfMinutes')}</span>
                         </div>
                         <Badge variant="destructive">
                           <ShoppingCart className="h-3 w-3 mr-1" />
-                          Purchase Required
+                          {t('aiVoiceTutor.purchaseRequired')}
                         </Badge>
                       </div>
                       <div className="grid grid-cols-3 gap-4 text-sm mb-4">
                         <div>
-                          <div className="text-muted-foreground">Free Minutes</div>
+                          <div className="text-muted-foreground">{t('aiVoiceTutor.freeMinutes')}</div>
                           <div className="font-bold text-lg text-destructive">0 min</div>
                         </div>
                         <div>
-                          <div className="text-muted-foreground">Purchased</div>
+                          <div className="text-muted-foreground">{t('aiVoiceTutor.purchased')}</div>
                           <div className="font-bold text-lg text-destructive">0 min</div>
                         </div>
                         <div>
-                          <div className="text-muted-foreground">Status</div>
-                          <div className="font-bold text-lg text-destructive">Exhausted</div>
+                          <div className="text-muted-foreground">{t('aiVoiceTutor.status')}</div>
+                          <div className="font-bold text-lg text-destructive">{t('aiVoiceTutor.exhausted')}</div>
                         </div>
                       </div>
                       <div className="text-center">
                         <p className="text-muted-foreground mb-4">
-                          You've used all your free minutes for today. Purchase additional minutes to continue learning with your AI tutor.
+                          {t('aiVoiceTutor.outOfMinutesDescription')}
                         </p>
                         <Button 
                           onClick={() => setShowPurchaseModal(true)}
@@ -308,7 +310,7 @@ export const QuizVoiceTutorModal = ({
                           className="bg-destructive hover:bg-destructive/90 text-destructive-foreground px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
                         >
                           <ShoppingCart className="h-5 w-5 mr-2" />
-                          Purchase Minutes
+                          {t('aiVoiceTutor.purchaseMinutes')}
                         </Button>
                       </div>
                     </CardContent>
@@ -320,7 +322,7 @@ export const QuizVoiceTutorModal = ({
                   <div className="space-y-4">
                     <h4 className="font-semibold flex items-center gap-2">
                       <Clock className="h-4 w-4" />
-                      Choose Call Duration
+                      {t('aiVoiceTutor.chooseCallDuration')}
                     </h4>
                     <div className="grid grid-cols-2 gap-3">
                       {callDurations.map((duration) => {
@@ -343,7 +345,7 @@ export const QuizVoiceTutorModal = ({
                             </span>
                             {!isAvailable && (
                               <Badge variant="destructive" className="text-xs">
-                                Not enough time
+                                {t('aiVoiceTutor.notEnoughTime')}
                               </Badge>
                             )}
                           </Button>
@@ -355,9 +357,9 @@ export const QuizVoiceTutorModal = ({
                   <Card className="border-orange-500/20 bg-orange-500/5">
                     <CardContent className="p-4 text-center">
                       <AlertCircle className="h-12 w-12 text-orange-500 mx-auto mb-3" />
-                      <h4 className="font-semibold text-orange-700 mb-2">Daily Limit Reached</h4>
+                      <h4 className="font-semibold text-orange-700 mb-2">{t('aiVoiceTutor.dailyLimitReached')}</h4>
                       <p className="text-sm text-orange-600">
-                        You've used all {dailyMinutesLimit} minutes for today. Try again tomorrow!
+                        {t('aiVoiceTutor.dailyLimitReachedDescription', { dailyLimit: dailyMinutesLimit })}
                       </p>
                     </CardContent>
                   </Card>
@@ -368,7 +370,7 @@ export const QuizVoiceTutorModal = ({
             {/* Action Buttons */}
             <div className="flex gap-3 pt-4">
               <Button variant="outline" onClick={() => onOpenChange(false)} className="flex-1">
-                {isCallActive ? 'Close' : 'Cancel'}
+                {isCallActive ? t('aiVoiceTutor.close') : t('aiVoiceTutor.cancel')}
               </Button>
               {!isCallActive && canStartCall && (
                 <Button 
@@ -377,7 +379,7 @@ export const QuizVoiceTutorModal = ({
                   className="flex-1"
                 >
                   <MessageCircle className="h-4 w-4 mr-2" />
-                  {isConnecting ? 'Connecting...' : isCallActive ? 'In Call...' : 'Start Call'}
+                  {isConnecting ? t('aiVoiceTutor.connecting') : isCallActive ? t('aiVoiceTutor.inCall') : t('aiVoiceTutor.startCall')}
                 </Button>
               )}
               {!isCallActive && hasNoMinutesAvailable && (
@@ -386,7 +388,7 @@ export const QuizVoiceTutorModal = ({
                   className="flex-1 bg-destructive hover:bg-destructive/90 text-destructive-foreground"
                 >
                   <ShoppingCart className="h-4 w-4 mr-2" />
-                  Purchase Minutes
+                  {t('aiVoiceTutor.purchaseMinutes')}
                 </Button>
               )}
             </div>

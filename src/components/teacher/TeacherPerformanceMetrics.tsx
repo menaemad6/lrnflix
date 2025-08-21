@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, TrendingDown, Target, Award, Clock, Users, Star, BarChart3 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface PerformanceMetrics {
   totalStudents: number;
@@ -19,6 +20,8 @@ interface TeacherPerformanceMetricsProps {
 }
 
 export function TeacherPerformanceMetrics({ metrics }: TeacherPerformanceMetricsProps) {
+  const { t } = useTranslation('teacher');
+  
   const getGrowthColor = (growth: number) => {
     if (growth > 0) return 'text-primary-400';
     if (growth < 0) return 'text-red-400';
@@ -46,8 +49,8 @@ export function TeacherPerformanceMetrics({ metrics }: TeacherPerformanceMetrics
             <Award className="h-5 w-5 text-white" />
           </div>
           <div>
-            <CardTitle className="gradient-text text-xl">Performance Metrics</CardTitle>
-            <p className="text-muted-foreground text-sm">Your teaching excellence in numbers</p>
+            <CardTitle className="gradient-text text-xl">{t('dashboard.performance.title')}</CardTitle>
+            <p className="text-muted-foreground text-sm">{t('dashboard.performance.description')}</p>
           </div>
         </div>
       </CardHeader>
@@ -56,21 +59,21 @@ export function TeacherPerformanceMetrics({ metrics }: TeacherPerformanceMetrics
         <div className="grid grid-cols-2 gap-4">
           <div className="text-center p-4 rounded-xl bg-gradient-to-br from-blue-500/10 to-accent-500/10 border border-blue-500/20">
             <div className="text-2xl font-bold gradient-text mb-1">{metrics.totalStudents}</div>
-            <div className="text-xs text-muted-foreground">Total Students</div>
+            <div className="text-xs text-muted-foreground">{t('dashboard.performance.totalStudents')}</div>
             <div className="flex items-center justify-center gap-1 mt-2">
               {getGrowthIcon(metrics.monthlyGrowth)}
               <span className={`text-xs ${getGrowthColor(metrics.monthlyGrowth)}`}>
-                {Math.abs(metrics.monthlyGrowth)}% this month
+                {Math.abs(metrics.monthlyGrowth)}% {t('dashboard.performance.monthlyGrowth')}
               </span>
             </div>
           </div>
           
           <div className="text-center p-4 rounded-xl bg-gradient-to-br from-primary-500/10 to-green-500/10 border border-primary-500/20">
             <div className="text-2xl font-bold gradient-text mb-1">{metrics.totalCourses}</div>
-            <div className="text-xs text-muted-foreground">Active Courses</div>
+            <div className="text-xs text-muted-foreground">{t('dashboard.performance.activeCourses')}</div>
             <div className="flex items-center justify-center gap-1 mt-2">
               <Target className="h-4 w-4 text-primary-400" />
-              <span className="text-xs text-primary-400">Published</span>
+              <span className="text-xs text-primary-400">{t('dashboard.performance.published')}</span>
             </div>
           </div>
         </div>
@@ -80,7 +83,7 @@ export function TeacherPerformanceMetrics({ metrics }: TeacherPerformanceMetrics
           <div className="p-4 rounded-xl bg-gradient-to-br from-yellow-500/10 to-orange-500/10 border border-yellow-500/20">
             <div className="flex items-center gap-2 mb-2">
               <Star className="h-4 w-4 text-yellow-400" />
-              <span className="text-sm font-medium">Average Rating</span>
+              <span className="text-sm font-medium">{t('dashboard.performance.averageRating')}</span>
             </div>
             <div className={`text-2xl font-bold ${getRatingColor(metrics.averageRating)}`}>
               {metrics.averageRating.toFixed(1)}

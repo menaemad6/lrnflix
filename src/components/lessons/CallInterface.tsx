@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Phone } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface CallInterfaceProps {
   isCallActive: boolean;
@@ -20,6 +21,7 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
   studentName = "You",
   remainingTime = 0
 }) => {
+  const { t } = useTranslation('courses');
   const [callDuration, setCallDuration] = useState(0);
 
   // Call duration timer
@@ -63,9 +65,9 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
           </div>
           <div>
             <div className="text-xl font-semibold">
-              {isConnecting ? 'Connecting to Hossam...' : 'Voice Session with Hossam'}
+              {isConnecting ? t('aiVoiceTutor.connectingToHossam') : t('aiVoiceTutor.voiceSessionWithHossam')}
             </div>
-            <div className="text-primary-400 text-sm">AI Tutor • Live Session</div>
+            <div className="text-primary-400 text-sm">{t('aiVoiceTutor.aiTutorLiveSession')}</div>
           </div>
         </div>
         <div className="text-right">
@@ -74,10 +76,10 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
           </div>
           {remainingTime > 0 && (
             <div className="text-sm text-gray-400">
-              {formatDuration(remainingTime)} remaining
+              {formatDuration(remainingTime)} {t('aiVoiceTutor.remaining')}
             </div>
           )}
-          <div className="text-sm text-gray-400">Duration</div>
+          <div className="text-sm text-gray-400">{t('aiVoiceTutor.duration')}</div>
         </div>
       </div>
 

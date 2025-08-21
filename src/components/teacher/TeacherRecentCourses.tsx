@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { BookOpen, Users, GraduationCap, Plus, ArrowUpRight, Clock, Eye, TrendingUp, Calendar } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 interface Course {
   id: string;
@@ -21,15 +22,17 @@ interface TeacherRecentCoursesProps {
 }
 
 export function TeacherRecentCourses({ courses }: TeacherRecentCoursesProps) {
+  const { t } = useTranslation('teacher');
+  
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
     const diffTime = Math.abs(now.getTime() - date.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     
-    if (diffDays === 1) return 'Today';
-    if (diffDays === 2) return 'Yesterday';
-    if (diffDays <= 7) return `${diffDays - 1} days ago`;
+    if (diffDays === 1) return t('common.today');
+    if (diffDays === 2) return t('common.yesterday');
+    if (diffDays <= 7) return `${diffDays - 1} ${t('common.daysAgo')}`;
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
 
@@ -55,13 +58,13 @@ export function TeacherRecentCourses({ courses }: TeacherRecentCoursesProps) {
               <BookOpen className="h-5 w-5 text-white" />
             </div>
             <div>
-              <CardTitle className="gradient-text text-xl">Recent Courses</CardTitle>
-              <CardDescription className="text-muted-foreground">Your latest teaching content</CardDescription>
+              <CardTitle className="gradient-text text-xl">{t('dashboard.recentCourses.title')}</CardTitle>
+              <CardDescription className="text-muted-foreground">{t('dashboard.recentCourses.description')}</CardDescription>
             </div>
           </div>
           <Badge className="bg-primary-500/20 text-primary-400 border-primary-500/30 px-3 py-1">
             <TrendingUp className="h-3 w-3 mr-1" />
-            {courses.length} total
+            {courses.length} {t('common.total')}
           </Badge>
         </div>
       </CardHeader>
@@ -101,11 +104,11 @@ export function TeacherRecentCourses({ courses }: TeacherRecentCoursesProps) {
                 </Badge>
                 <span className="text-xs text-muted-foreground flex items-center gap-1">
                   <Users className="h-3 w-3" />
-                  {course.enrollments?.[0]?.count || 0} students
+                  {course.enrollments?.[0]?.count || 0} {t('common.students')}
                 </span>
                 <span className="text-xs text-primary-400 font-medium flex items-center gap-1">
                   <Eye className="h-3 w-3" />
-                  {course.price} credits
+                  {course.price} {t('common.credits')}
                 </span>
                 <span className="text-xs text-muted-foreground flex items-center gap-1">
                   <Calendar className="h-3 w-3" />
@@ -127,12 +130,12 @@ export function TeacherRecentCourses({ courses }: TeacherRecentCoursesProps) {
             <div className="w-20 h-20 bg-gradient-to-br from-primary-500/20 to-secondary-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
               <BookOpen className="w-10 h-10 text-primary-400 opacity-50" />
             </div>
-            <h3 className="text-lg font-semibold mb-2">No courses yet</h3>
-            <p className="text-muted-foreground mb-4">Create your first course to get started</p>
+            <h3 className="text-lg font-semibold mb-2">{t('dashboard.recentCourses.noCourses')}</h3>
+            <p className="text-muted-foreground mb-4">{t('dashboard.recentCourses.createFirstCourse')}</p>
             <Link to="/teacher/create-course">
               <Button className="btn-primary">
                 <Plus className="h-4 w-4 mr-2" />
-                Create Course
+                {t('dashboard.hero.createCourse')}
               </Button>
             </Link>
           </div>
@@ -143,7 +146,7 @@ export function TeacherRecentCourses({ courses }: TeacherRecentCoursesProps) {
             <Link to="/teacher/courses">
               <Button className="w-full btn-secondary group">
                 <GraduationCap className="h-4 w-4 mr-2 group-hover:rotate-12 transition-transform" />
-                View All Courses
+                {t('dashboard.recentCourses.viewAllCourses')}
                 <ArrowUpRight className="h-4 w-4 ml-2 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
               </Button>
             </Link>

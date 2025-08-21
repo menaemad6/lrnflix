@@ -20,10 +20,12 @@ import type { RootState } from '@/store/store';
 import { useRandomBackground } from "../../hooks/useRandomBackground";
 import { useDispatch } from 'react-redux';
 import { updateUser } from '@/store/slices/authSlice';
+import { useTranslation } from 'react-i18next';
 
 const Store = () => {
   const { user } = useSelector((state: RootState) => state.auth);
   const { toast } = useToast();
+  const { t } = useTranslation('dashboard');
   const [loading, setLoading] = useState<string | null>(null);
   const bgClass = useRandomBackground();
   const dispatch = useDispatch();
@@ -31,28 +33,28 @@ const Store = () => {
   const creditPackages = [
     {
       id: 'basic',
-      name: 'Basic Package',
+      name: t('studentStore.basicPackage'),
       credits: 50,
       price: 25, // EGP
       popular: false,
-      description: 'Perfect for getting started'
+      description: t('studentStore.perfectForGettingStarted')
     },
     {
       id: 'popular',
-      name: 'Popular Package',
+      name: t('studentStore.popularPackage'),
       credits: 120,
       price: 50, // EGP
       popular: true,
-      description: 'Most chosen by students',
+      description: t('studentStore.mostChosenByStudents'),
       bonus: 20 // bonus credits
     },
     {
       id: 'premium',
-      name: 'Premium Package',
+      name: t('studentStore.premiumPackage'),
       credits: 300,
       price: 100, // EGP
       popular: false,
-      description: 'Maximum value for heavy users',
+      description: t('studentStore.maximumValueForHeavyUsers'),
       bonus: 50 // bonus credits
     }
   ];
@@ -60,25 +62,25 @@ const Store = () => {
   const minutePackages = [
     {
       id: 'starter',
-      name: 'Extra Minutes',
+      name: t('studentStore.extraMinutes'),
       minutes: 30,
       cost: 30, // credits
-      description: 'Perfect for short sessions'
+      description: t('studentStore.perfectForShortSessions')
     },
     {
       id: 'standard',
-      name: 'Study Session',
+      name: t('studentStore.studySession'),
       minutes: 60,
       cost: 50, // credits (discounted)
-      description: 'Great for focused learning',
+      description: t('studentStore.greatForFocusedLearning'),
       savings: 10
     },
     {
       id: 'extended',
-      name: 'Deep Learning',
+      name: t('studentStore.deepLearning'),
       minutes: 120,
       cost: 90, // credits (more discounted)
-      description: 'For comprehensive study',
+      description: t('studentStore.forComprehensiveStudy'),
       savings: 30
     }
   ];
@@ -89,8 +91,8 @@ const Store = () => {
     // Simulate credit purchase (you'll integrate real payment later)
     setTimeout(() => {
       toast({
-        title: "Payment Integration Required",
-        description: "This will be integrated with your EGP payment gateway",
+        title: t('studentStore.paymentIntegrationRequired'),
+        description: t('studentStore.willBeIntegratedWithPaymentGateway'),
         variant: "default"
       });
       setLoading(null);
@@ -114,8 +116,8 @@ const Store = () => {
 
       if (result.success) {
         toast({
-          title: "Minutes Purchased!",
-          description: `Successfully purchased ${pkg.minutes} assistant minutes`,
+          title: t('studentStore.minutesPurchased'),
+          description: t('studentStore.successfullyPurchasedMinutes', { minutes: pkg.minutes }),
         });
         dispatch(updateUser({ 
           wallet: (user.wallet || 0) - (result.cost || 0), 
@@ -123,16 +125,16 @@ const Store = () => {
         }));
       } else {
         toast({
-          title: "Purchase Failed",
-          description: result.error || "Something went wrong",
+          title: t('studentStore.purchaseFailed'),
+          description: result.error || t('studentStore.somethingWentWrong'),
           variant: "destructive"
         });
       }
     } catch (error) {
       console.error('Error purchasing minutes:', error);
       toast({
-        title: "Error",
-        description: "Failed to purchase minutes",
+        title: t('studentStore.error'),
+        description: t('studentStore.failedToPurchaseMinutes'),
         variant: "destructive"
       });
     } finally {
@@ -149,10 +151,10 @@ const Store = () => {
             <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center">
               <CreditCard className="h-6 w-6 text-primary-foreground" />
             </div>
-            <h1 className="text-4xl font-bold gradient-text">Student Store</h1>
+            <h1 className="text-4xl font-bold text-primary">{t('studentStore.store')}</h1>
           </div>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Purchase credits and assistant minutes to enhance your learning experience
+            {t('studentStore.purchaseCreditsAndMinutes')}
           </p>
         </div>
 
@@ -165,8 +167,8 @@ const Store = () => {
                   <Wallet className="h-6 w-6 text-primary" />
                 </div>
                 <div>
-                  <div className="text-sm text-muted-foreground">Your Balance</div>
-                  <div className="text-2xl font-bold">{user?.wallet || 0} Credits</div>
+                  <div className="text-sm text-muted-foreground">{t('studentStore.yourBalance')}</div>
+                  <div className="text-2xl font-bold">{user?.wallet || 0} {t('studentStore.credits')}</div>
                 </div>
               </div>
               <div className="flex items-center gap-4">
@@ -174,8 +176,8 @@ const Store = () => {
                   <Clock className="h-6 w-6 text-primary-600" />
                 </div>
                 <div>
-                  <div className="text-sm text-muted-foreground">Assistant Minutes</div>
-                  <div className="text-2xl font-bold">{user?.minutes || 0} Minutes</div>
+                  <div className="text-sm text-muted-foreground">{t('studentStore.assistantMinutes')}</div>
+                  <div className="text-2xl font-bold">{user?.minutes || 0} {t('studentStore.minutes')}</div>
                 </div>
               </div>
             </div>
@@ -186,8 +188,8 @@ const Store = () => {
         <div className="mb-12">
           <div className="flex items-center gap-3 mb-6">
             <Zap className="h-6 w-6 text-yellow-500" />
-            <h2 className="text-2xl font-bold">Credit Packages</h2>
-            <Badge variant="default">Pay with EGP</Badge>
+            <h2 className="text-2xl font-bold">{t('studentStore.creditPackages')}</h2>
+            <Badge variant="default">{t('studentStore.payWithEgp')}</Badge>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -197,7 +199,7 @@ const Store = () => {
                   <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                     <Badge variant='default'>
                       <Star className="h-3 w-3 mr-1" />
-                      Most Popular
+                      {t('studentStore.mostPopular')}
                     </Badge>
                   </div>
                 )}
@@ -206,12 +208,12 @@ const Store = () => {
                   <CardTitle className="text-xl">{pkg.name}</CardTitle>
                   <CardDescription>{pkg.description}</CardDescription>
                   <div className="mt-4">
-                    <div className="text-3xl font-bold">{pkg.price} EGP</div>
+                    <div className="text-3xl font-bold">{pkg.price} {t('studentStore.egp')}</div>
                     <div className="text-lg text-muted-foreground">
-                      {pkg.credits} Credits
+                      {pkg.credits} {t('studentStore.credits')}
                       {pkg.bonus && (
                         <span className="text-primary-600 text-sm ml-2">
-                          +{pkg.bonus} Bonus!
+                          +{pkg.bonus} {t('studentStore.bonus')}
                         </span>
                       )}
                     </div>
@@ -225,11 +227,11 @@ const Store = () => {
                     onClick={() => handlePurchaseCredits(pkg.id)}
                     disabled={loading === pkg.id}
                   >
-                    {loading === pkg.id ? "Processing..." : "Purchase Package"}
+                    {loading === pkg.id ? t('studentStore.processing') : t('studentStore.purchasePackage')}
                   </Button>
                   
                   <div className="text-center text-xs text-muted-foreground mt-2">
-                    ≈ {(pkg.price / (pkg.credits + (pkg.bonus || 0))).toFixed(2)} EGP per credit
+                    ≈ {(pkg.price / (pkg.credits + (pkg.bonus || 0))).toFixed(2)} {t('studentStore.egpPerCredit')}
                   </div>
                 </CardContent>
               </Card>
@@ -243,8 +245,8 @@ const Store = () => {
         <div>
           <div className="flex items-center gap-3 mb-6">
             <MessageSquare className="h-6 w-6 text-blue-500" />
-            <h2 className="text-2xl font-bold">Assistant Minutes</h2>
-            <Badge variant="default">Pay with Credits</Badge>
+            <h2 className="text-2xl font-bold">{t('studentStore.assistantMinutesTitle')}</h2>
+            <Badge variant="default">{t('studentStore.payWithCredits')}</Badge>
           </div>
 
           {/* Free Minutes Info */}
@@ -255,9 +257,9 @@ const Store = () => {
                   <Gift className="h-6 w-6 text-primary-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-primary-800 dark:text-primary-400">Daily Free Minutes</h3>
+                  <h3 className="font-semibold text-primary-800 dark:text-primary-400">{t('studentStore.dailyFreeMinutes')}</h3>
                   <p className="text-primary-700 dark:text-primary-300 text-sm">
-                    Every student gets 5 minutes of AI assistant conversation for free every day!
+                    {t('studentStore.everyStudentGets5Minutes')}
                   </p>
                 </div>
               </div>
@@ -271,13 +273,13 @@ const Store = () => {
                   <CardTitle className="text-xl">{pkg.name}</CardTitle>
                   <CardDescription>{pkg.description}</CardDescription>
                   <div className="mt-4">
-                    <div className="text-3xl font-bold">{pkg.cost} Credits</div>
+                    <div className="text-3xl font-bold">{pkg.cost} {t('studentStore.credits')}</div>
                     <div className="text-lg text-muted-foreground">
-                      {pkg.minutes} Minutes
+                      {pkg.minutes} {t('studentStore.minutes')}
                     </div>
                     {pkg.savings && (
                       <div className="text-primary-600 text-sm">
-                        Save {pkg.savings} credits!
+                        {t('studentStore.savings')} {pkg.savings} {t('studentStore.credits')}!
                       </div>
                     )}
                   </div>
@@ -290,12 +292,12 @@ const Store = () => {
                     onClick={() => handlePurchaseMinutes(pkg)}
                     disabled={loading === pkg.id || (user?.wallet || 0) < pkg.cost}
                   >
-                    {loading === pkg.id ? "Processing..." : "Buy Minutes"}
+                    {loading === pkg.id ? t('studentStore.processing') : t('studentStore.buyMinutes')}
                   </Button>
                   
                   {(user?.wallet || 0) < pkg.cost && (
                     <div className="text-center text-xs text-red-500 mt-2">
-                      Need {pkg.cost - (user?.wallet || 0)} more credits
+                      {t('studentStore.needMoreCredits', { amount: pkg.cost - (user?.wallet || 0) })}
                     </div>
                   )}
                 </CardContent>
@@ -310,11 +312,10 @@ const Store = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-center gap-2 mb-2">
                 <Sparkles className="h-5 w-5 text-primary" />
-                <span className="font-semibold">Pro Tip</span>
+                <span className="font-semibold">{t('studentStore.proTip')}</span>
               </div>
               <p className="text-muted-foreground text-sm">
-                Use your free 5 minutes daily to get started, then purchase additional minutes 
-                when you need extended AI tutoring sessions for deep learning!
+                {t('studentStore.useFreeMinutesDaily')}
               </p>
             </CardContent>
           </Card>

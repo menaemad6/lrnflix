@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Calendar, Clock, Zap, BookOpen, Brain, Target } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useTranslation } from 'react-i18next';
 
 interface ActivityItem {
   id: string;
@@ -26,6 +27,7 @@ interface StudentActivityProps {
 export const StudentActivity = ({ stats }: StudentActivityProps) => {
   const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const { t } = useTranslation('dashboard');
 
   useEffect(() => {
     const fetchActivities = async () => {
@@ -61,8 +63,8 @@ export const StudentActivity = ({ stats }: StudentActivityProps) => {
             lessonProgress.map((lp: any) => ({
               id: `lesson-${lp.lesson_id}-${lp.completed_at}`,
               type: 'lesson',
-              title: `Completed "${lp.lessons?.title || 'Lesson'}"`,
-              subtitle: lp.lessons?.course_id ? `Course ID: ${lp.lessons.course_id}` : undefined,
+              title: t('studentActivity.completedLesson', { lessonName: lp.lessons?.title || t('studentActivity.lesson') }),
+              subtitle: lp.lessons?.course_id ? t('studentActivity.courseId', { id: lp.lessons.course_id }) : undefined,
               timestamp: lp.completed_at ? new Date(lp.completed_at).toLocaleString() : '',
               icon: <BookOpen className="h-4 w-4" />,
               color: 'text-blue-400',
@@ -75,8 +77,8 @@ export const StudentActivity = ({ stats }: StudentActivityProps) => {
             quizAttempts.map((qa: any) => ({
               id: `quiz-${qa.quiz_id}-${qa.started_at}`,
               type: 'quiz',
-              title: `Scored ${Math.round((qa.score || 0) * 100)}% on ${qa.quizzes?.title || 'Quiz'}`,
-              subtitle: qa.quizzes?.course_id ? `Course ID: ${qa.quizzes.course_id}` : undefined,
+              title: t('studentActivity.scoredOnQuiz', { score: Math.round((qa.score || 0) * 100), quizName: qa.quizzes?.title || t('studentActivity.quiz') }),
+              subtitle: qa.quizzes?.course_id ? t('studentActivity.courseId', { id: qa.quizzes.course_id }) : undefined,
               timestamp: qa.started_at ? new Date(qa.started_at).toLocaleString() : '',
               icon: <Brain className="h-4 w-4" />,
               color: 'text-green-400',
@@ -89,7 +91,7 @@ export const StudentActivity = ({ stats }: StudentActivityProps) => {
             enrollments.map((en: any) => ({
               id: `enroll-${en.id}-${en.enrolled_at}`,
               type: 'course',
-              title: `Enrolled in "${en.course?.title || 'Course'}"`,
+              title: t('studentActivity.enrolledInCourse', { courseName: en.course?.title || t('studentActivity.course') }),
               subtitle: en.course?.category ? en.course.category : undefined,
               timestamp: en.enrolled_at ? new Date(en.enrolled_at).toLocaleString() : '',
               icon: <Target className="h-4 w-4" />,
@@ -128,19 +130,19 @@ export const StudentActivity = ({ stats }: StudentActivityProps) => {
             <Calendar className="h-6 w-6 text-black" />
           </div>
           <div>
-            <div className="gradient-text text-xl font-bold">Recent Activity</div>
-            <CardDescription className="text-muted-foreground/80">Your latest learning actions</CardDescription>
+            <div className="gradient-text text-xl font-bold">{t('studentActivity.title')}</div>
+            <CardDescription className="text-muted-foreground/80">{t('studentActivity.subtitle')}</CardDescription>
           </div>
           <div className="ml-auto">
             <Badge variant="default" className="bg-primary/20 text-primary border-primary/30">
-              {stats.studyStreak || 0} day streak
+              {t('studentActivity.dayStreak', { count: stats.studyStreak || 0 })}
             </Badge>
           </div>
         </div>
       </CardHeader>
       <CardContent>
         {loading ? (
-          <div className="text-center py-8 text-muted-foreground">Loading activity...</div>
+          <div className="text-center py-8 text-muted-foreground">{t('studentActivity.loadingActivity')}</div>
         ) : activities.length > 0 ? (
           <div className="space-y-4">
             {activities.map((activity, index) => (
@@ -161,7 +163,7 @@ export const StudentActivity = ({ stats }: StudentActivityProps) => {
                       {activity.title}
                     </h4>
                     <Badge variant="secondary" className={`text-xs capitalize truncate ${getTypeColor(activity.type)}`}>
-                      {activity.type}
+                      {t(`studentActivity.${activity.type}`)}
                     </Badge>
                   </div>
                   {activity.subtitle && (
@@ -181,10 +183,10 @@ export const StudentActivity = ({ stats }: StudentActivityProps) => {
           <div className="text-center py-8">
             <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
             <p className="text-muted-foreground mb-2">
-              No recent activity yet
+              {t('studentActivity.noRecentActivity')}
             </p>
             <p className="text-xs text-muted-foreground">
-              Start learning to see your activity timeline here
+              {t('studentActivity.startLearningToSee')}
             </p>
           </div>
         )}

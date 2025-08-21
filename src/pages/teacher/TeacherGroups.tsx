@@ -16,6 +16,7 @@ import { GroupCardSkeleton } from '@/components/student/skeletons/GroupCardSkele
 import { ImageUploader } from '@/components/ui/ImageUploader';
 import { IMAGE_UPLOAD_BUCKETS } from '@/data/constants';
 import type { UploadedImage } from '@/hooks/useImageUpload';
+import { useTranslation } from 'react-i18next';
 
 interface Group {
   id: string;
@@ -30,6 +31,7 @@ interface Group {
 }
 
 export const TeacherGroups = () => {
+  const { t } = useTranslation('teacher');
   const navigate = useNavigate();
   const { toast } = useToast();
   const { data: groups = [], isLoading, refetch } = useTeacherGroups();
@@ -59,18 +61,18 @@ export const TeacherGroups = () => {
 
   const handleImageUploaded = (image: UploadedImage) => {
     setUploadedImage(image);
-    toast({
-      title: 'Success',
-      description: 'Group thumbnail uploaded successfully!',
-    });
+          toast({
+        title: t('common.success'),
+        description: t('groups.page.thumbnailUploaded'),
+      });
   };
 
   const handleImageDeleted = (path: string) => {
     setUploadedImage(null);
-    toast({
-      title: 'Success',
-      description: 'Group thumbnail removed',
-    });
+          toast({
+        title: t('common.success'),
+        description: t('groups.page.thumbnailRemoved'),
+      });
   };
 
   const handleCreateGroup = async (e: React.FormEvent) => {
@@ -81,14 +83,14 @@ export const TeacherGroups = () => {
       console.log('Creating new group:', newGroup);
 
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        toast({
-          title: 'Error',
-          description: 'You must be logged in to create a group',
-          variant: 'destructive',
-        });
-        return;
-      }
+              if (!user) {
+          toast({
+            title: t('common.error'),
+            description: t('groups.page.mustBeLoggedIn'),
+            variant: 'destructive',
+          });
+          return;
+        }
 
       const { data, error } = await supabase
         .from('groups')
@@ -112,8 +114,8 @@ export const TeacherGroups = () => {
       console.log('Group created successfully:', data);
 
       toast({
-        title: 'Success',
-        description: 'Group created successfully!',
+        title: t('common.success'),
+        description: t('groups.page.groupCreated'),
       });
 
       setNewGroup({ name: '', description: '', is_public: false, max_members: '' });
@@ -122,9 +124,9 @@ export const TeacherGroups = () => {
       refetch();
     } catch (error: unknown) {
       console.error('Error creating group:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Failed to create group';
+      const errorMessage = error instanceof Error ? error.message : t('groups.page.failedToCreate');
       toast({
-        title: 'Error',
+        title: t('common.error'),
         description: errorMessage,
         variant: 'destructive',
       });
@@ -132,7 +134,7 @@ export const TeacherGroups = () => {
   };
 
   const handleDeleteGroup = async (groupId: string, groupName: string) => {
-    if (!confirm(`Are you sure you want to delete "${groupName}"? This action cannot be undone.`)) return;
+    if (!confirm(t('groups.page.deleteConfirm', { groupName }))) return;
 
     try {
       const { error } = await supabase
@@ -143,16 +145,16 @@ export const TeacherGroups = () => {
       if (error) throw error;
 
       toast({
-        title: 'Success',
-        description: 'Group deleted successfully!',
+        title: t('common.success'),
+        description: t('groups.page.groupDeleted'),
       });
 
       refetch();
     } catch (error: unknown) {
       console.error('Error deleting group:', error);
       toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Unknown error',
+        title: t('common.error'),
+        description: error instanceof Error ? error.message : t('common.error'),
         variant: 'destructive',
       });
     }
@@ -160,19 +162,19 @@ export const TeacherGroups = () => {
 
   const copyGroupCode = (code: string) => {
     navigator.clipboard.writeText(code);
-    toast({
-      title: 'Copied!',
-      description: 'Group code copied to clipboard',
-    });
+          toast({
+        title: t('common.success'),
+        description: t('groups.page.groupCodeCopied'),
+      });
   };
 
   const copyGroupLink = (groupId: string, code: string) => {
     const link = `${window.location.origin}/groups/${groupId}?code=${code}`;
     navigator.clipboard.writeText(link);
-    toast({
-      title: 'Copied!',
-      description: 'Group invitation link copied to clipboard',
-    });
+          toast({
+        title: t('common.success'),
+        description: t('groups.page.invitationLinkCopied'),
+      });
   };
 
   const handleCloseForm = () => {
@@ -187,8 +189,8 @@ export const TeacherGroups = () => {
       <div className="space-y-6">
         {/* Header */}
         <TeacherPageHeader
-          title="Study Groups"
-          subtitle="Create and manage study groups for your students"
+          title={t('groups.page.title')}
+          subtitle={t('groups.page.subtitle')}
         />
 
         {/* Search Bar */}
@@ -197,7 +199,7 @@ export const TeacherGroups = () => {
             <div className="relative max-w-md">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
               <Input
-                placeholder="Search groups..."
+                placeholder={t('groups.page.searchPlaceholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -206,7 +208,7 @@ export const TeacherGroups = () => {
           </div>
           <Button onClick={() => setShowCreateForm(!showCreateForm)}>
             <Plus className="h-4 w-4 mr-2" />
-            Create Group
+            {t('groups.page.createGroup')}
           </Button>
         </div>
 
@@ -214,32 +216,32 @@ export const TeacherGroups = () => {
         {showCreateForm && (
           <Card>
             <CardHeader>
-              <CardTitle>Create New Group</CardTitle>
+              <CardTitle>{t('groups.page.createNewGroup')}</CardTitle>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleCreateGroup} className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Group Name</label>
+                  <label className="text-sm font-medium mb-2 block">{t('groups.page.groupName')}</label>
                   <Input
                     value={newGroup.name}
                     onChange={(e) => setNewGroup({ ...newGroup, name: e.target.value })}
-                    placeholder="Enter group name"
+                    placeholder={t('groups.page.groupNamePlaceholder')}
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Description</label>
+                  <label className="text-sm font-medium mb-2 block">{t('groups.page.description')}</label>
                   <Textarea
                     value={newGroup.description}
                     onChange={(e) => setNewGroup({ ...newGroup, description: e.target.value })}
-                    placeholder="Describe the group's purpose"
+                    placeholder={t('groups.page.descriptionPlaceholder')}
                     rows={3}
                   />
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Group Thumbnail</label>
+                  <label className="text-sm font-medium mb-2 block">{t('groups.page.groupThumbnail')}</label>
                   <ImageUploader
                     bucket={IMAGE_UPLOAD_BUCKETS.GROUPS_THUMBNAILS}
                     folder="groups"
@@ -249,25 +251,25 @@ export const TeacherGroups = () => {
                     onImageDeleted={handleImageDeleted}
                     onError={(error) => {
                       toast({
-                        title: 'Error',
+                        title: t('common.error'),
                         description: error,
                         variant: 'destructive',
                       });
                     }}
                     variant="compact"
                     size="sm"
-                    placeholder="Upload group thumbnail"
+                    placeholder={t('groups.page.uploadThumbnail')}
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm font-medium mb-2 block">Max Members (Optional)</label>
+                    <label className="text-sm font-medium mb-2 block">{t('groups.page.maxMembers')}</label>
                     <Input
                       type="number"
                       value={newGroup.max_members}
                       onChange={(e) => setNewGroup({ ...newGroup, max_members: e.target.value })}
-                      placeholder="No limit"
+                      placeholder={t('groups.page.maxMembersPlaceholder')}
                       min="1"
                     />
                   </div>
@@ -277,16 +279,16 @@ export const TeacherGroups = () => {
                       checked={newGroup.is_public}
                       onCheckedChange={(checked) => setNewGroup({ ...newGroup, is_public: checked })}
                     />
-                    <label htmlFor="is_public" className="text-sm font-medium">Make group public</label>
+                    <label htmlFor="is_public" className="text-sm font-medium">{t('groups.page.makePublic')}</label>
                   </div>
                 </div>
 
                 <div className="flex gap-2 pt-4">
                   <Button type="submit" disabled={!newGroup.name.trim()}>
-                    Create Group
+                    {t('groups.page.createGroup')}
                   </Button>
                   <Button type="button" variant="outline" onClick={handleCloseForm}>
-                    Cancel
+                    {t('groups.page.cancel')}
                   </Button>
                 </div>
               </form>
@@ -306,18 +308,18 @@ export const TeacherGroups = () => {
             <CardContent className="text-center py-12">
               <Users className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
               <h3 className="text-xl font-semibold mb-2">
-                {searchTerm ? 'No matching groups found' : 'No groups yet'}
+                {searchTerm ? t('groups.page.noMatchingGroups') : t('groups.page.noGroupsYet')}
               </h3>
               <p className="text-muted-foreground mb-6">
                 {searchTerm 
-                  ? 'Try adjusting your search terms to find the right group' 
-                  : 'Create your first group to help students collaborate and learn together'
+                  ? t('groups.page.noMatchingDescription')
+                  : t('groups.page.noGroupsDescription')
                 }
               </p>
               {!searchTerm && (
                 <Button onClick={() => setShowCreateForm(true)}>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Create Your First Group
+                  <Plus className="w-4 w-4 mr-2" />
+                  {t('groups.page.createFirstGroup')}
                 </Button>
               )}
             </CardContent>
@@ -328,7 +330,7 @@ export const TeacherGroups = () => {
               const isPublic = group.is_public;
               const borderColor = isPublic ? 'border-l-8 border-primary-500' : 'border-l-8 border-yellow-400';
               const badgeColor = isPublic ? 'bg-primary-500 text-white' : 'bg-yellow-400 text-yellow-900 font-bold rounded-full shadow px-3 py-1 border border-yellow-300 hover:bg-yellow-300 hover:border-yellow-500 transition-colors';
-              const badgeLabel = isPublic ? 'Public' : 'Private';
+              const badgeLabel = isPublic ? t('groups.page.public') : t('groups.page.private');
               return (
                 <Card
                   key={group.id}
@@ -369,12 +371,12 @@ export const TeacherGroups = () => {
                       <div className="flex items-center gap-2">
                         <Badge className={`px-2 py-1 rounded-lg text-xs font-semibold ${badgeColor}`}>{badgeLabel}</Badge>
                         {group.max_members && (
-                          <span className="text-xs text-muted-foreground ml-2">Max: {group.max_members}</span>
+                          <span className="text-xs text-muted-foreground ml-2">{t('groups.page.max')}: {group.max_members}</span>
                         )}
                       </div>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground mt-2 sm:mt-0">
                         <Calendar className="w-4 h-4" />
-                        <span>Created {new Date(group.created_at).toLocaleDateString()}</span>
+                        <span>{t('groups.page.created')} {new Date(group.created_at).toLocaleDateString()}</span>
                       </div>
                     </div>
                     <div className="flex flex-wrap gap-2 mt-2">
@@ -384,14 +386,14 @@ export const TeacherGroups = () => {
                         size="sm"
                       >
                         <MessageCircle className="w-4 h-4 mr-2" />
-                        Open
+                        {t('groups.page.open')}
                       </Button>
                       <Button 
                         size="sm" 
                         variant="outline"
                         className="rounded-xl"
                         onClick={() => copyGroupLink(group.id, group.group_code)}
-                        title="Copy invitation link"
+                        title={t('groups.page.copyInvitationLink')}
                       >
                         <Share2 className="w-4 h-4" />
                       </Button>
@@ -400,7 +402,7 @@ export const TeacherGroups = () => {
                         variant="outline"
                         className="rounded-xl text-destructive hover:text-destructive"
                         onClick={() => handleDeleteGroup(group.id, group.name)}
-                        title="Delete group"
+                        title={t('groups.page.deleteGroup')}
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>
@@ -415,7 +417,11 @@ export const TeacherGroups = () => {
         {searchTerm && filteredGroups.length > 0 && (
           <div className="text-center">
             <p className="text-muted-foreground">
-              Found {filteredGroups.length} group{filteredGroups.length !== 1 ? 's' : ''} matching "{searchTerm}"
+              {t('groups.page.foundGroups', { 
+                count: filteredGroups.length, 
+                plural: filteredGroups.length !== 1 ? 's' : '',
+                searchTerm 
+              })}
             </p>
           </div>
         )}

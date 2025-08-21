@@ -12,6 +12,7 @@ import { TeacherPageHeader } from '@/components/teacher/TeacherPageHeader';
 import { useToast } from '@/hooks/use-toast';
 import { StudentCardSkeleton } from '@/components/student/skeletons';
 import { useTeacherStudents } from '@/lib/queries';
+import { useTranslation } from 'react-i18next';
 
 import { 
   Users, 
@@ -58,6 +59,7 @@ interface Enrollment {
 }
 
 export const StudentStudents = () => {
+  const { t } = useTranslation('teacher');
   const { toast } = useToast();
   const { data: students = [], isLoading } = useTeacherStudents();
   const [searchTerm, setSearchTerm] = useState('');
@@ -86,10 +88,10 @@ export const StudentStudents = () => {
     const diffTime = Math.abs(now.getTime() - date.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     
-    if (diffDays === 0) return 'Today';
-    if (diffDays === 1) return 'Yesterday';
-    if (diffDays <= 7) return `${diffDays} days ago`;
-    if (diffDays <= 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+    if (diffDays === 0) return t('common.today');
+    if (diffDays === 1) return t('common.yesterday');
+    if (diffDays <= 7) return `${diffDays} ${t('common.daysAgo')}`;
+    if (diffDays <= 30) return `${Math.floor(diffDays / 7)} ${t('common.weeksAgo')}`;
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   };
 
@@ -102,8 +104,8 @@ export const StudentStudents = () => {
     <DashboardLayout>
       <div className="space-y-8">
         <TeacherPageHeader 
-          title="My Students" 
-          subtitle="Manage and track your students' progress"
+          title={t('students.page.title')} 
+          subtitle={t('students.page.subtitle')}
         />
 
         {/* Stats Overview */}
@@ -116,7 +118,7 @@ export const StudentStudents = () => {
                 </div>
                 <div>
                   <p className="text-2xl font-bold gradient-text">{students.length}</p>
-                  <p className="text-sm text-muted-foreground">Total Students</p>
+                  <p className="text-sm text-muted-foreground">{t('students.page.totalStudents')}</p>
                 </div>
               </div>
             </CardContent>
@@ -130,7 +132,7 @@ export const StudentStudents = () => {
                 </div>
                 <div>
                   <p className="text-2xl font-bold gradient-text">{activeStudents}</p>
-                  <p className="text-sm text-muted-foreground">Active Students</p>
+                  <p className="text-sm text-muted-foreground">{t('students.page.activeStudents')}</p>
                 </div>
               </div>
             </CardContent>
@@ -144,7 +146,7 @@ export const StudentStudents = () => {
                 </div>
                 <div>
                   <p className="text-2xl font-bold gradient-text">{totalRevenue}</p>
-                  <p className="text-sm text-muted-foreground">Total Revenue</p>
+                  <p className="text-sm text-muted-foreground">{t('students.page.totalRevenue')}</p>
                 </div>
               </div>
             </CardContent>
@@ -160,7 +162,7 @@ export const StudentStudents = () => {
                   <p className="text-2xl font-bold gradient-text">
                     {students.length > 0 ? Math.round(students.reduce((sum, s) => sum + s.averageScore, 0) / students.length) : 0}%
                   </p>
-                  <p className="text-sm text-muted-foreground">Avg Score</p>
+                  <p className="text-sm text-muted-foreground">{t('students.page.avgScore')}</p>
                 </div>
               </div>
             </CardContent>
@@ -174,7 +176,7 @@ export const StudentStudents = () => {
               <div className="relative flex-1 max-w-md">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search students..."
+                  placeholder={t('students.page.searchPlaceholder')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10 bg-white/5 border-white/10"
@@ -186,21 +188,21 @@ export const StudentStudents = () => {
                   onClick={() => setFilterBy('all')}
                   size="sm"
                 >
-                  All Students
+                  {t('students.page.allStudents')}
                 </Button>
                 <Button
                   variant={filterBy === 'active' ? 'default' : 'outline'}
                   onClick={() => setFilterBy('active')}
                   size="sm"
                 >
-                  Active
+                  {t('students.page.active')}
                 </Button>
                 <Button
                   variant={filterBy === 'top_spenders' ? 'default' : 'outline'}
                   onClick={() => setFilterBy('top_spenders')}
                   size="sm"
                 >
-                  Top Spenders
+                  {t('students.page.topSpenders')}
                 </Button>
               </div>
             </div>
@@ -217,7 +219,7 @@ export const StudentStudents = () => {
             <Card className="glass-card border-0">
               <CardContent className="p-6">
                 <div className="text-center text-muted-foreground">
-                  No students found matching your criteria.
+                  {t('students.page.noStudentsFound')}
                 </div>
               </CardContent>
             </Card>
@@ -252,7 +254,7 @@ export const StudentStudents = () => {
                         {student.averageScore >= 80 && (
                           <Badge variant="outline" className="text-primary-400 border-primary-500/30">
                             <Star className="h-3 w-3 mr-1 fill-current" />
-                            Top Performer
+                            {t('students.page.topPerformer')}
                           </Badge>
                         )}
                       </div>
@@ -263,19 +265,19 @@ export const StudentStudents = () => {
                       <div className="flex items-center gap-2">
                         <BookOpen className="h-4 w-4 text-blue-400" />
                         <span className="text-muted-foreground">
-                          {student.enrollmentCount} course{student.enrollmentCount !== 1 ? 's' : ''}
+                          {student.enrollmentCount} {student.enrollmentCount !== 1 ? t('students.page.coursesPlural') : t('students.page.courses')}
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
                         <TrendingUp className="h-4 w-4 text-primary-400" />
                         <span className="text-muted-foreground">
-                          {student.totalSpent} credits spent
+                          {student.totalSpent} {t('students.page.creditsSpent')}
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Star className="h-4 w-4 text-yellow-400" />
                         <span className="text-muted-foreground">
-                          {student.averageScore}% avg score
+                          {student.averageScore}{t('students.page.avgScorePercent')}
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
@@ -289,7 +291,7 @@ export const StudentStudents = () => {
                     <div className="w-full sm:w-auto flex justify-end mt-4 sm:mt-0">
                       <Link to={`/teacher/students/${student.id}`} className="w-full sm:w-auto">
                         <Button variant="outline" size="sm" className="group-hover:bg-primary/10 w-full">
-                          View Details
+                          {t('students.page.viewDetails')}
                           <ArrowUpRight className="h-4 w-4 ml-2" />
                         </Button>
                       </Link>

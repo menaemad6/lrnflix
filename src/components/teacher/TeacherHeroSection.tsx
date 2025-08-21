@@ -3,12 +3,15 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Brain, Plus, Target, Gift, Calendar, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 interface TeacherHeroSectionProps {
   user: any;
 }
 
 export function TeacherHeroSection({ user }: TeacherHeroSectionProps) {
+  const { t } = useTranslation('teacher');
+  
   return (
     <div className="glass-card p-8 border-0 relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-r from-primary-500/10 via-secondary-500/10 to-blue-500/10" />
@@ -21,9 +24,9 @@ export function TeacherHeroSection({ user }: TeacherHeroSectionProps) {
             </div>
             <div>
               <h1 className="text-4xl font-bold mb-2">
-                Welcome back, <span className="gradient-text">Educator</span>
+                {t('dashboard.hero.welcomeBack')} <span className="gradient-text">{t('dashboard.hero.educator')}</span>
               </h1>
-              <p className="text-muted-foreground text-lg">Ready to inspire and educate minds today?</p>
+              <p className="text-muted-foreground text-lg">{t('dashboard.hero.readyToInspire')}</p>
               <div className="flex items-center gap-4 mt-2 text-sm text-primary-400">
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4" />
@@ -35,7 +38,7 @@ export function TeacherHeroSection({ user }: TeacherHeroSectionProps) {
           <div className="flex items-center gap-2">
             <Badge className="bg-primary-500/20 text-primary-400 border-primary-500/30 px-3 py-1">
               <Star className="h-3 w-3 mr-1" />
-              Educator
+              {t('dashboard.hero.educatorBadge')}
             </Badge>
           </div>
         </div>
@@ -44,19 +47,19 @@ export function TeacherHeroSection({ user }: TeacherHeroSectionProps) {
           <Link to="/teacher/create-course">
             <Button variant='default'>
               <Plus className="h-4 w-4 mr-2 group-hover:rotate-90 transition-transform" />
-              Create Course
+              {t('dashboard.hero.createCourse')}
             </Button>
           </Link>
           <Link to="/teacher/analytics">
             <Button variant='outline'>
               <Target className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform" />
-              View Analytics
+              {t('dashboard.hero.viewAnalytics')}
             </Button>
           </Link>
           <Link to="/teacher/codes">
             <Button variant="outline" >
               <Gift className="h-4 w-4 mr-2 group-hover:rotate-12 transition-transform" />
-              Generate Codes
+              {t('dashboard.hero.generateCodes')}
             </Button>
           </Link>
         </div>

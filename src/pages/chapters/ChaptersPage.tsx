@@ -12,6 +12,7 @@ import { useTenant } from '@/contexts/TenantContext';
 import WavesHeroHeader from '@/components/ui/WavesHeroHeader';
 import ChapterCard from '@/components/chapters/ChapterCard';
 import { ChapterCardSkeleton } from '@/components/student/skeletons/ChapterCardSkeleton';
+import { useTranslation } from 'react-i18next';
 
 interface Chapter {
   id: string;
@@ -27,6 +28,7 @@ interface Chapter {
 export const ChaptersPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useTranslation('dashboard');
   const [chapters, setChapters] = useState<Chapter[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
@@ -89,8 +91,8 @@ export const ChaptersPage = () => {
       const err = error as Error;
       console.error('Error fetching chapters:', err);
       toast({
-        title: 'Error',
-        description: 'Failed to load chapters',
+        title: t('chapters.error'),
+        description: t('chapters.failedToLoadChapters'),
         variant: 'destructive',
       });
     } finally {
@@ -149,8 +151,8 @@ export const ChaptersPage = () => {
     <div className={bgClass + " min-h-screen bg-gradient-to-br from-background via-background to-primary/5 "}>
       {/* Modern Premium Header - full width */}
       <WavesHeroHeader
-        title={<span>Explore <span className="text-primary">Chapters</span></span>}
-        description="Discover comprehensive learning paths with curated course collections. Unlock premium chapters and accelerate your growth!"
+        title={<span>{t('chapters.title')} <span className="text-primary">Chapters</span></span>}
+        description={t('chapters.subtitle')}
       />
       <div className="container mx-auto px-2 sm:px-4 space-y-8">
         {/* Search */}
@@ -159,7 +161,7 @@ export const ChaptersPage = () => {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search chapters by name or description..."
+                placeholder={t('chapters.searchPlaceholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10 glass"
@@ -199,9 +201,9 @@ export const ChaptersPage = () => {
           <Card className="glass-card w-full max-w-full">
             <CardContent className="text-center py-12">
               <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-xl font-semibold mb-2">No chapters found</h3>
+              <h3 className="text-xl font-semibold mb-2">{t('chapters.noChaptersFound')}</h3>
               <p className="text-muted-foreground">
-                Try adjusting your search criteria or explore different chapters.
+                {t('chapters.tryAdjustingSearchCriteria')}
               </p>
             </CardContent>
           </Card>

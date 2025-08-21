@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from 'react-i18next';
 import { Play, CheckCircle, Clock, Eye, FileText } from 'lucide-react';
 import { VoiceTutor } from '@/components/lessons/VoiceTutor';
 import { SecureVideoPlayer } from '@/components/video/SecureVideoPlayer';
@@ -57,6 +58,7 @@ const getEmbedUrl = (url: string): string => {
 
 export const LessonContent = ({ lesson, course, isCompleted, onLessonComplete, onBackToCourse }: LessonContentProps) => {
   const { toast } = useToast();
+  const { t } = useTranslation('courses');
   const [lessonContent, setLessonContent] = useState<LessonContent | null>(null);
   const [viewCount, setViewCount] = useState(0);
   const [canView, setCanView] = useState(true);
@@ -130,8 +132,8 @@ export const LessonContent = ({ lesson, course, isCompleted, onLessonComplete, o
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         toast({
-          title: 'Error',
-          description: 'You must be logged in to mark lessons as completed',
+          title: t('lessonContent.error'),
+          description: t('lessonContent.mustBeLoggedIn'),
           variant: 'destructive',
         });
         return;
@@ -148,13 +150,13 @@ export const LessonContent = ({ lesson, course, isCompleted, onLessonComplete, o
 
       onLessonComplete(lesson.id);
       toast({
-        title: 'Success',
-        description: 'Lesson marked as completed!',
+        title: t('lessonContent.success'),
+        description: t('lessonContent.lessonCompleted'),
       });
     } catch (error: any) {
       console.error('Error marking lesson complete:', error);
       toast({
-        title: 'Error',
+        title: t('lessonContent.error'),
         description: error.message,
         variant: 'destructive',
       });
@@ -170,9 +172,9 @@ export const LessonContent = ({ lesson, course, isCompleted, onLessonComplete, o
       <div className="container mx-auto py-8">
         <Card>
           <CardContent className="text-center py-12">
-            <h2 className="text-xl font-semibold mb-2">View Limit Reached</h2>
+            <h2 className="text-xl font-semibold mb-2">{t('lessonContent.viewLimitReached')}</h2>
             <p className="text-muted-foreground">
-              You have reached the maximum number of views ({lesson.view_limit}) for this lesson.
+              {t('lessonContent.viewLimitDescription')} ({lesson.view_limit})
             </p>
           </CardContent>
         </Card>
@@ -214,8 +216,8 @@ export const LessonContent = ({ lesson, course, isCompleted, onLessonComplete, o
                         {lesson.title}
                       </h1>
                       <div className="flex items-center gap-3 mt-3">
-                        <span className="text-sm text-muted-foreground">From</span>
-                        <Badge variant="secondary" className="px-4 py-2 bg-gradient-to-r from-primary/20 to-primary/30 border-primary/30">
+                        <span className="text-sm text-muted-foreground">{t('lessonContent.from')}</span>
+                        <Badge variant="default" className="px-4 py-2 bg-gradient-to-r from-primary/20 to-primary/30 border-primary/30">
                           {course.title}
                         </Badge>
                       </div>
@@ -247,7 +249,7 @@ export const LessonContent = ({ lesson, course, isCompleted, onLessonComplete, o
                                        <Badge variant="default" className="px-4 py-2">
                       <div className="flex items-center gap-2">
                         <CheckCircle className="h-4 w-4" />
-                        <span>Completed</span>
+                        <span>{t('lessonContent.completed')}</span>
                       </div>
                     </Badge>
                   )}
@@ -261,7 +263,7 @@ export const LessonContent = ({ lesson, course, isCompleted, onLessonComplete, o
                     className="px-8 py-3 bg-gradient-to-br from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 text-primary-foreground border-0 shadow-xl hover:shadow-2xl transition-all duration-300 rounded-xl font-semibold text-lg hover:scale-105"
                   >
                     <CheckCircle className="h-5 w-5 mr-3" />
-                    Mark as Completed
+                    {t('lessonContent.markAsCompleted')}
                   </Button>
                 )}
               </div>
@@ -278,9 +280,9 @@ export const LessonContent = ({ lesson, course, isCompleted, onLessonComplete, o
                     </div>
                     <div>
                       <div className="font-bold text-foreground text-lg">
-                        {lesson.duration_minutes ? `~${lesson.duration_minutes} minutes` : '~15 minutes'}
+                        {lesson.duration_minutes ? `~${lesson.duration_minutes} ${t('lessonContent.minutes')}` : `~15 ${t('lessonContent.minutes')}`}
                       </div>
-                      <div className="text-sm text-muted-foreground">Estimated time</div>
+                      <div className="text-sm text-muted-foreground">{t('lessonContent.estimatedTime')}</div>
                     </div>
                   </div>
                 </CardContent>
@@ -294,9 +296,9 @@ export const LessonContent = ({ lesson, course, isCompleted, onLessonComplete, o
                     </div>
                     <div>
                       <div className="font-bold text-foreground text-lg">
-                        {lesson.view_limit ? `${viewCount}/${lesson.view_limit}` : 'Unlimited'}
+                        {lesson.view_limit ? `${viewCount}/${lesson.view_limit}` : t('lessonContent.unlimited')}
                       </div>
-                      <div className="text-sm text-muted-foreground">View limit</div>
+                      <div className="text-sm text-muted-foreground">{t('lessonContent.viewLimit')}</div>
                     </div>
                   </div>
                 </CardContent>
@@ -327,8 +329,8 @@ export const LessonContent = ({ lesson, course, isCompleted, onLessonComplete, o
                   </div>
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-foreground">Lesson Video</h2>
-                  <p className="text-muted-foreground">Watch the instructional content</p>
+                  <h2 className="text-2xl font-bold text-foreground">{t('lessonContent.lessonVideo')}</h2>
+                  <p className="text-muted-foreground">{t('lessonContent.watchInstructional')}</p>
                 </div>
               </div>
 

@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from 'react-i18next';
 import { QuizNavigation } from './QuizNavigation';
 import { QuizTimer } from './QuizTimer';
 import { QuizQuestion } from './QuizQuestion';
@@ -60,6 +61,7 @@ const QUIZ_TIME_LEFT_KEY = (quizId: string) => `quiz_time_left_${quizId}`;
 
 export const StudentQuizTaker = ({ quiz, courseId, onBackToCourse, attemptId }: StudentQuizTakerProps) => {
   const { toast } = useToast();
+  const { t } = useTranslation('courses');
   
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [attempts, setAttempts] = useState<QuizAttempt[]>([]);
@@ -265,23 +267,23 @@ export const StudentQuizTaker = ({ quiz, courseId, onBackToCourse, attemptId }: 
           }
 
           toast({
-            title: 'Quiz Resumed',
-            description: 'Your previous attempt has been resumed.',
+            title: t('quizTaker.quizResumed'),
+            description: t('quizTaker.previousAttemptResumed'),
           });
         } else {
           // Check localStorage for unsaved data
           const savedData = loadFromLocalStorage();
           if (savedData) {
             // Show dialog to restore or discard
-            if (window.confirm('We found unsaved quiz data. Would you like to restore it?')) {
+            if (window.confirm(t('quizTaker.foundUnsavedData'))) {
               setCurrentAttempt(savedData.attempt);
               setAnswers(savedData.answers);
               setTimeLeft(savedData.timeLeft);
               
-              toast({
-                title: 'Quiz Restored',
-                description: 'Your unsaved progress has been restored.',
-              });
+                             toast({
+                 title: t('quizTaker.quizRestored'),
+                 description: t('quizTaker.unsavedProgressRestored'),
+               });
             } else {
               clearLocalStorage();
             }
@@ -290,11 +292,11 @@ export const StudentQuizTaker = ({ quiz, courseId, onBackToCourse, attemptId }: 
       }
     } catch (error: any) {
       console.error('Error fetching quiz data:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to load quiz data',
-        variant: 'destructive',
-      });
+             toast({
+         title: t('quizTaker.error'),
+         description: t('quizTaker.failedToLoadQuizData'),
+         variant: 'destructive',
+       });
     } finally {
       setLoading(false);
     }
@@ -329,10 +331,10 @@ export const StudentQuizTaker = ({ quiz, courseId, onBackToCourse, attemptId }: 
       // Clear any previous localStorage data
       clearLocalStorage();
 
-      toast({
-        title: 'Quiz Started',
-        description: 'Good luck with your quiz!',
-      });
+             toast({
+         title: t('quizTaker.quizStarted'),
+         description: t('quizTaker.goodLuck'),
+       });
     } catch (error: any) {
       console.error('Error starting attempt:', error);
       toast({
@@ -392,10 +394,10 @@ export const StudentQuizTaker = ({ quiz, courseId, onBackToCourse, attemptId }: 
         const newUrl = `/courses/${courseId}/progress/quiz/${quiz.id}/attempt/${currentAttempt.id}`;
         window.history.replaceState({}, '', newUrl);
       } else {
-        toast({
-          title: 'Quiz Submitted',
-          description: 'Your quiz has been submitted successfully!',
-        });
+                 toast({
+           title: t('quizTaker.quizSubmitted'),
+           description: t('quizTaker.quizSubmittedSuccessfully'),
+         });
         onBackToCourse();
       }
       setTimeLeft(null);
@@ -525,10 +527,10 @@ export const StudentQuizTaker = ({ quiz, courseId, onBackToCourse, attemptId }: 
                   <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
                   <div className="flex-1">
                     <h3 className="font-semibold text-amber-800 dark:text-amber-200">
-                      Quiz Resumed
+                      {t('quizTaker.quizResumed')}
                     </h3>
                     <p className="text-sm text-amber-700 dark:text-amber-300">
-                      Your previous attempt has been automatically resumed. All your answers have been restored.
+                      {t('quizTaker.quizResumedDescription')}
                     </p>
                   </div>
                   <Button
@@ -537,7 +539,7 @@ export const StudentQuizTaker = ({ quiz, courseId, onBackToCourse, attemptId }: 
                     onClick={() => setIsResuming(false)}
                     className="text-amber-600 hover:text-amber-800 dark:text-amber-400 dark:hover:text-amber-200"
                   >
-                    Dismiss
+                    {t('quizTaker.dismiss')}
                   </Button>
                 </div>
               </CardContent>
@@ -561,34 +563,34 @@ export const StudentQuizTaker = ({ quiz, courseId, onBackToCourse, attemptId }: 
                   <div className="flex gap-6 text-sm">
                     <div className="flex items-center gap-2">
                       <Target className="h-4 w-4" />
-                      <span>Question {currentQuestionIndex + 1} of {questions.length}</span>
+                      <span>{t('quizTaker.question')} {currentQuestionIndex + 1} {t('quizTaker.of')} {questions.length}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <CheckCircle className="h-4 w-4" />
-                      <span>{answeredCount} answered</span>
+                      <span>{answeredCount} {t('quizTaker.answered')}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <BookOpen className="h-4 w-4" />
-                      <span>{questions.length - answeredCount} remaining</span>
+                      <span>{questions.length - answeredCount} {t('quizTaker.remaining')}</span>
                     </div>
                     {/* Auto-save Status */}
                     <div className="flex items-center gap-2">
                       {autoSaveStatus === 'saving' && (
                         <>
                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                          <span>Saving...</span>
+                          <span>{t('quizTaker.saving')}</span>
                         </>
                       )}
                       {autoSaveStatus === 'saved' && (
                         <>
                           <CheckCircle className="h-4 w-4" />
-                          <span>All changes saved</span>
+                          <span>{t('quizTaker.allChangesSaved')}</span>
                         </>
                       )}
                       {autoSaveStatus === 'error' && (
                         <>
                           <AlertTriangle className="h-4 w-4" />
-                          <span>Save failed</span>
+                          <span>{t('quizTaker.saveFailed')}</span>
                         </>
                       )}
                     </div>
@@ -638,7 +640,7 @@ export const StudentQuizTaker = ({ quiz, courseId, onBackToCourse, attemptId }: 
                   className="flex items-center gap-2"
                 >
                   <ChevronLeft className="h-4 w-4" />
-                  Previous
+                                     {t('quizTaker.previous')}
                 </Button>
 
                 <div className="flex gap-2">
@@ -649,14 +651,14 @@ export const StudentQuizTaker = ({ quiz, courseId, onBackToCourse, attemptId }: 
                       className="px-8"
                     >
                       <Send className="h-4 w-4 mr-2" />
-                      {submitting ? 'Submitting...' : 'Submit Quiz'}
+                                             {submitting ? t('quizTaker.submitting') : t('quizTaker.submitQuiz')}
                     </Button>
                   ) : (
                     <Button 
                       onClick={nextQuestion}
                       className="px-8"
                     >
-                      Next
+                                             {t('quizTaker.next')}
                       <ChevronRight className="h-4 w-4 ml-2" />
                     </Button>
                   )}
@@ -693,26 +695,26 @@ export const StudentQuizTaker = ({ quiz, courseId, onBackToCourse, attemptId }: 
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="space-y-4">
-                <h3 className="text-xl font-semibold mb-4">Quiz Information</h3>
+                                 <h3 className="text-xl font-semibold mb-4">{t('quizTaker.quizInformation')}</h3>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center p-4 bg-muted/50 rounded-xl border">
                     <div className="flex items-center gap-3">
                       <BookOpen className="h-5 w-5 text-primary" />
-                      <span className="font-medium">Questions:</span>
+                                             <span className="font-medium">{t('quizTaker.questions')}</span>
                     </div>
                     <Badge variant="outline" className="text-lg px-3 py-1">{questions.length}</Badge>
                   </div>
                   <div className="flex justify-between items-center p-4 bg-muted/50 rounded-xl border">
                     <div className="flex items-center gap-3">
                       <Target className="h-5 w-5 text-primary" />
-                      <span className="font-medium">Max Attempts:</span>
+                                             <span className="font-medium">{t('quizTaker.maxAttempts')}</span>
                     </div>
                     <Badge variant="outline" className="text-lg px-3 py-1">{quiz.max_attempts}</Badge>
                   </div>
                   <div className="flex justify-between items-center p-4 bg-muted/50 rounded-xl border">
                     <div className="flex items-center gap-3">
                       <Trophy className="h-5 w-5 text-primary" />
-                      <span className="font-medium">Attempts Used:</span>
+                                             <span className="font-medium">{t('quizTaker.attemptsUsed')}</span>
                     </div>
                     <Badge 
                       variant={attempts.length >= quiz.max_attempts ? "destructive" : "default"}
@@ -725,10 +727,10 @@ export const StudentQuizTaker = ({ quiz, courseId, onBackToCourse, attemptId }: 
                     <div className="flex justify-between items-center p-4 bg-muted/50 rounded-xl border">
                       <div className="flex items-center gap-3">
                         <Clock className="h-5 w-5 text-primary" />
-                        <span className="font-medium">Time Limit:</span>
+                        <span className="font-medium">{t('quizTaker.timeLimit')}:</span>
                       </div>
                       <Badge variant="outline" className="text-lg px-3 py-1">
-                        {quiz.time_limit} minutes
+                        {quiz.time_limit} {t('quizTaker.minutes')}
                       </Badge>
                     </div>
                   )}
@@ -738,19 +740,19 @@ export const StudentQuizTaker = ({ quiz, courseId, onBackToCourse, attemptId }: 
               <div className="space-y-6">
                 {attempts.length > 0 && (
                   <div className="p-6 bg-gradient-to-r from-primary/5 to-primary/10 rounded-xl border border-primary/20">
-                    <h4 className="font-semibold text-lg mb-3">Your Best Score</h4>
+                    <h4 className="font-semibold text-lg mb-3">{t('quizTaker.yourBestScore')}</h4>
                     <div className="text-4xl font-bold text-primary mb-2">
                       {bestScore}/{bestMaxScore}
                     </div>
                     <div className="text-lg text-primary/80">
-                      {Math.round((bestScore / bestMaxScore) * 100)}% Complete
+                      {Math.round((bestScore / bestMaxScore) * 100)}% {t('quizTaker.complete')}
                     </div>
                   </div>
                 )}
 
                 {attempts.length > 0 && (
                   <div className="space-y-4">
-                    <h4 className="font-semibold text-lg">Previous Attempts</h4>
+                    <h4 className="font-semibold text-lg">{t('quizTaker.previousAttempts')}</h4>
                     <div className="space-y-3 max-h-64 overflow-y-auto">
                       {attempts.map((attempt, index) => (
                         <div key={attempt.id} className="flex justify-between items-center p-4 bg-muted/50 rounded-xl border">
@@ -758,7 +760,7 @@ export const StudentQuizTaker = ({ quiz, courseId, onBackToCourse, attemptId }: 
                             <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-bold text-sm">
                               {attempts.length - index}
                             </div>
-                            <span className="font-medium">Attempt {attempts.length - index}</span>
+                            <span className="font-medium">{t('quizTaker.attempt')} {attempts.length - index}</span>
                           </div>
                           <div className="flex items-center gap-3">
                             <Badge variant={attempt.score >= attempt.max_score * 0.7 ? 'default' : 'destructive'}>
@@ -775,7 +777,7 @@ export const StudentQuizTaker = ({ quiz, courseId, onBackToCourse, attemptId }: 
                                 className="ml-2"
                               >
                                 <Eye className="h-4 w-4 mr-2" />
-                                Review
+                                {t('quizTaker.review')}
                               </Button>
                             )}
                           </div>
@@ -795,14 +797,14 @@ export const StudentQuizTaker = ({ quiz, courseId, onBackToCourse, attemptId }: 
                   className="px-12 py-4 text-lg"
                 >
                   <PlayCircle className="h-6 w-6 mr-3" />
-                  {attempts.length === 0 ? 'Start Quiz' : 'Start New Attempt'}
+                  {attempts.length === 0 ? t('quizTaker.startQuiz') : t('quizTaker.startNewAttempt')}
                 </Button>
               ) : (
                 <div className="p-8 bg-muted/50 rounded-xl border-2 border-dashed">
                   <Trophy className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-xl font-semibold text-muted-foreground mb-2">No More Attempts Available</p>
+                  <p className="text-xl font-semibold text-muted-foreground mb-2">{t('quizTaker.noMoreAttempts')}</p>
                   <p className="text-muted-foreground">
-                    You have used all {quiz.max_attempts} attempts for this quiz
+                    {t('quizTaker.usedAllAttempts', { maxAttempts: quiz.max_attempts })}
                   </p>
                 </div>
               )}

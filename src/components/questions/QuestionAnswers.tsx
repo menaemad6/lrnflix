@@ -23,6 +23,7 @@ import {
   Share2
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { useTranslation } from 'react-i18next';
 import type { RootState } from '@/store/store';
 
 interface ReplyItemProps {
@@ -75,6 +76,7 @@ const ReplyItem: React.FC<ReplyItemProps> = ({
   handleToggleReplies
 }) => {
   const { user } = useSelector((state: RootState) => state.auth);
+  const { t } = useTranslation('other');
   const indentLevel = Math.min(nestingLevel, 3); // Max 3 levels deep
   
   const getIndentClass = (level: number) => {
@@ -90,125 +92,119 @@ const ReplyItem: React.FC<ReplyItemProps> = ({
     <div className={`${getIndentClass(indentLevel)} ${isFirst ? 'mt-3 sm:mt-4 md:mt-6' : ''} mb-2 sm:mb-3`}>
       <div className="bg-muted/50 rounded-lg p-2 sm:p-3 border border-border relative">
         {/* Facebook-style connection lines - responsive */}
-        <div className="absolute -left-1 sm:-left-2 md:-left-4 top-6 w-1 sm:w-2 md:w-4 h-px bg-border"></div>
+        <div className="absolute -left-1 sm:-left-2 md:-left-4 top-6 w-1 sm:w-2 md:w-4 h-px bg-primary/60"></div>
         {!isLast && (
-          <div className="absolute -left-1 sm:-left-2 md:-left-4 top-6 w-px h-full bg-border"></div>
+          <div className="absolute -left-1 sm:-left-2 md:-left-4 top-6 w-px h-full bg-primary/60"></div>
         )}
         {!isFirst && (
-          <div className="absolute -left-1 sm:-left-2 md:-left-4 top-0 w-px h-6 bg-border"></div>
+          <div className="absolute -left-1 sm:-left-2 md:-left-4 top-0 w-px h-6 bg-primary/60"></div>
         )}
         
-        <div className="flex items-start gap-2 sm:gap-3">
-          {reply.is_anonymous && !canSeeAnonymousNames ? (
-            <Avatar className="h-6 w-6 sm:h-8 sm:w-8 flex-shrink-0">
-              <AvatarFallback className="bg-gradient-to-br from-amber-500/20 to-amber-500/10 text-xs sm:text-sm">
-                <User className="h-3 w-3 sm:h-4 sm:w-4 text-amber-500" />
+        {/* Reply Header */}
+        <div className="flex items-start gap-3 mb-3">
+          <Avatar className="h-6 w-6 sm:h-8 sm:w-8 ring-1 ring-border">
+            {reply.is_anonymous && !canSeeAnonymousNames ? (
+              <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/10 text-xs">
+                <User className="h-3 w-3 sm:h-4 sm:w-4 text-primary/60" />
               </AvatarFallback>
-            </Avatar>
-          ) : (
-            <Avatar className="h-6 w-6 sm:h-8 sm:w-8 flex-shrink-0">
-              <AvatarImage src={reply.profiles?.avatar_url} />
-              <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/10 text-xs sm:text-sm">
-                {reply.profiles?.full_name?.charAt(0) || 'U'}
-              </AvatarFallback>
-            </Avatar>
-          )}
+            ) : (
+              <>
+                <AvatarImage src={reply.profiles?.avatar_url} />
+                <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/10 text-xs">
+                  {reply.profiles?.full_name?.charAt(0) || 'U'}
+                </AvatarFallback>
+              </>
+            )}
+          </Avatar>
           
           <div className="flex-1 min-w-0">
-            <div className="flex flex-wrap items-center gap-1 sm:gap-2 mb-1">
-              <span className="font-medium text-xs sm:text-sm text-foreground">
-                {reply.is_anonymous && !canSeeAnonymousNames 
-                  ? 'Anonymous' 
-                  : reply.profiles?.full_name || 'Unknown User'
+            <div className="flex items-center gap-2 flex-wrap">
+              <p className="text-sm font-medium text-foreground">
+                {reply.is_anonymous && !canSeeAnonymousNames
+                  ? t('questionsPage.anonymous')
+                  : reply.profiles?.full_name || t('questionsPage.unknownUser')
                 }
-              </span>
+              </p>
               
               {reply.profiles?.role === 'teacher' && (
-                <Badge variant="secondary" className="text-xs bg-purple-500/10 text-purple-500">
+                <Badge variant="outline" className="text-xs text-blue-500 border-blue-500/30 bg-blue-500/5">
                   <Star className="h-3 w-3 mr-1" />
-                  <span className="hidden sm:inline">Teacher</span>
+                  Teacher
                 </Badge>
               )}
               
               {reply.profiles?.role === 'admin' && (
-                <Badge variant="secondary" className="text-xs bg-red-500/10 text-red-500">
+                <Badge variant="outline" className="text-xs text-purple-500 border-purple-500/30 bg-purple-500/5">
                   <CheckCircle className="h-3 w-3 mr-1" />
-                  <span className="hidden sm:inline">Admin</span>
+                  Admin
                 </Badge>
               )}
-
+              
               {reply.is_anonymous && canSeeAnonymousNames && (
                 <Badge variant="outline" className="text-xs text-amber-500 border-amber-500/30 bg-amber-500/5">
                   <User className="h-3 w-3 mr-1" />
-                  <span className="hidden sm:inline">Anonymous</span>
+                  {t('questionsPage.badges.anonymous')}
                 </Badge>
               )}
-
-              <span className="text-xs text-gray-500 dark:text-gray-400">
-                {formatDistanceToNow(new Date(reply.created_at), { addSuffix: true })}
-              </span>
             </div>
-
-            <div className="text-xs sm:text-sm text-foreground leading-relaxed">
-              {reply.content}
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-2 text-xs text-muted-foreground">
-              <button 
-                onClick={() => onLike(reply.id)}
-                className={`flex items-center gap-1 transition-colors ${
-                  likedAnswers.has(reply.id)
-                    ? 'text-primary' 
-                    : 'text-muted-foreground hover:text-primary'
-                }`}
-              >
-                <ThumbsUp className={`h-3 w-3 ${likedAnswers.has(reply.id) ? 'fill-current' : ''}`} />
-                <span className="hidden sm:inline">{likedAnswers.has(reply.id) ? 'Liked' : 'Like'}</span>
-                {(localLikesCount[reply.id] || reply.likes_count) > 0 && (
-                  <span className="text-xs">({localLikesCount[reply.id] || reply.likes_count})</span>
-                )}
-              </button>
-              
-              <button 
-                onClick={() => onReply(reply.id)}
-                className="flex items-center gap-1 hover:text-primary transition-colors"
-              >
-                <Reply className="h-3 w-3" />
-                <span className="hidden sm:inline">Reply</span>
-              </button>
+            
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+              <Clock className="h-3 w-3" />
+              {formatDistanceToNow(new Date(reply.created_at), { addSuffix: true })}
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Reply Form for this specific reply */}
-      {replyingToReply === reply.id && (
-        <div className="bg-muted/50 rounded-lg p-2 sm:p-3 border border-border mt-2 sm:mt-3">
-          <div className="flex items-start gap-2 sm:gap-3">
-            <Avatar className="h-6 w-6 sm:h-8 sm:w-8 flex-shrink-0">
-              <AvatarImage src={user?.avatar_url} />
-              <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/10 text-xs sm:text-sm">
-                {user?.full_name?.charAt(0) || 'U'}
-              </AvatarFallback>
-            </Avatar>
-            
-            <div className="flex-1 space-y-2 sm:space-y-3">
-              <div className="text-xs text-muted-foreground mb-1 sm:mb-2">
-                Replying to {reply.is_anonymous && !canSeeAnonymousNames 
-                  ? 'Anonymous' 
-                  : reply.profiles?.full_name || 'Unknown User'
+        {/* Reply Content */}
+        <div className="prose prose-sm max-w-none text-foreground mb-3">
+          {reply.content}
+        </div>
+
+        {/* Reply Actions */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onLike(reply.id)}
+            className={`h-7 px-2 text-xs hover:bg-primary/10 transition-colors ${
+              likedAnswers.has(reply.id) ? 'text-primary' : 'text-muted-foreground'
+            }`}
+          >
+            <ThumbsUp className={`h-3 w-3 ${likedAnswers.has(reply.id) ? 'fill-current' : ''}`} />
+            <span className="hidden sm:inline">{likedAnswers.has(reply.id) ? t('questionsPage.answers.unlike') : t('questionsPage.answers.like')}</span>
+            {(localLikesCount[reply.id] || reply.likes_count) > 0 && (
+              <span className="text-xs">({localLikesCount[reply.id] || reply.likes_count})</span>
+            )}
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onReply(reply.id)}
+            className="h-7 px-2 text-xs text-muted-foreground hover:bg-primary/10 transition-colors"
+          >
+            <Reply className="h-3 w-3" />
+            <span className="hidden sm:inline">{t('questionsPage.answers.reply')}</span>
+          </Button>
+
+          {/* Reply Form for this specific reply */}
+          {replyingToReply === reply.id && (
+            <div className="w-full mt-3 p-3 bg-background/50 rounded-lg border border-border">
+              <div className="text-xs text-muted-foreground mb-2">
+                {t('questionsPage.answers.replyingTo')} {reply.is_anonymous && !canSeeAnonymousNames
+                  ? t('questionsPage.anonymous')
+                  : reply.profiles?.full_name || t('questionsPage.unknownUser')
                 }
               </div>
+              
               <Textarea
-                placeholder="Write a reply..."
+                placeholder={t('questionsPage.answers.answerPlaceholder')}
                 value={replyContent}
                 onChange={(e) => setReplyContent(e.target.value)}
-                className="min-h-[60px] sm:min-h-[80px] resize-none text-xs sm:text-sm w-full max-w-full overflow-hidden"
-                style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}
+                className="min-h-[80px] mb-3"
               />
               
-              <div className="space-y-3">
-                {/* Anonymous toggle */}
+              <div className="flex items-center gap-3 mb-3">
                 <div className="flex items-center gap-2">
                   <Switch
                     id={`reply-anonymous-${reply.id}`}
@@ -216,90 +212,107 @@ const ReplyItem: React.FC<ReplyItemProps> = ({
                     onCheckedChange={setReplyAnonymous}
                   />
                   <Label htmlFor={`reply-anonymous-${reply.id}`} className="text-xs sm:text-sm">
-                    Reply anonymously
+                    {t('questionsPage.answers.postAnonymously')}
                   </Label>
                 </div>
+              </div>
+              
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={onCancelReply}
+                  disabled={submittingReply}
+                  className="text-xs"
+                >
+                  {t('questionsPage.answers.cancelReply')}
+                </Button>
                 
-                {/* Action buttons */}
-                <div className="flex flex-col xs:flex-row gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={onCancelReply}
-                    disabled={submittingReply}
-                    className="text-xs px-3 py-2 h-auto"
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    size="sm"
-                    onClick={() => onSubmitReply(reply.id)}
-                    disabled={submittingReply || !replyContent.trim()}
-                    className="text-xs px-3 py-2 h-auto"
-                  >
-                    {submittingReply ? (
-                      <>
-                        <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                        Posting...
-                      </>
-                    ) : (
-                      <>
-                        <Send className="h-3 w-3 mr-1" />
-                        Reply
-                      </>
-                    )}
-                  </Button>
-                </div>
+                <Button
+                  size="sm"
+                  onClick={() => onSubmitReply(reply.id)}
+                  disabled={submittingReply || !replyContent.trim()}
+                  className="text-xs"
+                >
+                  {submittingReply ? (
+                    <>
+                      <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                      {t('questionsPage.answers.replying')}
+                    </>
+                  ) : (
+                    t('questionsPage.answers.postAnswer')
+                  )}
+                </Button>
               </div>
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* Nested replies */}
-      {repliesCount[reply.id] > 0 && !expandedReplies[reply.id] && (
-        <button
-          className="text-primary text-xs font-medium mt-2 ml-1 sm:ml-2 hover:underline"
-          onClick={() => handleToggleReplies(reply.id)}
-        >
-          Show replies ({repliesCount[reply.id]})
-        </button>
-      )}
-      {expandedReplies[reply.id] && (
-        <div className="ml-3 sm:ml-6 md:ml-12 space-y-0">
-          {repliesLoading[reply.id] ? (
-            <div className="text-muted-foreground text-xs py-2">Loading replies...</div>
-          ) : (
-            (repliesData[reply.id] || []).map((nestedReply, index) => (
-              <ReplyItem
-                key={nestedReply.id}
-                reply={nestedReply}
-                canSeeAnonymousNames={canSeeAnonymousNames}
-                onLike={onLike}
-                onReply={(replyId) => onReply(replyId)}
-                likedAnswers={likedAnswers}
-                localLikesCount={localLikesCount}
-                nestingLevel={nestedReply.nestingLevel || nestingLevel + 1}
-                replyingToReply={replyingToReply}
-                replyContent={replyContent}
-                setReplyContent={setReplyContent}
-                replyAnonymous={replyAnonymous}
-                setReplyAnonymous={setReplyAnonymous}
-                onSubmitReply={onSubmitReply}
-                submittingReply={submittingReply}
-                onCancelReply={onCancelReply}
-                isFirst={index === 0}
-                isLast={index === (repliesData[reply.id]?.length || 1) - 1}
-                expandedReplies={expandedReplies}
-                repliesLoading={repliesLoading}
-                repliesData={repliesData}
-                repliesCount={repliesCount}
-                handleToggleReplies={handleToggleReplies}
-              />
-            ))
           )}
         </div>
-      )}
+
+        {/* Nested Replies */}
+        {repliesCount[reply.id] > 0 && (
+          <div className="mt-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleToggleReplies(reply.id)}
+              className="h-7 px-2 text-xs text-muted-foreground hover:bg-primary/10 transition-colors"
+            >
+              {expandedReplies[reply.id] ? (
+                <>
+                  {t('questionsPage.answers.hideReplies')}
+                </>
+              ) : (
+                <>
+                  {t('questionsPage.answers.showReplies')} ({repliesCount[reply.id]})
+                </>
+              )}
+            </Button>
+            
+            {expandedReplies[reply.id] && (
+              <div className="mt-3 space-y-2">
+                {repliesLoading[reply.id] ? (
+                  <div className="text-center py-4">
+                    <Loader2 className="h-4 w-4 animate-spin mx-auto" />
+                    <p className="text-xs text-muted-foreground mt-2">{t('questionsPage.answers.loadingReplies')}</p>
+                  </div>
+                ) : repliesData[reply.id]?.length > 0 ? (
+                  repliesData[reply.id].map((nestedReply, index) => (
+                    <ReplyItem
+                      key={nestedReply.id}
+                      reply={nestedReply}
+                      canSeeAnonymousNames={canSeeAnonymousNames}
+                      onLike={onLike}
+                      onReply={onReply}
+                      likedAnswers={likedAnswers}
+                      localLikesCount={localLikesCount}
+                      nestingLevel={nestingLevel + 1}
+                      replyingToReply={replyingToReply}
+                      replyContent={replyContent}
+                      setReplyContent={setReplyContent}
+                      replyAnonymous={replyAnonymous}
+                      setReplyAnonymous={setReplyAnonymous}
+                      onSubmitReply={onSubmitReply}
+                      submittingReply={submittingReply}
+                      onCancelReply={onCancelReply}
+                      isFirst={index === 0}
+                      isLast={index === repliesData[reply.id].length - 1}
+                      expandedReplies={expandedReplies}
+                      repliesLoading={repliesLoading}
+                      repliesData={repliesData}
+                      repliesCount={repliesCount}
+                      handleToggleReplies={handleToggleReplies}
+                    />
+                  ))
+                ) : (
+                  <p className="text-xs text-muted-foreground text-center py-2">
+                    {t('questionsPage.answers.noReplies')}
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
@@ -357,6 +370,7 @@ const AnswerItem: React.FC<AnswerItemProps> = ({
 }) => {
   const { user } = useSelector((state: RootState) => state.auth);
   const isReplying = replyingTo === answer.id;
+  const { t } = useTranslation('other');
 
   return (
     <div className="space-y-3">
@@ -385,8 +399,8 @@ const AnswerItem: React.FC<AnswerItemProps> = ({
             <div className="flex flex-wrap items-center gap-1 sm:gap-2 mb-2">
               <span className="font-semibold text-xs sm:text-sm text-foreground">
                 {answer.is_anonymous && !canSeeAnonymousNames 
-                  ? 'Anonymous' 
-                  : answer.profiles?.full_name || 'Unknown User'
+                  ? t('questionsPage.anonymous') 
+                  : answer.profiles?.full_name || t('questionsPage.unknownUser')
                 }
               </span>
               
@@ -432,7 +446,7 @@ const AnswerItem: React.FC<AnswerItemProps> = ({
                 }`}
               >
                 <ThumbsUp className={`h-3 w-3 sm:h-4 sm:w-4 ${isLiked ? 'fill-current' : ''}`} />
-                <span className="hidden sm:inline">{isLiked ? 'Liked' : 'Like'}</span>
+                <span className="hidden sm:inline">{isLiked ? t('questionsPage.answers.liked') : t('questionsPage.answers.like')}</span>
                 {(localLikesCount[answer.id] || answer.likes_count) > 0 && (
                   <span className="text-xs">({localLikesCount[answer.id] || answer.likes_count})</span>
                 )}
@@ -443,7 +457,7 @@ const AnswerItem: React.FC<AnswerItemProps> = ({
                 className="flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors"
               >
                 <Reply className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="hidden sm:inline">Reply</span>
+                <span className="hidden sm:inline">{t('questionsPage.answers.reply')}</span>
                 {answer.replies && answer.replies.length > 0 && (
                   <span className="text-xs">({answer.replies.length})</span>
                 )}
@@ -451,7 +465,7 @@ const AnswerItem: React.FC<AnswerItemProps> = ({
               
               <button className="flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors">
                 <Share2 className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="hidden sm:inline">Share</span>
+                <span className="hidden sm:inline">{t('questionsPage.answers.share')}</span>
               </button>
             </div>
           </div>
@@ -471,13 +485,13 @@ const AnswerItem: React.FC<AnswerItemProps> = ({
             
             <div className="flex-1 space-y-3">
               <div className="text-xs text-muted-foreground mb-2">
-                Replying to {answer.is_anonymous && !canSeeAnonymousNames 
-                  ? 'Anonymous' 
-                  : answer.profiles?.full_name || 'Unknown User'
+                {t('questionsPage.answers.replyingTo')} {answer.is_anonymous && !canSeeAnonymousNames 
+                  ? t('questionsPage.anonymous') 
+                  : answer.profiles?.full_name || t('questionsPage.unknownUser')
                 }
               </div>
               <Textarea
-                placeholder="Write a reply..."
+                placeholder={t('questionsPage.answers.answerPlaceholder')}
                 value={replyContent}
                 onChange={(e) => setReplyContent(e.target.value)}
                 className="min-h-[80px] resize-none w-full max-w-full overflow-hidden"
@@ -493,7 +507,7 @@ const AnswerItem: React.FC<AnswerItemProps> = ({
                     onCheckedChange={setReplyAnonymous}
                   />
                   <Label htmlFor="reply-anonymous" className="text-sm">
-                    Reply anonymously
+                    {t('questionsPage.answers.postAnonymously')}
                   </Label>
                 </div>
                 
@@ -506,7 +520,7 @@ const AnswerItem: React.FC<AnswerItemProps> = ({
                     disabled={submittingReply}
                     className="px-3 py-2 h-auto"
                   >
-                    Cancel
+                    {t('questionsPage.answers.cancelReply')}
                   </Button>
                   <Button
                     size="sm"
@@ -517,12 +531,12 @@ const AnswerItem: React.FC<AnswerItemProps> = ({
                     {submittingReply ? (
                       <>
                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Posting...
+                        {t('questionsPage.answers.replying')}
                       </>
                     ) : (
                       <>
                         <Send className="h-4 w-4 mr-2" />
-                        Reply
+                        {t('questionsPage.answers.reply')}
                       </>
                     )}
                   </Button>
@@ -534,18 +548,22 @@ const AnswerItem: React.FC<AnswerItemProps> = ({
       )}
 
       {/* Replies */}
-      {repliesCount[answer.id] > 0 && !expandedReplies[answer.id] && (
+      {repliesCount[answer.id] > 0 && (
         <button
           className="text-primary text-xs font-medium mt-2 ml-1 sm:ml-2 hover:underline"
           onClick={() => handleToggleReplies(answer.id)}
         >
-          Show replies ({repliesCount[answer.id]})
+          {expandedReplies[answer.id] ? (
+            t('questionsPage.answers.hideReplies')
+          ) : (
+            `${t('questionsPage.answers.showReplies')} (${repliesCount[answer.id]})`
+          )}
         </button>
       )}
       {expandedReplies[answer.id] && (
         <div className="ml-3 sm:ml-6 md:ml-12 space-y-0">
           {repliesLoading[answer.id] ? (
-            <div className="text-muted-foreground text-xs py-2">Loading replies...</div>
+            <div className="text-muted-foreground text-xs py-2">{t('questionsPage.answers.loadingReplies')}</div>
           ) : (
             (repliesData[answer.id] || []).map((reply, index) => (
               <ReplyItem
@@ -633,6 +651,7 @@ export const QuestionAnswers: React.FC<QuestionAnswersProps> = ({
   const [repliesCount, setRepliesCount] = useState<Record<string, number>>({});
 
   const canSeeAnonymousNames = user?.role === 'teacher' || user?.role === 'admin';
+  const { t } = useTranslation('other');
 
   useEffect(() => {
     fetchAnswers();
@@ -728,7 +747,7 @@ export const QuestionAnswers: React.FC<QuestionAnswersProps> = ({
       console.error('Error fetching answers:', error);
       toast({
         title: 'Error',
-        description: 'Failed to load answers',
+        description: t('questionsPage.error.failedToLoadAnswers'),
         variant: 'destructive',
       });
     } finally {
@@ -738,8 +757,10 @@ export const QuestionAnswers: React.FC<QuestionAnswersProps> = ({
 
   // Handler to expand/collapse and fetch replies for a parent
   const handleToggleReplies = useCallback(async (parentId: string) => {
+    const willExpand = !expandedReplies[parentId];
     setExpandedReplies((prev) => ({ ...prev, [parentId]: !prev[parentId] }));
-    if (!expandedReplies[parentId]) {
+    
+    if (willExpand) {
       setRepliesLoading((prev) => ({ ...prev, [parentId]: true }));
       try {
         const replies = await fetchReplies(parentId);
@@ -769,7 +790,7 @@ export const QuestionAnswers: React.FC<QuestionAnswersProps> = ({
       } catch (error) {
         toast({
           title: 'Error',
-          description: 'Failed to load replies',
+          description: t('questionsPage.error.failedToLoadReplies'),
           variant: 'destructive',
         });
       } finally {
@@ -784,7 +805,7 @@ export const QuestionAnswers: React.FC<QuestionAnswersProps> = ({
     if (!user) {
       toast({
         title: 'Error',
-        description: 'You must be logged in to answer',
+        description: t('questionsPage.error.mustBeLoggedIn'),
         variant: 'destructive',
       });
       return;
@@ -793,7 +814,7 @@ export const QuestionAnswers: React.FC<QuestionAnswersProps> = ({
     if (!newAnswer.content.trim()) {
       toast({
         title: 'Error',
-        description: 'Please enter your answer',
+        description: t('questionsPage.error.pleaseEnterQuestion'),
         variant: 'destructive',
       });
       return;
@@ -815,7 +836,7 @@ export const QuestionAnswers: React.FC<QuestionAnswersProps> = ({
 
       toast({
         title: 'Success',
-        description: 'Your answer has been posted!',
+        description: t('questionsPage.success.questionPosted'),
       });
 
       setNewAnswer({ content: '', is_anonymous: false });
@@ -825,7 +846,7 @@ export const QuestionAnswers: React.FC<QuestionAnswersProps> = ({
       console.error('Error posting answer:', error);
       toast({
         title: 'Error',
-        description: 'Failed to post answer. Please try again.',
+        description: t('questionsPage.error.failedToPost'),
         variant: 'destructive',
       });
     } finally {
@@ -839,7 +860,7 @@ export const QuestionAnswers: React.FC<QuestionAnswersProps> = ({
     if (!user) {
       toast({
         title: 'Error',
-        description: 'You must be logged in to reply',
+        description: t('questionsPage.error.mustBeLoggedIn'),
         variant: 'destructive',
       });
       return;
@@ -848,7 +869,7 @@ export const QuestionAnswers: React.FC<QuestionAnswersProps> = ({
     if (!replyContent.trim()) {
       toast({
         title: 'Error',
-        description: 'Please enter your reply',
+        description: t('questionsPage.error.pleaseEnterQuestion'),
         variant: 'destructive',
       });
       return;
@@ -880,7 +901,7 @@ export const QuestionAnswers: React.FC<QuestionAnswersProps> = ({
 
       toast({
         title: 'Success',
-        description: 'Your reply has been posted!',
+        description: t('questionsPage.success.questionPosted'),
       });
 
       setReplyContent('');
@@ -893,7 +914,7 @@ export const QuestionAnswers: React.FC<QuestionAnswersProps> = ({
       console.error('Error posting reply:', error);
       toast({
         title: 'Error',
-        description: 'Failed to post reply. Please try again.',
+        description: t('questionsPage.error.failedToPost'),
         variant: 'destructive',
       });
     } finally {
@@ -905,7 +926,7 @@ export const QuestionAnswers: React.FC<QuestionAnswersProps> = ({
     if (!user) {
       toast({
         title: 'Error',
-        description: 'You must be logged in to like answers',
+        description: t('questionsPage.error.mustBeLoggedIn'),
         variant: 'destructive',
       });
       return;
@@ -964,7 +985,7 @@ export const QuestionAnswers: React.FC<QuestionAnswersProps> = ({
       });
       toast({
         title: 'Error',
-        description: 'Failed to like answer. Please try again.',
+        description: t('questionsPage.error.failedToPost'),
         variant: 'destructive',
       });
     }
@@ -974,13 +995,34 @@ export const QuestionAnswers: React.FC<QuestionAnswersProps> = ({
     return (
       <div className="space-y-4">
         {[...Array(2)].map((_, i) => (
-          <div key={i} className="animate-pulse space-y-3 p-4 bg-muted/20 rounded-lg">
-            <div className="flex items-center gap-3">
-              <div className="h-8 w-8 bg-muted rounded-full"></div>
-              <div className="h-4 bg-muted rounded w-32"></div>
+          <div key={i} className="bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-sm rounded-lg p-3 sm:p-4 shadow-lg border border-border/50 animate-pulse">
+            <div className="flex items-start gap-2 sm:gap-3">
+              {/* Avatar skeleton */}
+              <div className="h-6 w-6 sm:h-10 sm:w-10 bg-gradient-to-br from-primary/30 to-primary/20 rounded-full flex-shrink-0 border border-primary/30"></div>
+              
+              {/* Content skeleton */}
+              <div className="flex-1 space-y-3">
+                {/* Header skeleton */}
+                <div className="flex flex-wrap items-center gap-1 sm:gap-2">
+                  <div className="h-4 bg-gradient-to-r from-primary/30 to-primary/20 rounded w-24 border border-primary/20"></div>
+                  <div className="h-4 bg-gradient-to-r from-secondary/30 to-secondary/20 rounded w-16 border border-secondary/20"></div>
+                  <div className="h-3 bg-gradient-to-r from-muted/40 to-muted/20 rounded w-20 border border-border/30"></div>
+                </div>
+                
+                {/* Answer content skeleton */}
+                <div className="space-y-2">
+                  <div className="h-4 bg-gradient-to-r from-muted/50 to-muted/30 rounded w-full border border-border/40"></div>
+                  <div className="h-4 bg-gradient-to-r from-muted/50 to-muted/30 rounded w-3/4 border border-border/40"></div>
+                </div>
+                
+                {/* Action bar skeleton */}
+                <div className="flex flex-wrap items-center gap-2 sm:gap-4">
+                  <div className="h-4 bg-gradient-to-r from-muted/50 to-muted/30 rounded w-16 border border-border/40"></div>
+                  <div className="h-4 bg-gradient-to-r from-muted/50 to-muted/30 rounded w-12 border border-border/40"></div>
+                  <div className="h-4 bg-gradient-to-r from-muted/50 to-muted/30 rounded w-14 border border-border/40"></div>
+                </div>
+              </div>
             </div>
-            <div className="h-4 bg-muted rounded w-full"></div>
-            <div className="h-4 bg-muted rounded w-3/4"></div>
           </div>
         ))}
       </div>
@@ -994,7 +1036,7 @@ export const QuestionAnswers: React.FC<QuestionAnswersProps> = ({
         <div className="space-y-4">
           <h4 className="font-semibold text-foreground flex items-center gap-2">
             <MessageSquare className="h-4 w-4" />
-            Answers ({answers.length})
+            {t('questionsPage.answers.answers')} ({answers.length})
           </h4>
           
           {answers.map((answer) => (
@@ -1045,11 +1087,11 @@ export const QuestionAnswers: React.FC<QuestionAnswersProps> = ({
           <form onSubmit={handleSubmitAnswer} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="answer-content" className="text-sm font-medium">
-                Your Answer
+                {t('questionsPage.answers.addAnswer')}
               </Label>
               <Textarea
                 id="answer-content"
-                placeholder="Share your knowledge and help others..."
+                placeholder={t('questionsPage.answers.answerPlaceholder')}
                 value={newAnswer.content}
                 onChange={(e) => setNewAnswer({ ...newAnswer, content: e.target.value })}
                 className="glass min-h-[100px] w-full max-w-full overflow-hidden"
@@ -1068,7 +1110,7 @@ export const QuestionAnswers: React.FC<QuestionAnswersProps> = ({
                   }
                 />
                 <Label htmlFor="answer-anonymous" className="text-sm">
-                  Post anonymously
+                  {t('questionsPage.answers.postAnonymously')}
                 </Label>
               </div>
 
@@ -1080,12 +1122,12 @@ export const QuestionAnswers: React.FC<QuestionAnswersProps> = ({
                 {submitting ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Posting...
+                    {t('questionsPage.answers.postingAnswer')}
                   </>
                 ) : (
                   <>
                     <Send className="h-4 w-4 mr-2" />
-                    Post Answer
+                    {t('questionsPage.answers.postAnswer')}
                   </>
                 )}
               </Button>
@@ -1096,7 +1138,7 @@ export const QuestionAnswers: React.FC<QuestionAnswersProps> = ({
 
       {!user && (
         <div className="text-center py-6 text-muted-foreground">
-          Please log in to post an answer.
+          {t('questionsPage.error.mustBeLoggedIn')}
         </div>
       )}
     </div>

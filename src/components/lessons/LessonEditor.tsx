@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -75,6 +76,7 @@ interface LessonEditorProps {
 
 export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
   const { toast } = useToast();
+  const { t } = useTranslation('teacher');
   const [lesson, setLesson] = useState<Lesson | null>(null);
   const [lessonContent, setLessonContent] = useState<LessonContent | null>(null);
   const [lessonViews, setLessonViews] = useState<LessonView[]>([]);
@@ -246,7 +248,7 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
 
       toast({
         title: 'Success',
-        description: 'Lesson updated successfully',
+        description: t('lessonEditor.toasts.lessonUpdated'),
       });
 
       fetchLessonData();
@@ -298,7 +300,7 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
   if (!lesson) {
     return (
       <div className="text-center p-8">
-        <p className="text-muted-foreground">Lesson not found</p>
+        <p className="text-muted-foreground">{t('lessonEditor.toasts.lessonNotFound')}</p>
       </div>
     );
   }
@@ -320,13 +322,13 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
 
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                Back
+                {t('lessonEditor.header.back')}
               </Button>
               <div className="space-y-1 sm:space-y-2">
                 <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary">
-                  Edit Lesson
+                  {t('lessonEditor.header.editLesson')}
                 </h3>
-                <p className="text-muted-foreground text-sm sm:text-base lg:text-lg">Customize your lesson content and settings</p>
+                <p className="text-muted-foreground text-sm sm:text-base lg:text-lg">{t('lessonEditor.header.customizeLessonContent')}</p>
               </div>
             </div>
             <Button 
@@ -335,7 +337,7 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
               variant='default'
             >
               <Save className="h-5 w-5 mr-2" />
-              {saving ? 'Saving...' : 'Save Changes'}
+              {saving ? t('lessonEditor.header.saving') : t('lessonEditor.header.saveChanges')}
             </Button>
           </div>
         </div>
@@ -347,28 +349,28 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
               className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary-500/20 data-[state=active]:to-secondary-500/20 data-[state=active]:text-primary-300 data-[state=active]:border data-[state=active]:border-primary-500/30 transition-all duration-300"
             >
               <FileText className="h-4 w-4 mr-2" />
-              Lesson Details
+              {t('lessonEditor.tabs.lessonDetails')}
             </TabsTrigger>
             <TabsTrigger 
               value="content"
               className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-secondary-500/20 data-[state=active]:to-accent-500/20 data-[state=active]:text-secondary-300 data-[state=active]:border data-[state=active]:border-secondary-500/30 transition-all duration-300"
             >
               <Brain className="h-4 w-4 mr-2" />
-              AI Content
+              {t('lessonEditor.tabs.aiContent')}
             </TabsTrigger>
             <TabsTrigger 
               value="analytics"
               className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500/20 data-[state=active]:to-pink-500/20 data-[state=active]:text-purple-300 data-[state=active]:border data-[state=active]:border-purple-500/30 transition-all duration-300"
             >
               <BarChart3 className="h-4 w-4 mr-2" />
-              Analytics
+              {t('lessonEditor.tabs.analytics')}
             </TabsTrigger>
             <TabsTrigger 
               value="preview"
               className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent-500/20 data-[state=active]:to-primary-500/20 data-[state=active]:text-accent-300 data-[state=active]:border data-[state=active]:border-accent-500/30 transition-all duration-300"
             >
               <Video className="h-4 w-4 mr-2" />
-              Preview
+              {t('lessonEditor.tabs.preview')}
             </TabsTrigger>
           </TabsList>
 
@@ -379,56 +381,56 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
                   <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-lg flex items-center justify-center">
                     <FileText className="h-4 w-4 text-black" />
                   </div>
-                  Lesson Information
+                  {t('lessonEditor.lessonDetails.title')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6 p-4 sm:p-6">
                 <div className="space-y-3">
-                  <label className="text-sm font-medium text-primary-300">Title</label>
+                  <label className="text-sm font-medium text-primary-300">{t('lessonEditor.lessonDetails.titleLabel')}</label>
                   <Input
                     value={formData.title}
                     onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
                     className="bg-background/50 border-primary-500/30 focus:border-primary-500/50 text-primary-100 placeholder:text-primary-300/50"
-                    placeholder="Enter lesson title..."
+                    placeholder={t('lessonEditor.lessonDetails.titlePlaceholder')}
                   />
                 </div>
                 <div className="space-y-3">
-                  <label className="text-sm font-medium text-primary-300">Description</label>
+                  <label className="text-sm font-medium text-primary-300">{t('lessonEditor.lessonDetails.descriptionLabel')}</label>
                   <Textarea
                     value={formData.description}
                     onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                     className="bg-background/50 border-primary-500/30 focus:border-primary-500/50 text-primary-100 placeholder:text-primary-300/50 min-h-[100px]"
-                    placeholder="Enter lesson description..."
+                    placeholder={t('lessonEditor.lessonDetails.descriptionPlaceholder')}
                   />
                 </div>
                 <div className="space-y-3">
-                  <label className="text-sm font-medium text-primary-300">Video URL</label>
+                  <label className="text-sm font-medium text-primary-300">{t('lessonEditor.lessonDetails.videoUrlLabel')}</label>
                   <Input
                     value={formData.video_url}
                     onChange={(e) => setFormData(prev => ({ ...prev, video_url: e.target.value }))}
                     className="bg-background/50 border-primary-500/30 focus:border-primary-500/50 text-primary-100 placeholder:text-primary-300/50"
-                    placeholder="Enter video URL..."
+                    placeholder={t('lessonEditor.lessonDetails.videoUrlPlaceholder')}
                   />
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-3">
-                    <label className="text-sm font-medium text-primary-300">View Limit</label>
+                    <label className="text-sm font-medium text-primary-300">{t('lessonEditor.lessonDetails.viewLimitLabel')}</label>
                     <Input
                       value={formData.view_limit}
                       onChange={(e) => setFormData(prev => ({ ...prev, view_limit: e.target.value }))}
                       className="bg-background/50 border-primary-500/30 focus:border-primary-500/50 text-primary-100 placeholder:text-primary-300/50"
-                      placeholder="Enter view limit..."
+                      placeholder={t('lessonEditor.lessonDetails.viewLimitPlaceholder')}
                       type="number"
                       min="0"
                     />
                   </div>
                   <div className="space-y-3">
-                    <label className="text-sm font-medium text-primary-300">Duration (minutes)</label>
+                    <label className="text-sm font-medium text-primary-300">{t('lessonEditor.lessonDetails.durationLabel')}</label>
                     <Input
                       value={formData.duration_minutes}
                       onChange={(e) => setFormData(prev => ({ ...prev, duration_minutes: e.target.value.replace(/[^0-9]/g, '') }))}
                       className="bg-background/50 border-primary-500/30 focus:border-primary-500/50 text-primary-100 placeholder:text-primary-300/50"
-                      placeholder="Enter duration in minutes..."
+                      placeholder={t('lessonEditor.lessonDetails.durationPlaceholder')}
                       type="number"
                       min="1"
                     />
@@ -445,10 +447,10 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
                   <div className="w-8 h-8 bg-gradient-to-br from-secondary-500 to-accent-500 rounded-lg flex items-center justify-center">
                     <Brain className="h-4 w-4 text-black" />
                   </div>
-                  AI-Generated Content
+                  {t('lessonEditor.aiContent.title')}
                   <Badge className="bg-gradient-to-r from-secondary-500 to-accent-500 text-black font-medium">
                     <Sparkles className="h-3 w-3 mr-1" />
-                    AI Powered
+                    {t('lessonEditor.aiContent.aiPowered')}
                   </Badge>
                 </CardTitle>
               </CardHeader>
@@ -457,9 +459,9 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
                   <div className="w-16 h-16 mx-auto bg-gradient-to-br from-secondary-500/20 to-accent-500/20 rounded-2xl flex items-center justify-center border border-secondary-500/30">
                     <Brain className="h-8 w-8 text-secondary-300" />
                   </div>
-                  <h4 className="text-lg font-semibold text-secondary-300">AI Assistant Data Source</h4>
+                  <h4 className="text-lg font-semibold text-secondary-300">{t('lessonEditor.aiContent.aiAssistantDataSource')}</h4>
                   <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                    Uploading your lesson's PDF is crucial. The AI assistant relies on this document to provide accurate summaries, answer student questions, and generate insights. Without it, the assistant will not function.
+                    {t('lessonEditor.aiContent.aiAssistantDescription')}
                   </p>
                   <div className="relative inline-flex items-center justify-center">
                     <Button 
@@ -469,7 +471,7 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
                       disabled={aiLoading}
                     >
                       <Upload className="h-4 w-4 mr-2" />
-                      {aiLoading ? 'Processing...' : 'Upload PDF'}
+                      {aiLoading ? t('lessonEditor.aiContent.processing') : t('lessonEditor.aiContent.uploadPdf')}
                     </Button>
                     <Input
                       ref={fileInputRef}
@@ -482,21 +484,21 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
                   </div>
                 </div>
                 <div className="space-y-3">
-                  <label className="text-sm font-medium text-secondary-300">Transcription</label>
+                  <label className="text-sm font-medium text-secondary-300">{t('lessonEditor.aiContent.transcriptionLabel')}</label>
                   <Textarea
                     value={contentData.transcription}
                     onChange={(e) => setContentData(prev => ({ ...prev, transcription: e.target.value }))}
                     className="bg-background/50 border-secondary-500/30 focus:border-secondary-500/50 text-secondary-100 placeholder:text-secondary-300/50 min-h-[200px]"
-                    placeholder="AI-generated transcription will appear here..."
+                    placeholder={t('lessonEditor.aiContent.transcriptionPlaceholder')}
                   />
                 </div>
                 <div className="space-y-3">
-                  <label className="text-sm font-medium text-secondary-300">Summary</label>
+                  <label className="text-sm font-medium text-secondary-300">{t('lessonEditor.aiContent.summaryLabel')}</label>
                   <Textarea
                     value={contentData.summary}
                     onChange={(e) => setContentData(prev => ({ ...prev, summary: e.target.value }))}
                     className="bg-background/50 border-secondary-500/30 focus:border-secondary-500/50 text-secondary-100 placeholder:text-secondary-300/50 min-h-[150px]"
-                    placeholder="AI-generated summary will appear here..."
+                    placeholder={t('lessonEditor.aiContent.summaryPlaceholder')}
                   />
                 </div>
               </CardContent>
@@ -508,7 +510,7 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
               <Card className="card border border-border bg-card">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium text-purple-300">Total Views</CardTitle>
+                  <CardTitle className="text-sm font-medium text-purple-300">{t('lessonEditor.analytics.totalViews')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center gap-3">
@@ -524,7 +526,7 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
 
               <Card className="card border border-border bg-card">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium text-primary-300">Completed</CardTitle>
+                  <CardTitle className="text-sm font-medium text-primary-300">{t('lessonEditor.analytics.completed')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center gap-3">
@@ -540,7 +542,7 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
 
               <Card className="card border border-border bg-card">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium text-accent-300">Avg Duration</CardTitle>
+                  <CardTitle className="text-sm font-medium text-accent-300">{t('lessonEditor.analytics.avgDuration')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center gap-3">
@@ -561,7 +563,7 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
                 <CardHeader>
                   <CardTitle className="text-primary-300 flex items-center gap-2">
                     <TrendingUp className="h-5 w-5" />
-                    Views Over Time
+                    {t('lessonEditor.analytics.viewsOverTime')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -587,7 +589,7 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
                 <CardHeader>
                   <CardTitle className="text-secondary-300 flex items-center gap-2">
                     <Target className="h-5 w-5" />
-                    Completion Rate
+                    {t('lessonEditor.analytics.completionRate')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -617,7 +619,7 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
               <CardHeader className="p-4 sm:p-6 pb-0">
                 <CardTitle className="text-purple-300 flex items-center gap-2">
                   <Users className="h-5 w-5" />
-                  Student Views
+                  {t('lessonEditor.analytics.studentViews')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-4 sm:p-6">
@@ -625,11 +627,11 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
                   <Table>
                     <TableHeader>
                       <TableRow className="border-b border-purple-500/20">
-                        <TableHead className="text-purple-300">Student</TableHead>
-                        <TableHead className="text-purple-300">Email</TableHead>
-                        <TableHead className="text-purple-300">Viewed At</TableHead>
-                        <TableHead className="text-purple-300">Duration</TableHead>
-                        <TableHead className="text-purple-300">Status</TableHead>
+                        <TableHead className="text-purple-300">{t('quizEditor.attempts.student')}</TableHead>
+                        <TableHead className="text-purple-300">{t('quizEditor.attempts.email')}</TableHead>
+                        <TableHead className="text-purple-300">{t('lessonEditor.analytics.viewedAt')}</TableHead>
+                        <TableHead className="text-purple-300">{t('lessonEditor.analytics.duration')}</TableHead>
+                        <TableHead className="text-purple-300">{t('lessonEditor.analytics.status')}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -644,28 +646,28 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
                           <TableCell className="text-purple-200">
                             {new Date(view.viewed_at).toLocaleString()}
                           </TableCell>
-                          <TableCell className="text-purple-200">
-                            {view.view_duration} minutes
-                          </TableCell>
-                          <TableCell>
-                            <Badge 
-                              className={view.completed 
-                                ? "bg-primary-500/20 text-primary-300 border-primary-500/40" 
-                                : "bg-yellow-500/20 text-yellow-300 border-yellow-500/40"
-                              }
-                            >
-                              {view.completed ? 'Completed' : 'In Progress'}
-                            </Badge>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                      {lessonViews.length === 0 && (
-                        <TableRow>
-                          <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
-                            No views recorded yet
-                          </TableCell>
-                        </TableRow>
-                      )}
+                                                      <TableCell className="text-purple-200">
+                              {view.view_duration} {t('lessonEditor.analytics.minutes')}
+                            </TableCell>
+                            <TableCell>
+                              <Badge 
+                                className={view.completed 
+                                  ? "bg-primary-500/20 text-primary-300 border-primary-500/40" 
+                                  : "bg-yellow-500/20 text-yellow-300 border-yellow-500/40"
+                                }
+                              >
+                                {view.completed ? t('lessonEditor.analytics.completed') : t('lessonEditor.analytics.inProgress')}
+                              </Badge>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                        {lessonViews.length === 0 && (
+                          <TableRow>
+                            <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                              {t('lessonEditor.analytics.noViewsRecorded')}
+                            </TableCell>
+                          </TableRow>
+                        )}
                     </TableBody>
                   </Table>
                 </div>
@@ -680,7 +682,7 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
                   <div className="w-8 h-8 bg-gradient-to-br from-accent-500 to-primary-500 rounded-lg flex items-center justify-center">
                     <Video className="h-4 w-4 text-black" />
                   </div>
-                  Lesson Preview
+                  {t('lessonEditor.preview.title')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6 p-4 sm:p-6">
@@ -692,7 +694,7 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
                   {formData.view_limit && (
                     <Badge className="bg-accent-500/20 text-accent-300 border-accent-500/40">
                       <Eye className="h-3 w-3 mr-1" />
-                      View limit: {formData.view_limit}
+                      {t('lessonEditor.preview.viewLimit', { limit: formData.view_limit })}
                     </Badge>
                   )}
                 </div>
@@ -713,8 +715,8 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
                         <Video className="h-8 w-8 text-accent-400" />
                       </div>
                       <div>
-                        <p className="text-accent-300 font-medium">No video URL provided</p>
-                        <p className="text-sm text-muted-foreground">Add a video URL to see the preview</p>
+                        <p className="text-accent-300 font-medium">{t('lessonEditor.preview.noVideoUrl')}</p>
+                        <p className="text-sm text-muted-foreground">{t('lessonEditor.preview.addVideoUrlToSeePreview')}</p>
                       </div>
                     </div>
                   </div>

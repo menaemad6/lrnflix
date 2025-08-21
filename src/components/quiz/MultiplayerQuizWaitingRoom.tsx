@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { GameRoom, Player } from '@/hooks/useMultiplayerQuiz';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from 'react-i18next';
 
 interface MultiplayerQuizWaitingRoomProps {
   room: GameRoom;
@@ -55,6 +56,7 @@ export const MultiplayerQuizWaitingRoom = ({
   onDebugStatus,
   onCheckAndStart
 }: MultiplayerQuizWaitingRoomProps) => {
+  const { t } = useTranslation('other');
   const { toast } = useToast();
 
   // Cleanup effect to handle proper unmounting
@@ -69,8 +71,8 @@ export const MultiplayerQuizWaitingRoom = ({
     if (room.room_code) {
       navigator.clipboard.writeText(room.room_code);
       toast({
-        title: 'Room Code Copied',
-        description: 'Share this code with your friends!',
+        title: t('multiplayerWaitingRoom.roomCodeCopied'),
+        description: t('multiplayerWaitingRoom.shareCodeDescription'),
       });
     }
   };
@@ -78,10 +80,10 @@ export const MultiplayerQuizWaitingRoom = ({
   const shareRoomLink = () => {
     const link = `${window.location.origin}/multiplayer-quiz?roomCode=${room.room_code}`;
     navigator.clipboard.writeText(link);
-    toast({
-      title: 'Invitation Link Copied',
-      description: 'Share this link with your friends to join the room!',
-    });
+          toast({
+        title: t('multiplayerWaitingRoom.invitationLinkCopied'),
+        description: t('multiplayerWaitingRoom.shareLinkDescription'),
+      });
   };
 
   const handleLeaveRoom = async () => {
@@ -90,8 +92,8 @@ export const MultiplayerQuizWaitingRoom = ({
     } catch (error) {
       console.error('Error leaving room:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to leave room',
+        title: t('multiplayerWaitingRoom.error'),
+        description: t('multiplayerWaitingRoom.failedToLeaveRoom'),
         variant: 'destructive',
       });
     }
@@ -103,8 +105,8 @@ export const MultiplayerQuizWaitingRoom = ({
     } catch (error) {
       console.error('Error starting game:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to start game',
+                 title: t('multiplayerWaitingRoom.errorStartingGame'),
+         description: t('multiplayerWaitingRoom.failedToStartGame'),
         variant: 'destructive',
       });
     }
@@ -116,9 +118,9 @@ export const MultiplayerQuizWaitingRoom = ({
     <div className="min-h-screen bg-background particle-bg relative overflow-hidden pt-24">
       {/* Decorative Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-pink-400/20 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-400/20 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-400/10 rounded-full blur-3xl"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-secondary-400/20 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-primary-400/20 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-accent-400/10 rounded-full blur-3xl"></div>
       </div>
 
       {/* Modern Header */}
@@ -129,15 +131,15 @@ export const MultiplayerQuizWaitingRoom = ({
               <Trophy className="h-8 w-8 text-white" />
             </div>
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-foreground">Quiz Battle</h1>
-              <p className="text-sm text-muted-foreground animate-pulse">Waiting for players...</p>
+                          <h1 className="text-xl sm:text-2xl font-bold text-foreground">{t('multiplayerWaitingRoom.quizBattle')}</h1>
+            <p className="text-sm text-muted-foreground animate-pulse">{t('multiplayerWaitingRoom.waitingForPlayers')}</p>
             </div>
           </div>
 
           <div className="flex flex-wrap items-center justify-center sm:justify-end gap-2 sm:gap-4">
             {room.room_code && (
               <div className="glass-card px-4 py-2 rounded-xl border border-border flex items-center space-x-3">
-                <span className="text-muted-foreground text-xs font-semibold uppercase">Code</span>
+                <span className="text-muted-foreground text-xs font-semibold uppercase">{t('multiplayerWaitingRoom.code')}</span>
                 <span className="text-foreground font-mono text-lg sm:text-xl font-bold tracking-widest">{room.room_code}</span>
                 <Button onClick={copyRoomCode} variant="ghost" size="icon" className="h-8 w-8">
                   <Copy className="h-4 w-4" />
@@ -153,11 +155,11 @@ export const MultiplayerQuizWaitingRoom = ({
             </Badge>
             <Badge variant="outline" className="px-3 py-1 text-xs sm:text-sm">
               {room.is_public ? <Eye className="h-4 w-4 mr-2" /> : <EyeOff className="h-4 w-4 mr-2" />}
-              {room.is_public ? 'Public' : 'Private'}
+                             {room.is_public ? t('multiplayerWaitingRoom.public') : t('multiplayerWaitingRoom.private')}
             </Badge>
             <Button onClick={handleLeaveRoom} variant="destructive" size="sm">
               <LogOut className="h-4 w-4 mr-2" />
-              Leave
+                             {t('multiplayerWaitingRoom.leave')}
             </Button>
           </div>
         </div>
@@ -168,11 +170,11 @@ export const MultiplayerQuizWaitingRoom = ({
         <div className="max-w-7xl mx-auto">
           {/* Players Grid */}
           <div className="mb-8">
-            <h2 className="text-2xl font-bold text-foreground mb-6 text-center">
-              <span className="inline-block bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent pb-1 border-b-2 border-primary/30 px-4">
-                Players in the Game
-              </span>
-            </h2>
+                             <h2 className="text-2xl font-bold text-foreground mb-6 text-center">
+                   <span className="inline-block bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent pb-1 border-b-2 border-primary/30 px-4">
+                     {t('multiplayerWaitingRoom.playersInGame')}
+                   </span>
+                 </h2>
             
             <div className="flex flex-wrap justify-center gap-4 max-w-6xl mx-auto">
               <AnimatePresence>
@@ -211,12 +213,12 @@ export const MultiplayerQuizWaitingRoom = ({
                       <div className="text-center">
                         <p className="text-foreground font-bold text-sm truncate">
                           {player.username}
-                          {player.user_id === currentUserId && ' (You)'}
+                                                     {player.user_id === currentUserId && t('multiplayerWaitingRoom.you')}
                         </p>
                         {player.user_id === room.created_by && (
-                          <Badge className="bg-primary/20 text-primary border-primary/40 text-xs mt-1">
-                            Host
-                          </Badge>
+                                                       <Badge className="bg-primary/20 text-primary border-primary/40 text-xs mt-1">
+                               {t('multiplayerWaitingRoom.host')}
+                             </Badge>
                         )}
                       </div>
 
@@ -243,7 +245,7 @@ export const MultiplayerQuizWaitingRoom = ({
                     </div>
                   </div>
                   <div className="text-center">
-                    <p className="text-muted-foreground text-sm">Waiting...</p>
+                    <p className="text-muted-foreground text-sm">{t('multiplayerWaitingRoom.waiting')}</p>
                   </div>
                 </motion.div>
               ))}
@@ -257,23 +259,24 @@ export const MultiplayerQuizWaitingRoom = ({
                 {players.length === room.max_players ? '🎉' : '⏳'}
               </div>
               <h3 className="text-2xl font-bold text-foreground mb-2">
-                {players.length === room.max_players ? 'Room is Full!' : 'Waiting for Players'}
+                {players.length === room.max_players ? t('multiplayerWaitingRoom.roomIsFull') : t('multiplayerWaitingRoom.waitingForPlayers')}
               </h3>
               <p className="text-muted-foreground text-lg mb-4">
                 {players.length === room.max_players
-                  ? 'All players have joined. Ready to start the quiz!'
-                  : `Need ${room.max_players - players.length} more player${
-                      room.max_players - players.length !== 1 ? 's' : ''
-                    } to join`}
+                  ? t('multiplayerWaitingRoom.allPlayersJoined')
+                  : t('multiplayerWaitingRoom.needMorePlayers', { 
+                      count: room.max_players - players.length,
+                      plural: room.max_players - players.length !== 1 ? 's' : ''
+                    })}
               </p>
               {room.category && (
                 <p className="text-muted-foreground mb-4">
-                  Category: <span className="text-primary font-semibold">{room.category}</span>
+                  {t('multiplayerWaitingRoom.categoryLabel')} <span className="text-primary font-semibold">{room.category}</span>
                 </p>
               )}
               {players.length < room.max_players && room.room_code && (
                 <div className="glass-card rounded-xl p-4 border border-border">
-                  <p className="text-muted-foreground text-sm mb-2">Share this PIN with your friends:</p>
+                  <p className="text-muted-foreground text-sm mb-2">{t('multiplayerWaitingRoom.sharePin')}</p>
                   <div className="flex items-center justify-center space-x-2">
                     <span className="text-3xl font-mono font-bold text-foreground">{room.room_code}</span>
                     <QrCode className="h-6 w-6 text-muted-foreground" />
@@ -291,54 +294,25 @@ export const MultiplayerQuizWaitingRoom = ({
                   disabled={players.length < 1}
                 >
                   <Play className="h-6 w-6 mr-3" />
-                  Start Game ({players.length} {players.length === 1 ? 'player' : 'players'})
+                  {t('multiplayerWaitingRoom.startGameWithPlayers', { 
+                    count: players.length,
+                    playerText: players.length === 1 ? 'player' : 'players'
+                  })}
                 </Button>
                 {players.length < room.max_players && (
                   <p className="text-accent mt-4 text-sm">
-                    You can start the game now, even if the room isn't full.
+                    {t('multiplayerWaitingRoom.canStartNow')}
                   </p>
                 )}
               </div>
             ) : (
               <div className="glass-card border border-border rounded-2xl p-4">
-                <p className="text-foreground text-lg">Waiting for the host to start the game...</p>
+                <p className="text-foreground text-lg">{t('multiplayerWaitingRoom.waitingForHost')}</p>
               </div>
             )}
           </div>
           
-          {/* Debug Section - Only show in development */}
-          {process.env.NODE_ENV === 'development' && (
-            <div className="max-w-2xl mx-auto mt-6">
-              <div className="glass-card border border-destructive/20 rounded-2xl p-4 bg-destructive/5">
-                <h4 className="text-destructive font-semibold mb-3 text-center">🐛 Debug Tools</h4>
-                <div className="flex gap-2 justify-center">
-                  {onDebugStatus && (
-                    <Button
-                      onClick={onDebugStatus}
-                      variant="outline"
-                      size="sm"
-                      className="border-destructive/30 text-destructive hover:bg-destructive/10"
-                    >
-                      Debug Status
-                    </Button>
-                  )}
-                  {onCheckAndStart && (
-                    <Button
-                      onClick={onCheckAndStart}
-                      variant="outline"
-                      size="sm"
-                      className="border-destructive/30 text-destructive hover:bg-destructive/10"
-                    >
-                      Check & Start Game
-                    </Button>
-                  )}
-                </div>
-                <p className="text-xs text-destructive/70 text-center mt-2">
-                  Room Status: {room.status} | Game State: {room.status === 'started' ? 'Ready to Start' : 'Waiting'}
-                </p>
-              </div>
-            </div>
-          )}
+
         </div>
       </main>
     </div>

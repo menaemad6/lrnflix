@@ -3,6 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Trophy, Star, Zap, Target, BookOpen, Clock, Award, Crown } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface Achievement {
   id: string;
@@ -26,65 +27,66 @@ interface StudentAchievementsProps {
 }
 
 export const StudentAchievements = ({ stats }: StudentAchievementsProps) => {
+  const { t } = useTranslation('dashboard');
   const achievements: Achievement[] = [
     {
       id: 'first_course',
-      title: 'First Steps',
-      description: 'Complete your first course',
+      title: t('studentAchievements.firstSteps'),
+      description: t('studentAchievements.firstStepsDesc'),
       icon: <BookOpen className="h-4 w-4" />,
       earned: stats.completedCourses > 0,
       rarity: 'common',
-      category: 'Learning'
+      category: t('studentAchievements.learning')
     },
     {
       id: 'course_collector',
-      title: 'Course Collector',
-      description: 'Enroll in 5 different courses',
+      title: t('studentAchievements.courseCollector'),
+      description: t('studentAchievements.courseCollectorDesc'),
       icon: <Target className="h-4 w-4" />,
       earned: stats.totalCourses >= 5,
       progress: Math.min((stats.totalCourses / 5) * 100, 100),
       rarity: 'rare',
-      category: 'Exploration'
+      category: t('studentAchievements.exploration')
     },
     {
       id: 'quiz_master',
-      title: 'Quiz Master',
-      description: 'Achieve 90%+ average quiz score',
+      title: t('studentAchievements.quizMaster'),
+      description: t('studentAchievements.quizMasterDesc'),
       icon: <Star className="h-4 w-4" />,
       earned: (stats.avgQuizScore || 0) >= 0.9,
       progress: Math.min(((stats.avgQuizScore || 0) / 0.9) * 100, 100),
       rarity: 'epic',
-      category: 'Excellence'
+      category: t('studentAchievements.excellence')
     },
     {
       id: 'big_spender',
-      title: 'Investor',
-      description: 'Spend 500+ credits on learning',
+      title: t('studentAchievements.investor'),
+      description: t('studentAchievements.investorDesc'),
       icon: <Zap className="h-4 w-4" />,
       earned: stats.totalCreditsSpent >= 500,
       progress: Math.min((stats.totalCreditsSpent / 500) * 100, 100),
       rarity: 'rare',
-      category: 'Investment'
+      category: t('studentAchievements.investment')
     },
     {
       id: 'streak_champion',
-      title: 'Streak Champion',
-      description: 'Maintain a 30-day learning streak',
+      title: t('studentAchievements.streakChampion'),
+      description: t('studentAchievements.streakChampionDesc'),
       icon: <Trophy className="h-4 w-4" />,
       earned: (stats.studyStreak || 0) >= 30,
       progress: Math.min(((stats.studyStreak || 0) / 30) * 100, 100),
       rarity: 'legendary',
-      category: 'Consistency'
+      category: t('studentAchievements.consistency')
     },
     {
       id: 'graduate',
-      title: 'Graduate',
-      description: 'Complete 10 courses',
+      title: t('studentAchievements.graduate'),
+      description: t('studentAchievements.graduateDesc'),
       icon: <Crown className="h-4 w-4" />,
       earned: stats.completedCourses >= 10,
       progress: Math.min((stats.completedCourses / 10) * 100, 100),
       rarity: 'legendary',
-      category: 'Mastery'
+      category: t('studentAchievements.mastery')
     }
   ];
 
@@ -120,12 +122,12 @@ export const StudentAchievements = ({ stats }: StudentAchievementsProps) => {
             <Award className="h-6 w-6 text-black" />
           </div>
           <div>
-            <div className="gradient-text text-xl font-bold">Achievements</div>
-            <CardDescription className="text-muted-foreground/80">Unlock badges as you learn</CardDescription>
+            <div className="gradient-text text-xl font-bold">{t('studentAchievements.title')}</div>
+            <CardDescription className="text-muted-foreground/80">{t('studentAchievements.subtitle')}</CardDescription>
           </div>
           <div className="ml-auto">
             <Badge variant="default" className="bg-primary/20 text-primary border-primary/30">
-              {unlockedCount}/{totalCount} Unlocked
+              {t('studentAchievements.unlocked', { unlocked: unlockedCount, total: totalCount })}
             </Badge>
           </div>
         </div>
@@ -160,7 +162,7 @@ export const StudentAchievements = ({ stats }: StudentAchievementsProps) => {
                   {!achievement.earned && achievement.progress !== undefined && (
                     <div className="mt-2">
                       <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
-                        <span>Progress</span>
+                        <span>{t('studentAchievements.progress')}</span>
                         <span>{Math.round(achievement.progress)}%</span>
                       </div>
                       <div className="w-full bg-muted rounded-full h-1.5">

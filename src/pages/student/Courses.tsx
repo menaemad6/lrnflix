@@ -12,6 +12,7 @@ import { PremiumCourseCard } from '@/components/courses/PremiumCourseCard';
 import WavesHeroHeader from '@/components/ui/WavesHeroHeader';
 import { useTenant } from '@/contexts/TenantContext';
 import { CourseCardSkeleton } from '@/components/student/skeletons/CourseCardSkeleton';
+import { useTranslation } from 'react-i18next';
 
 interface Course {
   id: string;
@@ -47,6 +48,7 @@ interface RawCourse {
 export const Courses = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useTranslation('dashboard');
   const [courses, setCourses] = useState<Course[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -137,8 +139,8 @@ export const Courses = () => {
       const err = error as Error;
       console.error('Error fetching courses:', err);
       toast({
-        title: 'Error',
-        description: 'Failed to load courses',
+        title: t('courses.error'),
+        description: t('courses.failedToLoadCourses'),
         variant: 'destructive',
       });
     } finally {
@@ -168,8 +170,8 @@ export const Courses = () => {
       if (error) throw error;
 
       toast({
-        title: 'Success',
-        description: 'Successfully enrolled in course!',
+        title: t('courses.success'),
+        description: t('courses.enrolledSuccessfully'),
       });
 
       fetchCourses();
@@ -177,7 +179,7 @@ export const Courses = () => {
       const err = error as Error;
       console.error('Error enrolling in course:', err);
       toast({
-        title: 'Error',
+        title: t('courses.error'),
         description: err.message,
         variant: 'destructive',
       });
@@ -196,8 +198,8 @@ export const Courses = () => {
     <div className={bgClass + " min-h-screen bg-gradient-to-br from-background via-background to-primary/5 "}>
       {/* Header - full width, top of page */}
       <WavesHeroHeader
-        title={<span>Explore <span className="text-primary">Courses</span></span>}
-        description="Discover amazing courses and expand your knowledge with expert instructors"
+        title={<span className='text-primary'>{t('courses.title')}</span>}
+        description={t('courses.subtitle')}
       />
       <div className="container mx-auto px-2 sm:px-4 space-y-8">
         {/* Filters - overlap header */}
@@ -208,7 +210,7 @@ export const Courses = () => {
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
-                    placeholder="Search by course name or description"
+                    placeholder={t('courses.searchPlaceholder')}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10 glass"
@@ -272,9 +274,9 @@ export const Courses = () => {
           <Card className="glass-card w-full max-w-full">
             <CardContent className="text-center py-12">
               <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-xl font-semibold mb-2">No courses found</h3>
+              <h3 className="text-xl font-semibold mb-2">{t('courses.noCoursesFound')}</h3>
               <p className="text-muted-foreground">
-                Try adjusting your search criteria or explore different categories.
+                {t('courses.tryAdjustingSearchCriteria')}
               </p>
             </CardContent>
           </Card>

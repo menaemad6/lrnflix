@@ -27,6 +27,7 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { ImageUploader } from '@/components/ui/ImageUploader';
 import { IMAGE_UPLOAD_BUCKETS } from '@/data/constants';
 import type { UploadedImage } from '@/hooks/useImageUpload';
+import { useTranslation } from 'react-i18next';
 import { 
   ArrowLeft, 
   MessageSquare, 
@@ -78,6 +79,7 @@ export const CourseDetails = () => {
   const { id: courseId } = useParams<{ id: string }>();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { t } = useTranslation('courses');
   const [course, setCourse] = useState<Course | null>(null);
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [enrollmentCount, setEnrollmentCount] = useState(0);
@@ -135,8 +137,8 @@ export const CourseDetails = () => {
     } catch (error: unknown) {
       console.error('Error fetching course:', error);
       toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Failed to load course details',
+        title: t('teacherCourseDetails.error'),
+        description: error instanceof Error ? error.message : t('teacherCourseDetails.failedToLoadCourse'),
         variant: 'destructive',
       });
     } finally {
@@ -184,14 +186,14 @@ export const CourseDetails = () => {
 
       setCourse(prev => prev ? { ...prev, status } : null);
       toast({
-        title: 'Success',
-        description: `Course ${status === 'published' ? 'published' : 'saved as draft'}!`,
+        title: t('teacherCourseDetails.success'),
+        description: status === 'published' ? t('teacherCourseDetails.coursePublished') : t('teacherCourseDetails.courseSavedAsDraft'),
       });
     } catch (error: unknown) {
       console.error('Error updating course status:', error);
       toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Failed to update course status',
+        title: t('teacherCourseDetails.error'),
+        description: error instanceof Error ? error.message : t('teacherCourseDetails.failedToUpdateCourseStatus'),
         variant: 'destructive',
       });
     }
@@ -200,16 +202,16 @@ export const CourseDetails = () => {
   const handleImageUploaded = (image: UploadedImage) => {
     setUploadedImage(image);
     toast({
-      title: 'Success',
-      description: 'Course thumbnail uploaded successfully!',
+      title: t('teacherCourseDetails.success'),
+      description: t('teacherCourseDetails.courseThumbnailUploaded'),
     });
   };
 
   const handleImageDeleted = (path: string) => {
     setUploadedImage(null);
     toast({
-      title: 'Success',
-      description: 'Course thumbnail removed',
+      title: t('teacherCourseDetails.success'),
+      description: t('teacherCourseDetails.courseThumbnailRemoved'),
     });
   };
 
@@ -229,8 +231,8 @@ export const CourseDetails = () => {
       if (error) throw error;
 
       toast({
-        title: 'Success',
-        description: 'Course details updated successfully!',
+        title: t('teacherCourseDetails.success'),
+        description: t('teacherCourseDetails.courseDetailsUpdated'),
       });
 
       // Refresh course data
@@ -239,8 +241,8 @@ export const CourseDetails = () => {
     } catch (error: unknown) {
       console.error('Error updating course:', error);
       toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Failed to update course',
+        title: t('teacherCourseDetails.error'),
+        description: error instanceof Error ? error.message : t('teacherCourseDetails.failedToUpdateCourse'),
         variant: 'destructive',
       });
     }
@@ -282,8 +284,8 @@ export const CourseDetails = () => {
       if (courseError) throw courseError;
 
       toast({
-        title: 'Success',
-        description: 'Course deleted successfully!',
+        title: t('teacherCourseDetails.success'),
+        description: t('teacherCourseDetails.courseDeleted'),
       });
 
       // Navigate back to teacher dashboard
@@ -291,8 +293,8 @@ export const CourseDetails = () => {
     } catch (error: unknown) {
       console.error('Error deleting course:', error);
       toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Failed to delete course. Please try again.',
+        title: t('teacherCourseDetails.error'),
+        description: error instanceof Error ? error.message : t('teacherCourseDetails.failedToDeleteCourse'),
         variant: 'destructive',
       });
     } finally {
@@ -324,11 +326,11 @@ export const CourseDetails = () => {
   }
 
   const sidebarItems = [
-    { id: 'overview', label: 'Overview', icon: BarChart3, description: 'Course statistics & discussions' },
-    { id: 'manage', label: 'Manage Content', icon: Cog, description: 'Lessons & Quizzes', isLink: true, href: `/teacher/courses/${courseId}/manage` },
-    { id: 'students', label: 'Students', icon: Users, description: 'Manage enrollment' },
-    { id: 'codes', label: 'Course Codes', icon: Tag, description: 'Access codes' },
-    { id: 'settings', label: 'Settings', icon: Settings, description: 'Course configuration' },
+    { id: 'overview', label: t('teacherCourseDetails.overview'), icon: BarChart3, description: t('teacherCourseDetails.overviewDescription') },
+    { id: 'manage', label: t('teacherCourseDetails.manageContent'), icon: Cog, description: t('teacherCourseDetails.manageContentDescription'), isLink: true, href: `/teacher/courses/${courseId}/manage` },
+    { id: 'students', label: t('teacherCourseDetails.students'), icon: Users, description: t('teacherCourseDetails.studentsDescription') },
+    { id: 'codes', label: t('teacherCourseDetails.courseCodes'), icon: Tag, description: t('teacherCourseDetails.courseCodesDescription') },
+    { id: 'settings', label: t('teacherCourseDetails.settings'), icon: Settings, description: t('teacherCourseDetails.settingsDescription') },
   ];
 
   const renderContent = () => {
@@ -342,7 +344,7 @@ export const CourseDetails = () => {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-primary-600 dark:text-primary-400">Total Students</p>
+                      <p className="text-sm font-medium text-primary-600 dark:text-primary-400">{t('teacherCourseDetails.totalStudents')}</p>
                       <p className="text-3xl font-bold text-primary-700 dark:text-primary-300">{enrollmentCount}</p>
                     </div>
                     <div className="p-3 bg-primary-500/20 rounded-xl">
@@ -356,7 +358,7 @@ export const CourseDetails = () => {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-blue-600 dark:text-blue-400">Revenue</p>
+                      <p className="text-sm font-medium text-blue-600 dark:text-blue-400">{t('teacherCourseDetails.revenue')}</p>
                       <p className="text-3xl font-bold text-blue-700 dark:text-blue-300">{enrollmentCount * course.price}</p>
                     </div>
                     <div className="p-3 bg-blue-500/20 rounded-xl">
@@ -370,7 +372,7 @@ export const CourseDetails = () => {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-purple-600 dark:text-purple-400">Completion Rate</p>
+                      <p className="text-sm font-medium text-purple-600 dark:text-purple-400">{t('teacherCourseDetails.completionRate')}</p>
                       <p className="text-3xl font-bold text-purple-700 dark:text-purple-300">87%</p>
                     </div>
                     <div className="p-3 bg-purple-500/20 rounded-xl">
@@ -384,7 +386,7 @@ export const CourseDetails = () => {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-orange-600 dark:text-orange-400">Rating</p>
+                      <p className="text-sm font-medium text-orange-600 dark:text-orange-400">{t('teacherCourseDetails.rating')}</p>
                       <p className="text-3xl font-bold text-orange-700 dark:text-orange-300">4.8</p>
                     </div>
                     <div className="p-3 bg-orange-500/20 rounded-xl">
@@ -400,7 +402,7 @@ export const CourseDetails = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <MessageSquare className="h-5 w-5" />
-                  Course Discussions
+                  {t('teacherCourseDetails.courseDiscussions')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -414,10 +416,10 @@ export const CourseDetails = () => {
         return (
           <Card className="glass-card border-white/10">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="h-5 w-5" />
-                Student Management
-              </CardTitle>
+                              <CardTitle className="flex items-center gap-2">
+                  <Users className="h-5 w-5" />
+                  {t('teacherCourseDetails.studentManagement')}
+                </CardTitle>
             </CardHeader>
             <CardContent>
               <StudentManager courseId={courseId!} />
@@ -429,10 +431,10 @@ export const CourseDetails = () => {
         return (
           <Card className="glass-card border-white/10">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Tag className="h-5 w-5" />
-                Course Codes & Discounts
-              </CardTitle>
+                              <CardTitle className="flex items-center gap-2">
+                  <Tag className="h-5 w-5" />
+                  {t('teacherCourseDetails.courseCodesAndDiscounts')}
+                </CardTitle>
             </CardHeader>
             <CardContent>
               <CourseCodesManager courseId={courseId!} />
@@ -448,7 +450,7 @@ export const CourseDetails = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Settings className="h-5 w-5" />
-                  Course Settings
+                  {t('teacherCourseDetails.courseSettings')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -456,51 +458,51 @@ export const CourseDetails = () => {
 
                 <div className="space-y-4">
                   <div>
-                    <label className="text-sm font-medium">Course Title</label>
+                    <label className="text-sm font-medium">{t('teacherCourseDetails.courseTitle')}</label>
                     <Input
                       value={editForm.title}
                       onChange={(e) => setEditForm(prev => ({ ...prev, title: e.target.value }))}
-                      placeholder="Enter course title"
+                      placeholder={t('teacherCourseDetails.enterCourseTitle')}
                       className="glass-input"
                     />
                   </div>
                   
                   <div>
-                    <label className="text-sm font-medium">Description</label>
+                    <label className="text-sm font-medium">{t('teacherCourseDetails.description')}</label>
                     <Textarea
                       value={editForm.description}
                       onChange={(e) => setEditForm(prev => ({ ...prev, description: e.target.value }))}
-                      placeholder="Enter course description"
+                      placeholder={t('teacherCourseDetails.enterCourseDescription')}
                       rows={4}
                       className="glass-input"
                     />
                   </div>
                   
                   <div>
-                    <label className="text-sm font-medium">Category</label>
+                    <label className="text-sm font-medium">{t('teacherCourseDetails.category')}</label>
                     <Input
                       value={editForm.category}
                       onChange={(e) => setEditForm(prev => ({ ...prev, category: e.target.value }))}
-                      placeholder="Enter course category"
+                      placeholder={t('teacherCourseDetails.enterCourseCategory')}
                       className="glass-input"
                     />
                   </div>
                   
                   <div>
-                    <label className="text-sm font-medium">Price (Credits)</label>
+                    <label className="text-sm font-medium">{t('teacherCourseDetails.priceCredits')}</label>
                     <Input
                       type="number"
                       min="0"
                       value={editForm.price}
                       onChange={(e) => setEditForm(prev => ({ ...prev, price: parseInt(e.target.value) || 0 }))}
-                      placeholder="Enter course price"
+                      placeholder={t('teacherCourseDetails.enterCoursePrice')}
                       className="glass-input"
                     />
                   </div>
                   
                                   {/* Current Thumbnail Display */}
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Current Thumbnail</label>
+                  <label className="text-sm font-medium mb-2 block">{t('teacherCourseDetails.currentThumbnail')}</label>
                   <div className="w-full h-48 overflow-hidden rounded-xl border border-white/10">
                     {course?.cover_image_url ? (
                       <img
@@ -518,7 +520,7 @@ export const CourseDetails = () => {
 
                 {/* Thumbnail Uploader */}
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Update Thumbnail</label>
+                  <label className="text-sm font-medium mb-2 block">{t('teacherCourseDetails.updateThumbnail')}</label>
                   <ImageUploader
                     bucket={IMAGE_UPLOAD_BUCKETS.LECTURES_THUMBNAILS}
                     folder="courses"
@@ -528,20 +530,20 @@ export const CourseDetails = () => {
                     onImageDeleted={handleImageDeleted}
                     onError={(error) => {
                       toast({
-                        title: 'Error',
+                        title: t('teacherCourseDetails.error'),
                         description: error,
                         variant: 'destructive',
                       });
                     }}
                     variant="compact"
                     size="sm"
-                    placeholder="Upload course thumbnail"
+                    placeholder={t('teacherCourseDetails.uploadCourseThumbnail')}
                   />
                 </div>
                 
                   <Button onClick={updateCourseDetails} className="w-full btn-primary">
                     <Save className="h-4 w-4 mr-2" />
-                    Save Changes
+                    {t('teacherCourseDetails.saveChanges')}
                   </Button>
                 </div>
               </CardContent>
@@ -552,7 +554,7 @@ export const CourseDetails = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-red-400">
                   <AlertTriangle className="h-5 w-5" />
-                  Danger Zone
+                  {t('teacherCourseDetails.dangerZone')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -562,15 +564,15 @@ export const CourseDetails = () => {
                       <Trash2 className="h-5 w-5 text-red-400" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-semibold text-red-400 mb-1">Delete Course</h3>
+                      <h3 className="font-semibold text-red-400 mb-1">{t('teacherCourseDetails.deleteCourse')}</h3>
                       <p className="text-sm text-muted-foreground mb-3">
-                        Permanently delete this course and all its content. This action cannot be undone.
+                        {t('teacherCourseDetails.deleteCourseDescription')}
                       </p>
                       <div className="text-xs text-muted-foreground space-y-1">
-                        <p>• All lessons, quizzes, and chapters will be deleted</p>
-                        <p>• All student enrollments will be removed</p>
-                        <p>• Course codes will be invalidated</p>
-                        <p>• This action is irreversible</p>
+                        <p>• {t('teacherCourseDetails.deleteCourseBullet1')}</p>
+                        <p>• {t('teacherCourseDetails.deleteCourseBullet2')}</p>
+                        <p>• {t('teacherCourseDetails.deleteCourseBullet3')}</p>
+                        <p>• {t('teacherCourseDetails.deleteCourseBullet4')}</p>
                       </div>
                     </div>
                   </div>
@@ -583,30 +585,30 @@ export const CourseDetails = () => {
                           className="w-full bg-red-600 hover:bg-red-700 border-red-600 hover:border-red-700"
                         >
                           <Trash2 className="h-4 w-4 mr-2" />
-                          Delete Course
+                          {t('teacherCourseDetails.deleteCourse')}
                         </Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent className="glass-card border-red-500/20">
                         <AlertDialogHeader>
                           <AlertDialogTitle className="flex items-center gap-2 text-red-400">
                             <AlertTriangle className="h-5 w-5" />
-                            Delete Course
+                            {t('teacherCourseDetails.deleteCourseConfirmTitle')}
                           </AlertDialogTitle>
                           <AlertDialogDescription className="text-muted-foreground">
-                            Are you absolutely sure you want to delete "{course?.title}"? This action cannot be undone and will permanently remove:
+                            {t('teacherCourseDetails.deleteCourseConfirmDescription', { courseTitle: course?.title })}
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <div className="my-4 p-4 bg-red-500/10 rounded-lg border border-red-500/20">
                           <ul className="text-sm text-muted-foreground space-y-1">
-                            <li>• The course and all its content</li>
-                            <li>• All lessons, quizzes, and chapters</li>
-                            <li>• All student enrollments ({enrollmentCount} students)</li>
-                            <li>• Course codes and access</li>
+                            <li>• {t('teacherCourseDetails.deleteCourseConfirmBullet1')}</li>
+                            <li>• {t('teacherCourseDetails.deleteCourseConfirmBullet2')}</li>
+                            <li>• {t('teacherCourseDetails.deleteCourseConfirmBullet3', { enrollmentCount })}</li>
+                            <li>• {t('teacherCourseDetails.deleteCourseConfirmBullet4')}</li>
                           </ul>
                         </div>
                         <AlertDialogFooter>
                           <AlertDialogCancel className="border-border hover:bg-muted">
-                            Cancel
+                            {t('teacherCourseDetails.cancel')}
                           </AlertDialogCancel>
                           <AlertDialogAction
                             onClick={deleteCourse}
@@ -616,12 +618,12 @@ export const CourseDetails = () => {
                             {isDeleting ? (
                               <>
                                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                                Deleting...
+                                {t('teacherCourseDetails.deleting')}
                               </>
                             ) : (
                               <>
                                 <Trash2 className="h-4 w-4 mr-2" />
-                                Delete Course
+                                {t('teacherCourseDetails.deleteCourse')}
                               </>
                             )}
                           </AlertDialogAction>
@@ -655,8 +657,8 @@ export const CourseDetails = () => {
       <DashboardLayout>
         <Card className="glass-card border-white/10">
           <CardContent className="text-center py-12">
-            <h2 className="text-xl font-semibold mb-2">Course not found</h2>
-            <p className="text-muted-foreground">The course you're looking for doesn't exist.</p>
+            <h2 className="text-xl font-semibold mb-2">{t('teacherCourseDetails.courseNotFound')}</h2>
+            <p className="text-muted-foreground">{t('teacherCourseDetails.courseNotFoundDescription')}</p>
           </CardContent>
         </Card>
       </DashboardLayout>
@@ -690,20 +692,20 @@ export const CourseDetails = () => {
               <Link to="/teacher/dashboard">
                 <Button variant="outline" size="sm" className={`glass-card transition-all duration-200 ${sidebarCollapsed ? 'w-8 h-8 p-0' : ''}`}>
                   <ArrowLeft className="h-4 w-4" />
-                  {!sidebarCollapsed && <span className="ml-2">Back to Dashboard</span>}
+                  {!sidebarCollapsed && <span className="ml-2">{t('teacherCourseDetails.backToDashboard')}</span>}
                 </Button>
               </Link>
               
-              {!sidebarCollapsed && (
-                <div className="p-4 md:p-6 rounded-2xl bg-gradient-to-br from-primary/10 to-secondary/10 border border-primary/20">
-                  <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2">
-                    Course Management
-                  </h1>
-                  <p className="text-sm text-muted-foreground">
-                    Manage all aspects of your course
-                  </p>
-                </div>
-              )}
+                                {!sidebarCollapsed && (
+                    <div className="p-4 md:p-6 rounded-2xl bg-gradient-to-br from-primary/10 to-secondary/10 border border-primary/20">
+                      <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2">
+                        {t('teacherCourseDetails.courseManagement')}
+                      </h1>
+                      <p className="text-sm text-muted-foreground">
+                        {t('teacherCourseDetails.manageAllAspects')}
+                      </p>
+                    </div>
+                  )}
             </div>
 
             {/* Navigation */}
@@ -794,23 +796,23 @@ export const CourseDetails = () => {
                     <Button asChild variant="default" size="sm">
                       <Link to={`/teacher/courses/${courseId}/manage`}>
                         <Cog className="h-4 w-4 mr-2" />
-                        Manage
+                        {t('teacherCourseDetails.manage')}
                       </Link>
                     </Button>
                     <Button asChild variant="outline" size="sm">
                       <Link to={`/courses/${courseId}`}>
                         <Eye className="h-4 w-4 mr-2" />
-                        Preview
+                        {t('teacherCourseDetails.preview')}
                       </Link>
                     </Button>
                     {course.status !== 'published' ? (
                       <Button onClick={() => updateCourseStatus('published')}>
                         <Sparkles className="h-4 w-4 mr-2" />
-                        Publish Course
+                        {t('teacherCourseDetails.publishCourse')}
                       </Button>
                     ) : (
                       <Button variant="outline" onClick={() => updateCourseStatus('draft')}>
-                        Unpublish
+                        {t('teacherCourseDetails.unpublish')}
                       </Button>
                     )}
                   </div>
@@ -818,16 +820,16 @@ export const CourseDetails = () => {
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground leading-relaxed">
-                  {course.description || 'No description available'}
+                  {course.description || t('teacherCourseDetails.noDescriptionAvailable')}
                 </p>
                 <div className="flex flex-wrap items-center gap-4 md:gap-6 mt-4 text-sm text-muted-foreground">
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4" />
-                    <span>Created {new Date(course.created_at).toLocaleDateString()}</span>
+                    <span>{t('teacherCourseDetails.created')} {new Date(course.created_at).toLocaleDateString()}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Globe className="h-4 w-4" />
-                    <span>Code: {course.enrollment_code || 'None'}</span>
+                    <span>{t('teacherCourseDetails.code')}: {course.enrollment_code || t('teacherCourseDetails.none')}</span>
                   </div>
                 </div>
               </CardContent>
@@ -844,10 +846,10 @@ export const CourseDetails = () => {
               }}>
                 <div className="w-full overflow-x-auto">
                   <TabsList className="flex p-1 gap-1 whitespace-nowrap">
-                    <TabsTrigger className="shrink-0" value="overview">Overview</TabsTrigger>
-                    <TabsTrigger className="shrink-0" value="students">Students</TabsTrigger>
-                    <TabsTrigger className="shrink-0" value="codes">Codes</TabsTrigger>
-                    <TabsTrigger className="shrink-0" value="settings">Settings</TabsTrigger>
+                    <TabsTrigger className="shrink-0" value="overview">{t('teacherCourseDetails.overview')}</TabsTrigger>
+                    <TabsTrigger className="shrink-0" value="students">{t('teacherCourseDetails.students')}</TabsTrigger>
+                    <TabsTrigger className="shrink-0" value="codes">{t('teacherCourseDetails.courseCodes')}</TabsTrigger>
+                    <TabsTrigger className="shrink-0" value="settings">{t('teacherCourseDetails.settings')}</TabsTrigger>
                     
                   </TabsList>
                 </div>

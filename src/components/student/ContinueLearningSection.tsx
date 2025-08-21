@@ -6,8 +6,11 @@ import { CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BookOpen, Target } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useTranslation } from 'react-i18next';
 
 export function ContinueLearningSection({ enrolledCourses, onContinue }) {
+  const { t } = useTranslation('dashboard');
+
   return (
     <Card className="glass-card border-0">
       <CardHeader>
@@ -16,13 +19,13 @@ export function ContinueLearningSection({ enrolledCourses, onContinue }) {
             <BookOpen className="h-6 w-6 text-black" />
           </div>
           <div>
-            <div className="gradient-text text-xl font-bold">Continue Learning</div>
-            <span className="text-muted-foreground/80 text-sm">Pick up where you left off</span>
+            <div className="gradient-text text-xl font-bold">{t('continueLearning.title')}</div>
+            <span className="text-muted-foreground/80 text-sm">{t('continueLearning.subtitle')}</span>
           </div>
           <Link to="/courses" className="ml-auto">
             <Button className="btn-secondary" size="sm">
               <Target className="h-4 w-4 mr-2" />
-              Explore More
+              {t('continueLearning.exploreMore')}
             </Button>
           </Link>
         </div>
@@ -39,7 +42,7 @@ export function ContinueLearningSection({ enrolledCourses, onContinue }) {
                   description={enrollment.course.description}
                   category={enrollment.course.category}
                   status="Active"
-                  instructor_name={enrollment.course.instructor_name || 'Course Instructor'}
+                  instructor_name={enrollment.course.instructor_name || t('continueLearning.courseInstructor')}
                   enrollment_count={enrollment.enrollment_count || 0}
                   is_enrolled={true}
                   enrollment_code={enrollment.course.enrollment_code || ''}
@@ -59,7 +62,7 @@ export function ContinueLearningSection({ enrolledCourses, onContinue }) {
               <div className="flex justify-center mt-4">
                 <Link to="/student/courses">
                   <Button className="btn-primary" size="sm">
-                    View All
+                    {t('continueLearning.viewAll')}
                   </Button>
                 </Link>
               </div>
@@ -68,14 +71,14 @@ export function ContinueLearningSection({ enrolledCourses, onContinue }) {
         ) : (
           <div className="text-center py-8">
             <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
-            <h3 className="text-lg font-medium mb-2">No Courses Yet</h3>
+            <h3 className="text-lg font-medium mb-2">{t('continueLearning.noCoursesYet')}</h3>
             <p className="text-muted-foreground mb-4">
-              Start your learning journey by enrolling in a course.
+              {t('continueLearning.startLearningJourney')}
             </p>
             <Link to="/courses">
               <Button className="btn-primary">
                 <Target className="h-4 w-4 mr-2" />
-                Browse Courses
+                {t('continueLearning.browseCourses')}
               </Button>
             </Link>
           </div>

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Target, Plus, CheckCircle2, Clock, Zap } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface Goal {
   id: string;
@@ -27,35 +28,36 @@ interface StudentGoalsProps {
 }
 
 export const StudentGoals = ({ stats }: StudentGoalsProps) => {
+  const { t } = useTranslation('dashboard');
   const [goals, setGoals] = useState<Goal[]>([
     {
       id: '1',
-      title: 'Complete 5 Courses',
-      description: 'Finish 5 courses by end of month',
+      title: t('studentGoals.complete5Courses'),
+      description: t('studentGoals.complete5CoursesDesc'),
       target: 5,
       current: stats.completedCourses,
       type: 'courses',
-      deadline: 'End of Month',
+      deadline: t('studentGoals.endOfMonth'),
       priority: 'high'
     },
     {
       id: '2',
-      title: '30-Day Learning Streak',
-      description: 'Study consistently for 30 days',
+      title: t('studentGoals.dayLearningStreak'),
+      description: t('studentGoals.dayLearningStreakDesc'),
       target: 30,
       current: stats.studyStreak || 0,
       type: 'streak',
-      deadline: 'Ongoing',
+      deadline: t('studentGoals.ongoing'),
       priority: 'medium'
     },
     {
       id: '3',
-      title: 'Invest 1000 Credits',
-      description: 'Spend 1000 credits on learning resources',
+      title: t('studentGoals.invest1000Credits'),
+      description: t('studentGoals.invest1000CreditsDesc'),
       target: 1000,
       current: stats.totalCreditsSpent,
       type: 'credits',
-      deadline: 'End of Quarter',
+      deadline: t('studentGoals.endOfQuarter'),
       priority: 'low'
     }
   ]);
@@ -94,12 +96,12 @@ export const StudentGoals = ({ stats }: StudentGoalsProps) => {
             <Target className="h-6 w-6 text-black" />
           </div>
           <div>
-            <div className="gradient-text text-xl font-bold">Learning Goals</div>
-            <CardDescription className="text-muted-foreground/80">Track and achieve your learning goals</CardDescription>
+            <div className="gradient-text text-xl font-bold">{t('studentGoals.title')}</div>
+            <CardDescription className="text-muted-foreground/80">{t('studentGoals.subtitle')}</CardDescription>
           </div>
           <Button size="sm" className="btn-secondary ml-auto">
             <Plus className="h-4 w-4 mr-2" />
-            Add Goal
+            {t('studentGoals.addGoal')}
           </Button>
         </div>
       </CardHeader>
@@ -139,7 +141,7 @@ export const StudentGoals = ({ stats }: StudentGoalsProps) => {
                       {goal.description}
                     </p>
                     <div className="flex items-center gap-2">
-                      <Badge className={`text-xs ${getPriorityColor(goal.priority)}`}>{goal.priority} priority</Badge>
+                      <Badge className={`text-xs ${getPriorityColor(goal.priority)}`}>{goal.priority} {t('studentGoals.priority')}</Badge>
                       <Badge className="text-xs bg-gray-200 text-gray-600 border-gray-300 dark:bg-gray-500/20 dark:text-gray-400 dark:border-gray-500/30 flex items-center gap-1">
                         <Clock className="h-3 w-3" />
                         {goal.deadline}
@@ -155,7 +157,7 @@ export const StudentGoals = ({ stats }: StudentGoalsProps) => {
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Progress</span>
+                  <span className="text-muted-foreground">{t('studentGoals.progress')}</span>
                   <span className={`font-medium ${
                     isCompleted(goal.current, goal.target)
                       ? 'text-primary-500 dark:text-primary-400'
@@ -174,7 +176,7 @@ export const StudentGoals = ({ stats }: StudentGoalsProps) => {
                       ? 'text-primary-500 dark:text-primary-400'
                       : 'text-purple-600 dark:text-purple-400'
                   }`}>
-                    {Math.round(calculateProgress(goal.current, goal.target))}% Complete
+                    {Math.round(calculateProgress(goal.current, goal.target))}% {t('studentGoals.complete')}
                   </span>
                 </div>
               </div>

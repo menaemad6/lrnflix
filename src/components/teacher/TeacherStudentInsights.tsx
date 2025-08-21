@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Users, TrendingUp, Clock, Target, Star, BookOpen, MessageSquare, Award, Eye, Calendar } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface StudentInsight {
   id: string;
@@ -27,6 +28,8 @@ interface TeacherStudentInsightsProps {
 }
 
 export function TeacherStudentInsights({ students }: TeacherStudentInsightsProps) {
+  const { t } = useTranslation('teacher');
+  
   const getEngagementColor = (engagement: string) => {
     switch (engagement) {
       case 'high':
@@ -60,9 +63,9 @@ export function TeacherStudentInsights({ students }: TeacherStudentInsightsProps
     const diffHours = Math.ceil(diffTime / (1000 * 60 * 60));
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     
-    if (diffHours < 24) return `${diffHours}h ago`;
-    if (diffDays === 1) return 'Yesterday';
-    if (diffDays <= 7) return `${diffDays} days ago`;
+    if (diffHours < 24) return `${diffHours}${t('common.hoursAgo')}`;
+    if (diffDays === 1) return t('common.yesterday');
+    if (diffDays <= 7) return `${diffDays} ${t('common.daysAgo')}`;
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
 
@@ -72,10 +75,10 @@ export function TeacherStudentInsights({ students }: TeacherStudentInsightsProps
     const diffTime = Math.abs(now.getTime() - date.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     
-    if (diffDays === 0) return 'Today';
-    if (diffDays === 1) return 'Yesterday';
-    if (diffDays <= 7) return `${diffDays} days ago`;
-    if (diffDays <= 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+    if (diffDays === 0) return t('common.today');
+    if (diffDays === 1) return t('common.yesterday');
+    if (diffDays <= 7) return `${diffDays} ${t('common.daysAgo')}`;
+    if (diffDays <= 30) return `${Math.floor(diffDays / 7)} ${t('common.weeksAgo')}`;
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
 
@@ -107,8 +110,8 @@ export function TeacherStudentInsights({ students }: TeacherStudentInsightsProps
             <Users className="h-5 w-5 text-white" />
           </div>
           <div>
-            <CardTitle className="gradient-text text-xl">Student Insights</CardTitle>
-            <p className="text-muted-foreground text-sm">Monitor student engagement and progress</p>
+            <CardTitle className="gradient-text text-xl">{t('dashboard.studentInsights.title')}</CardTitle>
+            <p className="text-muted-foreground text-sm">{t('dashboard.studentInsights.description')}</p>
           </div>
         </div>
       </CardHeader>
@@ -117,15 +120,15 @@ export function TeacherStudentInsights({ students }: TeacherStudentInsightsProps
         <div className="grid grid-cols-3 gap-4">
           <div className="text-center p-3 rounded-xl bg-primary-500/10 border border-primary-500/20">
             <div className="text-lg font-bold text-primary-400">{highEngagementStudents.length}</div>
-            <div className="text-xs text-muted-foreground">High Engagement</div>
+            <div className="text-xs text-muted-foreground">{t('dashboard.studentInsights.highEngagement')}</div>
           </div>
           <div className="text-center p-3 rounded-xl bg-yellow-500/10 border border-yellow-500/20">
             <div className="text-lg font-bold text-yellow-400">{mediumEngagementStudents.length}</div>
-            <div className="text-xs text-muted-foreground">Medium Engagement</div>
+            <div className="text-xs text-muted-foreground">{t('dashboard.studentInsights.mediumEngagement')}</div>
           </div>
           <div className="text-center p-3 rounded-xl bg-red-500/10 border border-red-500/20">
             <div className="text-lg font-bold text-red-400">{lowEngagementStudents.length}</div>
-            <div className="text-xs text-muted-foreground">Low Engagement</div>
+            <div className="text-xs text-muted-foreground">{t('dashboard.studentInsights.lowEngagement')}</div>
           </div>
         </div>
 
@@ -133,7 +136,7 @@ export function TeacherStudentInsights({ students }: TeacherStudentInsightsProps
         <div className="space-y-4">
           <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
             <Eye className="h-4 w-4" />
-            Top Students by Engagement
+            {t('dashboard.studentInsights.topStudentsByEngagement')}
           </h3>
           
           {sortedStudents.slice(0, 6).map((student) => (
@@ -165,7 +168,7 @@ export function TeacherStudentInsights({ students }: TeacherStudentInsightsProps
                   <div className="flex items-center gap-3 text-xs text-muted-foreground mb-2">
                     <span className="truncate">{student.courseName}</span>
                     <span>•</span>
-                    <span>Enrolled {formatEnrollmentDate(student.enrollmentDate)}</span>
+                    <span>{t('dashboard.studentInsights.enrolled')} {formatEnrollmentDate(student.enrollmentDate)}</span>
                   </div>
                   
                   {/* Progress Bar */}
@@ -208,7 +211,7 @@ export function TeacherStudentInsights({ students }: TeacherStudentInsightsProps
                 
                 {/* Last Active */}
                 <div className="flex-shrink-0 text-right">
-                  <div className="text-xs text-muted-foreground">Last active</div>
+                  <div className="text-xs text-muted-foreground">{t('dashboard.studentInsights.lastActive')}</div>
                   <div className="text-xs font-medium text-foreground">
                     {formatLastActive(student.lastActive)}
                   </div>
@@ -222,7 +225,7 @@ export function TeacherStudentInsights({ students }: TeacherStudentInsightsProps
         {students.length > 6 && (
           <div className="pt-3 border-t border-primary/20">
             <button className="w-full text-center text-sm text-primary hover:text-primary/80 transition-colors">
-              View all {students.length} students
+              {t('dashboard.studentInsights.viewAll', { count: students.length })}
             </button>
           </div>
         )}

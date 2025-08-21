@@ -16,6 +16,7 @@ import { GroupCardSkeleton } from '@/components/student/skeletons/GroupCardSkele
 import { useStudentGroups } from '@/lib/queries';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
+import { useTranslation } from 'react-i18next';
 
 interface Group {
   id: string;
@@ -36,6 +37,7 @@ export const StudentGroups = () => {
   const { teacher } = useTenant();
   const { data, isLoading, error, refetch } = useStudentGroups(user, teacher);
   const { groups = [], memberGroupIds = [] } = data || {};
+  const { t } = useTranslation('dashboard');
 
   const [filteredGroups, setFilteredGroups] = useState<Group[]>([]);
   const [showJoinModal, setShowJoinModal] = useState(false);
@@ -60,7 +62,7 @@ export const StudentGroups = () => {
   useEffect(() => {
     if (error) {
         toast({
-            title: 'Error fetching groups',
+            title: t('studentGroups.errorFetchingGroups'),
             description: error.message,
             variant: 'destructive',
         });
@@ -68,7 +70,7 @@ export const StudentGroups = () => {
   }, [error, toast]);
 
   const handleLeaveGroup = async (groupId: string, groupName: string) => {
-    if (!confirm(`Are you sure you want to leave "${groupName}"?`)) return;
+    if (!confirm(t('studentGroups.confirmLeaveGroup', { groupName }))) return;
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -83,15 +85,15 @@ export const StudentGroups = () => {
       if (error) throw error;
 
       toast({
-        title: 'Success',
-        description: `Left group: ${groupName}`,
+        title: t('studentGroups.success'),
+        description: t('studentGroups.leftGroup', { groupName }),
       });
 
       refetch();
     } catch (error: unknown) {
       console.error('Error leaving group:', error instanceof Error ? error.message : error);
       toast({
-        title: 'Error',
+        title: t('studentGroups.error'),
         description: error instanceof Error ? error.message : String(error),
         variant: 'destructive',
       });
@@ -122,9 +124,9 @@ export const StudentGroups = () => {
       <DashboardLayout>
 
           <DashboardModernHeader
-            title="My Study Groups"
-            subtitle="Connect and collaborate with your classmates"
-            buttonText="Join Group"
+            title={t('studentGroups.title')}
+            subtitle={t('studentGroups.subtitle')}
+            buttonText={t('studentGroups.joinGroup')}
             onButtonClick={() => setShowJoinModal(true)}
           />
 
@@ -137,7 +139,7 @@ export const StudentGroups = () => {
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
                       type="text"
-                      placeholder="Search by group name, description, or code"
+                      placeholder={t('studentGroups.searchGroups')}
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       className="pl-10 glass"
@@ -160,18 +162,18 @@ export const StudentGroups = () => {
               <CardContent className="text-center py-12">
                 <Users className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
                 <h3 className="text-xl font-semibold mb-2">
-                  {searchTerm ? 'No matching groups found' : 'No groups yet'}
+                  {searchTerm ? t('studentGroups.noGroupsFound') : t('studentGroups.noGroupsYet')}
                 </h3>
                 <p className="text-muted-foreground mb-6">
                   {searchTerm 
-                    ? 'Try adjusting your search terms to find the perfect group' 
-                    : 'Join your first study group to start collaborating with classmates'
+                    ? t('studentGroups.tryAdjustingSearch')
+                    : t('studentGroups.joinFirstGroup')
                   }
                 </p>
                 {!searchTerm && (
                   <Button onClick={() => setShowJoinModal(true)}>
                     <Plus className="w-4 h-4 mr-2" />
-                    Join Your First Group
+                    {t('studentGroups.joinYourFirstGroup')}
                   </Button>
                 )}
               </CardContent>
@@ -182,7 +184,7 @@ export const StudentGroups = () => {
                 const isPublic = group.is_public;
                 const borderColor = isPublic ? 'border-l-8 border-primary-500' : 'border-l-8 border-yellow-400';
                 const badgeColor = isPublic ? 'bg-primary-500 text-white' : 'bg-yellow-400 text-yellow-900 font-bold rounded-full shadow px-3 py-1 border border-yellow-300 hover:bg-yellow-300 hover:border-yellow-500 transition-colors';
-                const badgeLabel = isPublic ? 'Public' : 'Private';
+                const badgeLabel = isPublic ? t('studentGroups.public') : t('studentGroups.private');
                 return (
                   <Card
                     key={group.id}
@@ -214,7 +216,7 @@ export const StudentGroups = () => {
                         </div>
                         <Badge className={`ml-2 flex-shrink-0 px-3 py-1 rounded-full text-base font-bold ${badgeColor} shadow-md`}>
                           <Users className="w-4 h-4 mr-1" />
-                          {group.member_count}
+                          {group.member_count} {t('studentGroups.members')}
                         </Badge>
                       </div>
                     </CardHeader>
@@ -224,12 +226,12 @@ export const StudentGroups = () => {
                           
                           <Badge className={`px-2 py-1 rounded-lg text-xs font-semibold ${badgeColor}`}>{badgeLabel}</Badge>
                           {group.max_members && (
-                            <span className="text-xs text-muted-foreground ml-2">Max: {group.max_members}</span>
+                            <span className="text-xs text-muted-foreground ml-2">{t('studentGroups.maxMembers')}: {group.max_members}</span>
                           )}
                         </div>
                         <div className="flex items-center gap-2 text-xs text-muted-foreground mt-2 sm:mt-0">
                           <Calendar className="w-4 h-4" />
-                          <span>Joined {new Date(group.created_at).toLocaleDateString()}</span>
+                          <span>{t('studentGroups.joined')} {new Date(group.created_at).toLocaleDateString()}</span>
                         </div>
                       </div>
                       <div className="flex flex-wrap gap-2 mt-2">
@@ -239,14 +241,14 @@ export const StudentGroups = () => {
                           size="sm"
                         >
                           <MessageCircle className="w-4 h-4 mr-2" />
-                          Open
+                          {t('studentGroups.open')}
                         </Button>
                         <Button 
                           size="sm" 
                           variant="outline"
                           className="rounded-xl"
                           onClick={() => shareGroup(group)}
-                          title="Share group"
+                          title={t('studentGroups.shareGroup')}
                         >
                           <Share2 className="w-4 h-4" />
                         </Button>
@@ -258,7 +260,7 @@ export const StudentGroups = () => {
                             variant="outline"
                             className="rounded-xl text-destructive hover:text-destructive"
                             onClick={() => handleLeaveGroup(group.id, group.name)}
-                            title="Leave group"
+                            title={t('studentGroups.leaveGroup')}
                           >
                             <UserMinus className="w-4 h-4" />
                           </Button>
@@ -274,7 +276,7 @@ export const StudentGroups = () => {
           {searchTerm && filteredGroups.length > 0 && (
             <div className="text-center">
               <p className="text-muted-foreground">
-                Found {filteredGroups.length} group{filteredGroups.length !== 1 ? 's' : ''} matching "{searchTerm}"
+                {t('studentGroups.foundGroups', { count: filteredGroups.length, searchTerm })}
               </p>
             </div>
           )}

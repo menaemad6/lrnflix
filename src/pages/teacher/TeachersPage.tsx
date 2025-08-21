@@ -13,6 +13,7 @@ import WavesHeroHeader from '@/components/ui/WavesHeroHeader';
 import { Button } from '@/components/ui/button';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { TeacherCardSkeleton } from '@/components/student/skeletons/TeacherCardSkeleton';
+import { useTranslation } from 'react-i18next';
 
 interface Teacher {
   id: string;
@@ -44,6 +45,7 @@ const TeachersFilterBar: React.FC<TeachersFilterBarProps> = ({
   specializations,
 }) => {
   const [searchFocused, setSearchFocused] = React.useState(false);
+  const { t } = useTranslation('dashboard');
 
   return (
     <div className="w-full mb-12">
@@ -51,7 +53,7 @@ const TeachersFilterBar: React.FC<TeachersFilterBarProps> = ({
         <div className="relative flex-1 w-full">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           <Input
-            placeholder="Search teachers by name..."
+            placeholder={t('teachersPage.searchPlaceholder')}
             value={searchTerm}
             onChange={(e) => onSearchTermChange(e.target.value)}
             className="pl-12 py-3 rounded-xl bg-background/80 border border-primary/20 focus:ring-2 focus:ring-primary/30"
@@ -63,12 +65,12 @@ const TeachersFilterBar: React.FC<TeachersFilterBarProps> = ({
         <div className={`transition-all duration-200 ${searchFocused ? 'hidden sm:block' : ''} w-full sm:w-56`}>
           <Select value={selectedSpecialization} onValueChange={onSpecializationChange}>
             <SelectTrigger className="w-full rounded-xl border border-primary/20 bg-background/80 focus:ring-2 focus:ring-primary/30">
-              <SelectValue>{selectedSpecialization === 'All' ? 'All Specializations' : selectedSpecialization}</SelectValue>
+              <SelectValue>{selectedSpecialization === 'All' ? t('teachersPage.allSpecializations') : selectedSpecialization}</SelectValue>
             </SelectTrigger>
             <SelectContent>
               {specializations.map(spec => (
                 <SelectItem key={spec} value={spec}>
-                  {spec === 'All' ? 'All Specializations' : spec}
+                  {spec === 'All' ? t('teachersPage.allSpecializations') : spec}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -80,6 +82,7 @@ const TeachersFilterBar: React.FC<TeachersFilterBarProps> = ({
 };
 
 export const TeachersPage = () => {
+  const { t } = useTranslation('dashboard');
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [filteredTeachers, setFilteredTeachers] = useState<Teacher[]>([]);
   const [loading, setLoading] = useState(true);
@@ -105,7 +108,7 @@ export const TeachersPage = () => {
         .order('created_at', { ascending: false });
 
       if (teachersError) {
-        toast.error('Failed to load teachers');
+        toast.error(t('teachersPage.errorLoading'));
         return;
       }
 
@@ -128,7 +131,7 @@ export const TeachersPage = () => {
       setTeachers(teachersWithCourseCount);
     } catch (error) {
       console.error('Error fetching teachers:', error);
-      toast.error('Failed to load teachers');
+      toast.error(t('teachersPage.errorLoading'));
     } finally {
       setLoading(false);
     }
@@ -161,9 +164,9 @@ export const TeachersPage = () => {
       {/* Full-width header */}
       <WavesHeroHeader
         title={<>
-          Meet Our <span className="text-primary-500 dark:text-primary-400">Expert Teachers</span>
+          {t('teachersPage.meet_our_expert_teachers')} <span className="text-primary-500 dark:text-primary-400">{t('teachersPage.expert_teachers')}</span>
         </>}
-        description="Discover passionate educators, their specializations, and the courses they offer. Learn from the best and unlock your potential."
+        description={t('teachersPage.discover_passionate_educators_description')}
       />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="-mt-12">
@@ -185,7 +188,7 @@ export const TeachersPage = () => {
         ) : filteredTeachers.length === 0 ? (
           <div className="text-center py-16">
             <p className="text-muted-foreground text-lg">
-              {searchTerm ? 'No teachers found matching your search.' : 'No teachers available yet.'}
+              {searchTerm ? t('teachersPage.no_teachers_matching_search') : t('teachersPage.no_teachers_available')}
             </p>
           </div>
         ) : (
@@ -218,7 +221,7 @@ export const TeachersPage = () => {
                         </AvatarFallback>
                       </Avatar>
                       <h3 className="font-bold text-lg text-foreground mt-3 mb-1 truncate w-full text-center">
-                        {teacher.display_name || 'Unnamed Teacher'}
+                        {teacher.display_name || t('teachersPage.unnamed_teacher')}
                       </h3>
                       {teacher.specialization && (
                         <Badge variant="secondary" className="mb-2 text-xs bg-primary/10 text-primary border-primary/20">
@@ -229,12 +232,12 @@ export const TeachersPage = () => {
                         {teacher.experience_years && (
                           <div className="flex items-center gap-1">
                             <Calendar className="w-3 h-3" />
-                            {teacher.experience_years}y exp
+                            {t('teachersPage.years_experience', { years: teacher.experience_years })}
                           </div>
                         )}
                         <div className="flex items-center gap-1">
                           <BookOpen className="w-3 h-3" />
-                          {teacher.course_count || 0} courses
+                          {t('teachersPage.courses_count', { count: teacher.course_count || 0 })}
                         </div>
                       </div>
                     </div>

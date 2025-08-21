@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { MultiplayerQuizGame } from './MultiplayerQuizGame';
+
 import { EnhancedMultiplayerQuizGame } from './EnhancedMultiplayerQuizGame';
 import { MultiplayerQuizWaitingRoom } from './MultiplayerQuizWaitingRoom';
 import { MultiplayerQuizLobby } from './MultiplayerQuizLobby';

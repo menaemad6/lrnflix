@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -35,6 +36,7 @@ export const QuizManager = ({ courseId, onBack, editingQuizId }: QuizManagerProp
   const [loading, setLoading] = useState(true);
   const [showCreator, setShowCreator] = useState(false);
   const [editingQuiz, setEditingQuiz] = useState<string | null>(editingQuizId || null);
+  const { t } = useTranslation('dashboard');
 
   useEffect(() => {
     fetchQuizzes();
@@ -56,11 +58,11 @@ export const QuizManager = ({ courseId, onBack, editingQuizId }: QuizManagerProp
 
       if (error) throw error;
       setQuizzes(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching quizzes:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to load quizzes',
+        title: t('error'),
+        description: t('quizManager.failedToLoadQuizzes'),
         variant: 'destructive',
       });
     } finally {
@@ -69,7 +71,7 @@ export const QuizManager = ({ courseId, onBack, editingQuizId }: QuizManagerProp
   };
 
   const deleteQuiz = async (quizId: string, title: string) => {
-    if (!confirm(`Are you sure you want to delete "${title}"?`)) return;
+    if (!confirm(t('quizManager.deleteConfirmation', { title }))) return;
 
     try {
       const { error } = await supabase
@@ -80,16 +82,16 @@ export const QuizManager = ({ courseId, onBack, editingQuizId }: QuizManagerProp
       if (error) throw error;
 
       toast({
-        title: 'Success',
-        description: 'Quiz deleted successfully',
+        title: t('success'),
+        description: t('quizManager.quizDeleted'),
       });
 
       fetchQuizzes();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error deleting quiz:', error);
       toast({
-        title: 'Error',
-        description: error.message,
+        title: t('error'),
+        description: error instanceof Error ? error.message : t('quizManager.failedToDeleteQuiz'),
         variant: 'destructive',
       });
     }
@@ -135,13 +137,15 @@ export const QuizManager = ({ courseId, onBack, editingQuizId }: QuizManagerProp
                 onClick={() => navigate(`/teacher/courses/${actualCourseId}/manage`)}
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                Back
+                                 {t('quizManager.back')}
               </Button>
               <div className="space-y-1 sm:space-y-2">
                 <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary">
-                  Quiz Management
+                                     {t('quizManager.quizManagement')}
                 </h3>
-                <p className="text-muted-foreground text-sm sm:text-base lg:text-lg">Create and manage your course assessments</p>
+                <p className="text-muted-foreground text-sm sm:text-base lg:text-lg">
+                                     {t('quizManager.createAndManageQuizzes')}
+                </p>
               </div>
             </div>
             <Button 
@@ -149,7 +153,7 @@ export const QuizManager = ({ courseId, onBack, editingQuizId }: QuizManagerProp
               variant='default'
             >
               <Plus className="h-5 w-5 mr-2" />
-              Create Quiz
+                             {t('quizManager.createQuiz')}
             </Button>
           </div>
         </div>
@@ -220,12 +224,12 @@ export const QuizManager = ({ courseId, onBack, editingQuizId }: QuizManagerProp
                   {quiz.time_limit && (
                     <Badge className="bg-accent-500/20 text-accent-300 border-accent-500/40 hover:bg-accent-500/30 transition-colors duration-300">
                       <Clock className="h-3 w-3 mr-1" />
-                      {quiz.time_limit} min
+                      {quiz.time_limit} {t('minutes')}
                     </Badge>
                   )}
                   <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/40 hover:bg-purple-500/30 transition-colors duration-300">
                     <Target className="h-3 w-3 mr-1" />
-                    Max attempts: {quiz.max_attempts}
+                                           {t('quizManager.maxAttempts', { count: quiz.max_attempts })}
                   </Badge>
                 </div>
               </CardContent>
@@ -242,10 +246,10 @@ export const QuizManager = ({ courseId, onBack, editingQuizId }: QuizManagerProp
               </div>
               <div className="space-y-3">
                 <h3 className="text-2xl font-semibold bg-gradient-to-r from-primary-400 to-secondary-400 bg-clip-text text-transparent">
-                  No quizzes yet
+                                     {t('quizManager.noQuizzesYet')}
                 </h3>
                 <p className="text-muted-foreground text-lg max-w-md mx-auto leading-relaxed">
-                  Create your first quiz to assess student learning and track their progress
+                                     {t('quizManager.noQuizzesDescription')}
                 </p>
               </div>
               <Button 
@@ -253,7 +257,7 @@ export const QuizManager = ({ courseId, onBack, editingQuizId }: QuizManagerProp
                 className="bg-gradient-to-r from-primary-500 via-secondary-500 to-primary-600 hover:from-primary-600 hover:via-secondary-600 hover:to-primary-700 text-black font-semibold px-8 py-4 rounded-2xl shadow-lg shadow-primary-500/25 border border-primary-400/30 transition-all duration-300 hover:shadow-xl hover:shadow-primary-500/30"
               >
                 <Plus className="h-5 w-5 mr-2" />
-                Create First Quiz
+                                 {t('quizManager.createFirstQuiz')}
               </Button>
             </CardContent>
           </Card>

@@ -24,6 +24,7 @@ import {
 import { motion } from 'framer-motion';
 import { GameRoom } from '@/hooks/useMultiplayerQuiz';
 import { supabase } from '@/integrations/supabase/client';
+import { useTranslation } from 'react-i18next';
 
 interface MatchmakerEntry {
   id: string;
@@ -58,6 +59,7 @@ export const MultiplayerQuizLobby = ({
   onJoinPublicRoom,
   onRefreshRooms
 }: MultiplayerQuizLobbyProps) => {
+  const { t } = useTranslation('other');
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [joinModalOpen, setJoinModalOpen] = useState(false);
   const [maxPlayers, setMaxPlayers] = useState(4);
@@ -138,13 +140,13 @@ export const MultiplayerQuizLobby = ({
   };
 
   const getMatchmakerStatus = () => {
-    if (activeMatchmakers === 0) return 'No one searching';
+    if (activeMatchmakers === 0) return t('multiplayerQuiz.lobby.noOneSearching');
     
     const categoryEntries = Object.entries(matchmakerCategories);
-    if (categoryEntries.length === 0) return 'Searching for matches...';
+    if (categoryEntries.length === 0) return t('multiplayerQuiz.lobby.searchingForMatches');
     
     const statusParts = categoryEntries.map(([category, count]) => 
-      `${count} in ${category}`
+      `${count} ${category}`
     );
     
     return statusParts.join(', ');
@@ -238,7 +240,7 @@ export const MultiplayerQuizLobby = ({
 
   const getCategoryDisplayName = () => {
     if (selectedCategory === 'all') {
-      return 'All Categories';
+      return t('multiplayerQuiz.lobby.allCategories');
     }
     return selectedCategory;
   };
@@ -265,8 +267,8 @@ export const MultiplayerQuizLobby = ({
     <div className="min-h-screen bg-background particle-bg p-4 pt-28">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-primary mb-2">Quiz Battle Arena</h1>
-          <p className="text-muted-foreground text-lg">Test your knowledge against other players</p>
+          <h1 className="text-4xl font-bold text-primary mb-2">{t('multiplayerQuiz.lobby.title')}</h1>
+          <p className="text-muted-foreground text-lg">{t('multiplayerQuiz.lobby.subtitle')}</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -275,7 +277,7 @@ export const MultiplayerQuizLobby = ({
           <div className="lg:col-span-1 space-y-6">
             <Card className="glass-card border-border shadow-2xl">
               <CardHeader className="text-center pb-4">
-                <CardTitle className="text-2xl text-foreground">Join the Battle</CardTitle>
+                <CardTitle className="text-2xl text-foreground">{t('multiplayerQuiz.lobby.joinBattle')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 
@@ -286,16 +288,16 @@ export const MultiplayerQuizLobby = ({
                       className="w-full h-14 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold text-lg shadow-lg hover:shadow-primary/25"
                     >
                       <Plus className="h-5 w-5 mr-2" />
-                      Create Room
+                      {t('multiplayerQuiz.lobby.createRoom')}
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="sm:max-w-md">
                     <DialogHeader>
-                      <DialogTitle>Create New Room</DialogTitle>
+                      <DialogTitle>{t('multiplayerQuiz.lobby.createNewRoom')}</DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4">
                       <div>
-                        <Label htmlFor="maxPlayers">Maximum Players</Label>
+                        <Label htmlFor="maxPlayers">{t('multiplayerQuiz.lobby.maxPlayers')}</Label>
                         <div className="flex space-x-2 mt-2">
                           {[2, 3, 4, 5, 6].map((num) => (
                             <Button
@@ -311,16 +313,16 @@ export const MultiplayerQuizLobby = ({
                       </div>
 
                       <div>
-                        <Label htmlFor="category">Quiz Category</Label>
+                        <Label htmlFor="category">{t('multiplayerQuiz.lobby.category')}</Label>
                         <Select
                           value={selectedCategory}
                           onValueChange={setSelectedCategory}
                         >
                           <SelectTrigger className="mt-2">
-                            <SelectValue placeholder="Select category" />
+                            <SelectValue placeholder={t('multiplayerQuiz.lobby.selectCategory')} />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="all">All Categories</SelectItem>
+                            <SelectItem value="all">{t('multiplayerQuiz.lobby.allCategories')}</SelectItem>
                             {categories.map(category => (
                               <SelectItem key={category} value={category}>
                                 {category}
@@ -331,18 +333,18 @@ export const MultiplayerQuizLobby = ({
                       </div>
 
                       <div>
-                        <Label htmlFor="questionCount">Number of Questions</Label>
+                        <Label htmlFor="questionCount">{t('multiplayerQuiz.lobby.questionCount')}</Label>
                         <div className="space-y-3 mt-2">
                           {loadingCategories ? (
                             <div className="text-sm text-muted-foreground text-center py-4">
-                              Loading question counts...
+                              {t('multiplayerQuiz.lobby.loadingQuestionCounts')}
                             </div>
                           ) : (() => {
                             const options = getQuestionCountOptions();
                             return (
                               <>
                                 <div className="text-sm text-muted-foreground mb-2">
-                                  Available: {options.maxQuestions} questions
+                                  {t('multiplayerQuiz.lobby.availableQuestions', { count: options.maxQuestions })}
                                 </div>
                                 <div className="grid grid-cols-3 gap-2">
                                   <Button
@@ -351,7 +353,7 @@ export const MultiplayerQuizLobby = ({
                                     onClick={() => handleQuestionCountChange(options.halfQuestions)}
                                     disabled={options.maxQuestions === 0}
                                   >
-                                    Half ({options.halfQuestions})
+                                    {t('multiplayerQuiz.lobby.halfQuestions', { count: options.halfQuestions })}
                                   </Button>
                                   <Button
                                     variant={questionCount === options.randomQuestions ? "default" : "outline"}
@@ -359,7 +361,7 @@ export const MultiplayerQuizLobby = ({
                                     onClick={() => handleQuestionCountChange(options.randomQuestions)}
                                     disabled={options.maxQuestions === 0}
                                   >
-                                    Random ({options.randomQuestions})
+                                    {t('multiplayerQuiz.lobby.randomQuestions', { count: options.randomQuestions })}
                                   </Button>
                                   <Button
                                     variant={questionCount === options.maxQuestions ? "default" : "outline"}
@@ -367,13 +369,13 @@ export const MultiplayerQuizLobby = ({
                                     onClick={() => handleQuestionCountChange(options.maxQuestions)}
                                     disabled={options.maxQuestions === 0}
                                   >
-                                    Max ({options.maxQuestions})
+                                    {t('multiplayerQuiz.lobby.maxQuestions', { count: options.maxQuestions })}
                                   </Button>
                                 </div>
                                 <div className="space-y-2">
                                   <div className="flex items-center space-x-2">
                                     <Input
-                                      placeholder="Custom number"
+                                      placeholder={t('multiplayerLobby.customNumber')}
                                       value={customQuestionCount}
                                       onChange={(e) => handleCustomQuestionCountChange(e.target.value)}
                                       className="flex-1"
@@ -383,11 +385,11 @@ export const MultiplayerQuizLobby = ({
                                       disabled={options.maxQuestions === 0}
                                     />
                                     <span className="text-sm text-muted-foreground whitespace-nowrap">
-                                      Max: {options.maxQuestions}
+                                      {t('multiplayerQuiz.lobby.maxQuestions', { count: options.maxQuestions })}
                                     </span>
                                   </div>
                                   <div className="text-sm text-center text-muted-foreground">
-                                    Selected: {questionCount} questions
+                                    {t('multiplayerQuiz.lobby.selectedQuestions', { count: questionCount })}
                                   </div>
                                 </div>
                               </>
@@ -404,7 +406,7 @@ export const MultiplayerQuizLobby = ({
                         />
                         <Label htmlFor="isPublic" className="flex items-center space-x-2">
                           {isPublic ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
-                          <span>{isPublic ? 'Public Room' : 'Private Room'}</span>
+                          <span>{isPublic ? t('multiplayerQuiz.lobby.publicRoom') : t('multiplayerQuiz.lobby.privateRoom')}</span>
                         </Label>
                       </div>
                       <Button 
@@ -412,7 +414,7 @@ export const MultiplayerQuizLobby = ({
                         className="w-full"
                         disabled={loadingCategories || getQuestionCountOptions().maxQuestions === 0}
                       >
-                        Create Room
+                        {t('multiplayerQuiz.lobby.createRoom')}
                       </Button>
                     </div>
                   </DialogContent>
@@ -426,19 +428,19 @@ export const MultiplayerQuizLobby = ({
                       className="w-full h-14 border-2 border-primary/50 bg-primary/10 hover:bg-primary/20 text-primary hover:text-primary font-semibold text-lg"
                     >
                       <Key className="h-5 w-5 mr-2" />
-                      Join with Code
+                      {t('multiplayerQuiz.lobby.joinWithCode')}
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="sm:max-w-md">
                     <DialogHeader>
-                      <DialogTitle>Join Room</DialogTitle>
+                      <DialogTitle>{t('multiplayerQuiz.lobby.joinRoom')}</DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4">
                       <div>
-                        <Label htmlFor="roomCode">Room Code</Label>
+                        <Label htmlFor="roomCode">{t('multiplayerQuiz.lobby.roomCode')}</Label>
                         <Input
                           id="roomCode"
-                          placeholder="Enter 4-digit code"
+                          placeholder={t('multiplayerLobby.enterRoomCode')}
                           value={roomCode}
                           onChange={(e) => setRoomCode(e.target.value.replace(/\D/g, '').slice(0, 4))}
                           className="text-center text-2xl font-mono tracking-widest"
@@ -450,7 +452,7 @@ export const MultiplayerQuizLobby = ({
                         className="w-full"
                         disabled={roomCode.length !== 4}
                       >
-                        Join Room
+                        {t('multiplayerQuiz.lobby.joinRoom')}
                       </Button>
                     </div>
                   </DialogContent>
@@ -463,14 +465,14 @@ export const MultiplayerQuizLobby = ({
                   <div className="space-y-3">
                     <div>
                       <Label htmlFor="quickMatchCategory" className="text-sm font-medium">
-                        Select Category for Quick Match
+                        {t('multiplayerQuiz.lobby.selectCategoryForQuickMatch')}
                       </Label>
                       <Select
                         value={quickMatchCategory}
                         onValueChange={setQuickMatchCategory}
                       >
                         <SelectTrigger className="mt-2">
-                          <SelectValue placeholder="Select category" />
+                          <SelectValue placeholder={t('multiplayerQuiz.lobby.selectCategory')} />
                         </SelectTrigger>
                         <SelectContent>
                           {categories.map(category => (
@@ -486,7 +488,7 @@ export const MultiplayerQuizLobby = ({
                       className="w-full h-12 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground font-semibold"
                     >
                       <Users className="h-5 w-5 mr-2" />
-                      Quick Match 1v1
+                      {t('multiplayerQuiz.lobby.quickMatch1v1')}
                     </Button>
                     
                     {/* Live Matchmaker Indicator */}
@@ -494,10 +496,10 @@ export const MultiplayerQuizLobby = ({
                       <div className="flex items-center justify-between text-sm">
                         <div className="flex items-center space-x-2">
                           <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                          <span className="text-muted-foreground">Live Matchmakers</span>
+                          <span className="text-muted-foreground">{t('multiplayerQuiz.lobby.liveMatchmakers')}</span>
                         </div>
                         <span className="font-semibold text-primary">
-                          {activeMatchmakers} online
+                          {activeMatchmakers} {t('multiplayerQuiz.lobby.online')}
                         </span>
                       </div>
                       {activeMatchmakers > 0 && (
@@ -516,7 +518,7 @@ export const MultiplayerQuizLobby = ({
                         className="w-6 h-6 border-2 border-white/20 border-t-white rounded-full"
                       />
                       <span className="text-foreground font-medium">
-                        Finding opponent in {quickMatchCategory}...
+                        {t('multiplayerQuiz.lobby.findingOpponent', { category: getCategoryDisplayName() })}
                       </span>
                     </div>
                     <Button
@@ -524,7 +526,7 @@ export const MultiplayerQuizLobby = ({
                       variant="outline"
                       className="border-destructive/20 bg-destructive/10 hover:bg-destructive/20 text-destructive"
                     >
-                      Cancel
+                      {t('multiplayerQuiz.lobby.cancel')}
                     </Button>
                   </div>
                 )}
@@ -536,25 +538,25 @@ export const MultiplayerQuizLobby = ({
               <CardHeader>
                 <CardTitle className="text-foreground flex items-center">
                   <Star className="h-5 w-5 mr-2" />
-                  How to Play
+                  {t('multiplayerQuiz.lobby.howToPlay')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3 text-muted-foreground text-sm">
                 <div className="flex items-start space-x-3">
-                  <Badge className="bg-primary/20 text-primary min-w-fit">1</Badge>
-                  <p>Create a room or join with a 4-digit code</p>
+                  <Badge className="bg-primary/20 text-primary min-w-fit">{t('multiplayerQuiz.lobby.step1')}</Badge>
+                  <p>{t('multiplayerQuiz.lobby.createOrJoin')}</p>
                 </div>
                 <div className="flex items-start space-x-3">
-                  <Badge className="bg-accent/20 text-accent min-w-fit">2</Badge>
-                  <p>Wait for other players to join</p>
+                  <Badge className="bg-accent/20 text-accent min-w-fit">{t('multiplayerQuiz.lobby.step2')}</Badge>
+                  <p>{t('multiplayerQuiz.lobby.wait')}</p>
                 </div>
                 <div className="flex items-start space-x-3">
-                  <Badge className="bg-primary/20 text-primary min-w-fit">3</Badge>
-                  <p>Answer questions as fast as possible</p>
+                  <Badge className="bg-primary/20 text-primary min-w-fit">{t('multiplayerQuiz.lobby.step3')}</Badge>
+                  <p>{t('multiplayerQuiz.lobby.answerFast')}</p>
                 </div>
                 <div className="flex items-start space-x-3">
-                  <Badge className="bg-accent/20 text-accent min-w-fit">4</Badge>
-                  <p>Climb the leaderboard to victory!</p>
+                  <Badge className="bg-accent/20 text-accent min-w-fit">{t('multiplayerQuiz.lobby.step4')}</Badge>
+                  <p>{t('multiplayerQuiz.lobby.victory')}</p>
                 </div>
               </CardContent>
             </Card>
@@ -567,7 +569,7 @@ export const MultiplayerQuizLobby = ({
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-foreground flex items-center">
                     <Trophy className="h-5 w-5 mr-2" />
-                    Public Rooms
+                    {t('multiplayerQuiz.lobby.publicRooms')}
                   </CardTitle>
                   <div className="flex items-center gap-3">
                     {/* Category Filter */}
@@ -581,7 +583,7 @@ export const MultiplayerQuizLobby = ({
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="all">All Categories</SelectItem>
+                          <SelectItem value="all">{t('multiplayerQuiz.lobby.allCategories')}</SelectItem>
                           {categories.map(category => (
                             <SelectItem key={category} value={category}>
                               {category}
@@ -591,7 +593,7 @@ export const MultiplayerQuizLobby = ({
                       </Select>
                     </div>
                     <Badge className="bg-primary/20 text-primary border-primary/40">
-                      {filteredRooms.length} Active
+                      {filteredRooms.length} {t('multiplayerQuiz.lobby.active')}
                     </Badge>
                   </div>
                 </div>
@@ -603,11 +605,11 @@ export const MultiplayerQuizLobby = ({
                       <Users className="h-16 w-16 mx-auto mb-4 opacity-50" />
                       <p className="text-lg">
                         {selectedCategory === 'all' 
-                          ? 'No public rooms available' 
-                          : `No public rooms in ${selectedCategory}`
+                          ? t('multiplayerQuiz.lobby.noPublicRoomsAvailable') 
+                          : t('multiplayerQuiz.lobby.noPublicRoomsInCategory', { category: getCategoryDisplayName() })
                         }
                       </p>
-                      <p className="text-sm">Create one and invite your friends!</p>
+                      <p className="text-sm">{t('multiplayerQuiz.lobby.createOne')}</p>
                     </div>
                   </div>
                 ) : (
@@ -628,7 +630,7 @@ export const MultiplayerQuizLobby = ({
                                 </span>
                               </div>
                               <div>
-                                <p className="text-foreground font-medium">Room {room.room_code}</p>
+                                <p className="text-foreground font-medium">{t('multiplayerQuiz.lobby.roomCode', { code: room.room_code })}</p>
                                 <div className="flex items-center space-x-4 text-sm text-muted-foreground">
                                   <div className="flex items-center space-x-1">
                                     <Users className="h-4 w-4" />
@@ -636,7 +638,7 @@ export const MultiplayerQuizLobby = ({
                                   </div>
                                   <div className="flex items-center space-x-1">
                                     <Timer className="h-4 w-4" />
-                                    <span>Waiting</span>
+                                    <span>{t('multiplayerQuiz.lobby.waiting')}</span>
                                   </div>
                                   {room.category && (
                                     <div className="flex items-center space-x-1">
@@ -659,7 +661,7 @@ export const MultiplayerQuizLobby = ({
                               }
                             `}
                           >
-                            {room.current_players >= room.max_players ? 'Full' : 'Join'}
+                            {room.current_players >= room.max_players ? t('multiplayerQuiz.lobby.full') : t('multiplayerQuiz.lobby.join')}
                           </Button>
                         </div>
                         

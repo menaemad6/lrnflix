@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { FileText, CheckCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface QuizQuestionProps {
   question: any;
@@ -17,21 +18,22 @@ interface QuizQuestionProps {
 
 export const QuizQuestion = ({ 
   question, 
-  questionNumber, 
+  questionNumber,
   totalQuestions, 
   answer, 
   onAnswerChange 
 }: QuizQuestionProps) => {
+  const { t } = useTranslation('courses');
   return (
     <Card className="border-2 border-primary/20 bg-gradient-to-br from-card to-muted/20 shadow-lg">
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <Badge variant="outline" className="text-primary border-primary/30 bg-primary/5">
-            Question {questionNumber} of {totalQuestions}
+            {t('quizQuestion.question', { number: questionNumber, total: totalQuestions })}
           </Badge>
-          <Badge variant={answer ? "default" : "secondary"} className="flex items-center gap-1">
+          <Badge variant={answer ? "default" : "destructive"} className="flex items-center gap-1">
             {answer ? <CheckCircle className="h-3 w-3" /> : <FileText className="h-3 w-3" />}
-            {answer ? "Answered" : "Not Answered"}
+            {answer ? t('quizQuestion.answered') : t('quizQuestion.notAnswered')}
           </Badge>
         </div>
         <CardTitle className="text-xl leading-relaxed text-foreground">
@@ -49,7 +51,7 @@ export const QuizQuestion = ({
         )}
         
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <span>Points: {question.points}</span>
+          <span>{t('quizQuestion.points', { points: question.points })}</span>
         </div>
       </CardHeader>
       
@@ -86,10 +88,10 @@ export const QuizQuestion = ({
         ) : (
           <div className="space-y-2">
             <Label className="text-sm font-medium text-muted-foreground">
-              Your Answer:
+              {t('quizQuestion.yourAnswer')}:
             </Label>
             <Textarea
-              placeholder="Enter your answer here..."
+                              placeholder={t('quizQuestion.enterAnswerHere')}
               value={answer || ''}
               onChange={(e) => onAnswerChange(e.target.value)}
               rows={6}

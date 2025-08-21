@@ -4,9 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertTriangle } from 'lucide-react';
 import { useRandomBackground } from "../hooks/useRandomBackground";
+import { useTranslation } from 'react-i18next';
 
 export const Unauthorized = () => {
   const bgClass = useRandomBackground();
+  const { t } = useTranslation('dashboard');
+  
   return (
     <div className={bgClass + " min-h-screen flex items-center justify-center bg-gray-50 px-4"}>
       <Card className="w-full max-w-md text-center">
@@ -14,14 +17,14 @@ export const Unauthorized = () => {
           <div className="mx-auto mb-4 text-red-500">
             <AlertTriangle size={48} />
           </div>
-          <CardTitle>Access Denied</CardTitle>
+          <CardTitle>{t('unauthorized.title')}</CardTitle>
           <CardDescription>
-            You don't have permission to access this page.
+            {t('unauthorized.message')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Button asChild>
-            <Link to="/">Go to Home</Link>
+            <Link to="/">{t('unauthorized.goHome')}</Link>
           </Button>
         </CardContent>
       </Card>

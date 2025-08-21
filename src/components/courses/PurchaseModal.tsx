@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from 'react-i18next';
 import { Wallet, CreditCard, Percent, AlertCircle } from 'lucide-react';
 
 interface PurchaseModalProps {
@@ -18,6 +19,7 @@ interface PurchaseModalProps {
 
 export const PurchaseModal = ({ isOpen, onClose, course, userWallet, onPurchaseSuccess }: PurchaseModalProps) => {
   const { toast } = useToast();
+  const { t } = useTranslation('dashboard');
   const [discountCode, setDiscountCode] = useState('');
   const [discountApplied, setDiscountApplied] = useState<any>(null);
   const [finalPrice, setFinalPrice] = useState(course?.price || 0);
@@ -28,20 +30,30 @@ export const PurchaseModal = ({ isOpen, onClose, course, userWallet, onPurchaseS
 
     try {
       setLoading(true);
+      
       const { data, error } = await supabase
         .from('course_codes')
         .select('*')
         .eq('code', discountCode.toUpperCase())
         .eq('course_id', course.id)
-        .eq('is_active', true)
         .maybeSingle();
 
       if (error) throw error;
 
       if (!data) {
         toast({
-          title: 'Invalid Code',
-          description: 'The discount code is not valid for this course.',
+          title: t('purchaseModal.invalidCode'),
+          description: t('purchaseModal.invalidCodeDesc'),
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Check if code is active (treat null as active for backward compatibility)
+      if (data.is_active === false) {
+        toast({
+          title: t('purchaseModal.inactiveCode'),
+          description: t('purchaseModal.inactiveCodeDesc'),
           variant: 'destructive',
         });
         return;
@@ -50,18 +62,18 @@ export const PurchaseModal = ({ isOpen, onClose, course, userWallet, onPurchaseS
       // Check if code is expired
       if (data.expires_at && new Date(data.expires_at) < new Date()) {
         toast({
-          title: 'Expired Code',
-          description: 'This discount code has expired.',
+          title: t('purchaseModal.expiredCode'),
+          description: t('purchaseModal.expiredCodeDesc'),
           variant: 'destructive',
         });
         return;
       }
 
       // Check if max uses reached
-      if (data.max_uses && data.current_uses >= data.max_uses) {
+      if (data.max_uses && (data.current_uses || 0) >= data.max_uses) {
         toast({
-          title: 'Code Limit Reached',
-          description: 'This discount code has reached its usage limit.',
+          title: t('purchaseModal.codeLimitReached'),
+          description: t('purchaseModal.codeLimitReachedDesc'),
           variant: 'destructive',
         });
         return;
@@ -79,14 +91,14 @@ export const PurchaseModal = ({ isOpen, onClose, course, userWallet, onPurchaseS
       setDiscountApplied({ ...data, discount });
 
       toast({
-        title: 'Discount Applied!',
-        description: `You saved ${discount} credits!`,
+        title: t('purchaseModal.discountAppliedSuccess'),
+        description: t('purchaseModal.discountAppliedDesc', { amount: discount }),
       });
     } catch (error: any) {
       console.error('Error applying discount:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to apply discount code',
+        title: t('purchaseModal.error'),
+        description: t('purchaseModal.failedToApply'),
         variant: 'destructive',
       });
     } finally {
@@ -109,7 +121,7 @@ export const PurchaseModal = ({ isOpen, onClose, course, userWallet, onPurchaseS
 
       if (!result.success) {
         toast({
-          title: 'Purchase Failed',
+          title: t('purchaseModal.purchaseFailed'),
           description: result.error,
           variant: 'destructive',
         });
@@ -125,7 +137,7 @@ export const PurchaseModal = ({ isOpen, onClose, course, userWallet, onPurchaseS
       );
 
       toast({
-        title: 'Purchase Successful!',
+        title: t('purchaseModal.purchaseSuccessful'),
         description: result.message,
       });
 
@@ -165,7 +177,7 @@ export const PurchaseModal = ({ isOpen, onClose, course, userWallet, onPurchaseS
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <CreditCard className="h-5 w-5" />
-            Purchase Course
+            {t('purchaseModal.title')}
           </DialogTitle>
         </DialogHeader>
         
@@ -174,7 +186,7 @@ export const PurchaseModal = ({ isOpen, onClose, course, userWallet, onPurchaseS
             <h3 className="font-semibold text-lg">{course?.title}</h3>
             <div className="flex items-center justify-center gap-2 mt-2">
               <Badge variant="outline">
-                Original Price: {course?.price} Credits
+                {t('purchaseModal.originalPrice', { price: course?.price })}
               </Badge>
             </div>
           </div>
@@ -182,16 +194,16 @@ export const PurchaseModal = ({ isOpen, onClose, course, userWallet, onPurchaseS
           <div className="space-y-4">
             <div className="flex items-center gap-2 p-3 bg-muted rounded-lg">
               <Wallet className="h-5 w-5" />
-              <span>Your Wallet: {userWallet} Credits</span>
+              <span>{t('purchaseModal.yourWallet', { amount: userWallet })}</span>
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Discount Code (Optional)</label>
+              <label className="text-sm font-medium">{t('purchaseModal.discountCode')}</label>
               <div className="flex gap-2">
                 <Input
                   value={discountCode}
                   onChange={(e) => setDiscountCode(e.target.value.toUpperCase())}
-                  placeholder="Enter discount code"
+                  placeholder={t('purchaseModal.enterDiscountCode')}
                   disabled={loading || !!discountApplied}
                 />
                 {!discountApplied ? (
@@ -201,10 +213,11 @@ export const PurchaseModal = ({ isOpen, onClose, course, userWallet, onPurchaseS
                     disabled={!discountCode.trim() || loading}
                   >
                     <Percent className="h-4 w-4" />
+                    {t('purchaseModal.apply')}
                   </Button>
                 ) : (
                   <Button variant="outline" onClick={removeDiscount}>
-                    Remove
+                    {t('purchaseModal.remove')}
                   </Button>
                 )}
               </div>
@@ -214,10 +227,10 @@ export const PurchaseModal = ({ isOpen, onClose, course, userWallet, onPurchaseS
               <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
                 <div className="flex items-center gap-2 text-green-700">
                   <Percent className="h-4 w-4" />
-                  <span className="font-medium">Discount Applied!</span>
+                  <span className="font-medium">{t('purchaseModal.discountApplied')}</span>
                 </div>
                 <p className="text-sm text-green-600 mt-1">
-                  You saved {discountApplied.discount} credits
+                  {t('purchaseModal.youSaved', { amount: discountApplied.discount })}
                   {discountApplied.discount_percentage && ` (${discountApplied.discount_percentage}% off)`}
                 </p>
               </div>
@@ -225,8 +238,8 @@ export const PurchaseModal = ({ isOpen, onClose, course, userWallet, onPurchaseS
 
             <div className="border-t pt-4">
               <div className="flex justify-between items-center text-lg font-semibold">
-                <span>Final Price:</span>
-                <span>{finalPrice} Credits</span>
+                <span>{t('purchaseModal.finalPrice')}</span>
+                <span>{finalPrice} {t("studentCourseView.egp")}</span>
               </div>
             </div>
 
@@ -234,10 +247,10 @@ export const PurchaseModal = ({ isOpen, onClose, course, userWallet, onPurchaseS
               <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
                 <div className="flex items-center gap-2 text-red-700">
                   <AlertCircle className="h-4 w-4" />
-                  <span className="font-medium">Insufficient Funds</span>
+                  <span className="font-medium">{t('purchaseModal.insufficientFunds')}</span>
                 </div>
                 <p className="text-sm text-red-600 mt-1">
-                  You need {finalPrice - userWallet} more credits to purchase this course.
+                  {t('purchaseModal.needMoreCredits', { amount: finalPrice - userWallet })}
                 </p>
               </div>
             )}
@@ -245,14 +258,14 @@ export const PurchaseModal = ({ isOpen, onClose, course, userWallet, onPurchaseS
 
           <div className="flex gap-3">
             <Button variant="outline" onClick={onClose} className="flex-1">
-              Cancel
+              {t('purchaseModal.cancel')}
             </Button>
             <Button
               onClick={handlePurchase}
               disabled={userWallet < finalPrice || loading}
               className="flex-1"
             >
-              {loading ? 'Processing...' : `Purchase for ${finalPrice} Credits`}
+              {loading ? t('purchaseModal.processing') : t('purchaseModal.purchaseForCredits', { amount: finalPrice })}
             </Button>
           </div>
         </div>

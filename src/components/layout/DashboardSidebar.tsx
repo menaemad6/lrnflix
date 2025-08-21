@@ -43,12 +43,13 @@ import {
 } from '@/components/ui/sidebar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ModernScrollbar } from '@/components/ui/modern-scrollbar';
+import { HiddenScrollbar } from '@/components/ui/hidden-scrollbar';
 import { useChatbot } from '@/contexts/ChatbotContext';
 import { useTenant } from '@/contexts/TenantContext';
 import type { RootState } from '@/store/store';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { PLATFORM_NAME } from '@/data/constants';
+import { useTranslation } from 'react-i18next';
 
 interface MenuItem {
   title: string;
@@ -59,6 +60,7 @@ interface MenuItem {
 }
 
 export const DashboardSidebar = () => {
+  const { t } = useTranslation('navigation');
   const { state, toggleSidebar } = useSidebar();
   const location = useLocation();
   const { user } = useSelector((state: RootState) => state.auth);
@@ -72,113 +74,113 @@ export const DashboardSidebar = () => {
 
   const studentMenuItems: MenuItem[] = [
     { 
-      title: "Dashboard", 
+      title: t('sidebar.dashboard'), 
       url: "/student/dashboard", 
       icon: Layout,
-      description: "Overview & Analytics"
+      description: t('sidebar.overview')
     },
     { 
-      title: "My Courses", 
+      title: t('sidebar.myCourses'), 
       url: "/student/courses", 
       icon: BookOpen,
-      description: "Continue learning"
+      description: t('sidebar.continueLearning')
     },
     { 
-      title: "My Chapters", 
+      title: t('sidebar.myChapters'), 
       url: "/student/chapters", 
       icon: BookOpen,
-      description: "Learning paths"
+      description: t('sidebar.learningPaths')
     },
 
     { 
-      title: "Learning Groups", 
+      title: t('sidebar.learningGroups'), 
       url: "/student/groups", 
       icon: Users,
-      description: "Collaborate & Learn"
+      description: t('sidebar.collaborateLearn')
     },
     { 
-      title: "Transactions", 
+      title: t('sidebar.transactions'), 
       url: "/student/transactions", 
       icon: CreditCard,
-      description: "View wallet history"
+      description: t('sidebar.viewWalletHistory')
     },
     { 
-      title: "AI Tutor", 
+      title: t('sidebar.aiTutor'), 
       url: "/student/ai-tutor", 
       icon: Brain,
-      description: "Personal assistant",
+      description: t('sidebar.personalAssistant'),
       badge: "New"
     },
     // { 
-    //   title: "Notifications", 
+    //   title: t('sidebar.notifications'), 
     //   url: "/student/notifications", 
     //   icon: Bell,
-    //   description: "Stay updated"
+    //   description: t('sidebar.stayUpdated')
     // },
 
   ];
 
   const teacherMenuItems: MenuItem[] = [
     { 
-      title: "Dashboard", 
+      title: t('sidebar.dashboard'), 
       url: "/teacher/dashboard", 
       icon: Layout,
-      description: "Teaching overview"
+      description: t('sidebar.courseOverview')
     },
 
     { 
-      title: "My Courses", 
+      title: t('sidebar.myCourses'), 
       url: "/teacher/courses", 
       icon: BookOpen,
-      description: "Manage content"
+      description: t('sidebar.manageContent')
     },
     { 
-      title: "My Chapters", 
+      title: t('sidebar.myChapters'), 
       url: "/teacher/chapters", 
       icon: File,
-      description: "Learning paths"
+      description: t('sidebar.learningPaths')
     },
     { 
-      title: "Manage Groups", 
+      title: t('sidebar.learningGroups'), 
       url: "/teacher/groups", 
       icon: Users,
-      description: "Student communities"
+      description: t('sidebar.studentManagement')
     },
     { 
-      title: "My Students", 
+      title: t('sidebar.students'), 
       url: "/teacher/students", 
       icon: GraduationCap,
-      description: "Students Info"
+      description: t('sidebar.studentManagement')
     },
     { 
-      title: "My Schedule", 
+      title: t('sidebar.schedule'), 
       url: "/teacher/schedule", 
       icon: Calendar,
-      description: "Schedule Tasks"
+      description: t('sidebar.schedule')
     },
     { 
-      title: "Multiplayer Quiz", 
+      title: t('sidebar.quizzes'), 
       url: "/teacher/multiplayer-quiz", 
       icon: Trophy,
-      description: "Create & manage quizzes"
+      description: t('sidebar.manageContent')
     },
     { 
-      title: "Analytics", 
+      title: t('sidebar.analytics'), 
       url: "/teacher/analytics", 
-      icon: PieChart,
-      description: "Performance insights"
+      icon: Layout,
+      description: t('sidebar.viewAnalytics')
     },
     { 
-      title: "Wallet Codes", 
+      title: t('navbar.walletCodes'), 
       url: "/teacher/codes", 
       icon: Gift,
-      description: "Reward students"
+      description: t('sidebar.rewardStudents')
     },
     { 
-      title: "Brand Colors", 
+      title: t('sidebar.brandColors'), 
       url: "/teacher/colors", 
       icon: Palette,
-      description: "Customize your brand"
+      description: t('sidebar.customizeBrand')
     },
     // { 
     //   title: "Notifications", 
@@ -187,10 +189,10 @@ export const DashboardSidebar = () => {
     //   description: "Stay updated"
     // },
     { 
-      title: "Settings", 
+      title: t('sidebar.settings'), 
       url: "/dashboard/settings", 
       icon: Settings,
-      description: "Preferences"
+      description: t('sidebar.preferences')
     },
   ];
 
@@ -209,7 +211,7 @@ export const DashboardSidebar = () => {
           size="icon"
           onClick={toggleSidebar}
           className="fixed top-1/2 left-[-25px] -translate-y-1/2 rounded-full z-50 w-16 h-16 p-0 flex items-center justify-center bg-gradient-to-br from-primary-500/80 to-secondary-500/80 shadow-xl border-2 border-white/30 hover:from-primary-400 hover:to-secondary-400 hover:scale-105 hover:shadow-primary-400/30 transition-all duration-300"
-          title="Open Sidebar"
+          title={t('sidebar.openSidebar')}
         >
           <ChevronRight className={`h-8 w-8 ml-5 transition-transform duration-300 ${isCollapsed ? 'rotate-180' : ''}`} />
         </Button>
@@ -248,7 +250,7 @@ export const DashboardSidebar = () => {
                 size="icon"
                 onClick={toggleSidebar}
                 className="w-16 h-16 rounded-l-full rounded-r-none bg-gradient-to-br from-primary-500/80 to-secondary-500/80 shadow-xl border-2 border-white/30 hover:from-primary-400 hover:to-secondary-400 hover:scale-105 hover:shadow-primary-400/30 transition-all duration-300 flex items-center justify-center p-0"
-                title="Collapse Sidebar"
+                title={t('sidebar.collapseSidebar')}
                 style={{ borderRight: 'none' }}
               >
                 <ChevronLeft className="h-8 w-8 text-white drop-shadow-lg" />
@@ -258,7 +260,7 @@ export const DashboardSidebar = () => {
         )}
 
         <SidebarContent className="p-4">
-          <ModernScrollbar maxHeight="calc(100vh - 200px)">
+          <HiddenScrollbar maxHeight="calc(100vh - 200px)">
             <div className="pr-2">
               <SidebarGroup>
                 <SidebarGroupLabel className={`text-primary-400/80 font-medium mb-4 flex items-center gap-2 ${isCollapsed ? "justify-center" : ""}`}>
@@ -295,7 +297,7 @@ export const DashboardSidebar = () => {
                             {!isCollapsed && (
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center justify-between min-w-0">
-                                  <div className="font-semibold text-sm truncate min-w-0 text-ellipsis overflow-hidden">{item.title}</div>
+                                  <div className="font-semibold text-xs truncate min-w-0 text-ellipsis overflow-hidden">{item.title}</div>
                                   {item.badge && (
                                     <Badge className="bg-primary-500 text-black text-xs font-medium shadow-lg ml-2 whitespace-nowrap">{item.badge}</Badge>
                                   )}
@@ -317,7 +319,7 @@ export const DashboardSidebar = () => {
                 </SidebarGroupContent>
               </SidebarGroup>
             </div>
-          </ModernScrollbar>
+          </HiddenScrollbar>
         </SidebarContent>
 
         <SidebarFooter className="p-4 border-t border-white/5">

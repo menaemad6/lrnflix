@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Star, Users, BookOpen, CheckCircle, Sparkles, Calendar, CreditCard } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface PremiumCourseCardProps {
   id: string;
@@ -46,6 +47,8 @@ export const PremiumCourseCard: React.FC<PremiumCourseCardProps> = ({
   avatar_url, // NEW
   continueButtonLabel, // NEW
 }) => {
+  const { t } = useTranslation('courses');
+
   return (
     <Card className={`relative overflow-hidden bg-transparent border-0 ${isHovering ? 'group cursor-pointer transition-transform hover:scale-[1.025]' : ''} min-w-0 rounded-2xl`}>
       {/* Image Section with Overlay and Title */}
@@ -64,7 +67,7 @@ export const PremiumCourseCard: React.FC<PremiumCourseCardProps> = ({
               <path d="M7 17l3.5-4.5 2.5 3 3.5-4.5L21 17H3z" fill="currentColor" fillOpacity="0.18" />
               <circle cx="9" cy="10" r="2" fill="currentColor" fillOpacity="0.18" />
             </svg>
-            <span className="text-xs font-medium">No Image</span>
+            <span className="text-xs font-medium">{t('uiComponents.courseCard.noImage')}</span>
           </div>
         )}
         {/* Badges at the top of the card */}
@@ -80,7 +83,7 @@ export const PremiumCourseCard: React.FC<PremiumCourseCardProps> = ({
           <div className="absolute top-3 right-3 z-20">
             <Badge className="bg-primary/20 text-primary border-primary/30 flex items-center px-2 py-1 text-xs">
               <CheckCircle className="h-3 w-3 mr-1" />
-              Enrolled
+              {t('uiComponents.courseCard.enrolled')}
             </Badge>
           </div>
         )}
@@ -127,7 +130,7 @@ export const PremiumCourseCard: React.FC<PremiumCourseCardProps> = ({
                     <span className="text-2xl font-extrabold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
                       {price}
                     </span>
-                    <span className="text-xs font-semibold text-primary/80 uppercase tracking-wide">credits</span>
+                    <span className="text-xs font-semibold text-primary/80 uppercase tracking-wide">{t('uiComponents.courseCard.credits')}</span>
                   </span>
                 </div>
               )}
@@ -140,7 +143,7 @@ export const PremiumCourseCard: React.FC<PremiumCourseCardProps> = ({
             {progress !== undefined && (
               <div className="space-y-2 mt-2">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground">Progress</span>
+                  <span className="text-muted-foreground">{t('uiComponents.courseCard.progress')}</span>
                   <span className="font-medium text-primary">{progress}%</span>
                 </div>
                 <div className="w-full bg-muted rounded-full h-2">
@@ -159,7 +162,7 @@ export const PremiumCourseCard: React.FC<PremiumCourseCardProps> = ({
                   onClick={onContinue}
                 >
                   <BookOpen className="h-4 w-4 mr-2" />
-                  {continueButtonLabel || 'Continue Learning'}
+                  {continueButtonLabel || t('uiComponents.courseCard.continueLearning')}
                 </Button>
               ) : (
                 <>
@@ -169,7 +172,7 @@ export const PremiumCourseCard: React.FC<PremiumCourseCardProps> = ({
                       className="flex-1 border-primary/40 text-primary  min-w-0"
                       onClick={onPreview}
                     >
-                      Preview
+                      {t('uiComponents.courseCard.preview')}
                     </Button>
                   )}
                   {onEnroll && (
@@ -177,7 +180,7 @@ export const PremiumCourseCard: React.FC<PremiumCourseCardProps> = ({
                     variant='default'
                       onClick={onEnroll}
                     >
-                      Enroll Now
+                      {t('uiComponents.courseCard.enrollNow')}
                     </Button>
                   )}
                 </>

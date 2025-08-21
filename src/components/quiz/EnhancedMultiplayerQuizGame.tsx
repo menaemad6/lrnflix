@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Zap, Clock, Users, Trophy, Target, Star, Crown, CheckCircle, LogOut } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { Question, Player, GameState } from '@/hooks/useMultiplayerQuiz';
-import { P } from 'node_modules/framer-motion/dist/types.d-BSoEx4Ea';
+import { useTranslation } from 'react-i18next';
 
 interface EnhancedMultiplayerQuizGameProps {
   question: Question;
@@ -33,6 +33,7 @@ export const EnhancedMultiplayerQuizGame = ({
   totalQuestions,
   onLeave,
 }: EnhancedMultiplayerQuizGameProps) => {
+  const { t } = useTranslation('other');
   const [answeredPlayers, setAnsweredPlayers] = useState<Set<string>>(new Set());
   const [showCorrectAnswer, setShowCorrectAnswer] = useState(false);
   const [streak, setStreak] = useState(0);
@@ -133,9 +134,9 @@ export const EnhancedMultiplayerQuizGame = ({
             className="text-center space-y-8"
           >
             <div className="text-9xl font-extrabold gradient-text">
-              {countdown > 0 ? countdown : 'Go!'}
+              {countdown > 0 ? countdown : t('multiplayerQuiz.countdown.go')}
             </div>
-            <p className="text-2xl text-muted-foreground">Get Ready!</p>
+            <p className="text-2xl text-muted-foreground">{t('multiplayerQuiz.countdown.getReady')}</p>
           </motion.div>
         </AnimatePresence>
       </div>
@@ -182,7 +183,7 @@ export const EnhancedMultiplayerQuizGame = ({
                 className="flex items-center space-x-2 px-4 py-2 rounded-2xl bg-primary/20 border border-primary"
               >
                 <CheckCircle className="h-5 w-5 text-primary" />
-                <span className="text-primary font-bold">All Answered!</span>
+                <span className="text-primary font-bold">{t('multiplayerQuiz.game.allAnswered')}</span>
               </motion.div>
             )}
           </div>
@@ -190,12 +191,12 @@ export const EnhancedMultiplayerQuizGame = ({
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
               <Users className="h-5 w-5 text-accent" />
-              <span className="text-accent font-medium">{players.length} Players</span>
+              <span className="text-accent font-medium">{players.length} {t('multiplayerQuiz.game.players')}</span>
             </div>
-            <Button variant="destructive" size="sm" onClick={onLeave}>
-              <LogOut className="h-4 w-4 mr-2" />
-              Leave
-            </Button>
+                          <Button variant="destructive" size="sm" onClick={onLeave}>
+                <LogOut className="h-4 w-4 mr-2" />
+                {t('multiplayerQuiz.game.leave')}
+              </Button>
           </div>
         </div>
 
@@ -221,7 +222,7 @@ export const EnhancedMultiplayerQuizGame = ({
                       className="flex items-center space-x-1 bg-gradient-to-r from-primary/20 to-accent/20 border border-primary/40 rounded-full px-3 py-1"
                     >
                       <Zap className="h-4 w-4 text-primary" />
-                      <span className="text-primary font-bold">{streak} Streak!</span>
+                      <span className="text-primary font-bold">{streak} {t('multiplayerQuiz.game.streak')}</span>
                     </motion.div>
                   )}
                 </div>
@@ -288,7 +289,7 @@ export const EnhancedMultiplayerQuizGame = ({
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center space-x-2 mb-4">
               <Trophy className="h-5 w-5 text-primary" />
-              <h3 className="text-lg font-bold text-foreground">Live Leaderboard</h3>
+              <h3 className="text-lg font-bold text-foreground">{t('multiplayerQuiz.game.liveLeaderboard')}</h3>
             </div>
             
             <div className="space-y-3">

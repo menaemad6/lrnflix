@@ -25,6 +25,8 @@ import { useCourseProgress } from '@/hooks/useCourseProgress';
 import { useStudentEnrolledCourses } from '@/lib/queries';
 import { PremiumCourseCard } from '@/components/courses/PremiumCourseCard';
 import { CourseCardSkeleton } from '@/components/student/skeletons/CourseCardSkeleton';
+import { useTranslation } from 'react-i18next';
+import type { User } from '@supabase/supabase-js';
 
 interface EnrolledCourse {
   id: string;
@@ -53,11 +55,22 @@ export const StudentCoursesPage = () => {
   const { toast } = useToast();
   const { user } = useSelector((state: RootState) => state.auth);
   const { teacher } = useTenant();
-  const { data: enrolledCourses, isLoading, error } = useStudentEnrolledCourses(user, teacher);
+  const [supabaseUser, setSupabaseUser] = useState<User | null>(null);
+  const { data: enrolledCourses, isLoading, error } = useStudentEnrolledCourses(supabaseUser, teacher);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchFocused, setSearchFocused] = useState(false);
   const navigate = useNavigate();
+  const { t } = useTranslation('dashboard');
+
+  // Get Supabase user on component mount
+  useEffect(() => {
+    const getSupabaseUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setSupabaseUser(user);
+    };
+    getSupabaseUser();
+  }, []);
 
   const courseCategories = Array.from(new Set(enrolledCourses?.map(e => e.course.category).filter(Boolean) || []));
   const categories = ['All', ...courseCategories];
@@ -115,9 +128,9 @@ export const StudentCoursesPage = () => {
   return (
     <DashboardLayout>
       <DashboardModernHeader
-        title="My Learning Journey"
-        subtitle="Continue your progress and discover new skills"
-        buttonText="Explore Courses"
+        title={t('studentCourses.myLearningJourney')}
+        subtitle={t('studentCourses.continueProgressDiscoverSkills')}
+        buttonText={t('studentCourses.exploreCourses')}
         onButtonClick={() => navigate('/courses')}
       />
       <div className="space-y-6">
@@ -131,7 +144,7 @@ export const StudentCoursesPage = () => {
                   <BookOpen className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     type="text"
-                    placeholder="Search by course name or description"
+                    placeholder={t('studentCourses.searchByCourseNameOrDescription')}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10 glass"
@@ -184,14 +197,14 @@ export const StudentCoursesPage = () => {
               <div className="w-20 h-20 bg-gradient-to-br from-primary-500/20 to-secondary-500/20 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-glow-pulse">
                 <BookOpen className="h-10 w-10 text-primary-400" />
               </div>
-              <h3 className="text-xl font-semibold mb-3 gradient-text">No courses found</h3>
+              <h3 className="text-xl font-semibold mb-3 gradient-text">{t('studentCourses.noCoursesFound')}</h3>
               <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                Try adjusting your search criteria or explore different categories.
+                {t('studentCourses.tryAdjustingSearchCriteria')}
               </p>
               <Link to="/courses">
                 <Button className="btn-primary">
                   <Sparkles className="h-4 w-4 mr-2" />
-                  Browse Courses
+                  {t('studentCourses.browseCourses')}
                 </Button>
               </Link>
             </CardContent>
@@ -199,7 +212,7 @@ export const StudentCoursesPage = () => {
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {filteredCourses.map((enrollment) => (
-              <StudentCourseCardWithProgress key={enrollment.id} enrollment={enrollment} userId={user?.id} />
+              <StudentCourseCardWithProgress key={enrollment.id} enrollment={enrollment} userId={supabaseUser?.id} />
             ))}
           </div>
         )}

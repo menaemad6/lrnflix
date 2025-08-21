@@ -14,6 +14,7 @@ import {
   Headphones
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 interface QuizVoiceTutorModalProps {
   isOpen: boolean;
@@ -30,6 +31,7 @@ export const QuizVoiceTutorModal = ({
   userAnswer,
   correctAnswer
 }: QuizVoiceTutorModalProps) => {
+  const { t } = useTranslation('courses');
   const [isConnected, setIsConnected] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -53,7 +55,7 @@ export const QuizVoiceTutorModal = ({
         <DialogHeader>
           <DialogTitle className="text-white flex items-center">
             <Bot className="h-5 w-5 mr-2 text-blue-400" />
-            AI Quiz Tutor
+            {t('aiVoiceTutor.aiQuizTutor')}
           </DialogTitle>
         </DialogHeader>
 
@@ -62,19 +64,19 @@ export const QuizVoiceTutorModal = ({
           <Card className="bg-slate-800/50 border-slate-700">
             <CardContent className="p-4 space-y-3">
               <div>
-                <Badge className="bg-blue-500/20 text-blue-300 mb-2">Question</Badge>
+                <Badge className="bg-blue-500/20 text-blue-300 mb-2">{t('aiVoiceTutor.question')}</Badge>
                 <p className="text-gray-300 text-sm">{question}</p>
               </div>
               
               {userAnswer && (
                 <div>
-                  <Badge className="bg-orange-500/20 text-orange-300 mb-2">Your Answer</Badge>
+                  <Badge className="bg-orange-500/20 text-orange-300 mb-2">{t('aiVoiceTutor.yourAnswer')}</Badge>
                   <p className="text-gray-300 text-sm">{userAnswer}</p>
                 </div>
               )}
               
               <div>
-                <Badge className="bg-green-500/20 text-green-300 mb-2">Correct Answer</Badge>
+                <Badge className="bg-green-500/20 text-green-300 mb-2">{t('aiVoiceTutor.correctAnswer')}</Badge>
                 <p className="text-gray-300 text-sm">{correctAnswer}</p>
               </div>
             </CardContent>
@@ -89,9 +91,9 @@ export const QuizVoiceTutorModal = ({
                     <Headphones className="h-8 w-8 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-white font-medium mb-2">Connect with AI Tutor</h3>
+                    <h3 className="text-white font-medium mb-2">{t('aiVoiceTutor.connectWithAiTutor')}</h3>
                     <p className="text-gray-400 text-sm mb-4">
-                      Get personalized explanation and practice with voice interaction
+                      {t('aiVoiceTutor.connectWithAiTutorDescription')}
                     </p>
                   </div>
                   <Button
@@ -108,7 +110,7 @@ export const QuizVoiceTutorModal = ({
                     ) : (
                       <>
                         <Phone className="h-4 w-4 mr-2" />
-                        Start Voice Session
+                        {t('aiVoiceTutor.startVoiceSession')}
                       </>
                     )}
                   </Button>
@@ -124,9 +126,9 @@ export const QuizVoiceTutorModal = ({
                   </motion.div>
                   
                   <div>
-                    <h3 className="text-white font-medium mb-2">Connected to AI Tutor</h3>
+                    <h3 className="text-white font-medium mb-2">{t('aiVoiceTutor.connectedToAiTutor')}</h3>
                     <p className="text-gray-400 text-sm">
-                      Ask questions about this topic or request explanations
+                      {t('aiVoiceTutor.connectedToAiTutorDescription')}
                     </p>
                   </div>
 
@@ -169,7 +171,7 @@ export const QuizVoiceTutorModal = ({
               className="border-gray-600 bg-gray-800 text-gray-300 text-xs"
               disabled={!isConnected}
             >
-              Explain Concept
+              {t('aiVoiceTutor.explainConcept')}
             </Button>
             <Button
               variant="outline"
@@ -177,7 +179,7 @@ export const QuizVoiceTutorModal = ({
               className="border-gray-600 bg-gray-800 text-gray-300 text-xs"
               disabled={!isConnected}
             >
-              Practice Similar
+              {t('aiVoiceTutor.practiceSimilar')}
             </Button>
           </div>
         </div>

@@ -4,8 +4,11 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Plus, Users, Gift, BarChart3, Zap, BookOpen, MessageSquare, Calendar, Target, Rocket, Brain, Palette, Video, FileText, Settings, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 export function TeacherQuickActions() {
+  const { t } = useTranslation('teacher');
+  
   return (
     <Card className="glass-card border-0 hover-glow">
       <CardHeader className="pb-4">
@@ -14,8 +17,8 @@ export function TeacherQuickActions() {
             <Rocket className="h-5 w-5 text-white" />
           </div>
           <div>
-            <CardTitle className="gradient-text text-xl">Quick Actions</CardTitle>
-            <CardDescription className="text-muted-foreground">Accelerate your teaching workflow</CardDescription>
+            <CardTitle className="gradient-text text-xl">{t('dashboard.quickActions.title')}</CardTitle>
+            <CardDescription className="text-muted-foreground">{t('dashboard.quickActions.description')}</CardDescription>
           </div>
         </div>
       </CardHeader>
@@ -25,10 +28,10 @@ export function TeacherQuickActions() {
           <Link to="/teacher/create-course">
             <Button className="w-full btn-primary justify-start group hover-glow h-12">
               <Plus className="h-5 w-5 mr-3 group-hover:rotate-90 transition-transform duration-300" />
-              <span className="font-semibold">Create New Course</span>
+              <span className="font-semibold">{t('dashboard.quickActions.createNewCourse')}</span>
               <Badge className="ml-auto bg-white/20 text-white text-xs px-2 py-1">
                 <Star className="h-3 w-3 mr-1" />
-                Featured
+                {t('dashboard.quickActions.featured')}
               </Badge>
             </Button>
           </Link>
@@ -36,10 +39,10 @@ export function TeacherQuickActions() {
           <Link to="/teacher/lessons">
             <Button className="w-full btn-secondary justify-start group hover-glow h-12">
               <BookOpen className="h-5 w-5 mr-3 group-hover:scale-110 transition-transform duration-300" />
-              <span className="font-semibold">Manage Lessons</span>
+              <span className="font-semibold">{t('dashboard.quickActions.manageLessons')}</span>
               <Badge className="ml-auto bg-primary-500/20 text-primary-400 text-xs px-2 py-1">
                 <Target className="h-3 w-3 mr-1" />
-                Active
+                {t('dashboard.quickActions.active')}
               </Badge>
             </Button>
           </Link>
@@ -50,28 +53,28 @@ export function TeacherQuickActions() {
           <Link to="/teacher/groups">
             <Button className="w-full btn-secondary justify-start group hover-glow h-10 text-sm">
               <Users className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
-              Groups
+              {t('dashboard.quickActions.groups')}
             </Button>
           </Link>
           
           <Link to="/teacher/discussions">
             <Button className="w-full btn-secondary justify-start group hover-glow h-10 text-sm">
               <MessageSquare className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
-              Discussions
+              {t('dashboard.quickActions.discussions')}
             </Button>
           </Link>
           
           <Link to="/teacher/analytics">
             <Button className="w-full btn-secondary justify-start group hover-glow h-10 text-sm">
               <BarChart3 className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
-              Analytics
+              {t('dashboard.quickActions.analytics')}
             </Button>
           </Link>
           
           <Link to="/teacher/schedule">
             <Button className="w-full btn-secondary justify-start group hover-glow h-10 text-sm">
               <Calendar className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
-              Schedule
+              {t('dashboard.quickActions.schedule')}
             </Button>
           </Link>
         </div>
@@ -81,21 +84,21 @@ export function TeacherQuickActions() {
           <Link to="/teacher/codes">
             <Button variant="outline" className="w-full justify-start group hover-glow h-9 text-xs">
               <Gift className="h-3 w-3 mr-1 group-hover:rotate-12 transition-transform duration-300" />
-              Codes
+              {t('dashboard.quickActions.codes')}
             </Button>
           </Link>
           
           <Link to="/teacher/quizzes">
             <Button variant="outline" className="w-full justify-start group hover-glow h-9 text-xs">
               <Target className="h-3 w-3 mr-1 group-hover:scale-110 transition-transform duration-300" />
-              Quizzes
+              {t('dashboard.quickActions.quizzes')}
             </Button>
           </Link>
           
           <Link to="/teacher/settings">
             <Button variant="outline" className="w-full justify-start group hover-glow h-9 text-xs">
               <Settings className="h-3 w-3 mr-1 group-hover:rotate-12 transition-transform duration-300" />
-              Settings
+              {t('dashboard.quickActions.settings')}
             </Button>
           </Link>
         </div>

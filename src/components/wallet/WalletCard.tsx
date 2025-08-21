@@ -9,6 +9,7 @@ import { Wallet, Gift, Sparkles, TrendingUp, Clock } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 interface RedemptionResponse {
   success: boolean;
@@ -18,6 +19,7 @@ interface RedemptionResponse {
 
 export const WalletCard = () => {
   const { toast } = useToast();
+  const { t } = useTranslation('dashboard');
   const user = useSelector((state: RootState) => state.auth.user);
   const [wallet, setWallet] = useState(0);
   const [redeemCode, setRedeemCode] = useState('');
@@ -65,8 +67,8 @@ export const WalletCard = () => {
   const redeemWalletCode = async () => {
     if (!redeemCode.trim()) {
       toast({
-        title: 'Error',
-        description: 'Please enter a redemption code',
+        title: t('wallet.error'),
+        description: t('wallet.pleaseEnterCode'),
         variant: 'destructive',
       });
       return;
@@ -85,24 +87,24 @@ export const WalletCard = () => {
 
       if (result && result.success) {
         toast({
-          title: 'Success!',
-          description: `Redeemed ${result.amount} credits successfully!`,
+          title: t('wallet.success'),
+          description: t('wallet.redeemedSuccessfully', { amount: result.amount }),
         });
         setRedeemCode('');
         fetchWalletData();
         fetchRecentTransactions();
       } else {
         toast({
-          title: 'Error',
-          description: result?.error || 'Failed to redeem code',
+          title: t('wallet.error'),
+          description: result?.error || t('wallet.failedToRedeem'),
           variant: 'destructive',
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error redeeming code:', error);
       toast({
-        title: 'Error',
-        description: error.message || 'Failed to redeem code',
+        title: t('wallet.error'),
+        description: error instanceof Error ? error.message : t('wallet.errorRedeemingCode'),
         variant: 'destructive',
       });
     } finally {
@@ -120,9 +122,9 @@ export const WalletCard = () => {
               <Wallet className="h-6 w-6 text-black" />
             </div>
             <div>
-              <div className="gradient-text text-xl">My Wallet</div>
+              <div className="gradient-text text-xl">{t('wallet.title')}</div>
               <CardDescription className="text-muted-foreground/80">
-                Redeem codes to earn credits
+                {t('wallet.subtitle')}
               </CardDescription>
             </div>
           </CardTitle>
@@ -135,7 +137,7 @@ export const WalletCard = () => {
               <div className="text-4xl font-bold gradient-text mb-2">{wallet}</div>
               <div className="text-sm text-primary-400 font-medium flex items-center justify-center gap-2">
                 <Sparkles className="h-4 w-4" />
-                Credits Available
+                {t('wallet.creditsAvailable')}
               </div>
             </div>
           </div>
@@ -144,12 +146,12 @@ export const WalletCard = () => {
           <div className="space-y-4">
             <div className="flex items-center gap-2 mb-3">
               <Gift className="h-5 w-5 text-primary-400" />
-              <h3 className="text-lg font-semibold gradient-text">Redeem Code</h3>
+              <h3 className="text-lg font-semibold gradient-text">{t('wallet.redeemCode')}</h3>
             </div>
             <div className="flex gap-3">
               <Input
                 type="text"
-                placeholder="Enter redemption code"
+                placeholder={t('wallet.enterRedemptionCode')}
                 value={redeemCode}
                 onChange={(e) => setRedeemCode(e.target.value)}
                 className="glass-input border-primary-500/30 focus:border-primary-500/50"
@@ -161,7 +163,7 @@ export const WalletCard = () => {
                 className="btn-primary px-6"
               >
                 <Gift className="h-4 w-4 mr-2" />
-                Redeem
+                {t('wallet.redeem')}
               </Button>
             </div>
           </div>
@@ -172,11 +174,11 @@ export const WalletCard = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Clock className="h-5 w-5 text-primary-400" />
-                  <h4 className="text-sm font-semibold text-primary-400">Recent Activity</h4>
+                  <h4 className="text-sm font-semibold text-primary-400">{t('wallet.recentActivity')}</h4>
                 </div>
                 <Link to="/student/transactions">
                   <Button variant="ghost" size="sm" className="text-xs hover:text-primary-400">
-                    View All
+                    {t('wallet.viewAll')}
                   </Button>
                 </Link>
               </div>

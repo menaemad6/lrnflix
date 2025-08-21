@@ -16,6 +16,7 @@ import { StudentAchievements } from '@/components/student/StudentAchievements';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Link } from 'react-router-dom';
 import { Zap, Users } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface EnrolledCourse {
     id: string;
@@ -54,6 +55,7 @@ export const StudentDashboard = () => {
   const { teacher } = useTenant();
   const { data, isLoading } = useStudentDashboardData(user, teacher);
   const navigate = useNavigate();
+  const { t } = useTranslation('dashboard');
 
   if (isLoading) {
     return <StudentDashboardSkeleton />;
@@ -95,7 +97,7 @@ export const StudentDashboard = () => {
             <WalletCard />
             <Card className="glass-card border-0">
               <CardHeader>
-                <CardTitle className="gradient-text">Quick Actions</CardTitle>
+                <CardTitle className="gradient-text">{t('quick_actions')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 gap-4">
@@ -104,17 +106,17 @@ export const StudentDashboard = () => {
                       <div className="w-10 h-10 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                         <Zap className="h-5 w-5 text-purple-400" />
                       </div>
-                      <h3 className="font-medium mb-1">Buy Credits</h3>
-                      <p className="text-xs text-muted-foreground">Purchase credits for courses</p>
+                      <h3 className="font-medium mb-1">{t('buy_credits')}</h3>
+                      <p className="text-xs text-muted-foreground">{t('purchase_credits')}</p>
                     </div>
                   </Link>
-                  <Link to="/groups">
+                  <Link to="/student/groups">
                     <div className="p-4 rounded-xl hover:bg-white/5 transition-colors border border-white/10 group cursor-pointer">
                       <div className="w-10 h-10 bg-gradient-to-br from-blue-500/20 to-accent-500/20 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                         <Users className="h-5 w-5 text-blue-400" />
                       </div>
-                      <h3 className="font-medium mb-1">Study Groups</h3>
-                      <p className="text-xs text-muted-foreground">Join or create study groups</p>
+                      <h3 className="font-medium mb-1">{t('study_groups')}</h3>
+                      <p className="text-xs text-muted-foreground">{t('join_or_create_groups')}</p>
                     </div>
                   </Link>
                 </div>

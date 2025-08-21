@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { MessageSquare, BookOpen, Users, Star, Clock, TrendingUp, Award, Calendar, Eye } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface ActivityItem {
   id: string;
@@ -30,6 +31,8 @@ interface TeacherRecentActivityProps {
 }
 
 export function TeacherRecentActivity({ activities }: TeacherRecentActivityProps) {
+  const { t } = useTranslation('teacher');
+  
   const getActivityIcon = (type: string) => {
     switch (type) {
       case 'enrollment':
@@ -76,27 +79,27 @@ export function TeacherRecentActivity({ activities }: TeacherRecentActivityProps
     const diffHours = Math.ceil(diffTime / (1000 * 60 * 60));
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     
-    if (diffMinutes < 60) return `${diffMinutes}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    if (diffDays === 1) return 'Yesterday';
-    if (diffDays <= 7) return `${diffDays} days ago`;
+    if (diffMinutes < 60) return `${diffMinutes}${t('common.minutesAgo')}`;
+    if (diffHours < 24) return `${diffHours}${t('common.hoursAgo')}`;
+    if (diffDays === 1) return t('common.yesterday');
+    if (diffDays <= 7) return `${diffDays} ${t('common.daysAgo')}`;
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
 
   const getActivityDescription = (activity: ActivityItem) => {
     switch (activity.type) {
       case 'enrollment':
-        return `${activity.user?.name} enrolled in ${activity.course?.name}`;
+        return t('dashboard.recentActivity.enrollmentDescription', { userName: activity.user?.name, courseName: activity.course?.name });
       case 'discussion':
-        return `${activity.user?.name} started a discussion in ${activity.course?.name}`;
+        return t('dashboard.recentActivity.discussionDescription', { userName: activity.user?.name, courseName: activity.course?.name });
       case 'rating':
-        return `${activity.user?.name} gave ${activity.metadata?.rating} stars to ${activity.course?.name}`;
+        return t('dashboard.recentActivity.ratingDescription', { userName: activity.user?.name, rating: activity.metadata?.rating, courseName: activity.course?.name });
       case 'course_created':
-        return `You created a new course: ${activity.course?.name}`;
+        return t('dashboard.recentActivity.courseCreatedDescription', { courseName: activity.course?.name });
       case 'lesson_added':
-        return `You added ${activity.metadata?.lessonCount} lessons to ${activity.course?.name}`;
+        return t('dashboard.recentActivity.lessonAddedDescription', { lessonCount: activity.metadata?.lessonCount, courseName: activity.course?.name });
       case 'student_joined':
-        return `${activity.metadata?.studentCount} new students joined ${activity.course?.name}`;
+        return t('dashboard.recentActivity.studentJoinedDescription', { studentCount: activity.metadata?.studentCount, courseName: activity.course?.name });
       default:
         return activity.description;
     }
@@ -110,8 +113,8 @@ export function TeacherRecentActivity({ activities }: TeacherRecentActivityProps
             <Clock className="h-5 w-5 text-white" />
           </div>
           <div>
-            <CardTitle className="gradient-text text-xl">Recent Activity</CardTitle>
-            <p className="text-muted-foreground text-sm">Latest interactions and updates</p>
+            <CardTitle className="gradient-text text-xl">{t('dashboard.recentActivity.title')}</CardTitle>
+            <p className="text-muted-foreground text-sm">{t('dashboard.recentActivity.description')}</p>
           </div>
         </div>
       </CardHeader>
@@ -119,7 +122,7 @@ export function TeacherRecentActivity({ activities }: TeacherRecentActivityProps
         {activities.length === 0 ? (
           <div className="text-center py-8">
             <Clock className="w-12 h-12 mx-auto text-muted-foreground mb-3 opacity-50" />
-            <p className="text-muted-foreground">No recent activity</p>
+            <p className="text-muted-foreground">{t('dashboard.recentActivity.noActivity')}</p>
           </div>
         ) : (
           activities.slice(0, 8).map((activity) => (
@@ -200,7 +203,7 @@ export function TeacherRecentActivity({ activities }: TeacherRecentActivityProps
         {activities.length > 8 && (
           <div className="pt-3 border-t border-primary/20">
             <button className="w-full text-center text-sm text-primary hover:text-primary/80 transition-colors">
-              View all {activities.length} activities
+              {t('dashboard.recentActivity.viewAll', { count: activities.length })}
             </button>
           </div>
         )}

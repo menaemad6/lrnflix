@@ -15,6 +15,7 @@ import type { RootState } from '@/store/store';
 import ReactMarkdown from 'react-markdown';
 import { cn } from '@/lib/utils';
 import { useDailyMessagesLimit } from '@/hooks/useAiAssistantSettings';
+import { useTranslation } from 'react-i18next';
 
 interface ChatMessage {
   id: string;
@@ -158,6 +159,7 @@ async function sendMessageToGemini({ message, userRole, actionMode }: { message:
 const isArabic = (text: string) => /[\u0600-\u06FF]/.test(text);
 
 export const ChatbotSidebar = () => {
+  const { t } = useTranslation('other');
   const { isOpen, closeChatbot, openChatbot, sendSystemMessage, systemMessage } = useChatbot();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState('');
@@ -244,8 +246,8 @@ export const ChatbotSidebar = () => {
       if (currentCount >= dailyMessagesLimit) {
         setIsRateLimited(true);
         toast({
-          title: "Daily Limit Reached",
-          description: "You've reached your daily message limit. Come back tomorrow for more conversations!",
+          title: t('uiComponents.chatbot.dailyLimitReached'),
+          description: t('uiComponents.chatbot.comeBackTomorrow'),
           variant: "destructive",
         });
       }
@@ -263,8 +265,8 @@ export const ChatbotSidebar = () => {
       // Check rate limit for students before processing system message
       if (userRole === 'student' && isRateLimited) {
         toast({
-          title: "Daily Limit Reached",
-          description: "You've reached your daily message limit. Come back tomorrow for more conversations!",
+          title: t('uiComponents.chatbot.dailyLimitReached'),
+          description: t('uiComponents.chatbot.comeBackTomorrow'),
           variant: "destructive",
         });
         // Clear the system message without processing
@@ -321,7 +323,7 @@ export const ChatbotSidebar = () => {
                 const errorMessage: ChatMessage = {
                   id: generateMessageId(),
                   role: 'assistant',
-                  content: `I couldn't find a course matching "${message}". Please make sure the course name is correct and try again.`,
+                  content: t('uiComponents.chatbot.courseNotFound', { courseName: message }),
                   timestamp: new Date()
                 };
                 setMessages(prev => [...prev, errorMessage]);
@@ -334,7 +336,10 @@ export const ChatbotSidebar = () => {
           // Set pending action for confirmation
           setPendingAction({
             action: resolvedData.action as any,
-            description: `I'm about to ${resolvedData.action.replace('_', ' ')}: ${resolvedData.title || resolvedData.id}`,
+            description: t('uiComponents.chatbot.actionDescription', { 
+              action: resolvedData.action.replace('_', ' '), 
+              title: resolvedData.title || resolvedData.id 
+            }),
             data: resolvedData,
             originalMessage: message
           });
@@ -379,8 +384,8 @@ export const ChatbotSidebar = () => {
     // Check rate limit for students
     if (userRole === 'student' && isRateLimited) {
       toast({
-        title: "Daily Limit Reached",
-        description: "You've reached your daily message limit. Come back tomorrow for more conversations!",
+        title: t('uiComponents.chatbot.dailyLimitReached'),
+        description: t('uiComponents.chatbot.comeBackTomorrow'),
         variant: "destructive",
       });
       return;
@@ -410,8 +415,8 @@ export const ChatbotSidebar = () => {
       const { data: { user: currentUser } } = await supabase.auth.getUser();
       if (!currentUser) {
         toast({
-          title: "Error",
-          description: "User not authenticated",
+          title: t('uiComponents.chatbot.error'),
+          description: t('uiComponents.chatbot.userNotAuthenticated'),
           variant: "destructive",
         });
         return;
@@ -434,14 +439,14 @@ export const ChatbotSidebar = () => {
           if (createError) throw createError;
           
           toast({
-            title: "Success",
-            description: "Course created successfully!",
+            title: t('uiComponents.chatbot.success'),
+            description: t('uiComponents.chatbot.courseCreated'),
           });
           break;
 
         case 'delete_course':
           if (!pendingAction.data.id) {
-            throw new Error('Course ID is required for deletion');
+            throw new Error(t('uiComponents.chatbot.courseIdRequired', { action: 'deletion' }));
           }
           
           const { error: deleteError } = await supabase
@@ -453,14 +458,14 @@ export const ChatbotSidebar = () => {
           if (deleteError) throw deleteError;
           
           toast({
-            title: "Success",
-            description: "Course deleted successfully!",
+            title: t('uiComponents.chatbot.success'),
+            description: t('uiComponents.chatbot.courseDeleted'),
           });
           break;
 
         case 'edit_course':
           if (!pendingAction.data.id) {
-            throw new Error('Course ID is required for editing');
+            throw new Error(t('uiComponents.chatbot.courseIdRequired', { action: 'editing' }));
           }
           
           const updateData = { ...pendingAction.data };
@@ -477,15 +482,15 @@ export const ChatbotSidebar = () => {
           if (editError) throw editError;
           
           toast({
-            title: "Success",
-            description: "Course updated successfully!",
+            title: t('uiComponents.chatbot.success'),
+            description: t('uiComponents.chatbot.courseUpdated'),
           });
           break;
 
         default:
           toast({
-            title: "Info",
-            description: "Action not yet implemented",
+            title: t('uiComponents.chatbot.info'),
+            description: t('uiComponents.chatbot.actionNotImplemented'),
           });
       }
 
@@ -493,7 +498,7 @@ export const ChatbotSidebar = () => {
       const successMessage: ChatMessage = {
         id: generateMessageId(),
         role: 'assistant',
-        content: `✅ Action completed successfully: ${pendingAction.description}`,
+        content: t('uiComponents.chatbot.actionCompleted', { description: pendingAction.description }),
         timestamp: new Date()
       };
       setMessages(prev => [...prev, successMessage]);
@@ -501,8 +506,8 @@ export const ChatbotSidebar = () => {
     } catch (error: any) {
       console.error('Error executing action:', error);
       toast({
-        title: "Error",
-        description: error.message || "Failed to execute action",
+        title: t('uiComponents.chatbot.error'),
+        description: error.message || t('uiComponents.chatbot.failedToExecuteAction'),
         variant: "destructive",
       });
 
@@ -510,7 +515,7 @@ export const ChatbotSidebar = () => {
       const errorMessage: ChatMessage = {
         id: generateMessageId(),
         role: 'assistant',
-        content: `❌ Failed to execute action: ${error.message}`,
+        content: t('uiComponents.chatbot.actionFailed', { error: error.message }),
         timestamp: new Date()
       };
       setMessages(prev => [...prev, errorMessage]);
@@ -549,8 +554,10 @@ export const ChatbotSidebar = () => {
                     <Bot className="h-5 w-5 text-black" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-foreground">AI Assistant</h3>
-                    <p className="text-xs text-muted-foreground capitalize">{userRole} Helper</p>
+                    <h3 className="font-semibold text-foreground">{t('uiComponents.chatbot.aiAssistant')}</h3>
+                    <p className="text-xs text-muted-foreground capitalize">
+                      {userRole === 'teacher' ? t('uiComponents.chatbot.teacherHelper') : t('uiComponents.chatbot.studentHelper')}
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -559,7 +566,7 @@ export const ChatbotSidebar = () => {
                     size="sm"
                     onClick={clearHistory}
                     className="text-muted-foreground hover:text-primary-400 hover:bg-primary-400/10"
-                    title="Clear chat history"
+                    title={t('uiComponents.chatbot.clearChatHistory')}
                   >
                     <Sparkles className="h-4 w-4" />
                   </Button>
@@ -568,7 +575,7 @@ export const ChatbotSidebar = () => {
                     size="sm"
                     onClick={closeChatbot}
                     className="text-muted-foreground hover:text-primary-400 hover:bg-primary-400/10"
-                    title="Close chatbot"
+                    title={t('uiComponents.chatbot.closeChatbot')}
                   >
                     <X className="h-4 w-4" />
                   </Button>
@@ -583,8 +590,8 @@ export const ChatbotSidebar = () => {
                       <Zap className="h-4 w-4 text-black" />
                     </div>
                     <div>
-                      <Label htmlFor="action-mode" className="text-sm font-semibold text-foreground cursor-pointer">Action Mode</Label>
-                      <p className="text-xs text-muted-foreground">Create, edit & manage content</p>
+                      <Label htmlFor="action-mode" className="text-sm font-semibold text-foreground cursor-pointer">{t('uiComponents.chatbot.actionMode')}</Label>
+                      <p className="text-xs text-muted-foreground">{t('uiComponents.chatbot.actionModeDescription')}</p>
                     </div>
                   </div>
                   <Switch
@@ -613,13 +620,13 @@ export const ChatbotSidebar = () => {
                     </div>
                     <div>
                       <div className="text-sm font-semibold text-foreground">
-                        Daily Messages
-                        {isRateLimited && <span className="ml-2 text-red-400">(Limit Reached)</span>}
+                        {t('uiComponents.chatbot.dailyMessages')}
+                        {isRateLimited && <span className="ml-2 text-red-400">({t('uiComponents.chatbot.limitReached')})</span>}
                       </div>
                       <p className="text-xs text-muted-foreground">
                         {isRateLimited 
-                          ? 'Come back tomorrow for more conversations!' 
-                          : `${dailyMessageCount}/${dailyMessagesLimit} messages used today`
+                          ? t('uiComponents.chatbot.comeBackTomorrow') 
+                          : t('uiComponents.chatbot.messagesUsedToday', { count: dailyMessageCount, limit: dailyMessagesLimit })
                         }
                       </p>
                     </div>
@@ -640,11 +647,11 @@ export const ChatbotSidebar = () => {
                     <div className="w-16 h-16 bg-gradient-to-br from-primary-500/20 to-secondary-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
                       <Bot className="h-8 w-8 text-primary-400" />
                     </div>
-                    <h4 className="font-medium text-primary-400 mb-2">Welcome to AI Assistant!</h4>
+                    <h4 className="font-medium text-primary-400 mb-2">{t('uiComponents.chatbot.welcomeToAiAssistant')}</h4>
                     <p className="text-sm text-muted-foreground">
                       {userRole === 'teacher' ? 
-                        'Ask me anything about creating courses, managing students, or teaching strategies. Try "create a new course" or "delete RNA course".' :
-                        'Ask me anything about your courses, study tips, or learning strategies.'
+                        t('uiComponents.chatbot.teacherWelcomeMessage') :
+                        t('uiComponents.chatbot.studentWelcomeMessage')
                       }
                     </p>
                   </div>
@@ -775,10 +782,10 @@ export const ChatbotSidebar = () => {
                   onKeyPress={handleKeyPress}
                   placeholder={
                     userRole === 'student' && isRateLimited 
-                      ? "Daily limit reached. Come back tomorrow!" 
+                      ? t('uiComponents.chatbot.dailyLimitReached') 
                       : actionMode 
-                        ? `Try: "delete RNA course" or "create new course"` 
-                        : `Ask your AI ${userRole} assistant...`
+                        ? t('uiComponents.chatbot.tryActionMode') 
+                        : t('uiComponents.chatbot.askAiAssistant', { role: userRole })
                   }
                   className={`flex-1 bg-white/10 border-white/20 focus:border-primary-400 ${
                     userRole === 'student' && isRateLimited ? 'opacity-50 cursor-not-allowed' : ''
@@ -798,13 +805,13 @@ export const ChatbotSidebar = () => {
               {actionMode && (
                 <p className="text-xs text-primary-400 mt-2 flex items-center gap-1">
                   <Zap className="h-3 w-3" />
-                  Action mode enabled - I can create, edit, and manage your content by name
+                  {t('uiComponents.chatbot.actionModeEnabled')}
                 </p>
               )}
               {userRole === 'student' && isRateLimited && (
                 <p className="text-xs text-red-400 mt-2 flex items-center gap-1">
                   <MessageSquare className="h-3 w-3" />
-                  Daily message limit reached. Your limit will reset tomorrow.
+                  {t('uiComponents.chatbot.dailyMessageLimitReached')}
                 </p>
               )}
             </div>
@@ -818,24 +825,24 @@ export const ChatbotSidebar = () => {
           <AlertDialogHeader>
             <AlertDialogTitle className="gradient-text flex items-center gap-2">
               <Settings className="h-5 w-5" />
-              Confirm Action
+              {t('uiComponents.chatbot.confirmAction')}
             </AlertDialogTitle>
             <AlertDialogDescription className="text-base">
               {pendingAction?.description}
               {pendingAction?.originalMessage && (
                 <div className="mt-2 text-sm text-muted-foreground">
-                  Based on: "{pendingAction.originalMessage}"
+                  {t('uiComponents.chatbot.basedOn', { message: pendingAction.originalMessage })}
                 </div>
               )}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="btn-secondary">Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="btn-secondary">{t('uiComponents.chatbot.cancel')}</AlertDialogCancel>
             <AlertDialogAction 
               onClick={executeAction}
               className="btn-primary"
             >
-              Confirm & Execute
+              {t('uiComponents.chatbot.confirmAndExecute')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

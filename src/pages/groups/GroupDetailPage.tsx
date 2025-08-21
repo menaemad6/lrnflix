@@ -38,6 +38,7 @@ import { ObjectSharingModal } from '@/components/groups/ObjectSharingModal';
 import { SharedObjectsList } from '@/components/groups/SharedObjectsList';
 import { Switch } from '@/components/ui/switch';
 import { GroupDetailSkeleton } from '@/components/groups/skeletons';
+import { useTranslation } from 'react-i18next';
 
 interface GroupDetails {
   id: string;
@@ -88,6 +89,7 @@ export const GroupDetailPage = () => {
   const joinCode = searchParams.get('code');
   const { toast } = useToast();
   const { user } = useSelector((state: RootState) => state.auth);
+  const { t } = useTranslation('dashboard');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
   // Extract groupId from params - handle both 'groupId' and 'id' parameters
@@ -356,8 +358,8 @@ export const GroupDetailPage = () => {
         setNewMessage(messageContent);
         
         toast({
-          title: 'Error',
-          description: 'Failed to send message: ' + error.message,
+          title: t('groupDetailPage.error'),
+          description: t('groupDetailPage.failedToSendMessage', { errorMessage: error.message }),
           variant: 'destructive',
         });
         return;
@@ -390,8 +392,8 @@ export const GroupDetailPage = () => {
       setNewMessage(messageContent);
       
       toast({
-        title: 'Error',
-        description: 'Failed to send message: ' + error.message,
+        title: t('groupDetailPage.error'),
+        description: t('groupDetailPage.failedToSendMessage', { errorMessage: error.message }),
         variant: 'destructive',
       });
     }
@@ -487,8 +489,8 @@ export const GroupDetailPage = () => {
       if (membersError) {
         console.error('Members fetch error:', membersError);
         toast({
-          title: 'Warning',
-          description: 'Could not load group members',
+          title: t('groupDetailPage.warning'),
+          description: t('groupDetailPage.couldNotLoadGroupMembers'),
           variant: 'destructive',
         });
         setMembers([]);
@@ -539,8 +541,8 @@ export const GroupDetailPage = () => {
       console.error('Error in fetchGroupDetails:', error);
       setError(error.message || 'An unexpected error occurred');
       toast({
-        title: 'Error',
-        description: error.message || 'Failed to load group details',
+        title: t('groupDetailPage.error'),
+        description: error.message || t('groupDetailPage.failedToLoadGroupDetails'),
         variant: 'destructive',
       });
       setGroup(null);
@@ -642,8 +644,8 @@ export const GroupDetailPage = () => {
       if (membersError) {
         console.error('Members fetch error:', membersError);
         toast({
-          title: 'Warning',
-          description: 'Could not load group members',
+          title: t('groupDetailPage.warning'),
+          description: t('groupDetailPage.couldNotLoadGroupMembers'),
           variant: 'destructive',
         });
         setMembers([]);
@@ -697,8 +699,8 @@ export const GroupDetailPage = () => {
       console.error('Error in fetchGroupByCode:', error);
       setError(error.message || 'An unexpected error occurred');
       toast({
-        title: 'Error',
-        description: error.message || 'Failed to load group details',
+        title: t('groupDetailPage.error'),
+        description: error.message || t('groupDetailPage.failedToLoadGroupDetails'),
         variant: 'destructive',
       });
       setGroup(null);
@@ -711,8 +713,8 @@ export const GroupDetailPage = () => {
   const handleJoinWithCode = async () => {
     if (!groupCodeInput.trim()) {
       toast({
-        title: 'Error',
-        description: 'Please enter a group code',
+        title: t('groupDetailPage.error'),
+        description: t('groupDetailPage.pleaseEnterGroupCode'),
         variant: 'destructive',
       });
       return;
@@ -724,8 +726,8 @@ export const GroupDetailPage = () => {
       // Check if the entered code matches the group's code
       if (groupCodeInput.trim().toUpperCase() !== group?.group_code) {
         toast({
-          title: 'Invalid Code',
-          description: 'The group code you entered is incorrect',
+          title: t('groupDetailPage.invalidCode'),
+          description: t('groupDetailPage.enteredGroupCodeIsIncorrect'),
           variant: 'destructive',
         });
         return;
@@ -746,8 +748,8 @@ export const GroupDetailPage = () => {
 
       if (existingMember) {
         toast({
-          title: 'Already a member',
-          description: 'You are already a member of this group',
+          title: t('groupDetailPage.alreadyMember'),
+          description: t('groupDetailPage.alreadyMemberOfGroup'),
         });
         return;
       }
@@ -763,8 +765,8 @@ export const GroupDetailPage = () => {
           console.error('Error counting members:', countError);
         } else if (currentMembers && currentMembers >= group.max_members) {
           toast({
-            title: 'Group is full',
-            description: 'This group has reached its maximum capacity',
+            title: t('groupDetailPage.groupFull'),
+            description: t('groupDetailPage.groupReachedMaxCapacity'),
             variant: 'destructive',
           });
           return;
@@ -785,8 +787,8 @@ export const GroupDetailPage = () => {
       }
 
       toast({
-        title: 'Success',
-        description: `Joined group: ${group.name}`,
+        title: t('groupDetailPage.success'),
+        description: t('groupDetailPage.joinedGroup', { groupName: group.name }),
       });
 
       // Hide the code input and refresh data
@@ -800,8 +802,8 @@ export const GroupDetailPage = () => {
     } catch (error: any) {
       console.error('Error joining group with code:', error);
       toast({
-        title: 'Error',
-        description: error.message || 'Failed to join group',
+        title: t('groupDetailPage.error'),
+        description: error.message || t('groupDetailPage.failedToJoinGroup'),
         variant: 'destructive',
       });
     }
@@ -828,8 +830,8 @@ export const GroupDetailPage = () => {
 
       if (existingMember) {
         toast({
-          title: 'Already a member',
-          description: 'You are already a member of this group',
+          title: t('groupDetailPage.alreadyMember'),
+          description: t('groupDetailPage.alreadyMemberOfGroup'),
         });
         return;
       }
@@ -845,8 +847,8 @@ export const GroupDetailPage = () => {
           console.error('Error counting members:', countError);
         } else if (currentMembers && currentMembers >= group.max_members) {
           toast({
-            title: 'Group is full',
-            description: 'This group has reached its maximum capacity',
+            title: t('groupDetailPage.groupFull'),
+            description: t('groupDetailPage.groupReachedMaxCapacity'),
             variant: 'destructive',
           });
           return;
@@ -867,8 +869,8 @@ export const GroupDetailPage = () => {
       }
 
       toast({
-        title: 'Success',
-        description: `Joined group: ${group.name}`,
+        title: t('groupDetailPage.success'),
+        description: t('groupDetailPage.joinedGroup', { groupName: group.name }),
       });
 
       // Remove ?code=... from the URL if present
@@ -885,8 +887,8 @@ export const GroupDetailPage = () => {
     } catch (error: any) {
       console.error('Error joining group:', error);
       toast({
-        title: 'Error',
-        description: error.message || 'Failed to join group',
+        title: t('groupDetailPage.error'),
+        description: error.message || t('groupDetailPage.failedToJoinGroup'),
         variant: 'destructive',
       });
     }
@@ -906,8 +908,8 @@ export const GroupDetailPage = () => {
       if (error) throw error;
 
       toast({
-        title: 'Success',
-        description: 'Left the group',
+        title: t('groupDetailPage.success'),
+        description: t('groupDetailPage.leftGroup'),
       });
 
       setShowLeaveConfirmation(false);
@@ -915,7 +917,7 @@ export const GroupDetailPage = () => {
     } catch (error: any) {
       console.error('Error leaving group:', error);
       toast({
-        title: 'Error',
+        title: t('groupDetailPage.error'),
         description: error.message,
         variant: 'destructive',
       });
@@ -925,16 +927,16 @@ export const GroupDetailPage = () => {
   const handleImageUploaded = (image: UploadedImage) => {
     setUploadedImage(image);
     toast({
-      title: 'Success',
-      description: 'Group thumbnail uploaded successfully!',
+      title: t('groupDetailPage.success'),
+      description: t('groupDetailPage.groupThumbnailUploadedSuccessfully'),
     });
   };
 
   const handleImageDeleted = (path: string) => {
     setUploadedImage(null);
     toast({
-      title: 'Success',
-      description: 'Group thumbnail removed',
+      title: t('groupDetailPage.success'),
+      description: t('groupDetailPage.groupThumbnailRemoved'),
     });
   };
 
@@ -956,8 +958,8 @@ export const GroupDetailPage = () => {
       if (error) throw error;
 
       toast({
-        title: 'Success',
-        description: 'Group settings updated successfully!',
+        title: t('groupDetailPage.success'),
+        description: t('groupDetailPage.groupSettingsUpdatedSuccessfully'),
       });
 
       // Refresh group data
@@ -967,8 +969,8 @@ export const GroupDetailPage = () => {
     } catch (error: any) {
       console.error('Error updating group:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to update group settings',
+        title: t('groupDetailPage.error'),
+        description: t('groupDetailPage.failedToUpdateGroupSettings'),
         variant: 'destructive',
       });
     }
@@ -979,8 +981,8 @@ export const GroupDetailPage = () => {
     const link = `${window.location.origin}/groups/${group.id}?code=${group.group_code}`;
     navigator.clipboard.writeText(link);
     toast({
-      title: 'Copied!',
-      description: 'Group invitation link copied to clipboard',
+      title: t('groupDetailPage.copied'),
+      description: t('groupDetailPage.groupInvitationLinkCopiedToClipboard'),
     });
   };
 
@@ -1002,8 +1004,8 @@ export const GroupDetailPage = () => {
   const handleObjectShared = () => {
     setObjectRefreshTrigger(prev => prev + 1);
     toast({
-      title: 'Success',
-      description: 'Object shared with the group!',
+      title: t('groupDetailPage.success'),
+      description: t('groupDetailPage.objectSharedWithGroup'),
     });
   };
 
@@ -1017,10 +1019,10 @@ export const GroupDetailPage = () => {
         .eq('group_id', groupId)
         .eq('student_id', studentId);
       if (error) throw error;
-      toast({ title: 'Removed', description: `${studentName} removed from group.` });
+      toast({ title: t('groupDetailPage.removed'), description: `${studentName} removed from group.` });
       fetchGroupDetails();
     } catch (error: any) {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      toast({ title: t('groupDetailPage.error'), description: error.message, variant: 'destructive' });
     }
   };
 
@@ -1048,10 +1050,10 @@ export const GroupDetailPage = () => {
             <div className="w-16 h-16 mx-auto mb-4 bg-destructive/10 rounded-full flex items-center justify-center">
               <Users className="w-8 h-8 text-destructive" />
             </div>
-            <h2 className="text-xl font-semibold mb-2">Error Loading Group</h2>
+            <h2 className="text-xl font-semibold mb-2">{t('groupDetailPage.errorLoadingGroup')}</h2>
             <p className="text-muted-foreground mb-4">{error}</p>
             <Button onClick={() => navigate(userRole === 'teacher' ? '/teacher/groups' : '/student/groups')}>
-              Back to Groups
+              {t('groupDetailPage.backToGroups')}
             </Button>
           </CardContent>
         </Card>
@@ -1067,10 +1069,10 @@ export const GroupDetailPage = () => {
             <div className="w-16 h-16 mx-auto mb-4 bg-destructive/10 rounded-full flex items-center justify-center">
               <Users className="w-8 h-8 text-destructive" />
             </div>
-            <h2 className="text-xl font-semibold mb-2">Group not found</h2>
-            <p className="text-muted-foreground mb-4">This group may have been deleted or you don't have access.</p>
+            <h2 className="text-xl font-semibold mb-2">{t('groupDetailPage.groupNotFound')}</h2>
+            <p className="text-muted-foreground mb-4">{t('groupDetailPage.groupMayHaveBeenDeletedOrYouDoNotHaveAccess')}</p>
             <Button onClick={() => navigate(userRole === 'teacher' ? '/teacher/groups' : '/student/groups')}>
-              Back to Groups
+              {t('groupDetailPage.backToGroups')}
             </Button>
           </CardContent>
         </Card>
@@ -1115,7 +1117,7 @@ export const GroupDetailPage = () => {
                   <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-muted-foreground text-sm sm:text-base">
                     <div className="flex items-center gap-2">
                       <Users className="w-4 h-4 flex-shrink-0" />
-                      <span>{members.length} members</span>
+                      <span>{members.length} {t('groupDetailPage.members')}</span>
                     </div>
                     {showGroupCodeAndShare && (userRole === 'teacher' || isOwner || group.is_code_visible) && (
                       <div className="flex items-center gap-2">
@@ -1133,15 +1135,15 @@ export const GroupDetailPage = () => {
             {isMember && showObjectSharingButton && (
               <Button onClick={() => setShowObjectSharing(true)} size="sm" className="text-xs sm:text-sm">
                 <Plus className="w-4 h-4 mr-1 sm:mr-2" />
-                <span className="hidden sm:inline">Share Object</span>
-                <span className="sm:hidden">Share</span>
+                <span className="hidden sm:inline">{t('groupDetailPage.shareObject')}</span>
+                <span className="sm:hidden">{t('groupDetailPage.share')}</span>
               </Button>
             )}
             {isOwner && (
               <Button variant="outline" onClick={() => setShowSettings(true)} size="sm" className="text-xs sm:text-sm">
                 <Settings className="w-4 h-4 mr-1 sm:mr-2" />
-                <span className="hidden sm:inline">Settings</span>
-                <span className="sm:hidden">Settings</span>
+                <span className="hidden sm:inline">{t('groupDetailPage.settings')}</span>
+                <span className="sm:hidden">{t('groupDetailPage.settings')}</span>
               </Button>
             )}
           </div>
@@ -1155,13 +1157,13 @@ export const GroupDetailPage = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-3">
                   <Shield className="w-5 h-5" />
-                  Group Information
+                  {t('groupDetailPage.groupInformation')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 {group.description && (
                   <div>
-                    <h4 className="font-semibold mb-2">Description</h4>
+                    <h4 className="font-semibold mb-2">{t('groupDetailPage.description')}</h4>
                     <p className="text-muted-foreground">{group.description}</p>
                   </div>
                 )}
@@ -1169,7 +1171,7 @@ export const GroupDetailPage = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {showGroupCodeAndShare && (userRole === 'teacher' || isOwner || group.is_code_visible) && (
                     <div>
-                      <h4 className="font-semibold mb-2">Group Code</h4>
+                      <h4 className="font-semibold mb-2">{t('groupDetailPage.groupCode')}</h4>
                       <Badge 
                         className="cursor-pointer break-all"
                         onClick={() => navigator.clipboard.writeText(group.group_code)}
@@ -1181,7 +1183,7 @@ export const GroupDetailPage = () => {
                     </div>
                   )}
                   <div>
-                    <h4 className="font-semibold mb-2">Members</h4>
+                    <h4 className="font-semibold mb-2">{t('groupDetailPage.members')}</h4>
                     <div className="text-2xl font-bold text-primary">
                       {members.length}{group.max_members ? `/${group.max_members}` : ''}
                     </div>
@@ -1189,7 +1191,7 @@ export const GroupDetailPage = () => {
                 </div>
 
                 <div>
-                  <h4 className="font-semibold mb-2">Created</h4>
+                  <h4 className="font-semibold mb-2">{t('groupDetailPage.created')}</h4>
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <Calendar className="w-4 h-4" />
                     <span>{new Date(group.created_at).toLocaleDateString('en-US', { 
@@ -1204,8 +1206,8 @@ export const GroupDetailPage = () => {
                   {showGroupCodeAndShare && (userRole === 'teacher' || isOwner || group.is_code_visible) && (
                     <Button onClick={copyGroupLink} size="sm" className="text-xs sm:text-sm">
                       <LinkIcon className="w-4 h-4 mr-1 sm:mr-2" />
-                      <span className="hidden sm:inline">Share Link</span>
-                      <span className="sm:hidden">Share</span>
+                      <span className="hidden sm:inline">{t('groupDetailPage.shareLink')}</span>
+                      <span className="sm:hidden">{t('groupDetailPage.share')}</span>
                     </Button>
                   )}
                   
@@ -1216,8 +1218,8 @@ export const GroupDetailPage = () => {
                         // Public group - direct join
                         <Button onClick={handleJoinGroup} size="sm" className="text-xs sm:text-sm">
                           <Plus className="w-4 h-4 mr-1 sm:mr-2" />
-                          <span className="hidden sm:inline">Join Group</span>
-                          <span className="sm:hidden">Join</span>
+                          <span className="hidden sm:inline">{t('groupDetailPage.joinGroup')}</span>
+                          <span className="sm:hidden">{t('groupDetailPage.join')}</span>
                         </Button>
                       ) : (
                         // Private group - show code input
@@ -1225,13 +1227,13 @@ export const GroupDetailPage = () => {
                           {!showCodeInput ? (
                             <Button onClick={() => setShowCodeInput(true)} size="sm" className="text-xs sm:text-sm">
                               <Hash className="w-4 h-4 mr-1 sm:mr-2" />
-                              <span className="hidden sm:inline">Enter Code to Join</span>
-                              <span className="sm:hidden">Enter Code</span>
+                              <span className="hidden sm:inline">{t('groupDetailPage.enterCodeToJoin')}</span>
+                              <span className="sm:hidden">{t('groupDetailPage.enterCode')}</span>
                             </Button>
                           ) : (
                             <div className="flex gap-2 items-center">
                               <Input
-                                placeholder="Enter group code"
+                                placeholder={t('groupDetailPage.enterGroupCode')}
                                 value={groupCodeInput}
                                 onChange={(e) => setGroupCodeInput(e.target.value.toUpperCase())}
                                 className="w-32 text-center font-mono text-sm"
@@ -1239,8 +1241,8 @@ export const GroupDetailPage = () => {
                               />
                               <Button onClick={handleJoinWithCode} size="sm" className="text-xs sm:text-sm">
                                 <UserCheck className="w-4 h-4 mr-1 sm:mr-2" />
-                                <span className="hidden sm:inline">Join</span>
-                                <span className="sm:hidden">Join</span>
+                                <span className="hidden sm:inline">{t('groupDetailPage.join')}</span>
+                                <span className="sm:hidden">{t('groupDetailPage.join')}</span>
                               </Button>
                               <Button 
                                 variant="outline" 
@@ -1251,7 +1253,7 @@ export const GroupDetailPage = () => {
                                 size="sm" 
                                 className="text-xs sm:text-sm"
                               >
-                                Cancel
+                                {t('groupDetailPage.cancel')}
                               </Button>
                             </div>
                           )}
@@ -1262,8 +1264,8 @@ export const GroupDetailPage = () => {
                   
                   {isMember && !isOwner && (
                     <Button variant="destructive" onClick={() => setShowLeaveConfirmation(true)} size="sm" className="text-xs sm:text-sm">
-                      <span className="hidden sm:inline">Leave Group</span>
-                      <span className="sm:hidden">Leave</span>
+                      <span className="hidden sm:inline">{t('groupDetailPage.leaveGroup')}</span>
+                      <span className="sm:hidden">{t('groupDetailPage.leave')}</span>
                     </Button>
                   )}
                 </div>
@@ -1276,7 +1278,7 @@ export const GroupDetailPage = () => {
                 <CardHeader className="pb-3 flex-shrink-0">
                   <CardTitle className="flex items-center gap-2">
                     <MessageCircle className="w-5 h-5" />
-                    Group Chat
+                    {t('groupDetailPage.groupChat')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="flex-1 flex flex-col p-0 min-h-0">
@@ -1286,8 +1288,8 @@ export const GroupDetailPage = () => {
                       {messages.length === 0 ? (
                         <div className="text-center py-8">
                           <MessageCircle className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                          <h3 className="text-lg font-semibold mb-2">Start the conversation!</h3>
-                          <p className="text-muted-foreground">Be the first to send a message in this group</p>
+                          <h3 className="text-lg font-semibold mb-2">{t('groupDetailPage.startConversation')}</h3>
+                          <p className="text-muted-foreground">{t('groupDetailPage.firstMessageInGroup')}</p>
                         </div>
                       ) : (
                         messages.map((message, index) => {
@@ -1317,7 +1319,7 @@ export const GroupDetailPage = () => {
                                 <div className={`max-w-xs lg:max-w-md ${isCurrentUser ? 'order-1' : ''}`}>
                                   {!isCurrentUser && (
                                     <div className="text-xs text-muted-foreground mb-1">
-                                      {message.author_name || 'Unknown User'}
+                                      {message.author_name || t('groupDetailPage.unknownUser')}
                                     </div>
                                   )}
                                   <div className={`rounded-lg px-3 py-2 break-words ${
@@ -1357,7 +1359,7 @@ export const GroupDetailPage = () => {
                   <div className="border-t p-4 flex-shrink-0">
                     <form onSubmit={sendMessage} className="flex gap-2">
                       <Input
-                        placeholder="Type your message..."
+                        placeholder={t('groupDetailPage.typeMessage')}
                         value={newMessage}
                         onChange={(e) => setNewMessage(e.target.value)}
                         className="flex-1"
@@ -1382,7 +1384,7 @@ export const GroupDetailPage = () => {
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <Users className="w-5 h-5" />
-                      Members ({members.length})
+                      {t('groupDetailPage.members')} ({members.length})
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -1407,7 +1409,7 @@ export const GroupDetailPage = () => {
                                 )}
                               </div>
                               <p className="text-sm text-muted-foreground">
-                                Joined {new Date(member.joined_at).toLocaleDateString()}
+                                {t('groupDetailPage.joined', { date: new Date(member.joined_at).toLocaleDateString() })}
                               </p>
                             </div>
                             {userRole === 'teacher' && member.student_id !== group.created_by && (
@@ -1415,7 +1417,7 @@ export const GroupDetailPage = () => {
                                 size="icon"
                                 variant="destructive"
                                 onClick={() => handleRemoveStudent(member.student_id, member.profile?.full_name || member.profile?.email || 'User')}
-                                title="Remove from group"
+                                title={t('groupDetailPage.removeFromGroup')}
                               >
                                 <UserMinus className="h-4 w-4" />
                               </Button>
@@ -1426,7 +1428,7 @@ export const GroupDetailPage = () => {
                         {members.length === 0 && (
                           <div className="text-center py-8">
                             <Users className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                            <p className="text-muted-foreground">No members yet</p>
+                            <p className="text-muted-foreground">{t('groupDetailPage.noMembersYet')}</p>
                           </div>
                         )}
                       </div>
@@ -1441,7 +1443,7 @@ export const GroupDetailPage = () => {
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <Share2 className="w-5 h-5" />
-                      Shared Objects
+                      {t('groupDetailPage.sharedObjects')}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -1467,14 +1469,14 @@ export const GroupDetailPage = () => {
          <Dialog open={showSettings} onOpenChange={setShowSettings}>
            <DialogContent className="max-w-5xl max-h-[95vh] overflow-hidden p-0">
              <DialogHeader className="px-6 py-4 border-b">
-               <DialogTitle className="text-xl font-semibold">Group Settings</DialogTitle>
+               <DialogTitle className="text-xl font-semibold">{t('groupDetailPage.groupSettings')}</DialogTitle>
              </DialogHeader>
              <div className="overflow-y-auto max-h-[calc(95vh-140px)] px-6 py-4">
                <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
                  {/* Left Column - Basic Settings */}
                  <div className="space-y-6">
                    <div>
-                     <label className="block text-sm font-medium mb-2">Group Name</label>
+                     <label className="block text-sm font-medium mb-2">{t('groupDetailPage.groupName')}</label>
                      <Input
                        value={groupSettings.name}
                        onChange={(e) => setGroupSettings({ ...groupSettings, name: e.target.value })}
@@ -1483,7 +1485,7 @@ export const GroupDetailPage = () => {
                    </div>
                    
                    <div>
-                     <label className="block text-sm font-medium mb-2">Description</label>
+                     <label className="block text-sm font-medium mb-2">{t('groupDetailPage.description')}</label>
                      <Textarea
                        value={groupSettings.description}
                        onChange={(e) => setGroupSettings({ ...groupSettings, description: e.target.value })}
@@ -1493,12 +1495,12 @@ export const GroupDetailPage = () => {
                    </div>
                    
                    <div>
-                     <label className="block text-sm font-medium mb-2">Max Members</label>
+                     <label className="block text-sm font-medium mb-2">{t('groupDetailPage.maxMembers')}</label>
                      <Input
                        type="number"
                        value={groupSettings.max_members}
                        onChange={(e) => setGroupSettings({ ...groupSettings, max_members: e.target.value })}
-                       placeholder="No limit"
+                       placeholder={t('groupDetailPage.noLimit')}
                        min="1"
                        className="w-full"
                      />
@@ -1506,12 +1508,12 @@ export const GroupDetailPage = () => {
 
                    {/* Privacy Settings */}
                    <div className="space-y-4">
-                     <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Privacy Settings</h3>
+                     <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">{t('groupDetailPage.privacySettings')}</h3>
                      
                      <div className="flex items-center justify-between p-4 rounded-lg border bg-card/50 hover:bg-card/70 transition-colors">
                        <div className="space-y-1">
-                         <label htmlFor="is_public_setting" className="text-sm font-medium">Make group public</label>
-                         <p className="text-xs text-muted-foreground">Anyone can see and join this group</p>
+                         <label htmlFor="is_public_setting" className="text-sm font-medium">{t('groupDetailPage.makeGroupPublic')}</label>
+                         <p className="text-xs text-muted-foreground">{t('groupDetailPage.anyoneCanSeeAndJoinGroup')}</p>
                        </div>
                        <Switch
                          id="is_public_setting"
@@ -1522,8 +1524,8 @@ export const GroupDetailPage = () => {
                      
                      <div className="flex items-center justify-between p-4 rounded-lg border bg-card/50 hover:bg-card/70 transition-colors">
                        <div className="space-y-1">
-                         <label htmlFor="is_code_visible_setting" className="text-sm font-medium">Show group code</label>
-                         <p className="text-xs text-muted-foreground">Students can see the group invitation code</p>
+                         <label htmlFor="is_code_visible_setting" className="text-sm font-medium">{t('groupDetailPage.showGroupCode')}</label>
+                         <p className="text-xs text-muted-foreground">{t('groupDetailPage.studentsCanSeeGroupInvitationCode')}</p>
                        </div>
                        <Switch
                          id="is_code_visible_setting"
@@ -1534,8 +1536,8 @@ export const GroupDetailPage = () => {
                      
                      <div className="flex items-center justify-between p-4 rounded-lg border bg-card/50 hover:bg-card/70 transition-colors">
                        <div className="space-y-1">
-                         <label htmlFor="is_members_visible_setting" className="text-sm font-medium">Show members</label>
-                         <p className="text-xs text-muted-foreground">Students can see who's in the group</p>
+                         <label htmlFor="is_members_visible_setting" className="text-sm font-medium">{t('groupDetailPage.showMembers')}</label>
+                         <p className="text-xs text-muted-foreground">{t('groupDetailPage.studentsCanSeeGroupMembers')}</p>
                        </div>
                        <Switch
                          id="is_members_visible_setting"
@@ -1550,7 +1552,7 @@ export const GroupDetailPage = () => {
                  <div className="space-y-6">
                    {/* Current Thumbnail Display */}
                    <div>
-                     <label className="block text-sm font-medium mb-2">Current Thumbnail</label>
+                     <label className="block text-sm font-medium mb-2">{t('groupDetailPage.currentThumbnail')}</label>
                      <div className="w-full h-48 overflow-hidden rounded-xl border border-input bg-card/50 hover:bg-card/70 transition-colors">
                        {group?.thumbnail_url ? (
                          <img
@@ -1562,7 +1564,7 @@ export const GroupDetailPage = () => {
                          <div className="w-full h-full bg-gradient-to-br from-primary/10 via-secondary/10 to-muted/20 flex items-center justify-center">
                            <div className="text-center">
                              <Sparkles className="w-16 h-16 text-primary/60 mx-auto mb-2" />
-                             <p className="text-sm text-muted-foreground">No thumbnail set</p>
+                             <p className="text-sm text-muted-foreground">{t('groupDetailPage.noThumbnailSet')}</p>
                            </div>
                          </div>
                        )}
@@ -1571,7 +1573,7 @@ export const GroupDetailPage = () => {
 
                    {/* Thumbnail Uploader */}
                    <div>
-                     <label className="block text-sm font-medium mb-2">Update Thumbnail</label>
+                     <label className="block text-sm font-medium mb-2">{t('groupDetailPage.updateThumbnail')}</label>
                      <ImageUploader
                        bucket={IMAGE_UPLOAD_BUCKETS.GROUPS_THUMBNAILS}
                        folder="groups"
@@ -1581,40 +1583,40 @@ export const GroupDetailPage = () => {
                        onImageDeleted={handleImageDeleted}
                        onError={(error) => {
                          toast({
-                           title: 'Error',
+                           title: t('groupDetailPage.error'),
                            description: error,
                            variant: 'destructive',
                          });
                        }}
                        variant="compact"
                        size="sm"
-                       placeholder="Upload group thumbnail"
+                       placeholder={t('groupDetailPage.uploadGroupThumbnail')}
                      />
                      <p className="text-xs text-muted-foreground mt-2">
-                       Recommended size: 800x600px. Max file size: 5MB.
+                       {t('groupDetailPage.recommendedSize', { width: 800, height: 600, maxSize: 5 })}
                      </p>
                    </div>
 
                    {/* Group Stats */}
                    <div className="space-y-3">
-                     <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Group Information</h3>
+                     <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">{t('groupDetailPage.groupInformation')}</h3>
                      
                      <div className="grid grid-cols-2 gap-3">
                        <div className="p-4 rounded-lg border bg-card/50 text-center hover:bg-card/70 transition-colors">
                          <div className="text-2xl font-bold text-primary">{members.length}</div>
-                         <div className="text-xs text-muted-foreground">Current Members</div>
+                         <div className="text-xs text-muted-foreground">{t('groupDetailPage.currentMembers')}</div>
                        </div>
                        
                        <div className="p-4 rounded-lg border bg-card/50 text-center hover:bg-card/70 transition-colors">
                          <div className="text-2xl font-bold text-secondary">
                            {group?.max_members || '∞'}
                          </div>
-                         <div className="text-xs text-muted-foreground">Max Members</div>
+                         <div className="text-xs text-muted-foreground">{t('groupDetailPage.maxMembers')}</div>
                        </div>
                      </div>
                      
                      <div className="p-4 rounded-lg border bg-card/50 hover:bg-card/70 transition-colors">
-                       <div className="text-sm text-muted-foreground">Created</div>
+                       <div className="text-sm text-muted-foreground">{t('groupDetailPage.created')}</div>
                        <div className="font-medium">
                          {group?.created_at ? new Date(group.created_at).toLocaleDateString() : 'Unknown'}
                        </div>
@@ -1625,12 +1627,8 @@ export const GroupDetailPage = () => {
 
                {/* Action Buttons - Full Width */}
                <div className="flex gap-3 pt-6 mt-6 border-t">
-                 <Button onClick={handleUpdateGroup} className="flex-1 h-11">
-                   Save Changes
-                 </Button>
-                 <Button variant="outline" onClick={() => setShowSettings(false)} className="flex-1 h-11">
-                   Cancel
-                 </Button>
+                 <Button onClick={handleUpdateGroup} className="flex-1 h-11">{t('groupDetailPage.saveChanges')}</Button>
+                 <Button variant="outline" onClick={() => setShowSettings(false)} className="flex-1 h-11">{t('groupDetailPage.cancel')}</Button>
                </div>
              </div>
            </DialogContent>
@@ -1640,20 +1638,17 @@ export const GroupDetailPage = () => {
          <Dialog open={showLeaveConfirmation} onOpenChange={setShowLeaveConfirmation}>
            <DialogContent>
              <DialogHeader>
-               <DialogTitle className="text-destructive">Leave Group</DialogTitle>
+               <DialogTitle className="text-destructive">{t('groupDetailPage.leaveGroup')}</DialogTitle>
              </DialogHeader>
              <div className="space-y-4">
                <p className="text-muted-foreground">
-                 Are you sure you want to leave <span className="font-semibold text-foreground">{group?.name}</span>? 
-                 You will lose access to the group chat and shared objects.
+                 {t('groupDetailPage.leaveGroupConfirmation', { groupName: group?.name })}
                </p>
                <div className="flex gap-3 pt-4">
                  <Button variant="destructive" onClick={handleLeaveGroup}>
-                   Leave Group
+                   {t('groupDetailPage.leaveGroup')}
                  </Button>
-                 <Button variant="outline" onClick={() => setShowLeaveConfirmation(false)}>
-                   Cancel
-                 </Button>
+                 <Button variant="outline" onClick={() => setShowLeaveConfirmation(false)}>{t('groupDetailPage.cancel')}</Button>
                </div>
              </div>
            </DialogContent>

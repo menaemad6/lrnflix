@@ -17,6 +17,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, HelpCircle, Users, Eye, EyeOff, Sparkles } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { RootState } from '@/store/store';
 
 interface CreateQuestionModalProps {
@@ -32,6 +33,7 @@ export const CreateQuestionModal: React.FC<CreateQuestionModalProps> = ({
 }) => {
   const { toast } = useToast();
   const { user } = useSelector((state: RootState) => state.auth);
+  const { t } = useTranslation('other');
   const [loading, setLoading] = useState(false);
   const [generatingTitle, setGeneratingTitle] = useState(false);
   const [formData, setFormData] = useState({
@@ -46,7 +48,7 @@ export const CreateQuestionModal: React.FC<CreateQuestionModalProps> = ({
     if (!user) {
       toast({
         title: 'Error',
-        description: 'You must be logged in to ask a question',
+        description: t('questionsPage.error.mustBeLoggedIn'),
         variant: 'destructive',
       });
       return;
@@ -55,7 +57,7 @@ export const CreateQuestionModal: React.FC<CreateQuestionModalProps> = ({
     if (!formData.content.trim()) {
       toast({
         title: 'Error',
-        description: 'Please enter your question',
+        description: t('questionsPage.error.pleaseEnterQuestion'),
         variant: 'destructive',
       });
       return;
@@ -94,7 +96,7 @@ export const CreateQuestionModal: React.FC<CreateQuestionModalProps> = ({
 
       toast({
         title: 'Success',
-        description: 'Your question has been posted successfully!',
+        description: t('questionsPage.success.questionPosted'),
       });
 
       setFormData({
@@ -108,7 +110,7 @@ export const CreateQuestionModal: React.FC<CreateQuestionModalProps> = ({
       console.error('Error creating question:', error);
       toast({
         title: 'Error',
-        description: 'Failed to post question. Please try again.',
+        description: t('questionsPage.error.failedToPost'),
         variant: 'destructive',
       });
     } finally {
@@ -122,24 +124,23 @@ export const CreateQuestionModal: React.FC<CreateQuestionModalProps> = ({
       <DialogContent className="sm:max-w-2xl glass-card border-0">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-2xl gradient-text">
-            <HelpCircle className="h-6 w-6" />
-            Ask a Question
+            {t('questionsPage.createModal.title')}
           </DialogTitle>
           <DialogDescription className="text-muted-foreground">
-            Share your question with the community. Our AI will automatically generate a professional title for you.
+            {t('questionsPage.createModal.description')}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="content" className="text-sm font-medium flex items-center gap-2">
-              Your Question *
+              {t('questionsPage.createModal.questionLabel')}
               <Sparkles className="h-4 w-4 text-primary" />
-              <span className="text-xs text-muted-foreground">(Title will be generated automatically)</span>
+              <span className="text-xs text-muted-foreground">{t('questionsPage.createModal.titleGeneratedAutomatically')}</span>
             </Label>
             <Textarea
               id="content"
-              placeholder="Describe your question in detail. Be specific about what you need help with..."
+              placeholder={t('questionsPage.createModal.placeholder')}
               value={formData.content}
               onChange={(e) => setFormData({ ...formData, content: e.target.value })}
               className="glass min-h-[120px]"
@@ -148,7 +149,7 @@ export const CreateQuestionModal: React.FC<CreateQuestionModalProps> = ({
             {generatingTitle && (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Generating professional title...
+                {t('questionsPage.createModal.generatingTitle')}
               </div>
             )}
           </div>
@@ -165,10 +166,10 @@ export const CreateQuestionModal: React.FC<CreateQuestionModalProps> = ({
                     )}
                     <div>
                       <Label htmlFor="anonymous" className="text-sm font-medium">
-                        Post Anonymously
+                        {t('questionsPage.createModal.postAnonymously')}
                       </Label>
                       <p className="text-xs text-muted-foreground">
-                        Hide your identity from other users
+                        {t('questionsPage.createModal.postAnonymouslyDescription')}
                       </p>
                     </div>
                   </div>
@@ -190,10 +191,10 @@ export const CreateQuestionModal: React.FC<CreateQuestionModalProps> = ({
                     <Users className="h-5 w-5 text-green-500" />
                     <div>
                       <Label htmlFor="student-answers" className="text-sm font-medium">
-                        Allow Student Answers
+                        {t('questionsPage.createModal.allowStudentAnswers')}
                       </Label>
                       <p className="text-xs text-muted-foreground">
-                        Let other students answer your question
+                        {t('questionsPage.createModal.allowStudentAnswersDescription')}
                       </p>
                     </div>
                   </div>
@@ -216,7 +217,7 @@ export const CreateQuestionModal: React.FC<CreateQuestionModalProps> = ({
               onClick={onClose}
               className="flex-1 glass"
             >
-              Cancel
+              {t('questionsPage.createModal.cancel')}
             </Button>
             <Button
               type="submit"
@@ -226,15 +227,15 @@ export const CreateQuestionModal: React.FC<CreateQuestionModalProps> = ({
               {loading ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Posting...
+                  {t('questionsPage.createModal.posting')}
                 </>
               ) : generatingTitle ? (
                 <>
                   <Sparkles className="h-4 w-4 mr-2 animate-spin" />
-                  Generating Title...
+                  {t('questionsPage.createModal.generatingTitleButton')}
                 </>
               ) : (
-                'Post Question'
+                t('questionsPage.createModal.postQuestion')
               )}
             </Button>
           </div>

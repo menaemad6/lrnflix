@@ -9,6 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { RootState } from '@/store/store';
 
 interface Question {
@@ -35,6 +36,7 @@ export const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
 }) => {
   const { toast } = useToast();
   const { user } = useSelector((state: RootState) => state.auth);
+  const { t } = useTranslation('other');
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
@@ -85,7 +87,7 @@ export const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
 
       toast({
         title: 'Success',
-        description: 'Question updated successfully',
+        description: t('questionsPage.success.questionUpdated'),
       });
 
       onQuestionUpdated();
@@ -94,7 +96,7 @@ export const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
       console.error('Error updating question:', error);
       toast({
         title: 'Error',
-        description: 'Failed to update question',
+        description: t('questionsPage.error.failedToUpdate'),
         variant: 'destructive',
       });
     } finally {
@@ -112,29 +114,29 @@ export const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold">Edit Question</DialogTitle>
+          <DialogTitle className="text-xl font-semibold">{t('questionsPage.editModal.title')}</DialogTitle>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="title">Title</Label>
+            <Label htmlFor="title">{t('questionsPage.editModal.titleLabel')}</Label>
             <Input
               id="title"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              placeholder="Enter question title..."
+              placeholder={t('questionsPage.editModal.titlePlaceholder')}
               required
               className="w-full"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="content">Question Content</Label>
+            <Label htmlFor="content">{t('questionsPage.editModal.contentLabel')}</Label>
             <Textarea
               id="content"
               value={formData.content}
               onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-              placeholder="Describe your question in detail..."
+              placeholder={t('questionsPage.editModal.contentPlaceholder')}
               required
               className="min-h-[200px] w-full"
             />
@@ -145,9 +147,9 @@ export const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
             {canEditAnonymous && (
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label htmlFor="anonymous">Post Anonymously</Label>
+                  <Label htmlFor="anonymous">{t('questionsPage.editModal.postAnonymously')}</Label>
                   <p className="text-sm text-muted-foreground">
-                    Hide your identity when posting this question
+                    {t('questionsPage.editModal.postAnonymouslyDescription')}
                   </p>
                 </div>
                 <Switch
@@ -160,9 +162,9 @@ export const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
 
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label htmlFor="allow-answers">Allow Student Answers</Label>
+                <Label htmlFor="allow-answers">{t('questionsPage.editModal.allowStudentAnswers')}</Label>
                 <p className="text-sm text-muted-foreground">
-                  Let other students answer this question
+                  {t('questionsPage.editModal.allowStudentAnswersDescription')}
                 </p>
               </div>
               <Switch
@@ -180,7 +182,7 @@ export const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
               onClick={handleClose}
               disabled={loading}
             >
-              Cancel
+              {t('questionsPage.editModal.cancel')}
             </Button>
             <Button
               type="submit"
@@ -190,10 +192,10 @@ export const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
               {loading ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Updating...
+                  {t('questionsPage.editModal.updating')}
                 </>
               ) : (
-                'Update Question'
+                t('questionsPage.editModal.updateQuestion')
               )}
             </Button>
           </div>

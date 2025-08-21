@@ -35,6 +35,7 @@ import {
   MoreVertical
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { useTranslation } from 'react-i18next';
 import type { RootState } from '@/store/store';
 
 interface Question {
@@ -57,11 +58,13 @@ interface Question {
 interface QuestionCardProps {
   question: Question;
   onUpdate: () => void;
+  onQuestionClick: (questionId: string) => void;
 }
 
-export const QuestionCard: React.FC<QuestionCardProps> = ({ question, onUpdate }) => {
+export const QuestionCard: React.FC<QuestionCardProps> = ({ question, onUpdate, onQuestionClick }) => {
   const { user } = useSelector((state: RootState) => state.auth);
   const { toast } = useToast();
+  const { t } = useTranslation('other');
   const [showAnswers, setShowAnswers] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -129,7 +132,7 @@ Keep your suggestions practical and actionable.`;
   const canSeeAnonymousNames = user?.role === 'teacher' || user?.role === 'admin';
 
   const handleDelete = async () => {
-    if (!confirm('Are you sure you want to delete this question? This action cannot be undone.')) {
+    if (!confirm(t('questionsPage.confirmDelete'))) {
       return;
     }
 
@@ -144,7 +147,7 @@ Keep your suggestions practical and actionable.`;
 
       toast({
         title: 'Success',
-        description: 'Question deleted successfully',
+        description: t('questionsPage.success.questionDeleted'),
       });
 
       onUpdate();
@@ -152,7 +155,7 @@ Keep your suggestions practical and actionable.`;
       console.error('Error deleting question:', error);
       toast({
         title: 'Error',
-        description: 'Failed to delete question',
+        description: t('questionsPage.error.failedToDelete'),
         variant: 'destructive',
       });
     } finally {
@@ -160,43 +163,91 @@ Keep your suggestions practical and actionable.`;
     }
   };
 
-  const handleCardClick = (e: React.MouseEvent) => {
-    // Don't toggle if clicking on buttons or interactive elements
-    const target = e.target as HTMLElement;
-    if (
-      target.closest('button') ||
-      target.closest('[role="button"]') ||
-      target.closest('[data-radix-popper-content-wrapper]') ||
-      target.closest('input') ||
-      target.closest('textarea') ||
-      target.closest('a')
-    ) {
-      return;
-    }
+  const handleResolve = async () => {
+    console.log('Attempting to resolve question:', question.id);
+    console.log('Current user:', user);
+    console.log('User role:', user?.role);
+    console.log('Question status before:', question.status);
     
-    setShowAnswers(!showAnswers);
+    try {
+      // First, let's verify the user has the right permissions
+      if (!user || (user.role !== 'teacher' && user.role !== 'admin')) {
+        throw new Error('User does not have permission to resolve questions');
+      }
+
+      const { data, error } = await supabase
+        .from('questions')
+        .update({ status: 'resolved' })
+        .eq('id', question.id)
+        .select('status')
+        .single();
+
+      console.log('Supabase response:', { data, error });
+
+      if (error) {
+        console.error('Supabase error:', error);
+        
+        // Check if it's a permissions error
+        if (error.code === '42501') {
+          throw new Error('Permission denied: RLS policy may be blocking the update');
+        }
+        
+        throw error;
+      }
+
+      if (!data || data.status !== 'resolved') {
+        throw new Error('Question status was not updated');
+      }
+
+      console.log('Question resolved successfully:', data);
+
+      toast({
+        title: 'Success',
+        description: t('questionsPage.success.questionResolved'),
+      });
+
+      onUpdate();
+    } catch (error: unknown) {
+      console.error('Error resolving question:', error);
+      
+      let errorMessage = t('questionsPage.error.failedToResolve');
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      
+      toast({
+        title: 'Error',
+        description: errorMessage,
+        variant: 'destructive',
+      });
+    }
   };
 
+  // Removed the handleCardClick function as it was interfering with nested replies
+
   return (
-    <Card className="group glass-card border-0 hover-glow transition-all duration-300 bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-sm shadow-lg hover:shadow-xl cursor-pointer">
+    <Card 
+      className="group glass-card border-0 hover-glow transition-all duration-300 bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-sm shadow-lg hover:shadow-xl cursor-pointer"
+      onClick={() => onQuestionClick(question.id)}
+    >
       <CardHeader className="pb-4 relative">
         <div className="flex flex-wrap items-center gap-2">
           <Badge className={`${getStatusColor(question.status)} border`}>
             <StatusIcon className="h-3 w-3 mr-1" />
-            {question.status.charAt(0).toUpperCase() + question.status.slice(1)}
+            {t(`questionsPage.status.${question.status}`)}
           </Badge>
           
           {!question.allow_student_answers && (
             <Badge variant="outline" className="text-purple-500 border-purple-500/30 bg-purple-500/5">
               <Users className="h-3 w-3 mr-1" />
-              Admins Only
+              {t('questionsPage.badges.adminsOnly')}
             </Badge>
           )}
           
           {question.is_anonymous && (
             <Badge variant="outline" className="text-amber-500 border-amber-500/30 bg-amber-500/5">
               <User className="h-3 w-3 mr-1" />
-              Anonymous
+              {t('questionsPage.badges.anonymous')}
             </Badge>
           )}
         </div>
@@ -210,9 +261,10 @@ Keep your suggestions practical and actionable.`;
                   variant="ghost"
                   size="sm"
                   className="h-8 w-8 p-0 hover:bg-muted/50"
+                  onClick={(e) => e.stopPropagation()}
                 >
                   <MoreVertical className="h-4 w-4" />
-                  <span className="sr-only">Open menu</span>
+                  <span className="sr-only">{t('questionsPage.actions.openMenu')}</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
@@ -222,7 +274,17 @@ Keep your suggestions practical and actionable.`;
                     className="text-green-600 focus:text-green-600"
                   >
                     <Edit className="h-4 w-4 mr-2" />
-                    Edit Question
+                    {t('questionsPage.actions.editQuestion')}
+                  </DropdownMenuItem>
+                )}
+                {/* Resolve Option - Only for teachers and admins */}
+                {(user?.role === 'teacher' || user?.role === 'admin') && question.status !== 'resolved' && (
+                  <DropdownMenuItem
+                    onClick={handleResolve}
+                    className="text-green-600 focus:text-green-600"
+                  >
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    {t('questionsPage.actions.resolve')}
                   </DropdownMenuItem>
                 )}
                 {canDelete && (
@@ -232,7 +294,7 @@ Keep your suggestions practical and actionable.`;
                     className="text-red-600 focus:text-red-600"
                   >
                     <Trash2 className="h-4 w-4 mr-2" />
-                    {isDeleting ? 'Deleting...' : 'Delete Question'}
+                    {isDeleting ? t('questionsPage.actions.deleting') : t('questionsPage.actions.deleteQuestion')}
                   </DropdownMenuItem>
                 )}
               </DropdownMenuContent>
@@ -241,7 +303,7 @@ Keep your suggestions practical and actionable.`;
         )}
       </CardHeader>
 
-      <CardContent className="space-y-6" onClick={handleCardClick}>
+      <CardContent className="space-y-6">
         {/* Question Content */}
         <div className="space-y-4">
           <div className="prose prose-lg max-w-none text-foreground">
@@ -252,7 +314,7 @@ Keep your suggestions practical and actionable.`;
           <div className="border-t border-border/50 pt-3">
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <Sparkles className="h-3 w-3 text-primary" />
-              <span className="text-xs">AI-Generated Title</span>
+              <span className="text-xs">{t('questionsPage.aiGeneratedTitle')}</span>
             </div>
             <h3 className="text-sm font-medium text-muted-foreground group-hover:text-primary transition-colors">
               {question.title}
@@ -282,14 +344,14 @@ Keep your suggestions practical and actionable.`;
               <div className="flex items-center gap-2">
                 <p className="font-medium text-foreground">
                   {question.is_anonymous && !canSeeAnonymousNames 
-                    ? 'Anonymous' 
-                    : question.profiles?.full_name || 'Unknown User'
+                    ? t('questionsPage.anonymous') 
+                    : question.profiles?.full_name || t('questionsPage.unknownUser')
                   }
                 </p>
                 {question.is_anonymous && canSeeAnonymousNames && (
                   <Badge variant="outline" className="text-xs text-amber-500 border-amber-500/30 bg-amber-500/5">
                     <User className="h-3 w-3 mr-1" />
-                    Anonymous
+                    {t('questionsPage.badges.anonymous')}
                   </Badge>
                 )}
               </div>
@@ -312,7 +374,7 @@ Keep your suggestions practical and actionable.`;
               className="text-blue-500 hover:text-blue-600 hover:bg-blue-500/10 transition-colors"
             >
               <Bot className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">AI Answer</span>
+              <span className="hidden sm:inline">{t('questionsPage.actions.aiAnswer')}</span>
             </Button>
 
             <Button
@@ -325,21 +387,37 @@ Keep your suggestions practical and actionable.`;
               className="text-purple-500 hover:text-purple-600 hover:bg-purple-500/10 transition-colors"
             >
               <TrendingUp className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">AI Suggestions</span>
+              <span className="hidden sm:inline">{t('questionsPage.actions.aiSuggestions')}</span>
             </Button>
+
+            {/* Resolve Button - Only for teachers and admins */}
+            {(user?.role === 'teacher' || user?.role === 'admin') && question.status !== 'resolved' && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleResolve();
+                }}
+                className="text-green-500 hover:text-green-600 hover:bg-green-500/10 transition-colors"
+              >
+                <CheckCircle className="h-4 w-4 mr-2" />
+                <span className="hidden sm:inline">{t('questionsPage.actions.resolve')}</span>
+              </Button>
+            )}
             
             <Button
-              variant="ghost"
+              variant="outline"
               size="sm"
               onClick={(e) => {
                 e.stopPropagation();
                 setShowAnswers(!showAnswers);
               }}
-              className="text-muted-foreground hover:text-primary transition-colors"
+              className="flex-1 transition-colors"
             >
               <MessageSquare className="h-4 w-4 mr-2" />
               <span>{question.answer_count || 0}</span>
-              <span className="hidden sm:inline ml-1">Answers</span>
+              <span className="ml-1">{t('questionsPage.answers.answers')}</span>
               {showAnswers ? (
                 <ChevronUp className="h-4 w-4 ml-2" />
               ) : (

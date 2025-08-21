@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { BookOpen, Users, Star } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface DashboardStats {
   totalCourses: number;
@@ -14,15 +15,17 @@ interface TeacherTeachingProgressProps {
 }
 
 export function TeacherTeachingProgress({ stats }: TeacherTeachingProgressProps) {
+  const { t } = useTranslation('teacher');
+  
   return (
     <Card className="glass-card border-0 relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-r from-primary-500/5 via-transparent to-purple-500/5" />
       <CardHeader className="relative z-10">
         <CardTitle className="gradient-text text-xl flex items-center gap-2">
           <Star className="h-6 w-6" />
-          Teaching Progress
+          {t('dashboard.teachingProgress.title')}
         </CardTitle>
-        <CardDescription>Your impact as an educator</CardDescription>
+        <CardDescription>{t('dashboard.teachingProgress.description')}</CardDescription>
       </CardHeader>
       <CardContent className="relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -30,9 +33,9 @@ export function TeacherTeachingProgress({ stats }: TeacherTeachingProgressProps)
             <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-green-500 rounded-2xl flex items-center justify-center mx-auto mb-4 animate-pulse-glow">
               <BookOpen className="h-8 w-8 text-black" />
             </div>
-            <h3 className="font-semibold mb-2">Course Creator</h3>
+            <h3 className="font-semibold mb-2">{t('dashboard.teachingProgress.courseCreator')}</h3>
             <p className="text-sm text-muted-foreground">
-              You've created <span className="text-primary-400 font-bold">{stats.totalCourses}</span> courses
+              {t('dashboard.teachingProgress.coursesCreated', { count: stats.totalCourses })}
             </p>
           </div>
           
@@ -40,9 +43,9 @@ export function TeacherTeachingProgress({ stats }: TeacherTeachingProgressProps)
             <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-accent-500 rounded-2xl flex items-center justify-center mx-auto mb-4 animate-pulse-glow">
               <Users className="h-8 w-8 text-black" />
             </div>
-            <h3 className="font-semibold mb-2">Student Mentor</h3>
+            <h3 className="font-semibold mb-2">{t('dashboard.teachingProgress.studentMentor')}</h3>
             <p className="text-sm text-muted-foreground">
-              Teaching <span className="text-blue-400 font-bold">{stats.totalStudents}</span> students
+              {t('dashboard.teachingProgress.teachingStudents', { count: stats.totalStudents })}
             </p>
           </div>
           
@@ -50,9 +53,9 @@ export function TeacherTeachingProgress({ stats }: TeacherTeachingProgressProps)
             <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4 animate-pulse-glow">
               <Star className="h-8 w-8 text-black" />
             </div>
-            <h3 className="font-semibold mb-2">Revenue Generator</h3>
+            <h3 className="font-semibold mb-2">{t('dashboard.teachingProgress.revenueGenerator')}</h3>
             <p className="text-sm text-muted-foreground">
-              Earned <span className="text-purple-400 font-bold">{stats.totalRevenue}</span> credits
+              {t('dashboard.teachingProgress.earnedCredits', { count: stats.totalRevenue })}
             </p>
           </div>
         </div>

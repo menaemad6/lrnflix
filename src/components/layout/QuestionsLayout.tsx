@@ -1,5 +1,5 @@
 import React from 'react';
-import { ModernScrollbar } from '@/components/ui/modern-scrollbar';
+import { HiddenScrollbar } from '@/components/ui/hidden-scrollbar';
 import { useRandomBackground } from '@/hooks/useRandomBackground';
 
 interface QuestionsLayoutProps {
@@ -19,14 +19,14 @@ export const QuestionsLayout = ({ children, leftSidebar, rightSidebar }: Questio
           <div className="lg:col-span-3 order-2 lg:order-1">
             {leftSidebar && (
               <div className="sticky top-8">
-                <ModernScrollbar 
+                <HiddenScrollbar 
                   className="h-[calc(100vh-4rem)] pr-2"
                   maxHeight="calc(100vh - 4rem)"
                 >
                   <div className="space-y-4">
                     {leftSidebar}
                   </div>
-                </ModernScrollbar>
+                </HiddenScrollbar>
               </div>
             )}
           </div>
@@ -40,14 +40,14 @@ export const QuestionsLayout = ({ children, leftSidebar, rightSidebar }: Questio
           <div className="lg:col-span-3 order-3">
             {rightSidebar && (
               <div className="sticky top-8">
-                <ModernScrollbar 
+                <HiddenScrollbar 
                   className="h-[calc(100vh-4rem)] pr-2"
                   maxHeight="calc(100vh - 4rem)"
                 >
                   <div className="space-y-4">
                     {rightSidebar}
                   </div>
-                </ModernScrollbar>
+                </HiddenScrollbar>
               </div>
             )}
           </div>

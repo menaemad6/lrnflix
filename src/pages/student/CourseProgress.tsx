@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { CourseSidebar } from '@/components/courses/CourseSidebar';
@@ -70,6 +71,7 @@ export const CourseProgress = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const navigate = useNavigate();
   const bgClass = useRandomBackground();
+  const { t } = useTranslation('courses');
 
   useEffect(() => {
     if (id) {
@@ -147,8 +149,8 @@ export const CourseProgress = () => {
 
         if (!enrolled) {
           toast({
-            title: 'Access Denied',
-            description: 'You must be enrolled in this course to view progress.',
+            title: t('courseProgress.accessDenied'),
+            description: t('courseProgress.accessDeniedDescription'),
             variant: 'destructive',
           });
           return;
@@ -194,8 +196,8 @@ export const CourseProgress = () => {
     } catch (error: unknown) {
       console.error('Error fetching course:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to load course',
+        title: t('courseProgress.accessDenied'),
+        description: t('courseProgress.failedToLoadCourse'),
         variant: 'destructive',
       });
     } finally {
@@ -230,8 +232,8 @@ export const CourseProgress = () => {
     return (
       <div className="container mx-auto py-8">
         <div className="text-center">
-          <h2 className="text-xl font-semibold mb-2">Access Denied</h2>
-          <p className="text-muted-foreground">You must be enrolled in this course to view progress.</p>
+          <h2 className="text-xl font-semibold mb-2">{t('courseProgress.accessDenied')}</h2>
+          <p className="text-muted-foreground">{t('courseProgress.accessDeniedDescription')}</p>
         </div>
       </div>
     );
@@ -261,16 +263,16 @@ export const CourseProgress = () => {
              <div className="flex items-center justify-center h-full">
                <div className="text-center space-y-4">
                  <Skeleton className="h-16 w-16 rounded-full mx-auto" />
-                 <h2 className="text-xl font-semibold mb-2">No Content Available</h2>
-                 <p className="text-muted-foreground">This course doesn't have any lessons or quizzes yet.</p>
+                                   <h2 className="text-xl font-semibold mb-2">{t('courseProgress.noContentAvailable')}</h2>
+                  <p className="text-muted-foreground">{t('courseProgress.noContentDescription')}</p>
                </div>
              </div>
                      ) : (
              <div className="flex items-center justify-center h-full">
                <div className="text-center space-y-4">
                  <Skeleton className="h-8 w-8 rounded-full mx-auto" />
-                 <h2 className="text-xl font-semibold mb-2">Loading Content</h2>
-                 <p className="text-muted-foreground">Preparing your course content...</p>
+                                   <h2 className="text-xl font-semibold mb-2">{t('courseProgress.loadingContent')}</h2>
+                  <p className="text-muted-foreground">{t('courseProgress.loadingContentDescription')}</p>
                </div>
              </div>
            )}
@@ -311,7 +313,7 @@ export const CourseProgress = () => {
                 <span className="text-black font-bold text-sm">C</span>
               </div>
               <div className="flex flex-col items-center gap-2 text-xs text-muted-foreground">
-                <span className="writing-mode-vertical transform rotate-180">Course Progress</span>
+                <span className="writing-mode-vertical transform rotate-180">{t('courseProgress.courseProgress')}</span>
               </div>
             </div>
           )}

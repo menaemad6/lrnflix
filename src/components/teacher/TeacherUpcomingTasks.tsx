@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Calendar, Clock, AlertTriangle, CheckCircle, BookOpen, Users, Target, Star, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 interface Task {
   id: string;
   title: string;
@@ -25,7 +26,9 @@ interface TeacherUpcomingTasksProps {
 }
 
 export function TeacherUpcomingTasks({ tasks }: TeacherUpcomingTasksProps) {
+  const { t } = useTranslation('teacher');
   const navigate = useNavigate();
+  
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'urgent':
@@ -47,10 +50,10 @@ export function TeacherUpcomingTasks({ tasks }: TeacherUpcomingTasksProps) {
     const diffTime = date.getTime() - now.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     
-    if (diffDays < 0) return 'Overdue';
-    if (diffDays === 0) return 'Today';
-    if (diffDays === 1) return 'Tomorrow';
-    if (diffDays <= 7) return `In ${diffDays} days`;
+    if (diffDays < 0) return t('dashboard.upcomingTasks.overdue');
+    if (diffDays === 0) return t('common.today');
+    if (diffDays === 1) return t('dashboard.upcomingTasks.dueTomorrow');
+    if (diffDays <= 7) return t('dashboard.upcomingTasks.inDays', { days: diffDays });
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
 
@@ -87,13 +90,13 @@ export function TeacherUpcomingTasks({ tasks }: TeacherUpcomingTasksProps) {
               <Calendar className="h-5 w-5 text-white" />
             </div>
             <div>
-              <CardTitle className="gradient-text text-xl">Upcoming Tasks</CardTitle>
-              <p className="text-muted-foreground text-sm">Manage your teaching schedule</p>
+              <CardTitle className="gradient-text text-xl">{t('dashboard.upcomingTasks.title')}</CardTitle>
+              <p className="text-muted-foreground text-sm">{t('dashboard.upcomingTasks.description')}</p>
             </div>
           </div>
           <Button size="sm" variant="outline" className="btn-secondary" onClick={() => navigate('/teacher/schedule')}>
             <Plus className="h-4 w-4 mr-2" />
-            Add Task
+            {t('dashboard.upcomingTasks.addTask')}
           </Button>
         </div>
       </CardHeader>
@@ -102,13 +105,13 @@ export function TeacherUpcomingTasks({ tasks }: TeacherUpcomingTasksProps) {
         <div className="space-y-3">
           <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
             <AlertTriangle className="h-4 w-4" />
-            Pending ({incompleteTasks.length})
+            {t('dashboard.upcomingTasks.pending')} ({incompleteTasks.length})
           </h3>
           
           {incompleteTasks.length === 0 ? (
             <div className="text-center py-6">
               <CheckCircle className="w-12 h-12 mx-auto text-primary-400 mb-3" />
-              <p className="text-muted-foreground text-sm">All caught up! No pending tasks.</p>
+              <p className="text-muted-foreground text-sm">{t('dashboard.upcomingTasks.allCaughtUp')}</p>
             </div>
           ) : (
             incompleteTasks.slice(0, 5).map((task) => (
@@ -192,7 +195,7 @@ export function TeacherUpcomingTasks({ tasks }: TeacherUpcomingTasksProps) {
           <div className="space-y-3 pt-4 border-t border-primary/20">
             <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
               <CheckCircle className="h-4 w-4 text-primary-400" />
-              Completed ({completedTasks.length})
+              {t('dashboard.upcomingTasks.completed')} ({completedTasks.length})
             </h3>
             
             {completedTasks.slice(0, 3).map((task) => (
@@ -204,7 +207,7 @@ export function TeacherUpcomingTasks({ tasks }: TeacherUpcomingTasksProps) {
                       {task.title}
                     </h4>
                     <p className="text-xs text-muted-foreground">
-                      Completed {formatDueDate(task.due_date)}
+                      {t('dashboard.upcomingTasks.completedOn')} {formatDueDate(task.due_date)}
                     </p>
                   </div>
                 </div>
@@ -217,7 +220,7 @@ export function TeacherUpcomingTasks({ tasks }: TeacherUpcomingTasksProps) {
         {tasks.length > 8 && (
           <div className="pt-3 border-t border-primary/20">
             <Button variant="outline" className="w-full btn-secondary">
-              View All {tasks.length} Tasks
+              {t('dashboard.upcomingTasks.viewAll', { count: tasks.length })}
             </Button>
           </div>
         )}

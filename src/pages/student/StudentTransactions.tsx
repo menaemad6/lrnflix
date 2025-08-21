@@ -14,6 +14,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem, SelectLa
 import { Label } from '@/components/ui/label';
 import { TransactionCardSkeleton } from '@/components/student/skeletons/TransactionCardSkeleton';
 import { useStudentTransactionsAndWallet } from '@/lib/queries';
+import { useTranslation } from 'react-i18next';
 
 interface Transaction {
   id: string;
@@ -26,6 +27,7 @@ interface Transaction {
 
 export const StudentTransactions = () => {
   const { toast } = useToast();
+  const { t } = useTranslation('dashboard');
   const user = useSelector((state: RootState) => state.auth.user);
   const { data, isLoading, error } = useStudentTransactionsAndWallet(user);
   const { transactions = [], wallet = 0 } = data || {};
@@ -40,8 +42,8 @@ export const StudentTransactions = () => {
   useEffect(() => {
     if (error) {
         toast({
-            title: 'Error',
-            description: 'Failed to load transactions. Please try again.',
+            title: t('studentTransactions.error'),
+            description: t('studentTransactions.failedToLoadTransactions'),
             variant: 'destructive',
         });
     }
@@ -100,17 +102,17 @@ export const StudentTransactions = () => {
   const getTransactionTypeLabel = (type: string) => {
     switch (type) {
       case 'credit':
-        return 'Credit';
+        return t('studentTransactions.credit');
       case 'debit':
-        return 'Debit';
+        return t('studentTransactions.debit');
       case 'course_purchase':
-        return 'Course Purchase';
+        return t('studentTransactions.coursePurchase');
       case 'chapter_purchase':
-        return 'Chapter Purchase';
+        return t('studentTransactions.chapterPurchase');
       case 'code_redemption':
-        return 'Code Redemption';
+        return t('studentTransactions.codeRedemption');
       case 'refund':
-        return 'Refund';
+        return t('studentTransactions.refund');
       default:
         return type;
     }
@@ -139,31 +141,31 @@ export const StudentTransactions = () => {
   return (
     <DashboardLayout>
       <DashboardModernHeader
-        title="Transaction History"
-        subtitle="Track all your wallet transactions"
+        title={t('studentTransactions.title')}
+        subtitle={t('studentTransactions.subtitle')}
       />
       <div className="w-full px-2 sm:px-4 py-6 space-y-6">
         {/* Wallet Balance Card - Full Width */}
         <div className="w-full">
           <div className="w-full p-6 bg-gradient-to-br from-primary-500/30 to-secondary-500/30 rounded-2xl border border-primary-500/40 shadow-lg flex flex-col items-start">
             <div className="text-3xl font-extrabold gradient-text mb-1">{wallet}</div>
-            <div className="text-base text-primary-400 font-medium mb-4">Current Balance</div>
+            <div className="text-base text-primary-400 font-medium mb-4">{t('studentTransactions.walletBalance')}</div>
             {/* Statistics Row */}
             <div className="flex flex-col sm:flex-row gap-4 w-full">
               <div className="flex-1">
-                <div className="text-xs text-muted-foreground">Total Credited</div>
+                <div className="text-xs text-muted-foreground">{t('studentTransactions.totalCredited')}</div>
                 <div className="font-semibold text-primary-500">+{totalCredited}</div>
               </div>
               <div className="flex-1">
-                <div className="text-xs text-muted-foreground">Total Debited</div>
+                <div className="text-xs text-muted-foreground">{t('studentTransactions.totalDebited')}</div>
                 <div className="font-semibold text-red-400">-{totalDebited}</div>
               </div>
               <div className="flex-1">
-                <div className="text-xs text-muted-foreground">Transactions</div>
+                <div className="text-xs text-muted-foreground">{t('studentTransactions.totalTransactions')}</div>
                 <div className="font-semibold">{numTransactions}</div>
               </div>
               <div className="flex-1">
-                <div className="text-xs text-muted-foreground">Last Transaction</div>
+                <div className="text-xs text-muted-foreground">{t('studentTransactions.lastTransaction')}</div>
                 <div className="font-semibold">{lastTransactionDate}</div>
               </div>
             </div>
@@ -175,7 +177,7 @@ export const StudentTransactions = () => {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
               <Input
-                placeholder="Search transactions..."
+                placeholder={t('studentTransactions.searchTransactions')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-12 glass-input border-primary-500/40 focus:border-primary-500/70 w-full h-12 rounded-xl text-base"
@@ -188,24 +190,24 @@ export const StudentTransactions = () => {
         <div className="w-full bg-background/60 glass-card border border-primary/20 rounded-2xl px-2 sm:px-4 py-4 flex flex-col md:flex-row md:items-end gap-4 mb-4 shadow-sm">
           <div className="flex flex-col md:flex-row gap-3 flex-1 w-full">
             <div className="flex flex-col gap-1">
-              <Label htmlFor="type-filter" className="text-xs mb-0.5 ml-1">Type</Label>
+              <Label htmlFor="type-filter" className="text-xs mb-0.5 ml-1">{t('studentTransactions.filterByType')}</Label>
               <Select value={filterType} onValueChange={setFilterType}>
                 <SelectTrigger className="h-12 w-full md:w-40 border-primary focus:ring-primary bg-background text-foreground rounded-xl px-4 text-base">
-                  <SelectValue placeholder="All" />
+                  <SelectValue placeholder={t('studentTransactions.allTypes')} />
                 </SelectTrigger>
                 <SelectContent className="bg-background text-foreground border-primary">
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="credit">Credit</SelectItem>
-                  <SelectItem value="debit">Debit</SelectItem>
-                  <SelectItem value="course_purchase">Course Purchase</SelectItem>
-                  <SelectItem value="chapter_purchase">Chapter Purchase</SelectItem>
-                  <SelectItem value="code_redemption">Code Redemption</SelectItem>
-                  <SelectItem value="refund">Refund</SelectItem>
+                  <SelectItem value="all">{t('studentTransactions.allTypes')}</SelectItem>
+                  <SelectItem value="credit">{t('studentTransactions.credit')}</SelectItem>
+                  <SelectItem value="debit">{t('studentTransactions.debit')}</SelectItem>
+                  <SelectItem value="course_purchase">{t('studentTransactions.coursePurchase')}</SelectItem>
+                  <SelectItem value="chapter_purchase">{t('studentTransactions.chapterPurchase')}</SelectItem>
+                  <SelectItem value="code_redemption">{t('studentTransactions.codeRedemption')}</SelectItem>
+                  <SelectItem value="refund">{t('studentTransactions.refund')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="flex flex-col gap-1">
-              <Label htmlFor="start-date" className="text-xs mb-0.5 ml-1">Start Date</Label>
+              <Label htmlFor="start-date" className="text-xs mb-0.5 ml-1">{t('studentTransactions.startDate')}</Label>
               <input
                 id="start-date"
                 type="date"
@@ -215,7 +217,7 @@ export const StudentTransactions = () => {
               />
             </div>
             <div className="flex flex-col gap-1">
-              <Label htmlFor="end-date" className="text-xs mb-0.5 ml-1">End Date</Label>
+              <Label htmlFor="end-date" className="text-xs mb-0.5 ml-1">{t('studentTransactions.endDate')}</Label>
               <input
                 id="end-date"
                 type="date"
@@ -227,16 +229,16 @@ export const StudentTransactions = () => {
           </div>
           <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
             <div className="flex flex-col gap-1">
-              <Label htmlFor="sort-by" className="text-xs mb-0.5 ml-1">Sort By</Label>
+              <Label htmlFor="sort-by" className="text-xs mb-0.5 ml-1">{t('studentTransactions.sortBy')}</Label>
               <Select value={sortBy} onValueChange={setSortBy}>
                 <SelectTrigger className="h-12 w-full md:w-44 border-primary focus:ring-primary bg-background text-foreground rounded-xl px-4 text-base">
-                  <SelectValue placeholder="Sort By" />
+                  <SelectValue placeholder={t('studentTransactions.sortBy')} />
                 </SelectTrigger>
                 <SelectContent className="bg-background text-foreground border-primary">
-                  <SelectItem value="date_desc">Date (Newest)</SelectItem>
-                  <SelectItem value="date_asc">Date (Oldest)</SelectItem>
-                  <SelectItem value="amount_desc">Amount (High-Low)</SelectItem>
-                  <SelectItem value="amount_asc">Amount (Low-High)</SelectItem>
+                  <SelectItem value="date_desc">{t('studentTransactions.dateDesc')}</SelectItem>
+                  <SelectItem value="date_asc">{t('studentTransactions.dateAsc')}</SelectItem>
+                  <SelectItem value="amount_desc">{t('studentTransactions.amountDesc')}</SelectItem>
+                  <SelectItem value="amount_asc">{t('studentTransactions.amountAsc')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -256,9 +258,9 @@ export const StudentTransactions = () => {
               <div className="w-20 h-20 bg-gradient-to-br from-primary-500/20 to-secondary-500/20 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-glow-pulse">
                 <History className="h-10 w-10 text-primary-400" />
               </div>
-              <h3 className="text-xl font-semibold mb-3 gradient-text">No transactions found</h3>
+              <h3 className="text-xl font-semibold mb-3 gradient-text">{t('studentTransactions.noTransactionsFound')}</h3>
               <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                Try adjusting your search criteria or filters.
+                {t('studentTransactions.tryAdjustingFilters')}
               </p>
             </CardContent>
           </Card>
@@ -269,7 +271,7 @@ export const StudentTransactions = () => {
                 <div className="w-10 h-10 bg-gradient-to-br from-primary-500/20 to-secondary-500/20 rounded-xl flex items-center justify-center">
                   <History className="h-5 w-5 text-primary-400" />
                 </div>
-                All Transactions
+                {t('studentTransactions.allTransactions')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -354,7 +356,7 @@ export const StudentTransactions = () => {
         {searchTerm && filteredTransactions.length > 0 && (
           <div className="text-center">
             <p className="text-muted-foreground">
-              Found {filteredTransactions.length} transaction{filteredTransactions.length !== 1 ? 's' : ''} matching "{searchTerm}"
+              {t('studentTransactions.foundTransactions', { count: filteredTransactions.length, searchTerm })}
             </p>
           </div>
         )}

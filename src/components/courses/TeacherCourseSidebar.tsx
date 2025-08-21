@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -72,6 +73,7 @@ export const TeacherCourseSidebar: React.FC<TeacherCourseSidebarProps> = ({
 }) => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { t } = useTranslation('teacher');
   const [showLessonModal, setShowLessonModal] = useState(false);
   const [showQuizModal, setShowQuizModal] = useState(false);
 

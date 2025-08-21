@@ -14,6 +14,7 @@ import { useTenant } from '@/contexts/TenantContext';
 import DashboardModernHeader from '@/components/ui/DashboardModernHeader';
 import { Input } from '@/components/ui/input';
 import { useStudentEnrolledChapters } from '@/lib/queries';
+import { useTranslation } from 'react-i18next';
 
 interface ChapterCourse {
   id: string;
@@ -54,13 +55,14 @@ export const StudentChaptersPage = () => {
   const { data: enrolledChapters, isLoading, error } = useStudentEnrolledChapters(user, teacher);
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
+  const { t } = useTranslation('dashboard');
 
   useEffect(() => {
     if (error) {
         console.error('Error fetching chapters:', error);
         toast({
-            title: 'Error',
-            description: 'Failed to load chapters',
+            title: t('studentChapters.error'),
+            description: t('studentChapters.failedToLoadChapters'),
             variant: 'destructive',
         });
     }
@@ -117,9 +119,9 @@ export const StudentChaptersPage = () => {
   return (
     <DashboardLayout>
       <DashboardModernHeader
-        title="My Chapters"
-        subtitle="Track your progress through comprehensive learning paths"
-        buttonText="Explore Chapters"
+        title={t('studentChapters.title')}
+        subtitle={t('studentChapters.subtitle')}
+        buttonText={t('studentChapters.exploreChapters')}
         onButtonClick={() => navigate('/chapters')}
       />
       <div className="space-y-6">
@@ -132,7 +134,7 @@ export const StudentChaptersPage = () => {
                   <BookOpen className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     type="text"
-                    placeholder="Search by chapter name or description"
+                    placeholder={t('studentChapters.searchByChapterName')}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10 glass"
@@ -157,14 +159,14 @@ export const StudentChaptersPage = () => {
               <div className="w-20 h-20 bg-gradient-to-br from-primary-500/20 to-secondary-500/20 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-glow-pulse">
                 <Sparkles className="h-10 w-10 text-primary-400" />
               </div>
-              <h3 className="text-xl font-semibold mb-3 gradient-text">No chapters found</h3>
+              <h3 className="text-xl font-semibold mb-3 gradient-text">{t('studentChapters.noChaptersFound')}</h3>
               <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                Try adjusting your search criteria or explore different chapters.
+                {t('studentChapters.tryAdjustingSearchCriteria')}
               </p>
               <Link to="/chapters">
                 <Button className="btn-primary">
                   <Sparkles className="h-4 w-4 mr-2" />
-                  Browse Chapters
+                  {t('studentChapters.browseChapters')}
                 </Button>
               </Link>
             </CardContent>
@@ -199,7 +201,7 @@ export const StudentChaptersPage = () => {
                       </div>
                       <div className="flex flex-col items-end flex-shrink-0">
                         <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-card/70 border border-primary/20 text-primary font-bold text-lg shadow-sm">
-                          {enrollment.chapter.price} <span className="text-xs font-semibold uppercase tracking-wide">credits</span>
+                          {enrollment.chapter.price} <span className="text-xs font-semibold uppercase tracking-wide">{t('studentChapters.credits')}</span>
                         </span>
                       </div>
                     </div>
@@ -219,19 +221,19 @@ export const StudentChaptersPage = () => {
                                 <Sparkles className="h-5 w-5 text-primary-foreground" />
                               </div>
                               <div className="flex-1 min-w-0">
-                                <h4 className="font-semibold truncate text-base mb-0.5">{obj.course?.title || obj.title || 'Unknown Course'}</h4>
+                                <h4 className="font-semibold truncate text-base mb-0.5">{obj.course?.title || obj.title || t('studentChapters.unknownCourse')}</h4>
                                 <p className="text-xs text-muted-foreground line-clamp-2">{obj.course?.description || obj.description || ''}</p>
                               </div>
                               {obj.course?.price && (
                                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 text-primary font-bold text-xs">
-                                  {obj.course.price} <span className="uppercase">credits</span>
+                                  {obj.course.price} <span className="uppercase">{t('studentChapters.credits')}</span>
                                 </span>
                               )}
                             </CardContent>
                           </Card>
                         ))
                       ) : (
-                        <div className="text-muted-foreground px-2">No courses in this chapter yet.</div>
+                        <div className="text-muted-foreground px-2">{t('studentChapters.noCoursesInChapter')}</div>
                       )}
                     </div>
                     {/* Action Button */}
@@ -239,7 +241,7 @@ export const StudentChaptersPage = () => {
                       <Link to={`/chapters/${enrollment.chapter.id}`}>
                         <Button className="w-full bg-gradient-to-r from-primary to-secondary text-white font-bold rounded-xl shadow-md h-12 text-lg group-hover:scale-105 transition-transform">
                           <Play className="h-5 w-5 mr-2" />
-                          Continue
+                          {t('studentChapters.continue')}
                         </Button>
                       </Link>
                     </div>

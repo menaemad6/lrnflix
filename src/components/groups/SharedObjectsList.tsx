@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { ModernScrollbar } from '@/components/ui/modern-scrollbar';
+import { HiddenScrollbar } from '@/components/ui/hidden-scrollbar';
 import { 
   FileText, 
   Image, 
@@ -198,7 +198,7 @@ export const SharedObjectsList = ({ groupId, refreshTrigger }: SharedObjectsList
           <p className="text-muted-foreground">No objects shared yet</p>
         </div>
       ) : (
-        <ModernScrollbar maxHeight="500px">
+        <HiddenScrollbar maxHeight="500px">
           <div className="space-y-3 pr-2">
             {objects.map((obj) => {
               const IconComponent = getObjectIcon(obj.object_type);
@@ -288,7 +288,7 @@ export const SharedObjectsList = ({ groupId, refreshTrigger }: SharedObjectsList
               );
             })}
           </div>
-        </ModernScrollbar>
+        </HiddenScrollbar>
       )}
     </div>
   );

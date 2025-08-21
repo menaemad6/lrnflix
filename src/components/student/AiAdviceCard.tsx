@@ -8,6 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Brain, Sparkles, TrendingUp, Clock, Target, Lightbulb, Trophy, BookOpen, Zap, Calendar, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import type { RootState } from '@/store/store';
+import { useTranslation } from 'react-i18next';
 
 interface AiAdvice {
   category: string;
@@ -33,6 +34,7 @@ export const AiAdviceCard = () => {
   const [advice, setAdvice] = useState<AiAdvice[]>([]);
   const [loading, setLoading] = useState(false);
   const [lastGenerated, setLastGenerated] = useState<string | null>(null);
+  const { t } = useTranslation('dashboard');
 
   const getIconComponent = (iconType: string) => {
     switch (iconType) {
@@ -90,8 +92,8 @@ export const AiAdviceCard = () => {
         
         if (progressRate < 0.2) {
           generatedAdvice.push({
-            category: 'Learning Velocity',
-            advice: 'Your learning pace is slower than optimal. Consider setting aside 25-30 minutes daily for focused study sessions. Break lessons into smaller chunks to maintain momentum.',
+            category: t('aiAdvice.learningVelocity'),
+            advice: t('aiAdvice.learningVelocityAdvice'),
             priority: 'high',
             icon: <Clock className="h-4 w-4" />,
             actionable: true,
@@ -99,8 +101,8 @@ export const AiAdviceCard = () => {
           });
         } else if (progressRate > 0.8) {
           generatedAdvice.push({
-            category: 'Achievement Recognition',
-            advice: 'Outstanding progress! You\'re completing lessons 3x faster than average. Consider taking on more challenging courses or helping peers in study groups.',
+            category: t('aiAdvice.achievementRecognition'),
+            advice: t('aiAdvice.achievementRecognitionAdvice'),
             priority: 'low',
             icon: <Trophy className="h-4 w-4" />,
             actionable: true,
@@ -117,8 +119,8 @@ export const AiAdviceCard = () => {
 
         if (avgScore < 0.6) {
           generatedAdvice.push({
-            category: 'Study Strategy',
-            advice: 'Quiz scores suggest reviewing content before assessments. Try the Feynman Technique: explain concepts aloud as if teaching someone else.',
+            category: t('aiAdvice.studyStrategy'),
+            advice: t('aiAdvice.studyStrategyAdvice'),
             priority: 'high',
             icon: <Brain className="h-4 w-4" />,
             actionable: true,
@@ -128,8 +130,8 @@ export const AiAdviceCard = () => {
 
         if (recentAvgScore > avgScore + 0.2) {
           generatedAdvice.push({
-            category: 'Improvement Trend',
-            advice: 'Your recent quiz performance shows significant improvement! You\'re on the right track. Maintain this study routine.',
+            category: t('aiAdvice.improvementTrend'),
+            advice: t('aiAdvice.improvementTrendAdvice'),
             priority: 'medium',
             icon: <TrendingUp className="h-4 w-4" />,
             actionable: false,
@@ -145,8 +147,8 @@ export const AiAdviceCard = () => {
 
         if (avgCallDuration < 5) {
           generatedAdvice.push({
-            category: 'AI Tutor Optimization',
-            advice: 'Your AI tutor sessions are quite short. Longer sessions (10-15 minutes) allow for deeper explanations and better concept reinforcement.',
+            category: t('aiAdvice.aiTutorOptimization'),
+            advice: t('aiAdvice.aiTutorOptimizationAdvice'),
             priority: 'medium',
             icon: <Zap className="h-4 w-4" />,
             actionable: true,
@@ -156,8 +158,8 @@ export const AiAdviceCard = () => {
 
         if (recentCalls.length === 0 && callHistory.length > 0) {
           generatedAdvice.push({
-            category: 'Resource Utilization',
-            advice: 'You haven\'t used the AI tutor recently. Regular Q&A sessions can help clarify difficult concepts and improve retention.',
+            category: t('aiAdvice.resourceUtilization'),
+            advice: t('aiAdvice.resourceUtilizationAdvice'),
             priority: 'medium',
             icon: <Lightbulb className="h-4 w-4" />,
             actionable: true,
@@ -173,8 +175,8 @@ export const AiAdviceCard = () => {
         
         if (creditPurchases.length > coursePurchases.length && user.wallet > 100) {
           generatedAdvice.push({
-            category: 'Budget Optimization',
-            advice: 'You have unused credits. Consider enrolling in complementary courses or purchasing AI minutes to maximize your learning investment.',
+            category: t('aiAdvice.budgetOptimization'),
+            advice: t('aiAdvice.budgetOptimizationAdvice'),
             priority: 'low',
             icon: <Target className="h-4 w-4" />,
             actionable: true,
@@ -189,8 +191,8 @@ export const AiAdviceCard = () => {
       
       if (uniqueCategories.length === 1 && enrollments.length > 2) {
         generatedAdvice.push({
-          category: 'Learning Diversification',
-          advice: `All your courses are in ${uniqueCategories[0]}. Consider exploring related fields to build interdisciplinary knowledge and enhance career prospects.`,
+          category: t('aiAdvice.learningDiversification'),
+          advice: t('aiAdvice.learningDiversificationAdvice', { category: uniqueCategories[0] }),
           priority: 'medium',
           icon: <BookOpen className="h-4 w-4" />,
           actionable: true,
@@ -201,8 +203,8 @@ export const AiAdviceCard = () => {
       // Engagement Patterns
       if (recentProgress.length === 0 && enrollments.length > 0) {
         generatedAdvice.push({
-          category: 'Re-engagement',
-          advice: 'No recent lesson completions detected. Set a specific time daily for learning and start with just 15 minutes to rebuild momentum.',
+          category: t('aiAdvice.reEngagement'),
+          advice: t('aiAdvice.reEngagementAdvice'),
           priority: 'critical',
           icon: <AlertTriangle className="h-4 w-4" />,
           actionable: true,
@@ -215,8 +217,8 @@ export const AiAdviceCard = () => {
         const recentQuizAvg = recentQuizzes.reduce((sum, q) => sum + (q.score || 0) / (q.max_score || 1), 0) / recentQuizzes.length;
         if (recentQuizAvg > 0.8) {
           generatedAdvice.push({
-            category: 'Achievement Unlocked',
-            advice: 'Excellent week! You\'ve completed multiple lessons with high quiz scores. You\'re in the top 10% of active learners. Keep up the outstanding work!',
+            category: t('aiAdvice.achievementUnlocked'),
+            advice: t('aiAdvice.achievementUnlockedAdvice'),
             priority: 'low',
             icon: <CheckCircle2 className="h-4 w-4" />,
             actionable: false,
@@ -228,13 +230,13 @@ export const AiAdviceCard = () => {
       // Default encouragement with personalization
       if (generatedAdvice.length === 0) {
         const encouragements = [
-          'Your learning journey is unique. Start with short, focused sessions and gradually increase duration as you build momentum.',
-          'Consistency beats intensity. Even 10 minutes daily of focused learning compounds into significant progress over time.',
-          'Consider joining study groups or discussion forums to enhance your learning through peer interaction.'
+          t('aiAdvice.personalizedGuidanceAdvice1'),
+          t('aiAdvice.personalizedGuidanceAdvice2'),
+          t('aiAdvice.personalizedGuidanceAdvice3')
         ];
         
         generatedAdvice.push({
-          category: 'Personalized Guidance',
+          category: t('aiAdvice.personalizedGuidance'),
           advice: encouragements[Math.floor(Math.random() * encouragements.length)],
           priority: 'medium',
           icon: <Sparkles className="h-4 w-4" />,
@@ -286,15 +288,15 @@ export const AiAdviceCard = () => {
       });
 
       toast({
-        title: 'AI Analysis Complete',
-        description: `Generated ${generatedAdvice.length} personalized insights based on your learning patterns.`,
+        title: t('aiAdvice.aiAnalysisComplete'),
+        description: t('aiAdvice.generatedInsights', { count: generatedAdvice.length }),
       });
 
     } catch (error: any) {
       console.error('Error generating AI advice:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to generate personalized advice.',
+        title: t('aiAdvice.error'),
+        description: t('aiAdvice.failedToGenerate'),
         variant: 'destructive',
       });
     } finally {
@@ -347,8 +349,8 @@ export const AiAdviceCard = () => {
             <Brain className="h-6 w-6 text-black" />
           </div>
           <div>
-            <div className="gradient-text text-xl font-bold">AI Learning Intelligence</div>
-            <span className="text-muted-foreground/80 text-sm">Personalized insights powered by AI</span>
+            <div className="gradient-text text-xl font-bold">{t('aiAdvice.title')}</div>
+            <span className="text-muted-foreground/80 text-sm">{t('aiAdvice.subtitle')}</span>
           </div>
           <Button 
             onClick={generateAdvice} 
@@ -361,12 +363,12 @@ export const AiAdviceCard = () => {
             ) : (
               <Sparkles className="h-4 w-4 mr-2" />
             )}
-            {loading ? 'Analyzing...' : 'Get Smart Insights'}
+            {loading ? t('aiAdvice.analyzing') : t('aiAdvice.getSmartInsights')}
           </Button>
         </div>
         {lastGenerated && (
           <p className="text-xs text-muted-foreground">
-            Last analysis: {lastGenerated}
+            {t('aiAdvice.lastAnalysis', { date: lastGenerated })}
           </p>
         )}
       </CardHeader>
@@ -388,11 +390,11 @@ export const AiAdviceCard = () => {
                       </Badge>
                       {item.actionable && (
                         <Badge className="text-xs bg-blue-500/20 text-blue-400 border-blue-500/30">
-                          Actionable
+                          {t('aiAdvice.actionable')}
                         </Badge>
                       )}
                       <Badge className="text-xs bg-gray-500/20 text-gray-400 border-gray-500/30">
-                        {item.confidence}% confidence
+                        {t('aiAdvice.confidence', { percent: item.confidence })}
                       </Badge>
                     </div>
                     <p className="text-sm text-muted-foreground leading-relaxed">
@@ -414,10 +416,10 @@ export const AiAdviceCard = () => {
           <div className="text-center py-8">
             <Brain className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
             <p className="text-muted-foreground mb-2">
-              Ready to unlock personalized learning insights?
+              {t('aiAdvice.readyToUnlock')}
             </p>
             <p className="text-xs text-muted-foreground">
-              Our AI analyzes your learning patterns, quiz performance, and engagement to provide tailored recommendations.
+              {t('aiAdvice.aiAnalyzesPatterns')}
             </p>
           </div>
         )}

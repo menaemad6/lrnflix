@@ -1,0 +1,53 @@
+{
+  "navigation": {
+    "dashboard": "لوحة التحكم",
+    "courses": "الدورات",
+    "chapters": "الفصول",
+    "groups": "المجموعات",
+    "notifications": "الإشعارات",
+    "settings": "الإعدادات",
+    "profile": "الملف الشخصي",
+    "logout": "تسجيل الخروج"
+  },
+  "actions": {
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "create": "إنشاء",
+    "update": "تحديث",
+    "submit": "إرسال",
+    "close": "إغلاق",
+    "back": "رجوع",
+    "next": "التالي",
+    "previous": "السابق"
+  },
+  "status": {
+    "loading": "جاري التحميل...",
+    "success": "نجح",
+    "error": "خطأ",
+    "warning": "تحذير",
+    "info": "معلومات"
+  },
+  "common": {
+    "yes": "نعم",
+    "no": "لا",
+    "ok": "موافق",
+    "search": "بحث",
+    "filter": "تصفية",
+    "sort": "ترتيب",
+    "all": "الكل",
+    "none": "لا شيء",
+    "select": "اختيار",
+    "required": "مطلوب",
+    "optional": "اختياري"
+  },
+  "time": {
+    "today": "اليوم",
+    "yesterday": "أمس",
+    "tomorrow": "غداً",
+    "thisWeek": "هذا الأسبوع",
+    "lastWeek": "الأسبوع الماضي",
+    "nextWeek": "الأسبوع القادم"
+  }
+}

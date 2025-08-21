@@ -10,6 +10,7 @@ import { CreateChapterModal } from '@/components/chapters/CreateChapterModal';
 import { TeacherPageHeader } from '@/components/teacher/TeacherPageHeader';
 import { Input } from '@/components/ui/input';
 import { useTeacherChapters } from '@/lib/queries';
+import { useTranslation } from 'react-i18next';
 
 interface Chapter {
   id: string;
@@ -26,6 +27,7 @@ interface Chapter {
 const ChapterCardSkeleton = React.lazy(() => import('@/components/student/skeletons/ChapterCardSkeleton').then(m => ({ default: m.ChapterCardSkeleton })));
 
 export const TeacherChaptersPage = () => {
+  const { t } = useTranslation('teacher');
   const { data: chapters = [], isLoading, refetch } = useTeacherChapters();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -44,9 +46,9 @@ export const TeacherChaptersPage = () => {
     <DashboardLayout>
       <div className="space-y-6">
         <TeacherPageHeader
-          title="Chapter Management"
-          subtitle="Create and manage your educational chapters"
-          actionLabel="New Chapter"
+          title={t('chapters.management.title')}
+          subtitle={t('chapters.management.subtitle')}
+          actionLabel={t('chapters.management.newChapter')}
           onAction={() => setIsCreateModalOpen(true)}
           actionIcon={<Plus className="h-4 w-4 mr-2" />}
           actionButtonProps={{ className: 'btn-primary' }}
@@ -55,7 +57,7 @@ export const TeacherChaptersPage = () => {
         <div className="relative max-w-md">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
           <Input
-            placeholder="Search chapters..."
+            placeholder={t('chapters.management.searchPlaceholder')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10"
@@ -75,16 +77,16 @@ export const TeacherChaptersPage = () => {
               <div className="w-20 h-20 bg-gradient-to-br from-primary-500/20 to-secondary-500/20 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-glow-pulse">
                 <Sparkles className="h-10 w-10 text-primary-400" />
               </div>
-              <h3 className="text-xl font-semibold mb-3 gradient-text">Create Your First Chapter</h3>
+              <h3 className="text-xl font-semibold mb-3 gradient-text">{t('chapters.management.createFirstChapter')}</h3>
               <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                Organize your courses into comprehensive learning paths. Build engaging chapters with our AI-powered tools.
+                {t('chapters.management.createFirstChapterDescription')}
               </p>
               <Button 
                 className="btn-primary"
                 onClick={() => setIsCreateModalOpen(true)}
               >
                 <Sparkles className="h-4 w-4 mr-2" />
-                Start Creating
+                {t('chapters.management.startCreating')}
               </Button>
             </CardContent>
           </Card>
@@ -119,7 +121,7 @@ export const TeacherChaptersPage = () => {
                             {chapter.status}
                           </Badge>
                           <span className="text-xs text-muted-foreground">
-                            {chapter.enrollment_count || 0} students
+                            {chapter.enrollment_count || 0} {t('chapters.management.students')}
                           </span>
                         </div>
                       </div>
@@ -131,17 +133,17 @@ export const TeacherChaptersPage = () => {
                   <div className="flex items-center justify-between mb-4">
                     <span className="text-lg font-semibold text-primary">{chapter.price} credits</span>
                     <span className="text-sm text-muted-foreground">
-                      {chapter.course_count} courses
+                      {chapter.course_count} {t('chapters.management.courses')}
                     </span>
                   </div>
                   <div className="flex items-center justify-between mb-4">
                     <span className="text-sm text-muted-foreground">
-                      Revenue: {(chapter.price * (chapter.enrollment_count || 0))} credits
+                      {t('chapters.management.revenue')}: {(chapter.price * (chapter.enrollment_count || 0))} credits
                     </span>
                   </div>
                   <Link to={`/teacher/chapter/${chapter.id}`}>
                     <Button className="w-full btn-secondary group-hover:scale-105 transition-transform">
-                      Manage Chapter
+                      {t('chapters.management.manageChapter')}
                     </Button>
                   </Link>
                 </CardContent>

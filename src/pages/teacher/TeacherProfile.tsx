@@ -13,6 +13,7 @@ import { Separator } from '@/components/ui/separator';
 import { Edit, Calendar, BookOpen, Globe, Save, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { PremiumCourseCard } from '@/components/courses/PremiumCourseCard';
+import { useTranslation } from 'react-i18next';
 
 interface Teacher {
   id: string;
@@ -44,6 +45,7 @@ export const TeacherProfile = () => {
   const { teacherSlug } = useParams<{ teacherSlug: string }>();
   const navigate = useNavigate();
   const user = useSelector((state: RootState) => state.auth.user);
+  const { t } = useTranslation('dashboard');
   const [teacher, setTeacher] = useState<Teacher | null>(null);
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
@@ -198,9 +200,9 @@ export const TeacherProfile = () => {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-foreground mb-4">Teacher Not Found</h1>
+          <h1 className="text-2xl font-bold text-foreground mb-4">{t('teacherProfile.teacherNotFound')}</h1>
           <Button onClick={() => navigate('/teachers')}>
-            Back to Teachers
+            {t('teacherProfile.backToTeachers')}
           </Button>
         </div>
       </div>
@@ -238,7 +240,7 @@ export const TeacherProfile = () => {
                       value={editData.display_name || ''}
                       onChange={(e) => setEditData({ ...editData, display_name: e.target.value })}
                       className="text-2xl font-bold bg-white/20 border-white/30 text-white placeholder:text-white/70"
-                      placeholder="Display Name"
+                      placeholder={t('teacherProfile.displayName')}
                     />
                   ) : (
                     <h1 className="text-3xl font-bold">{teacher.display_name}</h1>
@@ -251,7 +253,7 @@ export const TeacherProfile = () => {
                           value={editData.specialization || ''}
                           onChange={(e) => setEditData({ ...editData, specialization: e.target.value })}
                           className="bg-white/20 border-white/30 text-white placeholder:text-white/70"
-                          placeholder="Specialization"
+                          placeholder={t('teacherProfile.specialization')}
                         />
                       ) : (
                         <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
@@ -268,17 +270,17 @@ export const TeacherProfile = () => {
                       <>
                         <Button onClick={handleSave} size="sm" className="bg-green-600 hover:bg-green-700">
                           <Save className="w-4 h-4 mr-2" />
-                          Save
+                          {t('teacherProfile.saveChanges')}
                         </Button>
                         <Button onClick={handleCancel} size="sm" variant="outline" className="border-white/30 text-white hover:bg-white/20">
                           <X className="w-4 h-4 mr-2" />
-                          Cancel
+                          {t('teacherProfile.cancel')}
                         </Button>
                       </>
                     ) : (
                       <Button onClick={handleEdit} size="sm" variant="outline" className="border-white/30 text-white hover:bg-white/20">
                         <Edit className="w-4 h-4 mr-2" />
-                        Edit Profile
+                        {t('teacherProfile.editProfile')}
                       </Button>
                     )}
                   </div>
@@ -297,19 +299,19 @@ export const TeacherProfile = () => {
             {/* About */}
             <Card>
               <CardHeader>
-                <CardTitle>About</CardTitle>
+                <CardTitle>{t('teacherProfile.about')}</CardTitle>
               </CardHeader>
               <CardContent>
                 {isEditing ? (
                   <Textarea
                     value={editData.bio || ''}
                     onChange={(e) => setEditData({ ...editData, bio: e.target.value })}
-                    placeholder="Tell us about yourself..."
+                    placeholder={t('teacherProfile.tellUsAboutYourself')}
                     className="min-h-[120px]"
                   />
                 ) : (
                   <p className="text-muted-foreground">
-                    {teacher.bio || 'No bio available yet.'}
+                    {teacher.bio || t('teacherProfile.noBio')}
                   </p>
                 )}
               </CardContent>
@@ -318,11 +320,11 @@ export const TeacherProfile = () => {
             {/* Courses */}
             <Card>
               <CardHeader>
-                <CardTitle>Courses ({courses.length})</CardTitle>
+                <CardTitle>{t('teacherProfile.courses')} ({courses.length})</CardTitle>
               </CardHeader>
               <CardContent>
                 {courses.length === 0 ? (
-                  <p className="text-muted-foreground">No courses available yet.</p>
+                  <p className="text-muted-foreground">{t('teacherProfile.noCourses')}</p>
                 ) : (
                   <div className="grid gap-6 sm:grid-cols-2">
                     {courses.map((course) => (
@@ -357,14 +359,14 @@ export const TeacherProfile = () => {
             {/* Stats */}
             <Card>
               <CardHeader>
-                <CardTitle>Stats</CardTitle>
+                <CardTitle>{t('teacherProfile.stats')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center gap-3">
                   <BookOpen className="w-5 h-5 text-primary" />
                   <div>
                     <p className="font-semibold">{teacher.course_count || 0}</p>
-                    <p className="text-sm text-muted-foreground">Courses</p>
+                    <p className="text-sm text-muted-foreground">{t('teacherProfile.courses')}</p>
                   </div>
                 </div>
                 
@@ -377,13 +379,13 @@ export const TeacherProfile = () => {
                           type="number"
                           value={editData.experience_years || ''}
                           onChange={(e) => setEditData({ ...editData, experience_years: parseInt(e.target.value) || 0 })}
-                          placeholder="Years of experience"
+                          placeholder={t('teacherProfile.yearsOfExperience')}
                           className="w-full"
                         />
                       ) : (
                         <>
-                          <p className="font-semibold">{teacher.experience_years}+ years</p>
-                          <p className="text-sm text-muted-foreground">Experience</p>
+                          <p className="font-semibold">{teacher.experience_years}+ {t('teacherProfile.years')}</p>
+                          <p className="text-sm text-muted-foreground">{t('teacherProfile.experience')}</p>
                         </>
                       )}
                     </div>
@@ -396,14 +398,14 @@ export const TeacherProfile = () => {
             {(teacher.website_url || isEditing) && (
               <Card>
                 <CardHeader>
-                  <CardTitle>Links</CardTitle>
+                  <CardTitle>{t('teacherProfile.links')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   {isEditing ? (
                     <Input
                       value={editData.website_url || ''}
                       onChange={(e) => setEditData({ ...editData, website_url: e.target.value })}
-                      placeholder="Website URL"
+                      placeholder={t('teacherProfile.websiteUrl')}
                     />
                   ) : (
                     teacher.website_url && (
@@ -414,7 +416,7 @@ export const TeacherProfile = () => {
                         className="flex items-center gap-2 text-primary hover:underline"
                       >
                         <Globe className="w-4 h-4" />
-                        Website
+                        {t('teacherProfile.website')}
                       </a>
                     )
                   )}

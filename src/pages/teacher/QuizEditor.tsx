@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -42,6 +43,7 @@ export const QuizEditor = () => {
   const { courseId, quizId } = useParams<{ courseId: string; quizId: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useTranslation('teacher');
   
   const [quiz, setQuiz] = useState<Quiz | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -181,7 +183,7 @@ export const QuizEditor = () => {
     const question = questions[questionIndex];
     if (!question.question_text.trim()) {
       toast({
-        title: 'Error',
+        title: t('quizEditor.error'),
         description: 'Please add question text first',
         variant: 'destructive',
       });
@@ -199,14 +201,14 @@ export const QuizEditor = () => {
       updateQuestion(questionIndex, 'correct_answer', response.answer);
       
       toast({
-        title: 'Success',
+        title: t('quizEditor.success'),
         description: 'Answer generated successfully!',
       });
     } catch (error: any) {
       console.error('Error answering question:', error);
       toast({
-        title: 'Error',
-        description: error.message,
+        title: t('quizEditor.error'),
+        description: t('quizEditor.failedToAnswer'),
         variant: 'destructive',
       });
     } finally {
@@ -218,8 +220,8 @@ export const QuizEditor = () => {
     const validQuestions = questions.filter(q => q.question_text.trim());
     if (validQuestions.length === 0) {
       toast({
-        title: 'Error',
-        description: 'No valid questions to answer',
+        title: t('quizEditor.error'),
+        description: t('quizEditor.noValidQuestions'),
         variant: 'destructive',
       });
       return;
@@ -242,14 +244,14 @@ export const QuizEditor = () => {
       });
 
       toast({
-        title: 'Success',
-        description: `Generated answers for ${response.answers.length} questions!`,
+        title: t('quizEditor.success'),
+        description: t('quizEditor.generatedAnswers', { count: response.answers.length }),
       });
     } catch (error: any) {
       console.error('Error answering all questions:', error);
       toast({
-        title: 'Error',
-        description: error.message,
+        title: t('quizEditor.error'),
+        description: t('quizEditor.failedToAnswer'),
         variant: 'destructive',
       });
     } finally {
@@ -378,8 +380,8 @@ export const QuizEditor = () => {
       }
 
       toast({
-        title: 'Success',
-        description: `Quiz ${isNewQuiz ? 'created' : 'updated'} successfully!`,
+        title: t('quizEditor.success'),
+        description: isNewQuiz ? t('quizEditor.quizCreated') : t('quizEditor.quizUpdated'),
       });
 
       if (isNewQuiz) {
@@ -410,27 +412,27 @@ export const QuizEditor = () => {
       <div className="flex items-center gap-4">
         <Button variant="outline" onClick={() => navigate(`/teacher/courses/${courseId}`)}>
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Course
+          {t('quizEditor.backToCourse')}
         </Button>
         <h1 className="text-3xl font-bold">
-          {isNewQuiz ? 'Create Quiz' : 'Edit Quiz'}
+          {isNewQuiz ? t('quizEditor.createQuiz') : t('quizEditor.editQuiz')}
         </h1>
         <div className="ml-auto">
           <Button onClick={saveQuiz} disabled={saving}>
             <Save className="h-4 w-4 mr-2" />
-            {saving ? 'Saving...' : 'Save Quiz'}
+            {saving ? t('quizEditor.saving') : t('quizEditor.saveQuiz')}
           </Button>
         </div>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Quiz Details</CardTitle>
+          <CardTitle>{t('quizEditor.quizDetails')}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <Input
-              placeholder="Quiz Title"
+              placeholder={t('quizEditor.quizTitle')}
               value={quizForm.title}
               onChange={(e) => setQuizForm({ ...quizForm, title: e.target.value })}
             />
@@ -439,21 +441,21 @@ export const QuizEditor = () => {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="quiz">Quiz</SelectItem>
-                <SelectItem value="assignment">Assignment</SelectItem>
+                <SelectItem value="quiz">{t('quizEditor.quiz')}</SelectItem>
+                <SelectItem value="assignment">{t('quizEditor.assignment')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <Textarea
-            placeholder="Quiz Description"
+            placeholder={t('quizEditor.quizDescription')}
             value={quizForm.description}
             onChange={(e) => setQuizForm({ ...quizForm, description: e.target.value })}
           />
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-sm font-medium">Time Limit (minutes)</label>
+              <label className="text-sm font-medium">{t('quizEditor.timeLimit')}</label>
               <Input
                 type="number"
                 value={quizForm.time_limit}
@@ -461,7 +463,7 @@ export const QuizEditor = () => {
               />
             </div>
             <div>
-              <label className="text-sm font-medium">Max Attempts</label>
+              <label className="text-sm font-medium">{t('quizEditor.maxAttempts')}</label>
               <Input
                 type="number"
                 value={quizForm.max_attempts}
@@ -471,7 +473,7 @@ export const QuizEditor = () => {
           </div>
 
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Quiz Options</h3>
+            <h3 className="text-lg font-semibold">{t('quizEditor.quizOptions')}</h3>
             <div className="grid grid-cols-2 gap-4">
               <div className="flex items-center space-x-2">
                 <Switch
@@ -479,7 +481,7 @@ export const QuizEditor = () => {
                   checked={quizForm.shuffle_questions}
                   onCheckedChange={(checked) => setQuizForm({ ...quizForm, shuffle_questions: checked })}
                 />
-                <Label htmlFor="shuffle-questions">Shuffle Questions</Label>
+                <Label htmlFor="shuffle-questions">{t('quizEditor.shuffleQuestions')}</Label>
               </div>
 
               <div className="flex items-center space-x-2">
@@ -488,7 +490,7 @@ export const QuizEditor = () => {
                   checked={quizForm.question_navigation}
                   onCheckedChange={(checked) => setQuizForm({ ...quizForm, question_navigation: checked })}
                 />
-                <Label htmlFor="question-navigation">Allow Question Navigation</Label>
+                <Label htmlFor="question-navigation">{t('quizEditor.allowQuestionNavigation')}</Label>
               </div>
 
               <div className="flex items-center space-x-2">
@@ -497,7 +499,7 @@ export const QuizEditor = () => {
                   checked={quizForm.show_results}
                   onCheckedChange={(checked) => setQuizForm({ ...quizForm, show_results: checked })}
                 />
-                <Label htmlFor="show-results">Show Results to Students</Label>
+                <Label htmlFor="show-results">{t('quizEditor.showResultsToStudents')}</Label>
               </div>
 
               <div className="flex items-center space-x-2">
@@ -506,7 +508,7 @@ export const QuizEditor = () => {
                   checked={quizForm.show_correct_answers}
                   onCheckedChange={(checked) => setQuizForm({ ...quizForm, show_correct_answers: checked })}
                 />
-                <Label htmlFor="show-correct-answers">Show Correct Answers</Label>
+                <Label htmlFor="show-correct-answers">{t('quizEditor.showCorrectAnswers')}</Label>
               </div>
 
               <div className="flex items-center space-x-2">
@@ -515,7 +517,7 @@ export const QuizEditor = () => {
                   checked={quizForm.allow_review}
                   onCheckedChange={(checked) => setQuizForm({ ...quizForm, allow_review: checked })}
                 />
-                <Label htmlFor="allow-review">Allow Answer Review</Label>
+                <Label htmlFor="allow-review">{t('quizEditor.allowAnswerReview')}</Label>
               </div>
             </div>
           </div>
@@ -524,19 +526,19 @@ export const QuizEditor = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Add Questions</CardTitle>
+          <CardTitle>{t('quizEditor.addQuestions')}</CardTitle>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="manual" className="space-y-4">
             <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="manual">Manual Entry</TabsTrigger>
-              <TabsTrigger value="json">JSON Import</TabsTrigger>
-              <TabsTrigger value="pdf">PDF Extraction</TabsTrigger>
+              <TabsTrigger value="manual">{t('quizEditor.manualEntry')}</TabsTrigger>
+              <TabsTrigger value="json">{t('quizEditor.jsonImport')}</TabsTrigger>
+              <TabsTrigger value="pdf">{t('quizEditor.pdfExtraction')}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="manual" className="space-y-4">
               <div className="flex justify-between items-center">
-                <p className="text-muted-foreground">Add questions manually</p>
+                <p className="text-muted-foreground">{t('quizEditor.addQuestionsManually')}</p>
                 <div className="flex gap-2">
                   <Button
                     onClick={handleAnswerAllQuestions}
@@ -545,11 +547,11 @@ export const QuizEditor = () => {
                     className="bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0 hover:from-purple-600 hover:to-pink-600"
                   >
                     <Zap className="h-4 w-4 mr-2" />
-                    {answeringAll ? 'Answering All...' : 'Answer All with AI'}
+                    {answeringAll ? t('quizEditor.answeringAll') : t('quizEditor.answerAllWithAI')}
                   </Button>
                   <Button onClick={addQuestion}>
                     <Plus className="h-4 w-4 mr-2" />
-                    Add Question
+                    {t('quizEditor.addQuestion')}
                   </Button>
                 </div>
               </div>
@@ -557,16 +559,16 @@ export const QuizEditor = () => {
 
             <TabsContent value="json" className="space-y-4">
               <div className="space-y-2">
-                <Label>JSON Format: [{`{question, correctAnswer, choice_1, choice_2, choice_3, choice_4}`}, ...]</Label>
+                <Label>{t('quizEditor.jsonFormat')}</Label>
                 <Textarea
-                  placeholder='[{"question": "What is 2+2?", "correctAnswer": "4", "choice_1": "3", "choice_2": "4", "choice_3": "5", "choice_4": "6"}]'
+                  placeholder={t('quizEditor.jsonPlaceholder')}
                   value={jsonInput}
                   onChange={(e) => setJsonInput(e.target.value)}
                   rows={8}
                 />
                 <Button onClick={handleJsonImport} disabled={!jsonInput.trim()}>
                   <FileJson className="h-4 w-4 mr-2" />
-                  Import Questions
+                  {t('quizEditor.importQuestions')}
                 </Button>
               </div>
             </TabsContent>
@@ -580,14 +582,14 @@ export const QuizEditor = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Questions ({questions.length})</CardTitle>
+          <CardTitle>{t('quizEditor.questions')} ({questions.length})</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {questions.map((question, index) => (
             <Card key={index}>
               <CardContent className="p-4 space-y-4">
                 <div className="flex items-center justify-between">
-                  <h4 className="font-medium">Question {index + 1}</h4>
+                  <h4 className="font-medium">{t('quizEditor.question')} {index + 1}</h4>
                   <div className="flex gap-2">
                     <Button
                       variant="outline"
@@ -597,7 +599,7 @@ export const QuizEditor = () => {
                       className="bg-gradient-to-r from-blue-500 to-accent-500 text-white border-0 hover:from-blue-600 hover:to-accent-600"
                     >
                       <Sparkles className="h-4 w-4 mr-1" />
-                      {answeringQuestion === index ? 'AI Answering...' : 'AI Answer'}
+                      {answeringQuestion === index ? t('quizEditor.aiAnswering') : t('quizEditor.aiAnswer')}
                     </Button>
                     <Button
                       variant="destructive"
@@ -610,7 +612,7 @@ export const QuizEditor = () => {
                 </div>
 
                 <Textarea
-                  placeholder="Question text"
+                  placeholder={t('quizEditor.questionText')}
                   value={question.question_text}
                   onChange={(e) => updateQuestion(index, 'question_text', e.target.value)}
                 />
@@ -624,14 +626,14 @@ export const QuizEditor = () => {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="mcq">Multiple Choice</SelectItem>
-                      <SelectItem value="written">Written Answer</SelectItem>
+                      <SelectItem value="mcq">{t('quizEditor.multipleChoice')}</SelectItem>
+                      <SelectItem value="written">{t('quizEditor.writtenAnswer')}</SelectItem>
                     </SelectContent>
                   </Select>
 
                   <Input
                     type="number"
-                    placeholder="Points"
+                    placeholder={t('quizEditor.points')}
                     value={question.points}
                     onChange={(e) => updateQuestion(index, 'points', parseInt(e.target.value))}
                   />
@@ -639,11 +641,11 @@ export const QuizEditor = () => {
 
                 {question.question_type === 'mcq' && (
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Options:</label>
+                    <label className="text-sm font-medium">{t('quizEditor.options')}:</label>
                     {question.options?.map((option, optIndex) => (
                       <div key={optIndex} className="flex gap-2">
                         <Input
-                          placeholder={`Option ${optIndex + 1}`}
+                          placeholder={`${t('quizEditor.option')} ${optIndex + 1}`}
                           value={option}
                           onChange={(e) => updateOption(index, optIndex, e.target.value)}
                         />
@@ -652,7 +654,7 @@ export const QuizEditor = () => {
                           variant={question.correct_answer === option ? "default" : "outline"}
                           onClick={() => updateQuestion(index, 'correct_answer', option)}
                         >
-                          Correct
+                          {t('quizEditor.correctAnswer')}
                         </Button>
                       </div>
                     ))}
@@ -661,7 +663,7 @@ export const QuizEditor = () => {
 
                 {question.question_type === 'written' && (
                   <Input
-                    placeholder="Expected answer/keywords"
+                    placeholder={t('quizEditor.expectedAnswer')}
                     value={question.correct_answer}
                     onChange={(e) => updateQuestion(index, 'correct_answer', e.target.value)}
                   />
@@ -672,7 +674,7 @@ export const QuizEditor = () => {
 
           {questions.length === 0 && (
             <div className="text-center py-8 text-muted-foreground">
-              <p>No questions added yet. Use the tabs above to add questions.</p>
+              <p>{t('quizEditor.noQuestionsAdded')}</p>
             </div>
           )}
         </CardContent>

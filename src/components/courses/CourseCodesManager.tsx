@@ -86,7 +86,9 @@ export const CourseCodesManager = ({ courseId }: CourseCodesManagerProps) => {
         discount_amount: newCode.discount_amount ? parseFloat(newCode.discount_amount) : null,
         max_uses: newCode.max_uses ? parseInt(newCode.max_uses) : null,
         expires_at: newCode.expires_at || null,
-        created_by: user.id
+        created_by: user.id,
+        current_uses: 0,
+        is_active: true
       };
 
       const { error } = await supabase

@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { ChevronDown } from 'lucide-react';
 import { useTeacherCourses } from '@/lib/queries';
+import { useTranslation } from 'react-i18next';
 // Remove direct import of PremiumCourseCard and CourseCardSkeleton
 // import { PremiumCourseCard } from '@/components/courses/PremiumCourseCard';
 // Add lazy imports:
@@ -37,6 +38,7 @@ interface Course {
 }
 
 export const TeacherCoursesPage = () => {
+  const { t } = useTranslation('teacher');
   const { data: courses = [], isLoading, refetch } = useTeacherCourses();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -64,9 +66,9 @@ export const TeacherCoursesPage = () => {
     <DashboardLayout>
       <div className="space-y-6">
         <TeacherPageHeader
-          title="Course Management"
-          subtitle="Create and manage your educational content"
-          actionLabel="New Course"
+          title={t('courses.management.title')}
+          subtitle={t('courses.management.subtitle')}
+          actionLabel={t('courses.management.addCourse')}
           onAction={() => setIsCreateModalOpen(true)}
           actionIcon={<Plus className="h-4 w-4 mr-2" />}
           actionButtonProps={{ className: 'btn-primary' }}

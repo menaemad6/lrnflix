@@ -19,6 +19,7 @@ import {
 import { useRandomBackground } from "../../hooks/useRandomBackground";
 import { PremiumCourseCard } from '@/components/courses/PremiumCourseCard';
 import { CourseViewSkeleton } from '@/components/student/skeletons/CourseViewSkeleton';
+import { useTranslation } from 'react-i18next';
 
 interface Chapter {
   id: string;
@@ -68,6 +69,7 @@ interface ChapterCourse {
 export const ChapterDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const { toast } = useToast();
+  const { t } = useTranslation('dashboard');
   const [chapter, setChapter] = useState<Chapter | null>(null);
   const [courses, setCourses] = useState<Course[]>([]);
   const [isEnrolled, setIsEnrolled] = useState(false);
@@ -143,7 +145,7 @@ export const ChapterDetailPage = () => {
           ...obj,
           course: {
             ...obj.course,
-            instructor_name: obj.course.profiles?.full_name || 'Course Instructor',
+            instructor_name: obj.course.profiles?.full_name || t('studentChapterDetail.courseInstructor'),
             avatar_url: obj.course.profiles?.avatar_url || undefined,
           }
         } : obj)
@@ -152,8 +154,8 @@ export const ChapterDetailPage = () => {
     } catch (error: unknown) {
       console.error('Error fetching chapter:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to load chapter',
+        title: t('studentChapterDetail.error'),
+        description: t('studentChapterDetail.failedToLoadChapter'),
         variant: 'destructive',
       });
     } finally {
@@ -175,7 +177,7 @@ export const ChapterDetailPage = () => {
       const response = result.data as unknown;
       if (response && typeof response === 'object' && 'success' in response && (response as { success: boolean }).success) {
         toast({
-          title: 'Success',
+          title: t('studentChapterDetail.success'),
           description: (response as { message?: string }).message,
         });
         setIsEnrolled(true);
@@ -183,7 +185,7 @@ export const ChapterDetailPage = () => {
         fetchUserWallet();
       } else {
         toast({
-          title: 'Error',
+          title: t('studentChapterDetail.error'),
           description: (response && typeof response === 'object' && 'error' in response) ? (response as { error?: string }).error : 'Failed to enroll',
           variant: 'destructive',
         });
@@ -192,7 +194,7 @@ export const ChapterDetailPage = () => {
       const err = error as Error;
       console.error('Error purchasing chapter:', err);
       toast({
-        title: 'Error',
+        title: t('studentChapterDetail.error'),
         description: err.message,
         variant: 'destructive',
       });
@@ -210,14 +212,14 @@ export const ChapterDetailPage = () => {
           <CardContent className="p-12 text-center">
             <BookOpen className="h-12 w-12 text-red-400 mx-auto mb-4" />
             <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-red-400 via-orange-400 to-red-500 bg-clip-text text-transparent">
-              Chapter Not Found
+              {t('studentChapterDetail.chapterNotFound')}
             </h1>
             <p className="text-xl text-muted-foreground leading-relaxed mt-4">
-              The chapter you're looking for doesn't exist or may have been removed.
+              {t('studentChapterDetail.chapterNotFoundDescription')}
             </p>
             <div className="flex gap-4 mt-8 justify-center">
               <Button onClick={() => navigate('/chapters')}>
-                Browse Chapters
+                {t('studentChapterDetail.backToChapters')}
               </Button>
             </div>
           </CardContent>
@@ -240,7 +242,7 @@ export const ChapterDetailPage = () => {
               <div className="space-y-6">
                 <div className="flex items-center gap-3">
                   <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 px-4 py-2">
-                    Chapter
+                    {t('studentChapterDetail.chapter')}
                   </Badge>
                   <Badge variant="outline" className="px-3 py-1">
                     <Star className="h-3 w-3 mr-1 fill-yellow-400 text-yellow-400" />
@@ -260,15 +262,15 @@ export const ChapterDetailPage = () => {
                 <div className="flex flex-wrap items-center gap-6 text-sm">
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <BookOpen className="h-4 w-4" />
-                    <span>{chapterCourses.length} courses included</span>
+                    <span>{chapterCourses.length} {t('studentChapterDetail.coursesIncluded')}</span>
                   </div>
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <Calendar className="h-4 w-4" />
-                    <span>Created {new Date(chapter.created_at).toLocaleDateString()}</span>
+                    <span>{t('studentChapterDetail.created')} {new Date(chapter.created_at).toLocaleDateString()}</span>
                   </div>
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <Globe className="h-4 w-4" />
-                    <span>English</span>
+                    <span>{t('studentChapterDetail.language')}</span>
                   </div>
                 </div>
 
@@ -278,8 +280,8 @@ export const ChapterDetailPage = () => {
                       <div className="flex items-center gap-3">
                         <Trophy className="h-6 w-6 text-primary-500" />
                         <div>
-                          <h3 className="font-semibold text-primary-700 dark:text-primary-300">Enrolled Successfully!</h3>
-                          <p className="text-sm text-primary-600 dark:text-primary-400">You now have access to all courses in this chapter</p>
+                          <h3 className="font-semibold text-primary-700 dark:text-primary-300">{t('studentChapterDetail.enrolledSuccessfully')}</h3>
+                          <p className="text-sm text-primary-600 dark:text-primary-400">{t('studentChapterDetail.enrolledSuccessfullyDescription')}</p>
                         </div>
                       </div>
                     </CardContent>
@@ -289,7 +291,7 @@ export const ChapterDetailPage = () => {
 
               {/* Courses List */}
               <div className="space-y-6">
-                <h2 className="text-2xl font-bold">Courses in this Chapter</h2>
+                <h2 className="text-2xl font-bold">{t('studentChapterDetail.coursesInThisChapter')}</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {chapterCourses.map((obj) => (
                     obj.course ? (
@@ -336,33 +338,33 @@ export const ChapterDetailPage = () => {
                   )}
                   
                   <div className="text-center space-y-2">
-                    <div className="text-3xl font-bold gradient-text">
-                      {chapter.price} credits
+                    <div className="text-3xl font-bold text-primary">
+                      {chapter.price} {t('studentChapterDetail.egp')}
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      One-time payment for lifetime access
+                      {t('studentChapterDetail.oneTimePayment')}
                     </p>
                   </div>
 
                   <div className="space-y-3">
                     <div className="flex items-center gap-2">
                       <CheckCircle className="h-4 w-4 text-primary" />
-                      <span className="text-sm">Access to {chapterCourses.length} courses</span>
+                      <span className="text-sm">{t('studentChapterDetail.accessToCourses')} {chapterCourses.length}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <CheckCircle className="h-4 w-4 text-primary" />
-                      <span className="text-sm">Lifetime access</span>
+                      <span className="text-sm">{t('studentChapterDetail.lifetimeAccess')}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <CheckCircle className="h-4 w-4 text-primary" />
-                      <span className="text-sm">Certificate of completion</span>
+                      <span className="text-sm">{t('studentChapterDetail.certificateOfCompletion')}</span>
                     </div>
                   </div>
 
                   {isEnrolled ? (
                     <Button disabled className="w-full">
                       <CheckCircle className="h-4 w-4 mr-2" />
-                      Already Enrolled
+                      {t('studentChapterDetail.enrolled')}
                     </Button>
                   ) : (
                     <div className="space-y-3">
@@ -371,10 +373,10 @@ export const ChapterDetailPage = () => {
                         className="w-full btn-primary"
                         disabled={userWallet < chapter.price}
                       >
-                        {userWallet < chapter.price ? 'Insufficient Credits' : 'Enroll Now'}
+                        {userWallet < chapter.price ? t('studentChapterDetail.insufficientCredits') : t('studentChapterDetail.enrollInChapter')}
                       </Button>
                       <p className="text-xs text-center text-muted-foreground">
-                        Your balance: {userWallet} credits
+                        {t('studentChapterDetail.yourBalance')} {userWallet}
                       </p>
                     </div>
                   )}

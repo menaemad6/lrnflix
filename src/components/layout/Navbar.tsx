@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
+import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
 import { BookOpen, Layout, LogOut, Home, Search, Store, Menu, Sidebar, MessageCircleQuestion, Gamepad2, Users, Gift, Bell, PieChart, DollarSign, CircleDollarSign, GraduationCap } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import type { RootState } from '@/store/store';
@@ -20,10 +21,11 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { Card, CardContent } from '@/components/ui/card';
-import { ModernScrollbar } from '@/components/ui/modern-scrollbar';
+import { HiddenScrollbar } from '@/components/ui/hidden-scrollbar';
 import type { User } from '@/store/slices/authSlice';
 import WalletCardDesign from '@/components/student/WalletCardDesign'
 import { PLATFORM_NAME } from '@/data/constants';
+import { useTranslation } from 'react-i18next';
 
 // NavLink must be above NavbarSidebarContent for scope
 const NavLink = ({ to, children, icon: Icon, onClick, className = "", isActive }: { to: string; children: React.ReactNode; icon: React.ComponentType<{ className?: string }>; onClick?: () => void; className?: string; isActive: (path: string) => boolean }) => (
@@ -39,6 +41,7 @@ const NavLink = ({ to, children, icon: Icon, onClick, className = "", isActive }
 );
 
 export const Navbar = ({ extraXSpacing = false }: { extraXSpacing?: boolean }) => {
+  const { t } = useTranslation('navigation');
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
@@ -109,48 +112,48 @@ export const Navbar = ({ extraXSpacing = false }: { extraXSpacing?: boolean }) =
 
   // NAVIGATION LINKS
   const navLinks = [
-    { to: '/', label: 'Home', icon: Home },
+    { to: '/', label: t('navbar.home'), icon: Home },
     ...(userRole === 'student'
       ? [
-        { to: '/courses', label: 'Courses', icon: Search },
-          { to: '/student/dashboard', label: 'Dashboard', icon: Layout },
+        { to: '/courses', label: t('navbar.courses'), icon: Search },
+          { to: '/student/dashboard', label: t('navbar.dashboard'), icon: Layout },
 
         ]
       : []),
     ...((userRole === 'teacher' || userRole === 'admin')
       ? [
-          { to: '/teacher/dashboard', label: 'Dashboard', icon: Layout },
+          { to: '/teacher/dashboard', label: t('navbar.dashboard'), icon: Layout },
         ]
       : []),
   ];
 
     // NAVIGATION LINKS FOR SIDENAVBAR
     let sideNavLinks = [
-      { to: '/', label: 'Home', icon: Home },
+      { to: '/', label: t('navbar.home'), icon: Home },
       ...(userRole === 'student'
         ? [
-          { to: '/student/dashboard', label: 'Dashboard', icon: Layout },
-          { to: '/teachers', label: 'Teachers', icon: GraduationCap },
-          { to: '/courses', label: 'Courses', icon: Search },
-          { to: '/student/store', label: 'Store', icon: CircleDollarSign },
-          { to: '/chapters', label: 'Chapters', icon: BookOpen },
-          { to: '/student/groups', label: 'My Groups', icon: Users },
-          { to: '/questions', label: 'Questions', icon: MessageCircleQuestion },
-          { to: '/multiplayer-quiz', label: 'Quiz Game', icon: Gamepad2 },
-          { to: '/student/notifications', label: 'My Notifications', icon: Bell },
+          { to: '/student/dashboard', label: t('navbar.dashboard'), icon: Layout },
+          { to: '/teachers', label: t('navbar.teachers'), icon: GraduationCap },
+          { to: '/courses', label: t('navbar.courses'), icon: Search },
+          { to: '/student/store', label: t('navbar.store'), icon: CircleDollarSign },
+          { to: '/chapters', label: t('navbar.chapters'), icon: BookOpen },
+          { to: '/student/groups', label: t('navbar.myGroups'), icon: Users },
+          { to: '/questions', label: t('navbar.questions'), icon: MessageCircleQuestion },
+          { to: '/multiplayer-quiz', label: t('navbar.quizGame'), icon: Gamepad2 },
+          { to: '/student/notifications', label: t('navbar.myNotifications'), icon: Bell },
   
           ]
         : []),
       ...((userRole === 'teacher' || userRole === 'admin')
         ? [
-            { to: '/teacher/dashboard', label: 'Dashboard', icon: Layout },
-            { to: '/teacher/chapters', label: 'My Chapters', icon: BookOpen },
-            { to: '/questions', label: 'Questions', icon: MessageCircleQuestion },
-            { to: '/teacher/multiplayer-quiz', label: 'Quiz Game', icon: Gamepad2 },
-            { to: '/teacher/groups', label: 'My Groups', icon: Users },
-            { to: '/teacher/codes', label: 'Wallet Codes', icon: Gift },
-            { to: '/teacher/notifications', label: 'Notifications', icon: Bell },
-            { to: '/teacher/analytics', label: 'Analytics', icon: PieChart },
+            { to: '/teacher/dashboard', label: t('navbar.dashboard'), icon: Layout },
+            { to: '/teacher/chapters', label: t('navbar.myChapters'), icon: BookOpen },
+            { to: '/questions', label: t('navbar.questions'), icon: MessageCircleQuestion },
+            { to: '/teacher/multiplayer-quiz', label: t('navbar.quizGame'), icon: Gamepad2 },
+            { to: '/teacher/groups', label: t('navbar.myGroups'), icon: Users },
+            { to: '/teacher/codes', label: t('navbar.walletCodes'), icon: Gift },
+            { to: '/teacher/notifications', label: t('navbar.notifications'), icon: Bell },
+            { to: '/teacher/analytics', label: t('navbar.analytics'), icon: PieChart },
           ]
         : []),
     ];
@@ -193,18 +196,18 @@ export const Navbar = ({ extraXSpacing = false }: { extraXSpacing?: boolean }) =
                     <div className="px-1 pb-4 pt-8 flex flex-col gap-3">
                       <div>
                         <Link to="/auth/login">
-                          <Button className="hover-glow w-full">Login</Button>
+                          <Button className="hover-glow w-full">{t('auth.login')}</Button>
                         </Link>
                         <div className="text-xs text-muted-foreground mt-1 text-center">
-                          Access your account and continue learning
+                          {t('auth.loginDescription')}
                         </div>
                       </div>
                       <div>
                         <Link to="/auth/signup">
-                          <Button variant="outline" className="glass hover-glow w-full">Sign Up</Button>
+                          <Button variant="outline" className="glass hover-glow w-full">{t('auth.signup')}</Button>
                         </Link>
                         <div className="text-xs text-muted-foreground mt-1 text-center">
-                          Create a free account to get started
+                          {t('auth.signupDescription')}
                         </div>
                       </div>
                     </div>
@@ -213,15 +216,17 @@ export const Navbar = ({ extraXSpacing = false }: { extraXSpacing?: boolean }) =
               </Sheet>
             ) : (
               <div className="flex items-center space-x-4">
-                <NavLink to="/" icon={Home} isActive={isActive}>Home</NavLink>
+                <NavLink to="/" icon={Home} isActive={isActive}>{t('navbar.home')}</NavLink>
                 <Separator orientation="vertical" className="h-8 mx-2" />
-                <ThemeToggle buttonClassName="glass hover-glow px-3 py-2 hover:bg-primary-500/20 focus:bg-primary/20 active:bg-primary/20 transition-colors group" iconClassName="group-hover:text-primary-500 transition-colors" />
+                <LanguageSwitcher />
                 <Separator orientation="vertical" className="h-8 mx-2" />
+                <ThemeToggle buttonClassName="glass hover-glow px-3 py-2 hover:bg-primary-500/20 focus:bg-primary/500/20 active:bg-primary/20 transition-colors group" iconClassName="group-hover:text-primary-500 transition-colors" />
+                <Separator orientation="vertical" className="h-2 mx-2" />
                 <Link to="/auth/login">
-                  <Button className="hover-glow">Login</Button>
+                  <Button className="hover-glow">{t('auth.login')}</Button>
                 </Link>
                 <Link to="/auth/signup">
-                  <Button variant="outline" className="glass hover-glow">Sign Up</Button>
+                  <Button variant="outline" className="glass hover-glow">{t('auth.signup')}</Button>
                 </Link>
               </div>
             )}
@@ -244,7 +249,7 @@ export const Navbar = ({ extraXSpacing = false }: { extraXSpacing?: boolean }) =
           {isMobile ? (
             <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
               <SheetTrigger asChild>
-                <Button variant="outline" size="icon" className="glass hover-glow ml-4" aria-label="Open Sidebar">
+                <Button variant="outline" size="icon" className="glass hover-glow ml-4" aria-label={t('navbar.openSidebar')}>
                   <Sidebar className="h-[1.2rem] w-[1.2rem]" />
                 </Button>
               </SheetTrigger>
@@ -261,6 +266,14 @@ export const Navbar = ({ extraXSpacing = false }: { extraXSpacing?: boolean }) =
               ))}
               
               <Separator orientation="vertical" className="h-8 mx-2" />
+              
+              <LanguageSwitcher />
+
+              <Separator orientation="vertical" className="h-8 mx-2" />
+
+              <ThemeToggle buttonClassName="glass hover-glow px-3 py-2 hover:bg-primary-500/20 focus:bg-primary/20 active:bg-primary/20 transition-colors group" iconClassName="group-hover:text-primary-500 transition-colors" />
+              <Separator orientation="vertical" className="h-8 mx-2" />
+
               <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="icon" className="glass hover-glow flex items-center justify-center hover:bg-primary/10 focus:bg-primary/20 active:bg-primary/20 transition-colors" aria-label="Profile">
@@ -300,7 +313,7 @@ export const Navbar = ({ extraXSpacing = false }: { extraXSpacing?: boolean }) =
                         onClick={() => { setDropdownOpen(false); navigate('/student/courses'); }}
                       >
                         <BookOpen className="h-4 w-4" />
-                        My Courses
+                        {t('sidebar.myCourses')}
                       </button>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
@@ -309,7 +322,7 @@ export const Navbar = ({ extraXSpacing = false }: { extraXSpacing?: boolean }) =
                         onClick={() => { setDropdownOpen(false); navigate('/student/notifications'); }}
                       >
                         <Bell className="h-4 w-4" />
-                        My Notifications
+                        {t('sidebar.notifications')}
                       </button>
                     </DropdownMenuItem>
                   </div>
@@ -320,19 +333,19 @@ export const Navbar = ({ extraXSpacing = false }: { extraXSpacing?: boolean }) =
                       className="w-full mt-2 flex items-center gap-2 text-destructive font-semibold py-2 px-2 rounded hover:bg-destructive/10 transition"
                     >
                       <LogOut className="h-4 w-4" />
-                      Sign Out
+                      {t('navbar.logout')}
                     </button>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+
               <Separator orientation="vertical" className="h-8 mx-2" />
-              <ThemeToggle buttonClassName="glass hover-glow px-3 py-2 hover:bg-primary-500/20 focus:bg-primary/20 active:bg-primary/20 transition-colors group" iconClassName="group-hover:text-primary-500 transition-colors" />
-              <Separator orientation="vertical" className="h-8 mx-2" />
+
               <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
                 <SheetTrigger asChild>
-                  <Button variant="outline" size="icon" className="glass hover-glow px-3 py-2 hover:bg-primary-500/20 focus:bg-primary/20 active:bg-primary/20 transition-colors group" aria-label="Open Sidebar">
-                    <Sidebar className="h-[1.2rem] w-[1.2rem] transition-colors group-hover:text-primary-500" />
-                  </Button>
+                                  <Button variant="outline" size="icon" className="glass hover-glow px-3 py-2 hover:bg-primary-500/20 focus:bg-primary/20 active:bg-primary/20 transition-colors group" aria-label={t('navbar.openSidebar')}>
+                  <Sidebar className="h-[1.2rem] w-[1.2rem] transition-colors group-hover:text-primary-500" />
+                </Button>
                 </SheetTrigger>
                 <SheetContent side="right" className="pt-0 w-72 lg:w-96 rounded-l-2xl shadow-2xl bg-card text-foreground flex flex-col h-full">
                   <NavbarSidebarContent user={user} navLinks={sideNavLinks} handleLogout={handleLogout} setSheetOpen={setSheetOpen} isActive={isActive} />
@@ -383,6 +396,7 @@ interface NavLinkItem {
 }
 
 function NavbarSidebarContent({ user, navLinks, handleLogout, setSheetOpen, isActive }: { user: User | null, navLinks: NavLinkItem[], handleLogout: () => void, setSheetOpen?: (open: boolean) => void, isActive: (path: string) => boolean }) {
+  const { t } = useTranslation('navigation');
   const { teacher } = useTenant();
   return (
     <div className="flex flex-col h-full">
@@ -395,9 +409,12 @@ function NavbarSidebarContent({ user, navLinks, handleLogout, setSheetOpen, isAc
         <div className="mt-4">
           <ThemeSegmentedToggle />
         </div>
+        <div className="mt-4 flex justify-center">
+          <LanguageSwitcher />
+        </div>
       </div>
       {/* Middle: Scrollable Links */}
-      <ModernScrollbar maxHeight="calc(100vh - 270px)">
+      <HiddenScrollbar maxHeight="calc(100vh - 270px)">
         <div className="flex flex-col gap-2 px-1 mt-2">
           {navLinks.map((link) => (
             <NavLink key={link.to} to={link.to} icon={link.icon} onClick={setSheetOpen ? () => setSheetOpen(false) : undefined} isActive={isActive}>
@@ -405,7 +422,7 @@ function NavbarSidebarContent({ user, navLinks, handleLogout, setSheetOpen, isAc
             </NavLink>
           ))}
         </div>
-      </ModernScrollbar>
+      </HiddenScrollbar>
       {/* Bottom: Profile Card and Logout (not scrollable) */}
       <div className="px-1 pb-4 pt-2 flex flex-col gap-2 mt-auto">
         <Card className="p-2 rounded-xl bg-gradient-to-r from-primary-500/10 to-secondary-500/10 border border-primary-500/20">
@@ -426,7 +443,7 @@ function NavbarSidebarContent({ user, navLinks, handleLogout, setSheetOpen, isAc
           className="w-full text-sm font-bold rounded-lg shadow flex items-center justify-center gap-2 py-2"
         >
           <LogOut className="h-5 w-5" />
-          Sign Out
+          {t('navbar.logout')}
         </Button>
       </div>
     </div>

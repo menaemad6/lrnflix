@@ -24,6 +24,7 @@ import { useLiveLectures } from '@/hooks/useLiveLectures';
 import { getLectureStatusInfo, formatLectureTime } from '@/utils/lectureUtils';
 import { useCourseProgress } from '@/hooks/useCourseProgress';
 import { supabase } from '@/integrations/supabase/client';
+import { useTranslation } from 'react-i18next';
 
 interface Course {
   id: string;
@@ -87,6 +88,7 @@ export const CourseSidebar = ({
   onQuizSelect,
   currentQuiz
 }: CourseSidebarProps) => {
+  const { t } = useTranslation('courses');
   const navigate = useNavigate();
   const [userId, setUserId] = React.useState<string | undefined>(undefined);
   React.useEffect(() => {
@@ -133,7 +135,7 @@ export const CourseSidebar = ({
                 </Link>
               </CardTitle>
               <p className="text-primary-foreground/80 text-sm">
-                by {course.profiles?.full_name || 'Instructor'}
+                by {course.profiles?.full_name || t('sidebar.instructor')}
               </p>
             </div>
           </div>
@@ -141,17 +143,17 @@ export const CourseSidebar = ({
         <CardContent className="pt-0">
           <div className="space-y-3">
             <div className="flex justify-between text-sm">
-              <span>Progress</span>
+              <span>{t('sidebar.progress')}</span>
               <span>{Math.round(progress.progressPercentage)}%</span>
             </div>
             <Progress value={progress.progressPercentage} className="h-2 bg-primary-foreground/20" />
             <div className="flex justify-between text-xs text-primary-foreground/80">
-              <span>{progress.completedLessons + progress.completedQuizzes} completed</span>
-              <span>{progress.totalLessons + progress.totalQuizzes - (progress.completedLessons + progress.completedQuizzes)} remaining</span>
+              <span>{progress.completedLessons + progress.completedQuizzes} {t('sidebar.completed')}</span>
+              <span>{progress.totalLessons + progress.totalQuizzes - (progress.completedLessons + progress.completedQuizzes)} {t('sidebar.remaining')}</span>
             </div>
             <div className="flex justify-between text-xs text-primary-foreground/80 mt-1">
-              <span>Lessons: {progress.completedLessons}/{progress.totalLessons}</span>
-              <span>Quizzes: {progress.completedQuizzes}/{progress.totalQuizzes}</span>
+              <span>{t('sidebar.lessons')}: {progress.completedLessons}/{progress.totalLessons}</span>
+              <span>{t('sidebar.quizzes')}: {progress.completedQuizzes}/{progress.totalQuizzes}</span>
             </div>
           </div>
         </CardContent>
@@ -161,7 +163,7 @@ export const CourseSidebar = ({
       <div className="space-y-4">
         <h3 className="font-semibold text-lg flex items-center gap-2">
           <BookOpen className="h-5 w-5" />
-          Course Content
+          {t('sidebar.courseContent')}
         </h3>
 
         <div className="space-y-3">
@@ -194,7 +196,7 @@ export const CourseSidebar = ({
                           <BookOpen className="h-5 w-5" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <div className="font-medium text-sm line-clamp-1">{item.title}</div>
+                          <div className="font-medium text-sm">{item.title}</div>
                           {item.duration_minutes && (
                             <div className="text-xs text-muted-foreground mt-1">
                               ~{item.duration_minutes} min
@@ -203,7 +205,7 @@ export const CourseSidebar = ({
                         </div>
                         <div className="flex items-center gap-2">
                           {isCompleted && <CheckCircle className="h-4 w-4 text-primary-500" />}
-                          <Badge variant="outline" className="text-xs">Lesson</Badge>
+                          <Badge variant="outline" className="text-xs">{t('sidebar.lesson')}</Badge>
                         </div>
                       </div>
                     </CardContent>
@@ -238,7 +240,7 @@ export const CourseSidebar = ({
                         </div>
                         
                         <div className="flex-1 min-w-0">
-                          <div className="font-medium text-sm line-clamp-1">{item.title}</div>
+                          <div className="font-medium text-sm">{item.title}</div>
                           <div className="flex items-center gap-2 mt-1">
                             {item.time_limit && (
                               <Badge variant="outline" className="text-xs">
@@ -260,7 +262,7 @@ export const CourseSidebar = ({
                             <CheckCircle className="h-4 w-4 text-primary" />
                           )}
                           <Badge variant="outline" className="text-xs">
-                            Quiz
+                            {t('sidebar.quiz')}
                           </Badge>
                         </div>
                       </div>
@@ -274,7 +276,7 @@ export const CourseSidebar = ({
             <Card className="border-border">
               <CardContent className="p-4 text-center">
                 <BookOpen className="h-8 w-8 mx-auto mb-2 text-muted-foreground opacity-50" />
-                <p className="text-sm text-muted-foreground">No course content available</p>
+                <p className="text-sm text-muted-foreground">{t('sidebar.noCourseContent')}</p>
               </CardContent>
             </Card>
           )}
@@ -285,7 +287,7 @@ export const CourseSidebar = ({
       <div className="space-y-4">
         <h3 className="font-semibold text-lg flex items-center gap-2">
           <Video className="h-5 w-5" />
-          Live Lectures
+          {t('sidebar.liveLectures')}
         </h3>
 
         {lecturesLoading ? (
@@ -308,7 +310,7 @@ export const CourseSidebar = ({
           <Card className="border-border">
             <CardContent className="p-4 text-center">
               <Video className="h-8 w-8 mx-auto mb-2 text-muted-foreground opacity-50" />
-              <p className="text-sm text-muted-foreground">No live lectures scheduled</p>
+              <p className="text-sm text-muted-foreground">{t('sidebar.noLiveLectures')}</p>
             </CardContent>
           </Card>
         ) : (
@@ -340,7 +342,7 @@ export const CourseSidebar = ({
                       
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <div className="font-medium text-sm line-clamp-1">{lecture.title}</div>
+                          <div className="font-medium text-sm">{lecture.title}</div>
                           <Badge 
                             variant={statusInfo.badgeVariant} 
                             className={statusInfo.badgeColor}
@@ -350,7 +352,7 @@ export const CourseSidebar = ({
                         </div>
                         
                         {lecture.description && (
-                          <div className="text-xs text-muted-foreground line-clamp-1 mb-2">
+                          <div className="text-xs text-muted-foreground mb-2">
                             {lecture.description}
                           </div>
                         )}
@@ -382,7 +384,7 @@ export const CourseSidebar = ({
                           className="btn-primary"
                         >
                           <ExternalLink className="h-3 w-3 mr-1" />
-                          Join
+                          {t('sidebar.join')}
                         </Button>
                       )}
                     </div>

@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Gift, Sparkles, Wallet, ArrowRight } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { useRandomBackground } from "../hooks/useRandomBackground";
+import { useTranslation } from 'react-i18next';
 
 interface RedeemResponse {
   success: boolean;
@@ -19,6 +20,7 @@ const RedeemPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
+  const { t } = useTranslation('dashboard');
   const [code, setCode] = useState(searchParams.get('code') || '');
   const [loading, setLoading] = useState(false);
   const bgClass = useRandomBackground();
@@ -26,8 +28,8 @@ const RedeemPage = () => {
   const handleRedeem = async () => {
     if (!code.trim()) {
       toast({
-        title: 'Error',
-        description: 'Please enter a valid code',
+        title: t('redeemPage.error'),
+        description: t('redeemPage.pleaseEnterCode'),
         variant: 'destructive',
       });
       return;
@@ -40,8 +42,8 @@ const RedeemPage = () => {
       const { data: { user }, error: userError } = await supabase.auth.getUser();
       if (userError || !user) {
         toast({
-          title: 'Error',
-          description: 'Please log in to redeem codes',
+          title: t('redeemPage.error'),
+          description: t('redeemPage.loginRequired'),
           variant: 'destructive',
         });
         return;
@@ -74,8 +76,8 @@ const RedeemPage = () => {
       if (data.success) {
         const amount = data.amount || 0;
         toast({
-          title: 'Success!',
-          description: `Successfully redeemed $${amount} to your wallet!`,
+          title: t('redeemPage.success'),
+          description: t('redeemPage.codeRedeemed', { amount }),
         });
         setCode('');
         
@@ -84,21 +86,21 @@ const RedeemPage = () => {
           navigate('/dashboard');
         }, 2000);
       } else {
-        throw new Error(data.error || 'Failed to redeem code');
+        throw new Error(data.error || t('redeemPage.errorRedeeming'));
       }
     } catch (error: any) {
       console.error('Error redeeming code:', error);
       
-      let errorMessage = 'Failed to redeem code. Please try again.';
+      let errorMessage = t('redeemPage.errorRedeeming');
       
       if (error.code === 'PGRST116') {
-        errorMessage = 'Invalid code or code has already been used.';
+        errorMessage = t('redeemPage.codeAlreadyUsed');
       } else if (error.message) {
         errorMessage = error.message;
       }
       
       toast({
-        title: 'Error',
+        title: t('redeemPage.error'),
         description: errorMessage,
         variant: 'destructive',
       });
@@ -118,10 +120,10 @@ const RedeemPage = () => {
                 <Gift className="w-10 h-10 text-primary-foreground" />
               </div>
               <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent mb-2">
-                Redeem Code
+                {t('redeemPage.title')}
               </h1>
               <p className="text-muted-foreground text-lg">
-                Enter your redemption code to add funds to your wallet
+                {t('redeemPage.subtitle')}
               </p>
             </div>
 
@@ -131,7 +133,7 @@ const RedeemPage = () => {
                 <div className="flex items-center gap-3 text-center justify-center">
                   <Wallet className="w-6 h-6 text-primary" />
                   <CardTitle className="text-2xl font-semibold">
-                    Wallet Credit Redemption
+                    {t('redeemPage.walletCreditRedemption')}
                   </CardTitle>
                 </div>
               </CardHeader>
@@ -140,13 +142,13 @@ const RedeemPage = () => {
                 {/* Code Input */}
                 <div className="space-y-3">
                   <label htmlFor="code" className="text-sm font-medium text-foreground/80 block">
-                    Redemption Code
+                    {t('redeemPage.redemptionCode')}
                   </label>
                   <div className="relative">
                     <Input
                       id="code"
                       type="text"
-                      placeholder="Enter your code here"
+                      placeholder={t('redeemPage.codePlaceholder')}
                       value={code}
                       onChange={(e) => setCode(e.target.value.toUpperCase())}
                       className="text-center font-mono text-lg tracking-wider h-14 border-2 border-border/50 focus:border-primary transition-colors bg-background/50"
@@ -168,12 +170,12 @@ const RedeemPage = () => {
                   {loading ? (
                     <div className="flex items-center gap-3">
                       <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                      Processing...
+                      {t('redeemPage.redeeming')}
                     </div>
                   ) : (
                     <div className="flex items-center gap-3">
                       <Sparkles className="w-5 h-5" />
-                      Redeem Code
+                      {t('redeemPage.redeem')}
                       <ArrowRight className="w-5 h-5" />
                     </div>
                   )}
@@ -183,7 +185,7 @@ const RedeemPage = () => {
                 <div className="pt-4 border-t border-border/30">
                   <div className="text-center space-y-3">
                     <p className="text-sm text-muted-foreground">
-                      Don't have a code? Contact your instructor or purchase credits directly.
+                      {t('redeemPage.dontHaveCode')}
                     </p>
                     <div className="flex gap-2 justify-center">
                       <Button 
@@ -192,7 +194,7 @@ const RedeemPage = () => {
                         className="flex-1 max-w-40"
                         size="sm"
                       >
-                        Dashboard
+                        {t('redeemPage.dashboard')}
                       </Button>
                       <Button 
                         variant="outline" 
@@ -200,7 +202,7 @@ const RedeemPage = () => {
                         className="flex-1 max-w-40"
                         size="sm"
                       >
-                        Store
+                        {t('redeemPage.store')}
                       </Button>
                     </div>
                   </div>
@@ -211,7 +213,7 @@ const RedeemPage = () => {
             {/* Footer Info */}
             <div className="mt-6 text-center">
               <p className="text-xs text-muted-foreground">
-                Redemption codes are case-insensitive and can only be used once
+                {t('redeemPage.codesInfo')}
               </p>
             </div>
           </div>
