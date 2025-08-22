@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useItemOwnershipValidation } from '@/hooks/useItemOwnershipValidation';
 import { TeacherCourseSidebar } from './TeacherCourseSidebar';
 import { LessonManager } from '@/components/lessons/LessonManager';
 import { QuizManager } from '@/components/quizzes/QuizManager';
@@ -19,6 +20,7 @@ interface Course {
   id: string;
   title: string;
   description: string;
+  instructor_id?: string;
 }
 
 interface Lesson {
@@ -57,6 +59,9 @@ export const TeacherCourseManagement = () => {
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<ViewMode>('overview');
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const { validateOwnership } = useItemOwnershipValidation({
+    redirectTo: '/teacher/courses',
+  });
 
   useEffect(() => {
     if (id) {
@@ -101,27 +106,48 @@ export const TeacherCourseManagement = () => {
         .single();
 
       if (courseError) throw courseError;
-      setCourse(courseData);
+      
+      // Validate course access BEFORE setting any state
+      if (courseData) {
+        // Get the course creator/instructor ID
+        const creatorId = courseData.instructor_id;
+        
+        if (!creatorId) {
+          toast({
+            title: 'Access Denied',
+            description: 'Course ownership information not found',
+            variant: 'destructive',
+          });
+          navigate('/teacher/courses');
+          return;
+        }
 
-      // Fetch lessons
-      const { data: lessonsData, error: lessonsError } = await supabase
-        .from('lessons')
-        .select('*')
-        .eq('course_id', id)
-        .order('order_index');
+        // Use the hook to validate ownership - this will handle redirection automatically
+        validateOwnership(creatorId);
 
-      if (lessonsError) throw lessonsError;
-      setLessons(lessonsData || []);
+        // Access validated, now set course data
+        setCourse(courseData);
 
-      // Fetch quizzes
-      const { data: quizzesData, error: quizzesError } = await supabase
-        .from('quizzes')
-        .select('*')
-        .eq('course_id', id)
-        .order('order_index');
+        // Fetch lessons
+        const { data: lessonsData, error: lessonsError } = await supabase
+          .from('lessons')
+          .select('*')
+          .eq('course_id', id)
+          .order('order_index');
 
-      if (quizzesError) throw quizzesError;
-      setQuizzes(quizzesData || []);
+        if (lessonsError) throw lessonsError;
+        setLessons(lessonsData || []);
+
+        // Fetch quizzes
+        const { data: quizzesData, error: quizzesError } = await supabase
+          .from('quizzes')
+          .select('*')
+          .eq('course_id', id)
+          .order('order_index');
+
+        if (quizzesError) throw quizzesError;
+        setQuizzes(quizzesData || []);
+      }
     } catch (error: unknown) {
       console.error('Error fetching course data:', error);
       toast({
@@ -302,6 +328,11 @@ export const TeacherCourseManagement = () => {
 
   if (!course) {
     return <TeacherCourseManagementSkeleton />;
+  }
+
+  // Additional security check - ensure course ownership is still valid
+  if (course.instructor_id) {
+    validateOwnership(course.instructor_id);
   }
 
   return (

@@ -1077,6 +1077,7 @@ export type Database = {
           content: string
           created_at: string
           id: string
+          instructor_id: string | null
           is_anonymous: boolean
           status: string | null
           student_id: string
@@ -1088,6 +1089,7 @@ export type Database = {
           content: string
           created_at?: string
           id?: string
+          instructor_id?: string | null
           is_anonymous?: boolean
           status?: string | null
           student_id: string
@@ -1099,13 +1101,22 @@ export type Database = {
           content?: string
           created_at?: string
           id?: string
+          instructor_id?: string | null
           is_anonymous?: boolean
           status?: string | null
           student_id?: string
           title?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "questions_instructor_id_fkey"
+            columns: ["instructor_id"]
+            isOneToOne: false
+            referencedRelation: "teachers"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       quiz_attempts: {
         Row: {

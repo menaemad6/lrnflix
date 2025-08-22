@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { useToast } from '@/hooks/use-toast';
+import { useTenantItemValidation } from '@/hooks/useTenantItemValidation';
 import { ImageUploader } from '@/components/ui/ImageUploader';
 import { IMAGE_UPLOAD_BUCKETS } from '@/data/constants';
 import type { UploadedImage } from '@/hooks/useImageUpload';
@@ -91,6 +92,11 @@ export const GroupDetailPage = () => {
   const { user } = useSelector((state: RootState) => state.auth);
   const { t } = useTranslation('dashboard');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  
+  // Tenant item validation hook
+  const { validateWithCreatorId } = useTenantItemValidation({
+    redirectTo: '/student/groups',
+  });
   
   // Extract groupId from params - handle both 'groupId' and 'id' parameters
   const groupId = params.groupId || params.id;
@@ -466,6 +472,10 @@ export const GroupDetailPage = () => {
       }
 
       console.log('Group data retrieved successfully:', groupData);
+      
+      // Validate group access before setting it
+      validateWithCreatorId(groupData.created_by);
+      
       setGroup(groupData);
       setIsOwner(groupData.created_by === currentUser.id);
       setGroupSettings({
@@ -615,6 +625,10 @@ export const GroupDetailPage = () => {
       }
 
       console.log('Group data retrieved successfully:', groupData);
+      
+      // Validate group access before setting it
+      validateWithCreatorId(groupData.created_by);
+      
       setGroup(groupData);
       setIsOwner(groupData.created_by === currentUser.id);
       setGroupSettings({

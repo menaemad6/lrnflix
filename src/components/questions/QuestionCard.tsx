@@ -36,6 +36,7 @@ import {
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { useTranslation } from 'react-i18next';
+import { useTenant } from '@/contexts/TenantContext';
 import type { RootState } from '@/store/store';
 
 interface Question {
@@ -48,6 +49,7 @@ interface Question {
   updated_at: string;
   status: string;
   student_id: string;
+  instructor_id: string | null;
   profiles?: {
     full_name: string;
     avatar_url?: string;
@@ -65,6 +67,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({ question, onUpdate, 
   const { user } = useSelector((state: RootState) => state.auth);
   const { toast } = useToast();
   const { t } = useTranslation('other');
+  const { teacher } = useTenant();
   const [showAnswers, setShowAnswers] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -248,6 +251,14 @@ Keep your suggestions practical and actionable.`;
             <Badge variant="outline" className="text-amber-500 border-amber-500/30 bg-amber-500/5">
               <User className="h-3 w-3 mr-1" />
               {t('questionsPage.badges.anonymous')}
+            </Badge>
+          )}
+          
+          {/* Platform Indicator - Show when question is asked in current user's platform */}
+          {question.instructor_id && user?.id && teacher?.user_id &&  question.instructor_id === teacher.id && user.id === teacher.user_id && (
+            <Badge variant="outline" className="text-emerald-500 border-emerald-500/30 bg-emerald-500/5">
+              <Users className="h-3 w-3 mr-1" />
+              {t('questionsPage.badges.askedInYourPlatform')}
             </Badge>
           )}
         </div>

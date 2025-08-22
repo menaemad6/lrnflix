@@ -67,7 +67,8 @@
     },
     "badges": {
       "adminsOnly": "المديرون فقط",
-      "anonymous": "مجهول"
+      "anonymous": "مجهول",
+      "askedInYourPlatform": "سُئل في منصتك"
     },
     "actions": {
       "aiAnswer": "إجابة الذكاء الاصطناعي",
@@ -138,6 +139,7 @@
       "postAnonymously": "انشر بشكل مجهول",
       "allowStudentAnswers": "السماح بإجابات الطلاب",
       "noAnswersYet": "لا توجد إجابات بعد. كن أول من يرد!",
+      "beFirstToAnswer": "كن أول من يجيب على هذا السؤال!",
       "reply": "رد",
       "replying": "جاري الرد...",
       "cancelReply": "إلغاء الرد",
@@ -408,5 +410,13 @@
       "courseNotFound": "لم أتمكن من العثور على دورة تطابق \"{{courseName}}\". يرجى التأكد من أن اسم الدورة صحيح والمحاولة مرة أخرى.",
       "actionDescription": "أنا على وشك {{action}}: {{title}}"
     }
+  },
+  "tenantValidation": {
+    "contentUnavailable": "المحتوى غير متاح",
+    "notAvailableInYourPlatform": "هذا المحتوى غير متاح في منصتك"
+  },
+  "ownershipValidation": {
+    "accessDenied": "تم رفض الوصول",
+    "itemNotOwned": "يمكنك الوصول وتعديل العناصر التي أنشأتها فقط"
   }
 }

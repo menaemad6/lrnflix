@@ -56,6 +56,7 @@ interface TeacherCourseSidebarProps {
   onDeleteLesson: (lessonId: string) => void;
   onDeleteQuiz: (quizId: string) => void;
   onContentUpdate: () => void;
+  onViewModeChange: (mode: ViewMode) => void;
   viewMode: ViewMode;
 }
 

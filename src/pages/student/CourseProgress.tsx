@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useTenantItemValidation } from '@/hooks/useTenantItemValidation';
 import { CourseSidebar } from '@/components/courses/CourseSidebar';
 import { LessonContent } from '@/components/lessons/LessonContent';
 import { StudentQuizTaker } from '@/components/quizzes/StudentQuizTaker';
@@ -59,6 +60,9 @@ interface QuizAttempt {
 export const CourseProgress = () => {
   const { id, lessonId, quizId, attemptId } = useParams<{ id: string; lessonId?: string; quizId?: string; attemptId?: string }>();
   const { toast } = useToast();
+  const { validateAndHandle, validateWithCreatorId } = useTenantItemValidation({
+    redirectTo: '/student/courses',
+  });
   const [course, setCourse] = useState<Course | null>(null);
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
@@ -132,6 +136,9 @@ export const CourseProgress = () => {
         .single();
 
       if (courseError) throw courseError;
+      
+      // Validate course access before setting it
+      validateWithCreatorId(courseData.instructor_id);
       setCourse(courseData);
 
       // Check enrollment

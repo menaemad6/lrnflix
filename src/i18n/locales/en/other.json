@@ -67,7 +67,8 @@
     },
     "badges": {
       "adminsOnly": "Admins Only",
-      "anonymous": "Anonymous"
+      "anonymous": "Anonymous",
+      "askedInYourPlatform": "Asked in your platform"
     },
     "actions": {
       "aiAnswer": "AI Answer",
@@ -138,6 +139,7 @@
       "postAnonymously": "Post Anonymously",
       "allowStudentAnswers": "Allow Student Answers",
       "noAnswersYet": "No answers yet. Be the first to respond!",
+      "beFirstToAnswer": "Be the first to answer this question!",
       "reply": "Reply",
       "replying": "Replying...",
       "cancelReply": "Cancel Reply",
@@ -412,5 +414,13 @@
       "courseNotFound": "I couldn't find a course matching \"{{courseName}}\". Please make sure the course name is correct and try again.",
       "actionDescription": "I'm about to {{action}}: {{title}}"
     }
+  },
+  "tenantValidation": {
+    "contentUnavailable": "Content Unavailable",
+    "notAvailableInYourPlatform": "This content is not available in your platform"
+  },
+  "ownershipValidation": {
+    "accessDenied": "Access Denied",
+    "itemNotOwned": "You can only access and edit items you created"
   }
 }

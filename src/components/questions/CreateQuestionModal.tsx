@@ -18,6 +18,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, HelpCircle, Users, Eye, EyeOff, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useTenant } from '@/contexts/TenantContext';
 import type { RootState } from '@/store/store';
 
 interface CreateQuestionModalProps {
@@ -34,6 +35,7 @@ export const CreateQuestionModal: React.FC<CreateQuestionModalProps> = ({
   const { toast } = useToast();
   const { user } = useSelector((state: RootState) => state.auth);
   const { t } = useTranslation('other');
+  const { teacher } = useTenant();
   const [loading, setLoading] = useState(false);
   const [generatingTitle, setGeneratingTitle] = useState(false);
   const [formData, setFormData] = useState({
@@ -90,6 +92,7 @@ export const CreateQuestionModal: React.FC<CreateQuestionModalProps> = ({
           content: formData.content.trim(),
           is_anonymous: formData.is_anonymous,
           allow_student_answers: formData.allow_student_answers,
+          instructor_id: teacher?.id || null,
         });
 
       if (error) throw error;

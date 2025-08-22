@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useSelector } from 'react-redux';
 import type { RootState } from '@/store/store';
 import { useToast } from '@/hooks/use-toast';
+import { useTenant } from '@/contexts/TenantContext';
 
 export type GameState = 'idle' | 'finding' | 'matched' | 'countdown' | 'playing' | 'waiting' | 'results';
 
@@ -114,6 +115,7 @@ export const useMultiplayerQuiz = (): {
 } => {
   const { user } = useSelector((state: RootState) => state.auth);
   const { toast } = useToast();
+  const { teacher } = useTenant();
   
   // Initialize state from localStorage
   const [gameState, setGameState] = useState<GameState>(() => 
@@ -269,6 +271,14 @@ export const useMultiplayerQuiz = (): {
         .from('multiplayer_quiz_questions')
         .select('*');
 
+      // Filter by instructor_id if we have a tenant teacher, otherwise fetch all questions
+      if (teacher?.user_id) {
+        console.log('Filtering questions by tenant teacher:', teacher.user_id);
+        query = query.eq('instructor_id', teacher.user_id);
+      } else {
+        console.log('No tenant teacher found, fetching all questions');
+      }
+
       if (room.category) {
         query = query.eq('category', room.category);
       }
@@ -323,7 +333,7 @@ export const useMultiplayerQuiz = (): {
       // Try to show a more user-friendly error
       console.error('Failed to load questions for quick match. This might be a database connection issue.');
     }
-  }, []);
+  }, [teacher?.user_id]);
 
   // Restore state on page load
   useEffect(() => {
@@ -461,6 +471,14 @@ export const useMultiplayerQuiz = (): {
         .from('multiplayer_quiz_questions')
         .select('*');
 
+      // Filter by instructor_id if we have a tenant teacher, otherwise fetch all questions
+      if (teacher?.user_id) {
+        console.log('Filtering questions by tenant teacher:', teacher.user_id);
+        query = query.eq('instructor_id', teacher.user_id);
+      } else {
+        console.log('No tenant teacher found, fetching all questions');
+      }
+
       // Always filter by category if provided, including 'General'
       if (category) {
         query = query.eq('category', category);
@@ -489,7 +507,7 @@ export const useMultiplayerQuiz = (): {
     } catch (error: unknown) {
       console.error('Error loading questions:', error);
     }
-  }, []);
+  }, [teacher?.user_id]);
 
   // Create room
   const createRoom = useCallback(async (maxPlayers: number, isPublic: boolean, category?: string, questionCount?: number) => {
@@ -500,6 +518,14 @@ export const useMultiplayerQuiz = (): {
       let query = supabase
         .from('multiplayer_quiz_questions')
         .select('*');
+
+      // Filter by instructor_id if we have a tenant teacher, otherwise fetch all questions
+      if (teacher?.user_id) {
+        console.log('Filtering questions by tenant teacher:', teacher.user_id);
+        query = query.eq('instructor_id', teacher.user_id);
+      } else {
+        console.log('No tenant teacher found, fetching all questions');
+      }
 
       if (category) {
         query = query.eq('category', category);
@@ -613,7 +639,7 @@ export const useMultiplayerQuiz = (): {
         variant: 'destructive',
       });
     }
-  }, [user, toast]);
+  }, [user, teacher?.user_id, toast]);
 
   // Join room by code
   const joinRoomByCode = useCallback(async (roomCode: string) => {
@@ -797,10 +823,20 @@ export const useMultiplayerQuiz = (): {
   // Fetch available categories
   const fetchCategories = useCallback(async () => {
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('multiplayer_quiz_questions')
         .select('category')
         .order('category');
+
+      // Filter by instructor_id if we have a tenant teacher, otherwise fetch all categories
+      if (teacher?.user_id) {
+        console.log('Filtering categories by tenant teacher:', teacher.user_id);
+        query = query.eq('instructor_id', teacher.user_id);
+      } else {
+        console.log('No tenant teacher found, fetching all categories');
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
 
@@ -809,7 +845,7 @@ export const useMultiplayerQuiz = (): {
     } catch (error: unknown) {
       console.error('Error fetching categories:', error);
     }
-  }, []);
+  }, [teacher?.user_id]);
 
   // Find match and join queue
   const findMatch = useCallback(async (category?: string) => {

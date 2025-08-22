@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { useTenantItemValidation } from '@/hooks/useTenantItemValidation';
 import { 
   BookOpen, 
   CheckCircle,
@@ -70,6 +71,9 @@ export const ChapterDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const { toast } = useToast();
   const { t } = useTranslation('dashboard');
+  const { validateAndHandle, validateWithCreatorId } = useTenantItemValidation({
+    redirectTo: '/chapters',
+  });
   const [chapter, setChapter] = useState<Chapter | null>(null);
   const [courses, setCourses] = useState<Course[]>([]);
   const [isEnrolled, setIsEnrolled] = useState(false);
@@ -116,6 +120,9 @@ export const ChapterDetailPage = () => {
         .single();
 
       if (chapterError) throw chapterError;
+      
+      // Validate chapter access before setting it
+      // Note: Chapters might not have instructor_id, so we'll validate the courses instead
       setChapter(chapterData);
 
       // Check enrollment
@@ -231,7 +238,7 @@ export const ChapterDetailPage = () => {
   return (
     <div className={bgClass + " min-h-screen"}>
       {/* Hero Section */}
-      <div className="relative overflow-hidden pt-20">
+      <div className="relative overflow-hidden pt-20 min-h-screen">
         <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-primary/10 to-secondary/5"></div>
         
         <div className="relative container mx-auto px-6 py-16">

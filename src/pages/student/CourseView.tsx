@@ -40,6 +40,7 @@ import {
   HelpCircle
 } from 'lucide-react';
 import { useCourseProgress } from '@/hooks/useCourseProgress';
+import { useTenantItemValidation } from '@/hooks/useTenantItemValidation';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { useRandomBackground } from "../../hooks/useRandomBackground";
@@ -115,6 +116,11 @@ export const CourseView = () => {
   }, []);
 
   const progress = useCourseProgress(id, userId);
+  
+  // Tenant item validation hook
+  const { validateAndHandle, validateWithCreatorId } = useTenantItemValidation({
+    redirectTo: '/courses',
+  });
 
   const fetchCourseData = useCallback(async () => {
     try {
@@ -129,6 +135,10 @@ export const CourseView = () => {
         .single();
 
       if (courseError) throw courseError;
+      
+      // Validate that this course belongs to the current tenant
+      validateWithCreatorId(courseData.instructor_id);
+      
       setCourse(courseData);
 
       // Fetch teacher profile from teachers table

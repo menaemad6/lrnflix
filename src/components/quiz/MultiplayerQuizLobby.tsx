@@ -25,6 +25,7 @@ import { motion } from 'framer-motion';
 import { GameRoom } from '@/hooks/useMultiplayerQuiz';
 import { supabase } from '@/integrations/supabase/client';
 import { useTranslation } from 'react-i18next';
+import { useTenant } from '@/contexts/TenantContext';
 
 interface MatchmakerEntry {
   id: string;
@@ -60,6 +61,7 @@ export const MultiplayerQuizLobby = ({
   onRefreshRooms
 }: MultiplayerQuizLobbyProps) => {
   const { t } = useTranslation('other');
+  const { teacher } = useTenant();
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [joinModalOpen, setJoinModalOpen] = useState(false);
   const [maxPlayers, setMaxPlayers] = useState(4);
@@ -155,10 +157,20 @@ export const MultiplayerQuizLobby = ({
   const fetchCategories = async () => {
     setLoadingCategories(true);
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('multiplayer_quiz_questions')
         .select('category')
         .order('category');
+
+      // Filter by instructor_id if we have a tenant teacher, otherwise fetch all categories
+      if (teacher?.user_id) {
+        console.log('Filtering categories by tenant teacher:', teacher.user_id);
+        query = query.eq('instructor_id', teacher.user_id);
+      } else {
+        console.log('No tenant teacher found, fetching all categories');
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
 
@@ -173,10 +185,17 @@ export const MultiplayerQuizLobby = ({
       // Fetch question counts for each category
       const questionCounts: Record<string, number> = {};
       for (const category of uniqueCategories) {
-        const { count, error: countError } = await supabase
+        let countQuery = supabase
           .from('multiplayer_quiz_questions')
           .select('*', { count: 'exact' })
           .eq('category', category);
+
+        // Filter by instructor_id if we have a tenant teacher
+        if (teacher?.user_id) {
+          countQuery = countQuery.eq('instructor_id', teacher.user_id);
+        }
+
+        const { count, error: countError } = await countQuery;
         
         if (!countError) {
           questionCounts[category] = count || 0;

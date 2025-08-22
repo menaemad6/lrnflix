@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from 'react-i18next';
 import { Loader2, BookOpen } from 'lucide-react';
 import { ImageUploader } from '@/components/ui/ImageUploader';
 import { IMAGE_UPLOAD_BUCKETS } from '@/data/constants';
@@ -19,6 +20,7 @@ interface CreateCourseModalProps {
 }
 
 export const CreateCourseModal = ({ isOpen, onClose, onCourseCreated }: CreateCourseModalProps) => {
+  const { t } = useTranslation('dashboard');
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -31,16 +33,16 @@ export const CreateCourseModal = ({ isOpen, onClose, onCourseCreated }: CreateCo
   const handleImageUploaded = (image: UploadedImage) => {
     setUploadedImage(image);
     toast({
-      title: "Success",
-      description: "Course thumbnail uploaded successfully!",
+      title: t('createCourseModal.success'),
+      description: t('createCourseModal.courseThumbnailUploaded'),
     });
   };
 
   const handleImageDeleted = (path: string) => {
     setUploadedImage(null);
     toast({
-      title: "Success",
-      description: "Course thumbnail removed",
+      title: t('createCourseModal.success'),
+      description: t('createCourseModal.courseThumbnailRemoved'),
     });
   };
 
@@ -48,8 +50,8 @@ export const CreateCourseModal = ({ isOpen, onClose, onCourseCreated }: CreateCo
     e.preventDefault();
     if (!formData.title.trim()) {
       toast({
-        title: "Error",
-        description: "Course title is required",
+        title: t('createCourseModal.error'),
+        description: t('createCourseModal.courseTitleRequiredError'),
         variant: "destructive",
       });
       return;
@@ -76,8 +78,8 @@ export const CreateCourseModal = ({ isOpen, onClose, onCourseCreated }: CreateCo
       if (error) throw error;
 
       toast({
-        title: "Success",
-        description: "Course created successfully!",
+        title: t('createCourseModal.success'),
+        description: t('createCourseModal.courseCreatedSuccessfully'),
       });
 
       setFormData({ title: '', description: '', price: 0 });
@@ -88,7 +90,7 @@ export const CreateCourseModal = ({ isOpen, onClose, onCourseCreated }: CreateCo
       console.error('Error creating course:', error);
       const errorMessage = error instanceof Error ? error.message : "Failed to create course";
       toast({
-        title: "Error",
+        title: t('createCourseModal.error'),
         description: errorMessage,
         variant: "destructive",
       });
@@ -110,37 +112,37 @@ export const CreateCourseModal = ({ isOpen, onClose, onCourseCreated }: CreateCo
       <DialogContent className="glass-card border-0 max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 gradient-text">
-            Create New Course
+            {t('createCourseModal.title')}
           </DialogTitle>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="title">Course Title *</Label>
+            <Label htmlFor="title">{t('createCourseModal.courseTitleRequired')}</Label>
             <Input
               id="title"
               value={formData.title}
               onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-              placeholder="Enter course title"
+              placeholder={t('createCourseModal.enterCourseTitle')}
               className="bg-white/10 border-white/20"
               disabled={isLoading}
             />
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">{t('createCourseModal.description')}</Label>
             <Textarea
               id="description"
               value={formData.description}
               onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-              placeholder="Describe your course"
+              placeholder={t('createCourseModal.describeYourCourse')}
               className="bg-white/10 border-white/20 min-h-[100px]"
               disabled={isLoading}
             />
           </div>
           
           <div className="space-y-2">
-            <Label>Course Thumbnail</Label>
+            <Label>{t('createCourseModal.courseThumbnail')}</Label>
             <ImageUploader
               bucket={IMAGE_UPLOAD_BUCKETS.LECTURES_THUMBNAILS}
               folder="courses"
@@ -150,19 +152,19 @@ export const CreateCourseModal = ({ isOpen, onClose, onCourseCreated }: CreateCo
               onImageDeleted={handleImageDeleted}
               onError={(error) => {
                 toast({
-                  title: "Error",
+                  title: t('createCourseModal.error'),
                   description: error,
                   variant: "destructive",
                 });
               }}
               variant="compact"
               size="sm"
-              placeholder="Upload course thumbnail"
+              placeholder={t('createCourseModal.uploadCourseThumbnail')}
             />
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="price">Price (Credits)</Label>
+            <Label htmlFor="price">{t('createCourseModal.price')}</Label>
             <Input
               id="price"
               type="number"
@@ -183,7 +185,7 @@ export const CreateCourseModal = ({ isOpen, onClose, onCourseCreated }: CreateCo
               disabled={isLoading}
               className="flex-1"
             >
-              Cancel
+              {t('createCourseModal.cancel')}
             </Button>
             <Button
               type="submit"
@@ -193,10 +195,10 @@ export const CreateCourseModal = ({ isOpen, onClose, onCourseCreated }: CreateCo
               {isLoading ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Creating...
+                  {t('createCourseModal.creating')}
                 </>
               ) : (
-                'Create Course'
+                t('createCourseModal.title')
               )}
             </Button>
           </div>

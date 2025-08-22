@@ -28,6 +28,8 @@ import { ImageUploader } from '@/components/ui/ImageUploader';
 import { IMAGE_UPLOAD_BUCKETS } from '@/data/constants';
 import type { UploadedImage } from '@/hooks/useImageUpload';
 import { useTranslation } from 'react-i18next';
+import { useTenantItemValidation } from '@/hooks/useTenantItemValidation';
+import { useItemOwnershipValidation } from '@/hooks/useItemOwnershipValidation';
 import { 
   ArrowLeft, 
   MessageSquare, 
@@ -63,6 +65,11 @@ interface Course {
   category: string | null;
   price: number;
   cover_image_url?: string;
+  instructor_id?: string;
+  creator_id?: string;
+  user_id?: string;
+  teacher_id?: string;
+  [key: string]: unknown;
 }
 
 interface Quiz {
@@ -80,6 +87,8 @@ export const CourseDetails = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { t } = useTranslation('courses');
+  const { validateAndHandle } = useTenantItemValidation({ redirectTo: '/teacher/courses' });
+  const { validateOwnership } = useItemOwnershipValidation({ redirectTo: '/teacher/courses' });
   const [course, setCourse] = useState<Course | null>(null);
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [enrollmentCount, setEnrollmentCount] = useState(0);
@@ -106,6 +115,9 @@ export const CourseDetails = () => {
 
   useEffect(() => {
     if (course) {
+      // Validate course access before allowing editing
+      validateAndHandle(course);
+      validateOwnership(course.creator_id || course.instructor_id || course.user_id || course.teacher_id || '');
       setEditForm({
         title: course.title,
         description: course.description || '',
@@ -113,7 +125,7 @@ export const CourseDetails = () => {
         price: course.price
       });
     }
-  }, [course]);
+  }, [course, validateAndHandle, validateOwnership]);
 
   const islarge = useIsLargeScreen();
   useEffect(() => {

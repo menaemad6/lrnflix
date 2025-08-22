@@ -15,6 +15,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, Search, Filter, TrendingUp, MessageSquare, Users } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useTenant } from '@/contexts/TenantContext';
 import type { RootState } from '@/store/store';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -28,6 +29,7 @@ interface Question {
   updated_at: string;
   status: string;
   student_id: string;
+  instructor_id: string | null;
   profiles?: {
     full_name: string;
     avatar_url?: string;
@@ -52,6 +54,7 @@ export const QuestionsPage = () => {
   const { toast } = useToast();
   const { user } = useSelector((state: RootState) => state.auth);
   const { t } = useTranslation('other');
+  const { teacher } = useTenant();
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -231,6 +234,11 @@ export const QuestionsPage = () => {
         .from('questions')
         .select('*')
         .order('created_at', { ascending: false });
+
+      // Filter by instructor_id if tenant is available, otherwise fetch all questions
+      if (teacher?.id) {
+        query = query.or(`instructor_id.eq.${teacher.id},instructor_id.is.null`);
+      }
 
       if (statusFilter !== 'all') {
         query = query.eq('status', statusFilter);
