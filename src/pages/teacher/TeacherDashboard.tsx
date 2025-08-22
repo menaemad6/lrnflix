@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { BookOpen, Users, BarChart3, MessageSquare, Gift, Plus, TrendingUp, Target, Zap, Brain, Sparkles, GraduationCap, Calendar, Trophy, Star, Clock, ArrowUpRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
+import { SEOHead } from '@/components/seo/SEOHead';
 import { 
   HeroSectionSkeleton, 
   StatsGridSkeleton, 
@@ -146,8 +147,10 @@ export const TeacherDashboard = () => {
   } = data || {};
 
   return (
-    <DashboardLayout>
-      <div className="space-y-8">
+    <>
+      <SEOHead />
+      <DashboardLayout>
+        <div className="space-y-8">
         {/* Hero Welcome Section */}
         <Suspense fallback={<HeroSectionSkeleton />}>
           <TeacherHeroSection user={user} />
@@ -197,5 +200,6 @@ export const TeacherDashboard = () => {
         </Suspense>
       </div>
     </DashboardLayout>
+    </>
   );
 };

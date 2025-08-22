@@ -27,6 +27,7 @@ import { PremiumCourseCard } from '@/components/courses/PremiumCourseCard';
 import { CourseCardSkeleton } from '@/components/student/skeletons/CourseCardSkeleton';
 import { useTranslation } from 'react-i18next';
 import type { User } from '@supabase/supabase-js';
+import { SEOHead } from '@/components/seo';
 
 interface EnrolledCourse {
   id: string;
@@ -126,7 +127,9 @@ export const StudentCoursesPage = () => {
   };
 
   return (
-    <DashboardLayout>
+    <>
+      <SEOHead />
+      <DashboardLayout>
       <DashboardModernHeader
         title={t('studentCourses.myLearningJourney')}
         subtitle={t('studentCourses.continueProgressDiscoverSkills')}
@@ -217,6 +220,7 @@ export const StudentCoursesPage = () => {
           </div>
         )}
       </div>
-    </DashboardLayout>
+      </DashboardLayout>
+    </>
   );
 };

@@ -21,6 +21,7 @@ import { useRandomBackground } from "../../hooks/useRandomBackground";
 import { useDispatch } from 'react-redux';
 import { updateUser } from '@/store/slices/authSlice';
 import { useTranslation } from 'react-i18next';
+import { SEOHead } from '@/components/seo';
 
 const Store = () => {
   const { user } = useSelector((state: RootState) => state.auth);
@@ -143,8 +144,10 @@ const Store = () => {
   };
 
   return (
-    <div className={bgClass + " min-h-screen"}>
-      <div className="container mx-auto px-4 py-8 max-w-6xl pt-[120px]">
+    <>
+      <SEOHead />
+      <div className={bgClass + " min-h-screen"}>
+        <div className="container mx-auto px-4 py-8 max-w-6xl pt-[120px]">
         {/* Header */}
         <div className="text-center mb-12">
           <div className="flex items-center justify-center gap-3 mb-4">
@@ -320,8 +323,9 @@ const Store = () => {
             </CardContent>
           </Card>
         </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

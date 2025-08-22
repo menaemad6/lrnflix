@@ -4,19 +4,23 @@ import { NotificationCenter } from '@/components/notifications/NotificationCente
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import DashboardModernHeader from '@/components/ui/DashboardModernHeader';
 import { useTranslation } from 'react-i18next';
+import { SEOHead } from '@/components/seo';
 
 export const StudentNotificationsPage = () => {
   const { t } = useTranslation('dashboard');
 
   return (
-    <DashboardLayout>
-      <DashboardModernHeader
+    <>
+      <SEOHead />
+      <DashboardLayout>
+        <DashboardModernHeader
         title={t('studentNotifications.title')}
         subtitle={t('studentNotifications.subtitle')}
       />
       <div className="space-y-6">
         <NotificationCenter />
       </div>
-    </DashboardLayout>
+      </DashboardLayout>
+    </>
   );
 };

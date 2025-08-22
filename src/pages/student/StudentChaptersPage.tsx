@@ -15,6 +15,7 @@ import DashboardModernHeader from '@/components/ui/DashboardModernHeader';
 import { Input } from '@/components/ui/input';
 import { useStudentEnrolledChapters } from '@/lib/queries';
 import { useTranslation } from 'react-i18next';
+import { SEOHead } from '@/components/seo';
 
 interface ChapterCourse {
   id: string;
@@ -117,7 +118,9 @@ export const StudentChaptersPage = () => {
   ) || [];
 
   return (
-    <DashboardLayout>
+    <>
+      <SEOHead />
+      <DashboardLayout>
       <DashboardModernHeader
         title={t('studentChapters.title')}
         subtitle={t('studentChapters.subtitle')}
@@ -252,6 +255,7 @@ export const StudentChaptersPage = () => {
           </div>
         )}
       </div>
-    </DashboardLayout>
+      </DashboardLayout>
+    </>
   );
 };

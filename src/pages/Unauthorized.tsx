@@ -5,14 +5,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { AlertTriangle } from 'lucide-react';
 import { useRandomBackground } from "../hooks/useRandomBackground";
 import { useTranslation } from 'react-i18next';
+import { SEOHead } from '@/components/seo';
 
 export const Unauthorized = () => {
   const bgClass = useRandomBackground();
   const { t } = useTranslation('dashboard');
   
   return (
-    <div className={bgClass + " min-h-screen flex items-center justify-center bg-gray-50 px-4"}>
-      <Card className="w-full max-w-md text-center">
+    <>
+      <SEOHead />
+      <div className={bgClass + " min-h-screen flex items-center justify-center bg-gray-50 px-4"}>
+        <Card className="w-full max-w-md text-center">
         <CardHeader>
           <div className="mx-auto mb-4 text-red-500">
             <AlertTriangle size={48} />
@@ -28,6 +31,7 @@ export const Unauthorized = () => {
           </Button>
         </CardContent>
       </Card>
-    </div>
+      </div>
+    </>
   );
 };

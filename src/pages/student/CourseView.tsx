@@ -46,6 +46,8 @@ import { Input } from '@/components/ui/input';
 import { useRandomBackground } from "../../hooks/useRandomBackground";
 import { CourseViewSkeleton } from '@/components/student/skeletons/CourseViewSkeleton';
 import { useTranslation } from 'react-i18next';
+import { SEOHead } from '@/components/seo';
+import { getDynamicSEOMetadata } from '@/data/seo';
 
 interface Course {
   id: string;
@@ -382,9 +384,15 @@ export const CourseView = () => {
   const totalCourseMinutes = lessons.reduce((sum, lesson) => sum + (lesson.duration_minutes || 0), 0);
 
   return (
-    <div className={bgClass + " min-h-screen"}>
-      {/* Hero Section */}
-      <div className="relative overflow-hidden pt-20">
+    <>
+      <SEOHead 
+
+        contentTitle={course?.title || 'Course'}
+        contentDescription={course?.description || 'Explore course content, lessons, and learning materials.'}
+      />
+      <div className={bgClass + " min-h-screen"}>
+        {/* Hero Section */}
+        <div className="relative overflow-hidden pt-20">
         <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-primary/10 to-secondary/5"></div>
         
         <div className="relative container mx-auto px-6 py-16 ">
@@ -839,6 +847,7 @@ export const CourseView = () => {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+      </div>
+    </>
   );
 };

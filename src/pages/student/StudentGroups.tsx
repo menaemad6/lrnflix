@@ -17,6 +17,7 @@ import { useStudentGroups } from '@/lib/queries';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
 import { useTranslation } from 'react-i18next';
+import { SEOHead } from '@/components/seo';
 
 interface Group {
   id: string;
@@ -120,8 +121,10 @@ export const StudentGroups = () => {
 
 
   return (
-    <div className={bgClass + " min-h-screen"}>
-      <DashboardLayout>
+    <>
+      <SEOHead />
+      <div className={bgClass + " min-h-screen"}>
+        <DashboardLayout>
 
           <DashboardModernHeader
             title={t('studentGroups.title')}
@@ -286,7 +289,8 @@ export const StudentGroups = () => {
             onClose={() => setShowJoinModal(false)}
             onGroupJoined={refetch}
           />
-      </DashboardLayout>
-    </div>
+        </DashboardLayout>
+      </div>
+    </>
   );
 };

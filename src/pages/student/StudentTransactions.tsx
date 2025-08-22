@@ -15,6 +15,7 @@ import { Label } from '@/components/ui/label';
 import { TransactionCardSkeleton } from '@/components/student/skeletons/TransactionCardSkeleton';
 import { useStudentTransactionsAndWallet } from '@/lib/queries';
 import { useTranslation } from 'react-i18next';
+import { SEOHead } from '@/components/seo';
 
 interface Transaction {
   id: string;
@@ -139,7 +140,9 @@ export const StudentTransactions = () => {
   const lastTransactionDate = transactions[0]?.created_at ? new Date(transactions[0].created_at).toLocaleString() : 'N/A';
 
   return (
-    <DashboardLayout>
+    <>
+      <SEOHead />
+      <DashboardLayout>
       <DashboardModernHeader
         title={t('studentTransactions.title')}
         subtitle={t('studentTransactions.subtitle')}
@@ -361,6 +364,7 @@ export const StudentTransactions = () => {
           </div>
         )}
       </div>
-    </DashboardLayout>
+      </DashboardLayout>
+    </>
   );
 };

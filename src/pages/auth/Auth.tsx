@@ -9,6 +9,7 @@ import AuthModal from '@/components/ui/AuthModal';
 import { useRandomBackground } from "../../hooks/useRandomBackground";
 import { PremiumCourseCard } from '@/components/courses/PremiumCourseCard';
 import { PLATFORM_NAME } from '@/data/constants';
+import { SEOHead } from '@/components/seo';
 
 const cards = [
   {
@@ -104,7 +105,9 @@ const Auth: React.FC = () => {
   const [rightOffset, rightRef] = useVerticalCarousel(rightCards, 'up', 1);
 
   return (
-    <div className={bgClass + " h-screen min-h-screen flex flex-col md:flex-row bg-gradient-to-br from-white to-[#fdeef7] overflow-hidden"}>
+    <>
+      <SEOHead />
+      <div className={bgClass + " h-screen min-h-screen flex flex-col md:flex-row bg-gradient-to-br from-white to-[#fdeef7] overflow-hidden"}>
       {/* Left Column */}
       <div className="w-full h-screen md:w-1/2 bg-transparent flex flex-col min-h-0 relative">
         <div className="flex-1 w-full max-w-lg mx-auto flex flex-col items-start pt-16 px-2 gap-8 min-h-0">
@@ -305,7 +308,8 @@ const Auth: React.FC = () => {
           </Tabs>
         </DialogContent>
       </Dialog>
-    </div>
+      </div>
+    </>
   );
 };
 

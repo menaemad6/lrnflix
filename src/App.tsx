@@ -19,6 +19,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Suspense } from 'react';
 import { SparkLoader } from "@/components/ui/SparkLoader";
 import { useScrollToTop } from '@/hooks/useScrollToTop';
+import { HelmetProvider } from 'react-helmet-async';
 
 // Pages
 import Index from "./pages/Index";
@@ -80,20 +81,11 @@ import { StudentDetail } from './pages/teacher/StudentDetail';
 import TeacherSchedulePage from './pages/teacher/TeacherSchedulePage';
 import { TeacherColorSettings } from './pages/teacher/TeacherColorSettings';
 import { LanguageProvider } from './contexts/LanguageContext';
+import CodesPage from './pages/CodesPage';
 
 const queryClient = new QueryClient();
 
-// Component to handle redirect from old codes route to new redeem route
-const CodesRedirect = () => {
-  const urlParams = new URLSearchParams(window.location.search);
-  const code = urlParams.get('code');
-  
-  if (code) {
-    return <Navigate to={`/redeem?code=${code}`} replace />;
-  }
-  
-  return <Navigate to="/redeem" replace />;
-};
+
 
 const ChatSidebarToggle = () => {
   const { isOpen, openChatbot } = useChatbot();
@@ -125,7 +117,7 @@ const AppRoutes = () => {
           <Route path="/auth/login" element={<Auth />} />
           <Route path="/auth/signup" element={<Auth />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
-          <Route path="/codes" element={<CodesRedirect />} />
+          <Route path="/codes" element={<CodesPage />} />
           <Route path="/redeem" element={<ProtectedRoute><RedeemPage /></ProtectedRoute>} />
           <Route path="/unauthorized" element={<Unauthorized />} />
           {/* Teacher Routes */}
@@ -210,29 +202,31 @@ const AppRoutesWithTenant = () => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <Provider store={store}>
-      <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-        <AuthProvider>
-          <ChatbotProvider>
-            <LanguageProvider>
-              <TooltipProvider>
-                <Toaster />
-                <Sonner />
-                <TenantProvider>
-                  <Suspense fallback={
-                    <div className="min-h-screen flex items-center justify-center bg-black">
-                      <SparkLoader text="It all starts with a spark" color="white" size={56} />
-                    </div>
-                  }>
-                    <BrowserRouter>
-                      <AppRoutesWithTenant />
-                    </BrowserRouter>
-                  </Suspense>
-                </TenantProvider>
-              </TooltipProvider>
-            </LanguageProvider>
-          </ChatbotProvider>
-        </AuthProvider>
-      </ThemeProvider>
+      <HelmetProvider>
+        <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+          <AuthProvider>
+            <ChatbotProvider>
+              <LanguageProvider>
+                <TooltipProvider>
+                  <Toaster />
+                  <Sonner />
+                  <TenantProvider>
+                    <Suspense fallback={
+                      <div className="min-h-screen flex items-center justify-center bg-black">
+                        <SparkLoader text="It all starts with a spark" color="white" size={56} />
+                      </div>
+                    }>
+                      <BrowserRouter>
+                        <AppRoutesWithTenant />
+                      </BrowserRouter>
+                    </Suspense>
+                  </TenantProvider>
+                </TooltipProvider>
+              </LanguageProvider>
+            </ChatbotProvider>
+          </AuthProvider>
+        </ThemeProvider>
+      </HelmetProvider>
     </Provider>
   </QueryClientProvider>
 );

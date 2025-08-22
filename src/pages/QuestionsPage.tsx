@@ -18,6 +18,7 @@ import { useTranslation } from 'react-i18next';
 import { useTenant } from '@/contexts/TenantContext';
 import type { RootState } from '@/store/store';
 import { formatDistanceToNow } from 'date-fns';
+import { SEOHead } from '@/components/seo';
 
 interface Question {
   id: string;
@@ -498,8 +499,10 @@ export const QuestionsPage = () => {
   };
 
   return (
-    <QuestionsLayout
-      leftSidebar={
+    <>
+      <SEOHead />
+      <QuestionsLayout
+        leftSidebar={
         <QuestionsLeftSidebar 
           stats={stats} 
           topQuestions={topQuestions}
@@ -601,6 +604,7 @@ export const QuestionsPage = () => {
            onClose={handleCloseQuestionModal}
          />
        )}
-     </QuestionsLayout>
+       </QuestionsLayout>
+     </>
    );
  };

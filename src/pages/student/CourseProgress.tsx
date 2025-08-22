@@ -12,6 +12,8 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useRandomBackground } from "../../hooks/useRandomBackground";
 import { CourseProgressSkeleton, LessonContentSkeleton, QuizTakerSkeleton } from '@/components/student/skeletons';
 import { Skeleton } from '@/components/ui/skeleton';
+import { SEOHead } from '@/components/seo';
+import { getDynamicSEOMetadata } from '@/data/seo';
 
 interface Course {
   id: string;
@@ -247,8 +249,13 @@ export const CourseProgress = () => {
   }
 
   return (
-    <div className={bgClass + " min-h-screen"}>
-      <div className="min-h-screen bg-background flex pt-20">
+    <>
+      <SEOHead 
+        contentTitle={course?.title || 'Course Progress'}
+        contentDescription={`Track your progress in ${course?.title || 'this course'} and continue your learning journey.`}
+      />
+      <div className={bgClass + " min-h-screen"}>
+        <div className="min-h-screen bg-background flex pt-20">
         {/* Main Content Area */}
         <div className="flex-1 min-w-0">
           {currentQuiz ? (
@@ -325,7 +332,8 @@ export const CourseProgress = () => {
             </div>
           )}
         </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 };

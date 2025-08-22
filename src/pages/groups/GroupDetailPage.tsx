@@ -15,6 +15,7 @@ import { useTenantItemValidation } from '@/hooks/useTenantItemValidation';
 import { ImageUploader } from '@/components/ui/ImageUploader';
 import { IMAGE_UPLOAD_BUCKETS } from '@/data/constants';
 import type { UploadedImage } from '@/hooks/useImageUpload';
+import { SEOHead } from '@/components/seo';
 import { 
   Users, 
   Settings, 
@@ -1095,8 +1096,13 @@ export const GroupDetailPage = () => {
   }
 
   return (
-    <DashboardLayout>
-      <div className="space-y-6">
+    <>
+      <SEOHead 
+        contentTitle={group?.name || 'Study Group'}
+        contentDescription={group?.description || `Join the ${group?.name || 'study group'} to collaborate with peers and enhance your learning experience.`}
+      />
+      <DashboardLayout>
+        <div className="space-y-6">
         {/* Header */}
         <div className="space-y-4 sm:space-y-0 sm:flex sm:items-start sm:justify-between">
           <div className="flex items-start gap-3 sm:gap-4">
@@ -1667,7 +1673,8 @@ export const GroupDetailPage = () => {
              </div>
            </DialogContent>
          </Dialog>
-      </div>
-    </DashboardLayout>
-  );
-};
+        </div>
+        </DashboardLayout>
+      </>
+    );
+  };

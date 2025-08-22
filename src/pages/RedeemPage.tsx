@@ -9,6 +9,7 @@ import { Gift, Sparkles, Wallet, ArrowRight } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { useRandomBackground } from "../hooks/useRandomBackground";
 import { useTranslation } from 'react-i18next';
+import { SEOHead } from '@/components/seo';
 
 interface RedeemResponse {
   success: boolean;
@@ -110,8 +111,10 @@ const RedeemPage = () => {
   };
 
   return (
-    <div className={bgClass + " min-h-screen"}>
-      <DashboardLayout>
+    <>
+      <SEOHead />
+      <div className={bgClass + " min-h-screen"}>
+        <DashboardLayout>
         <div className="min-h-screen bg-gradient-to-br from-background via-background/80 to-primary/5 flex items-center justify-center p-4">
           <div className="w-full max-w-lg">
             {/* Header */}
@@ -219,7 +222,8 @@ const RedeemPage = () => {
           </div>
         </div>
       </DashboardLayout>
-    </div>
+      </div>
+    </>
   );
 };
 

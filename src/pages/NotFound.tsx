@@ -4,6 +4,7 @@ import { useRandomBackground } from "../hooks/useRandomBackground";
 import { Button } from "@/components/ui/button";
 import { Bug, Sparkles } from "lucide-react";
 import { useTranslation } from 'react-i18next';
+import { SEOHead } from '@/components/seo';
 
 const NotFound = () => {
   const location = useLocation();
@@ -19,7 +20,9 @@ const NotFound = () => {
   }, [location.pathname]);
 
   return (
-    <div className={`${bgClass} min-h-screen flex items-center justify-center bg-background`}> 
+    <>
+      <SEOHead />
+      <div className={`${bgClass} min-h-screen flex items-center justify-center bg-background`}> 
       <div className="glass-card max-w-xl w-full mx-auto text-center py-6 px-8 rounded-3xl shadow-2xl backdrop-blur-xl border border-border/30 flex flex-col items-center animate-fade-in">
         <div className="flex justify-center mb-8">
           <span className="inline-flex items-center justify-center rounded-full bg-primary/10 p-6 animate-glow-pulse shadow-lg">
@@ -41,7 +44,8 @@ const NotFound = () => {
           {t('notFound.goHome')}
         </Button>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

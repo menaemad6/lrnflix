@@ -2,6 +2,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { SEOHead } from '@/components/seo';
 
 export const AuthCallback = () => {
   const navigate = useNavigate();
@@ -45,8 +46,11 @@ export const AuthCallback = () => {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-black">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
-    </div>
+    <>
+      <SEOHead />
+      <div className="min-h-screen flex items-center justify-center bg-black">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+      </div>
+    </>
   );
 };

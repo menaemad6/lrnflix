@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { TeacherCardSkeleton } from '@/components/student/skeletons/TeacherCardSkeleton';
 import { useTranslation } from 'react-i18next';
+import { SEOHead } from '@/components/seo';
 
 interface Teacher {
   id: string;
@@ -160,9 +161,11 @@ export const TeachersPage = () => {
   }, [teachers]);
 
   return (
-    <div className={`min-h-screen ${bgClass}`}>
-      {/* Full-width header */}
-      <WavesHeroHeader
+    <>
+      <SEOHead />
+      <div className={`min-h-screen ${bgClass}`}>
+        {/* Full-width header */}
+        <WavesHeroHeader
         title={<>
           {t('teachersPage.meet_our_expert_teachers')} <span className="text-primary-500 dark:text-primary-400">{t('teachersPage.expert_teachers')}</span>
         </>}
@@ -253,7 +256,8 @@ export const TeachersPage = () => {
             ))}
           </div>
         )}
+        </div>
       </div>
-    </div>
+    </>
   );
 };

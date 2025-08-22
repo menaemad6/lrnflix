@@ -4,19 +4,29 @@ import UltraModernLanding from '@/components/landing/UltraModernLanding';
 import { useRandomBackground } from "../hooks/useRandomBackground";
 import { useTenant } from '@/contexts/TenantContext';
 import TeacherLanding from './TeacherLanding';
+import { SEOHead } from '@/components/seo/SEOHead';
 
 const Index = () => {
   const bgClass = useRandomBackground();
   const { teacher, loading } = useTenant();
 
-  
   // If we have a teacher, show their landing page
   if (teacher) {
-    return <TeacherLanding />;
+    return (
+      <>
+        <SEOHead />
+        <TeacherLanding />
+      </>
+    );
   }
 
   // Show the ultra-modern landing page instead of the regular home page
-  return <UltraModernLanding />;
+  return (
+    <>
+      <SEOHead />
+      <UltraModernLanding />
+    </>
+  );
 };
 
 export default Index;

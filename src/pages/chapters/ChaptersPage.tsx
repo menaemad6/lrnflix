@@ -13,6 +13,7 @@ import WavesHeroHeader from '@/components/ui/WavesHeroHeader';
 import ChapterCard from '@/components/chapters/ChapterCard';
 import { ChapterCardSkeleton } from '@/components/student/skeletons/ChapterCardSkeleton';
 import { useTranslation } from 'react-i18next';
+import { SEOHead } from '@/components/seo';
 
 interface Chapter {
   id: string;
@@ -148,9 +149,11 @@ export const ChaptersPage = () => {
   });
 
   return (
-    <div className={bgClass + " min-h-screen bg-gradient-to-br from-background via-background to-primary/5 "}>
-      {/* Modern Premium Header - full width */}
-      <WavesHeroHeader
+    <>
+      <SEOHead />
+      <div className={bgClass + " min-h-screen bg-gradient-to-br from-background via-background to-primary/5 "}>
+        {/* Modern Premium Header - full width */}
+        <WavesHeroHeader
         title={<span>{t('chapters.title')} <span className="text-primary">Chapters</span></span>}
         description={t('chapters.subtitle')}
       />
@@ -208,7 +211,8 @@ export const ChaptersPage = () => {
             </CardContent>
           </Card>
         )}
+        </div>
       </div>
-    </div>
+    </>
   );
 };

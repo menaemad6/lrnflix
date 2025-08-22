@@ -21,6 +21,8 @@ import { useRandomBackground } from "../../hooks/useRandomBackground";
 import { PremiumCourseCard } from '@/components/courses/PremiumCourseCard';
 import { CourseViewSkeleton } from '@/components/student/skeletons/CourseViewSkeleton';
 import { useTranslation } from 'react-i18next';
+import { SEOHead } from '@/components/seo';
+import { getDynamicSEOMetadata } from '@/data/seo';
 
 interface Chapter {
   id: string;
@@ -236,9 +238,14 @@ export const ChapterDetailPage = () => {
   }
 
   return (
-    <div className={bgClass + " min-h-screen"}>
-      {/* Hero Section */}
-      <div className="relative overflow-hidden pt-20 min-h-screen">
+    <>
+      <SEOHead 
+        contentTitle={chapter?.title || 'Chapter'}
+        contentDescription={chapter?.description || 'Explore organized learning chapters and structured educational content.'}
+      />
+      <div className={bgClass + " min-h-screen"}>
+        {/* Hero Section */}
+        <div className="relative overflow-hidden pt-20 min-h-screen">
         <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-primary/10 to-secondary/5"></div>
         
         <div className="relative container mx-auto px-6 py-16">
@@ -392,7 +399,8 @@ export const ChapterDetailPage = () => {
             </div>
           </div>
         </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 };

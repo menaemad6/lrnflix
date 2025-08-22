@@ -17,6 +17,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Link } from 'react-router-dom';
 import { Zap, Users } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { SEOHead } from '@/components/seo/SEOHead';
 
 interface EnrolledCourse {
     id: string;
@@ -72,8 +73,10 @@ export const StudentDashboard = () => {
   } };
 
   return (
-    <DashboardLayout>
-      <div className="space-y-8">
+    <>
+      <SEOHead />
+      <DashboardLayout>
+        <div className="space-y-8">
         <StudentProfileStats stats={stats} user={user!} />
         <AiAdviceCard />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -127,5 +130,6 @@ export const StudentDashboard = () => {
         </div>
       </div>
     </DashboardLayout>
+    </>
   );
 };

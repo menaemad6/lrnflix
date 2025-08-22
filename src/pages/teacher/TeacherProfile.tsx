@@ -14,6 +14,7 @@ import { Edit, Calendar, BookOpen, Globe, Save, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { PremiumCourseCard } from '@/components/courses/PremiumCourseCard';
 import { useTranslation } from 'react-i18next';
+import { SEOHead } from '@/components/seo';
 
 interface Teacher {
   id: string;
@@ -210,9 +211,14 @@ export const TeacherProfile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Cover Image */}
-      <div className="relative h-64 bg-gradient-to-r from-primary to-primary-400 overflow-hidden">
+    <>
+      <SEOHead 
+        contentTitle={teacher?.display_name || 'Teacher Profile'}
+        contentDescription={teacher?.bio || `Learn more about ${teacher?.display_name || 'this expert teacher'} and explore their courses and expertise.`}
+      />
+      <div className="min-h-screen bg-background">
+        {/* Cover Image */}
+        <div className="relative h-64 bg-gradient-to-r from-primary to-primary-400 overflow-hidden">
         {teacher.cover_image_url && (
           <img
             src={teacher.cover_image_url}
@@ -425,7 +431,8 @@ export const TeacherProfile = () => {
             )}
           </div>
         </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 };

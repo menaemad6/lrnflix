@@ -13,6 +13,7 @@ import WavesHeroHeader from '@/components/ui/WavesHeroHeader';
 import { useTenant } from '@/contexts/TenantContext';
 import { CourseCardSkeleton } from '@/components/student/skeletons/CourseCardSkeleton';
 import { useTranslation } from 'react-i18next';
+import { SEOHead } from '@/components/seo/SEOHead';
 
 interface Course {
   id: string;
@@ -195,12 +196,14 @@ export const Courses = () => {
   });
 
   return (
-    <div className={bgClass + " min-h-screen bg-gradient-to-br from-background via-background to-primary/5 "}>
-      {/* Header - full width, top of page */}
-      <WavesHeroHeader
-        title={<span className='text-primary'>{t('courses.title')}</span>}
-        description={t('courses.subtitle')}
-      />
+    <>
+      <SEOHead />
+      <div className={bgClass + " min-h-screen bg-gradient-to-br from-background via-background to-primary/5 "}>
+        {/* Header - full width, top of page */}
+        <WavesHeroHeader
+          title={<span className='text-primary'>{t('courses.title')}</span>}
+          description={t('courses.subtitle')}
+        />
       <div className="container mx-auto px-2 sm:px-4 space-y-8">
         {/* Filters - overlap header */}
         <Card className="glass-card w-full max-w-full -mt-12">
@@ -283,5 +286,6 @@ export const Courses = () => {
         )}
       </div>
     </div>
+    </>
   );
 };
