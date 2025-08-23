@@ -15,6 +15,7 @@ import { TeacherCourseManagementSkeleton } from '@/components/ui/skeletons';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Menu } from 'lucide-react';
+import { SEOHead } from '@/components/seo';
 
 interface Course {
   id: string;
@@ -336,7 +337,12 @@ export const TeacherCourseManagement = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pt-20 flex lg:flex-row">
+    <>
+      <SEOHead 
+        contentTitle={`${course.title} - Management`}
+        contentDescription={`Manage content, lessons, quizzes, and student progress for ${course.title}.`}
+      />
+      <div className="min-h-screen bg-background pt-20 flex lg:flex-row">
       {/* Static sidebar on large screens */}
       <div className="hidden lg:flex w-80 shrink-0 border-r h-[calc(100vh-5rem)] bg-card/30 sticky top-20 self-start">
         <TeacherCourseSidebar
@@ -397,5 +403,6 @@ export const TeacherCourseManagement = () => {
         </SheetContent>
       </Sheet>
     </div>
+    </>
   );
 };

@@ -669,7 +669,7 @@
     "codePlaceholder": "Enter your redemption code here",
     "redeem": "Redeem",
     "redeeming": "Redeeming...",
-    "codeRedeemed": "Code redeemed successfully!",
+    "codeRedeemed": "Code redeemed successfully! You received {{amount}} credits.",
     "invalidCode": "Invalid code",
     "codeAlreadyUsed": "Code has already been used",
     "codeExpired": "Code has expired",

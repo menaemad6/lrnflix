@@ -84,7 +84,7 @@ const RedeemPage = () => {
         
         // Redirect to dashboard or wallet page
         setTimeout(() => {
-          navigate('/dashboard');
+          navigate('/student/dashboard');
         }, 2000);
       } else {
         throw new Error(data.error || t('redeemPage.errorRedeeming'));
@@ -112,7 +112,10 @@ const RedeemPage = () => {
 
   return (
     <>
-      <SEOHead />
+      <SEOHead 
+        contentTitle={t('redeemPage.title')}
+        contentDescription={t('redeemPage.subtitle')}
+      />
       <div className={bgClass + " min-h-screen"}>
         <DashboardLayout>
         <div className="min-h-screen bg-gradient-to-br from-background via-background/80 to-primary/5 flex items-center justify-center p-4">
@@ -193,7 +196,7 @@ const RedeemPage = () => {
                     <div className="flex gap-2 justify-center">
                       <Button 
                         variant="outline" 
-                        onClick={() => navigate('/dashboard')}
+                        onClick={() => navigate('/student/dashboard')}
                         className="flex-1 max-w-40"
                         size="sm"
                       >

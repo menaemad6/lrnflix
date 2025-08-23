@@ -81,7 +81,7 @@ import { StudentDetail } from './pages/teacher/StudentDetail';
 import TeacherSchedulePage from './pages/teacher/TeacherSchedulePage';
 import { TeacherColorSettings } from './pages/teacher/TeacherColorSettings';
 import { LanguageProvider } from './contexts/LanguageContext';
-import CodesPage from './pages/CodesPage';
+
 
 const queryClient = new QueryClient();
 
@@ -117,7 +117,6 @@ const AppRoutes = () => {
           <Route path="/auth/login" element={<Auth />} />
           <Route path="/auth/signup" element={<Auth />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
-          <Route path="/codes" element={<CodesPage />} />
           <Route path="/redeem" element={<ProtectedRoute><RedeemPage /></ProtectedRoute>} />
           <Route path="/unauthorized" element={<Unauthorized />} />
           {/* Teacher Routes */}
@@ -131,7 +130,7 @@ const AppRoutes = () => {
           <Route path="/teacher/courses/:id/manage/quizzes/:quizId" element={<ProtectedRoute requiredRole={['teacher']}><TeacherCourseManagement /></ProtectedRoute>} />
           <Route path="/teacher/groups" element={<ProtectedRoute requiredRole={['teacher']}><TeacherGroups /></ProtectedRoute>} />
           <Route path="/teacher/chapters" element={<ProtectedRoute requiredRole={['teacher']}><TeacherChaptersPage /></ProtectedRoute>} />
-          <Route path="/teacher/chapter/:chapterId" element={<ProtectedRoute requiredRole={['teacher']}><TeacherChapterManagement /></ProtectedRoute>} />
+          <Route path="/teacher/chapters/:chapterId" element={<ProtectedRoute requiredRole={['teacher']}><TeacherChapterManagement /></ProtectedRoute>} />
           <Route path="/teacher/codes" element={<ProtectedRoute requiredRole={['teacher']}><TeacherCodesPage /></ProtectedRoute>} />
           <Route path="/teacher/analytics" element={<ProtectedRoute requiredRole={['teacher']}><TeacherAnalyticsPage /></ProtectedRoute>} />
           <Route path="/teacher/schedule" element={<ProtectedRoute requiredRole={['teacher']}><TeacherSchedulePage /></ProtectedRoute>} />

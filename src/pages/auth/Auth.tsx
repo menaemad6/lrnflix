@@ -10,6 +10,7 @@ import { useRandomBackground } from "../../hooks/useRandomBackground";
 import { PremiumCourseCard } from '@/components/courses/PremiumCourseCard';
 import { PLATFORM_NAME } from '@/data/constants';
 import { SEOHead } from '@/components/seo';
+import { useTranslation } from 'react-i18next';
 
 const cards = [
   {
@@ -87,6 +88,7 @@ const Auth: React.FC = () => {
   const [showLegalModal, setShowLegalModal] = useState(false);
   const [activeTab, setActiveTab] = useState('terms');
   const bgClass = useRandomBackground();
+  const { t } = useTranslation('other');
 
   useEffect(() => {
     if (location.pathname.endsWith('/login')) setMode('login');
@@ -125,38 +127,38 @@ const Auth: React.FC = () => {
           {/* Buttons or Forms */}
           <div className="flex flex-col gap-4 w-full">
             <Button className="bg-primary hover:bg-primary/80 text-primary-foreground font-bold text-lg py-4 rounded-full w-full shadow-md transition-all" onClick={() => navigate('/auth/signup')}>
-              Create Account
+            {t('authModal.createAccount')}
             </Button>
             <Button variant="outline" className="border border-border text-foreground font-semibold text-lg py-4 rounded-full w-full bg-background hover:bg-muted hover:text-primary transition-all" onClick={() => navigate('/auth/login')}>
-              Sign In
+              {t('authModal.signIn')}
             </Button>
           </div>
           <AuthModal open={location.pathname.includes('/auth/')} onOpenChange={(open) => {
             if (!open) {
-              navigate('/');
+              navigate('/auth');
             }
           }} className={mode === 'signup' ? 'p-0 max-w-xl' : 'p-0 max-w-lg'}>
             <AuthForm mode={mode} setMode={setMode} onClose={() => {
-              navigate('/');
+              navigate('/auth');
             }} />
           </AuthModal>
           {/* Disclaimer */}
           <p className="text-xs text-muted-foreground mt-6 mb-0 text-center w-full">
-            By continuing, you agree to our <button onClick={() => handleLegalLink('terms')} className="underline hover:text-primary">Terms</button> and <button onClick={() => handleLegalLink('privacy')} className="underline hover:text-primary">Privacy Policy</button>.
+            {t('authModal.byContinuing')} <button onClick={() => handleLegalLink('terms')} className="underline hover:text-primary">{t('authModal.terms')}</button> {t('authModal.and')} <button onClick={() => handleLegalLink('privacy')} className="underline hover:text-primary">{t('authModal.privacy')}</button>.
           </p>
         </div>
         {/* Footer */}
         <footer className="w-full mx-auto text-xs text-muted-foreground border-t border-border pt-6 pb-4 md:static fixed left-0 bottom-0 z-10" style={{background: 'inherit'}}>
           <div className="flex flex-row gap-6 mb-2 justify-center">
-            <button onClick={() => handleLegalLink('terms')} className="hover:underline hover:text-primary">Terms</button>
+            <button onClick={() => handleLegalLink('terms')} className="hover:underline hover:text-primary">{t('authModal.footerLinks.terms')}</button>
             <span>|</span>
-            <button onClick={() => handleLegalLink('privacy')} className="hover:underline hover:text-primary">Privacy</button>
+            <button onClick={() => handleLegalLink('privacy')} className="hover:underline hover:text-primary">{t('authModal.footerLinks.privacy')}</button>
             <span>|</span>
-            <button onClick={() => handleLegalLink('help')} className="hover:underline hover:text-primary">Help Center</button>
+            <button onClick={() => handleLegalLink('help')} className="hover:underline hover:text-primary">{t('authModal.footerLinks.helpCenter')}</button>
             <span>|</span>
-            <button onClick={() => handleLegalLink('contact')} className="hover:underline hover:text-primary">Contact</button>
+            <button onClick={() => handleLegalLink('contact')} className="hover:underline hover:text-primary">{t('authModal.footerLinks.contact')}</button>
           </div>
-          <div className="text-xs text-muted-foreground text-center w-full">©2025 {PLATFORM_NAME} LMS</div>
+          <div className="text-xs text-muted-foreground text-center w-full">{t('authModal.copyright')}</div>
         </footer>
       </div>
       {/* Right Column: Two vertical carousels */}
@@ -227,81 +229,81 @@ const Auth: React.FC = () => {
       <Dialog open={showLegalModal} onOpenChange={setShowLegalModal}>
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold">Legal Information</DialogTitle>
+            <DialogTitle className="text-2xl font-bold">{t('authModal.legalInformation')}</DialogTitle>
           </DialogHeader>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="terms">Terms of Service</TabsTrigger>
-              <TabsTrigger value="privacy">Privacy Policy</TabsTrigger>
-              <TabsTrigger value="help">Help Center</TabsTrigger>
-              <TabsTrigger value="contact">Contact</TabsTrigger>
+              <TabsTrigger value="terms">{t('authModal.termsOfService')}</TabsTrigger>
+              <TabsTrigger value="privacy">{t('authModal.privacyPolicy')}</TabsTrigger>
+              <TabsTrigger value="help">{t('authModal.helpCenter')}</TabsTrigger>
+              <TabsTrigger value="contact">{t('authModal.contactUs')}</TabsTrigger>
             </TabsList>
             <div className="mt-4 max-h-[60vh] overflow-y-auto">
               <TabsContent value="terms" className="space-y-4">
-                <h3 className="text-xl font-semibold">Terms of Service</h3>
-                <p className="text-sm text-muted-foreground">Last updated: January 2025</p>
+                <h3 className="text-xl font-semibold">{t('authModal.termsOfService')}</h3>
+                <p className="text-sm text-muted-foreground">{t('authModal.lastUpdated')}</p>
                 <div className="space-y-3 text-sm">
-                  <p>Welcome to {PLATFORM_NAME} LMS. By accessing our platform, you agree to these terms of service.</p>
+                  <p>{t('authModal.legalContent.terms.welcome')}</p>
                   <h4 className="font-semibold">1. Acceptance of Terms</h4>
-                  <p>By using {PLATFORM_NAME} LMS, you accept and agree to be bound by these Terms of Service and all applicable laws and regulations.</p>
+                  <p>{t('authModal.legalContent.terms.acceptance')}</p>
                   <h4 className="font-semibold">2. User Accounts</h4>
-                  <p>You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account.</p>
+                  <p>{t('authModal.legalContent.terms.userAccounts')}</p>
                   <h4 className="font-semibold">3. Acceptable Use</h4>
-                  <p>You agree not to use the service for any unlawful purpose or to violate any applicable laws or regulations.</p>
+                  <p>{t('authModal.legalContent.terms.acceptableUse')}</p>
                   <h4 className="font-semibold">4. Intellectual Property</h4>
-                  <p>All content on {PLATFORM_NAME} LMS is protected by copyright and other intellectual property laws.</p>
+                  <p>{t('authModal.legalContent.terms.intellectualProperty')}</p>
                   <h4 className="font-semibold">5. Termination</h4>
-                  <p>We reserve the right to terminate or suspend your account at any time for violations of these terms.</p>
+                  <p>{t('authModal.legalContent.terms.termination')}</p>
                 </div>
               </TabsContent>
               <TabsContent value="privacy" className="space-y-4">
-                <h3 className="text-xl font-semibold">Privacy Policy</h3>
-                <p className="text-sm text-muted-foreground">Last updated: January 2025</p>
+                <h3 className="text-xl font-semibold">{t('authModal.privacyPolicy')}</h3>
+                <p className="text-sm text-muted-foreground">{t('authModal.lastUpdated')}</p>
                 <div className="space-y-3 text-sm">
-                  <p>Your privacy is important to us. This policy describes how we collect, use, and protect your information.</p>
+                  <p>{t('authModal.legalContent.privacy.description')}</p>
                   <h4 className="font-semibold">1. Information We Collect</h4>
-                  <p>We collect information you provide directly to us, such as when you create an account, enroll in courses, or contact us.</p>
+                  <p>{t('authModal.legalContent.privacy.informationCollection')}</p>
                   <h4 className="font-semibold">2. How We Use Your Information</h4>
-                  <p>We use your information to provide and improve our services, communicate with you, and ensure platform security.</p>
+                  <p>{t('authModal.legalContent.privacy.informationUsage')}</p>
                   <h4 className="font-semibold">3. Information Sharing</h4>
-                  <p>We do not sell, trade, or otherwise transfer your personal information to third parties without your consent.</p>
+                  <p>{t('authModal.legalContent.privacy.informationSharing')}</p>
                   <h4 className="font-semibold">4. Data Security</h4>
-                  <p>We implement appropriate security measures to protect your personal information against unauthorized access.</p>
+                  <p>{t('authModal.legalContent.privacy.dataSecurity')}</p>
                   <h4 className="font-semibold">5. Your Rights</h4>
-                  <p>You have the right to access, update, or delete your personal information at any time.</p>
+                  <p>{t('authModal.legalContent.privacy.yourRights')}</p>
                 </div>
               </TabsContent>
               <TabsContent value="help" className="space-y-4">
-                <h3 className="text-xl font-semibold">Help Center</h3>
+                <h3 className="text-xl font-semibold">{t('authModal.helpCenter')}</h3>
                 <div className="space-y-3 text-sm">
                   <h4 className="font-semibold">Getting Started</h4>
-                  <p>Welcome to {PLATFORM_NAME} LMS! Here's how to get started with your learning journey.</p>
+                  <p>{t('authModal.legalContent.help.gettingStarted')}</p>
                   <h4 className="font-semibold">Creating an Account</h4>
-                  <p>Click "Create Account" on the homepage and follow the simple registration process.</p>
+                  <p>{t('authModal.legalContent.help.creatingAccount')}</p>
                   <h4 className="font-semibold">Enrolling in Courses</h4>
-                  <p>Browse our course catalog and click "Enroll Now" on any course that interests you.</p>
+                  <p>{t('authModal.legalContent.help.enrollingInCourses')}</p>
                   <h4 className="font-semibold">Accessing Your Courses</h4>
-                  <p>Once enrolled, you can access your courses from your dashboard at any time.</p>
+                  <p>{t('authModal.legalContent.help.accessingCourses')}</p>
                   <h4 className="font-semibold">Technical Support</h4>
-                  <p>If you encounter technical issues, please contact our support team for assistance.</p>
+                  <p>{t('authModal.legalContent.help.technicalSupport')}</p>
                   <h4 className="font-semibold">Payment Issues</h4>
-                  <p>For payment-related questions, please check your account settings or contact billing support.</p>
+                  <p>{t('authModal.legalContent.help.paymentIssues')}</p>
                 </div>
               </TabsContent>
               <TabsContent value="contact" className="space-y-4">
-                <h3 className="text-xl font-semibold">Contact Us</h3>
+                <h3 className="text-xl font-semibold">{t('authModal.contactUs')}</h3>
                 <div className="space-y-3 text-sm">
-                  <p>We're here to help! Reach out to us through any of the following channels.</p>
-                  <h4 className="font-semibold">Email Support</h4>
-                  <p>General inquiries: <a href="mailto:support@learnx.com" className="text-primary hover:underline">support@learnx.com</a></p>
-                  <p>Technical support: <a href="mailto:tech@learnx.com" className="text-primary hover:underline">tech@learnx.com</a></p>
-                  <h4 className="font-semibold">Phone Support</h4>
-                  <p>Monday - Friday, 9 AM - 6 PM EST</p>
-                  <p>+1 (555) 123-4567</p>
-                  <h4 className="font-semibold">Live Chat</h4>
-                  <p>Available during business hours through our website chat widget.</p>
-                  <h4 className="font-semibold">Response Time</h4>
-                  <p>We typically respond to inquiries within 24 hours during business days.</p>
+                  <p>{t('authModal.legalContent.contact.description')}</p>
+                  <h4 className="font-semibold">{t('authModal.legalContent.contact.emailSupport')}</h4>
+                  <p>{t('authModal.legalContent.contact.generalInquiries')}: <a href="mailto:support@learnx.com" className="text-primary hover:underline">support@learnx.com</a></p>
+                  <p>{t('authModal.legalContent.contact.technicalSupport')}: <a href="mailto:tech@learnx.com" className="text-primary hover:underline">tech@learnx.com</a></p>
+                  <h4 className="font-semibold">{t('authModal.legalContent.contact.phoneSupport')}</h4>
+                  <p>{t('authModal.legalContent.contact.businessHours')}</p>
+                  <p>{t('authModal.legalContent.contact.phoneNumber')}</p>
+                  <h4 className="font-semibold">{t('authModal.legalContent.contact.liveChat')}</h4>
+                  <p>{t('authModal.legalContent.contact.liveChatDescription')}</p>
+                  <h4 className="font-semibold">{t('authModal.legalContent.contact.responseTime')}</h4>
+                  <p>{t('authModal.legalContent.contact.responseTimeDescription')}</p>
                 </div>
               </TabsContent>
             </div>

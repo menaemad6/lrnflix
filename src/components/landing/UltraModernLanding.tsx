@@ -45,7 +45,7 @@ import ModernLayoutHero from './ModernLayoutHero';
 import HeroSection from '../home/HeroSection';
 import FeaturedInstructorsSkeleton from "./skeletons/FeaturedInstructorsSkeleton";
 import TopCoursesSkeleton from "./skeletons/TopCoursesSkeleton";
-import CustomCursor from "@/components/ui/CustomCursor";
+
 
 interface Instructor {
     user_id: string;
@@ -2360,9 +2360,7 @@ const RevolutionaryCTA = React.memo(() => {
 const UltraModernLanding = () => {
   return (
     <div className="min-h-screen bg-black text-white relative overflow-hidden ultra-modern-landing">
-      <div className="hidden lg:block">
-        <CustomCursor />
-      </div>
+
 
       {/* Premium Mouse Lighting Effect */}
       <PremiumMouseLightingEffect />

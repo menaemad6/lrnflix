@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { StudentCardSkeleton } from '@/components/student/skeletons';
 import { useTeacherStudents } from '@/lib/queries';
 import { useTranslation } from 'react-i18next';
+import { SEOHead } from '@/components/seo';
 
 import { 
   Users, 
@@ -101,208 +102,211 @@ export const StudentStudents = () => {
   ).length;
 
   return (
-    <DashboardLayout>
-      <div className="space-y-8">
-        <TeacherPageHeader 
-          title={t('students.page.title')} 
-          subtitle={t('students.page.subtitle')}
-        />
+    <>
+      <SEOHead />
+      <DashboardLayout>
+        <div className="space-y-8">
+          <TeacherPageHeader 
+            title={t('students.page.title')} 
+            subtitle={t('students.page.subtitle')}
+          />
 
-        {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <Card className="glass-card border-0">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-500/20 to-accent-500/20 rounded-xl flex items-center justify-center">
-                  <Users className="h-5 w-5 text-blue-400" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold gradient-text">{students.length}</p>
-                  <p className="text-sm text-muted-foreground">{t('students.page.totalStudents')}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="glass-card border-0">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-primary-500/20 to-green-500/20 rounded-xl flex items-center justify-center">
-                  <TrendingUp className="h-5 w-5 text-primary-400" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold gradient-text">{activeStudents}</p>
-                  <p className="text-sm text-muted-foreground">{t('students.page.activeStudents')}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="glass-card border-0">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-xl flex items-center justify-center">
-                  <GraduationCap className="h-5 w-5 text-purple-400" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold gradient-text">{totalRevenue}</p>
-                  <p className="text-sm text-muted-foreground">{t('students.page.totalRevenue')}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="glass-card border-0">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-orange-500/20 to-red-500/20 rounded-xl flex items-center justify-center">
-                  <Star className="h-5 w-5 text-orange-400" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold gradient-text">
-                    {students.length > 0 ? Math.round(students.reduce((sum, s) => sum + s.averageScore, 0) / students.length) : 0}%
-                  </p>
-                  <p className="text-sm text-muted-foreground">{t('students.page.avgScore')}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Filters and Search */}
-        <Card className="glass-card border-0">
-          <CardContent className="p-6">
-            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-              <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder={t('students.page.searchPlaceholder')}
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 bg-white/5 border-white/10"
-                />
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  variant={filterBy === 'all' ? 'default' : 'outline'}
-                  onClick={() => setFilterBy('all')}
-                  size="sm"
-                >
-                  {t('students.page.allStudents')}
-                </Button>
-                <Button
-                  variant={filterBy === 'active' ? 'default' : 'outline'}
-                  onClick={() => setFilterBy('active')}
-                  size="sm"
-                >
-                  {t('students.page.active')}
-                </Button>
-                <Button
-                  variant={filterBy === 'top_spenders' ? 'default' : 'outline'}
-                  onClick={() => setFilterBy('top_spenders')}
-                  size="sm"
-                >
-                  {t('students.page.topSpenders')}
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Students List */}
-        <div className="grid grid-cols-1 gap-4">
-          {isLoading ? (
-            Array.from({ length: 3 }).map((_, index) => (
-              <StudentCardSkeleton key={index} />
-            ))
-          ) : filteredStudents.length === 0 ? (
+          {/* Stats Overview */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <Card className="glass-card border-0">
               <CardContent className="p-6">
-                <div className="text-center text-muted-foreground">
-                  {t('students.page.noStudentsFound')}
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500/20 to-accent-500/20 rounded-xl flex items-center justify-center">
+                    <Users className="h-5 w-5 text-blue-400" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold gradient-text">{students.length}</p>
+                    <p className="text-sm text-muted-foreground">{t('students.page.totalStudents')}</p>
+                  </div>
                 </div>
               </CardContent>
             </Card>
-          ) : (
-            filteredStudents.map((student) => (
-              <Card key={student.id} className="glass-card border-0 hover-glow group">
-                <CardContent className="p-6">
-                  <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-4">
-                    <div className="flex items-center gap-4 w-full sm:w-auto">
-                      <Avatar className="w-12 h-12 border-2 border-primary/20">
-                        <AvatarImage src={student.avatar_url} alt={student.full_name} />
-                        <AvatarFallback className="bg-gradient-to-br from-primary/20 to-accent/20 text-primary">
-                          {student.full_name.split(' ').map(n => n[0]).join('').toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      
-                      <div className="flex-1 min-w-0 sm:hidden">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors truncate">
-                            {student.full_name}
-                          </h3>
-                        </div>
-                        <p className="text-sm text-muted-foreground truncate">{student.email}</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex-1 min-w-0 hidden sm:block">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
-                          {student.full_name}
-                        </h3>
-                        {student.averageScore >= 80 && (
-                          <Badge variant="outline" className="text-primary-400 border-primary-500/30">
-                            <Star className="h-3 w-3 mr-1 fill-current" />
-                            {t('students.page.topPerformer')}
-                          </Badge>
-                        )}
-                      </div>
-                      <p className="text-sm text-muted-foreground mb-2">{student.email}</p>
-                    </div>
 
-                    <div className="w-full sm:w-auto sm:flex-1 grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm mt-4 sm:mt-0">
-                      <div className="flex items-center gap-2">
-                        <BookOpen className="h-4 w-4 text-blue-400" />
-                        <span className="text-muted-foreground">
-                          {student.enrollmentCount} {student.enrollmentCount !== 1 ? t('students.page.coursesPlural') : t('students.page.courses')}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <TrendingUp className="h-4 w-4 text-primary-400" />
-                        <span className="text-muted-foreground">
-                          {student.totalSpent} {t('students.page.creditsSpent')}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Star className="h-4 w-4 text-yellow-400" />
-                        <span className="text-muted-foreground">
-                          {student.averageScore}{t('students.page.avgScorePercent')}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4 text-purple-400" />
-                        <span className="text-muted-foreground">
-                          {formatLastActive(student.lastActive)}
-                        </span>
-                      </div>
-                    </div>
-                    
-                    <div className="w-full sm:w-auto flex justify-end mt-4 sm:mt-0">
-                      <Link to={`/teacher/students/${student.id}`} className="w-full sm:w-auto">
-                        <Button variant="outline" size="sm" className="group-hover:bg-primary/10 w-full">
-                          {t('students.page.viewDetails')}
-                          <ArrowUpRight className="h-4 w-4 ml-2" />
-                        </Button>
-                      </Link>
-                    </div>
+            <Card className="glass-card border-0">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-primary-500/20 to-green-500/20 rounded-xl flex items-center justify-center">
+                    <TrendingUp className="h-5 w-5 text-primary-400" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold gradient-text">{activeStudents}</p>
+                    <p className="text-sm text-muted-foreground">{t('students.page.activeStudents')}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="glass-card border-0">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-xl flex items-center justify-center">
+                    <GraduationCap className="h-5 w-5 text-purple-400" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold gradient-text">{totalRevenue}</p>
+                    <p className="text-sm text-muted-foreground">{t('students.page.totalRevenue')}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="glass-card border-0">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-orange-500/20 to-red-500/20 rounded-xl flex items-center justify-center">
+                    <Star className="h-5 w-5 text-orange-400" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold gradient-text">
+                      {students.length > 0 ? Math.round(students.reduce((sum, s) => sum + s.averageScore, 0) / students.length) : 0}%
+                    </p>
+                    <p className="text-sm text-muted-foreground">{t('students.page.avgScore')}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Filters and Search */}
+          <Card className="glass-card border-0">
+            <CardContent className="p-6">
+              <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+                <div className="relative flex-1 max-w-md">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder={t('students.page.searchPlaceholder')}
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 bg-white/5 border-white/10"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant={filterBy === 'all' ? 'default' : 'outline'}
+                    onClick={() => setFilterBy('all')}
+                    size="sm"
+                  >
+                    {t('students.page.allStudents')}
+                  </Button>
+                  <Button
+                    variant={filterBy === 'active' ? 'default' : 'outline'}
+                    onClick={() => setFilterBy('active')}
+                    size="sm"
+                  >
+                    {t('students.page.active')}
+                  </Button>
+                  <Button
+                    variant={filterBy === 'top_spenders' ? 'default' : 'outline'}
+                    onClick={() => setFilterBy('top_spenders')}
+                    size="sm"
+                  >
+                    {t('students.page.topSpenders')}
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Students List */}
+          <div className="grid grid-cols-1 gap-4">
+            {isLoading ? (
+              Array.from({ length: 3 }).map((_, index) => (
+                <StudentCardSkeleton key={index} />
+              ))
+            ) : filteredStudents.length === 0 ? (
+              <Card className="glass-card border-0">
+                <CardContent className="p-6">
+                  <div className="text-center text-muted-foreground">
+                    {t('students.page.noStudentsFound')}
                   </div>
                 </CardContent>
               </Card>
-            ))
-          )}
+            ) : (
+              filteredStudents.map((student) => (
+                <Card key={student.id} className="glass-card border-0 hover-glow group">
+                  <CardContent className="p-6">
+                    <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-4">
+                      <div className="flex items-center gap-4 w-full sm:w-auto">
+                        <Avatar className="w-12 h-12 border-2 border-primary/20">
+                          <AvatarImage src={student.avatar_url} alt={student.full_name} />
+                          <AvatarFallback className="bg-gradient-to-br from-primary/20 to-accent/20 text-primary">
+                            {student.full_name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        
+                        <div className="flex-1 min-w-0 sm:hidden">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors truncate">
+                              {student.full_name}
+                            </h3>
+                          </div>
+                          <p className="text-sm text-muted-foreground truncate">{student.email}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex-1 min-w-0 hidden sm:block">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
+                            {student.full_name}
+                          </h3>
+                          {student.averageScore >= 80 && (
+                            <Badge variant="outline" className="text-primary-400 border-primary-500/30">
+                              <Star className="h-3 w-3 mr-1 fill-current" />
+                              {t('students.page.topPerformer')}
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="text-sm text-muted-foreground mb-2">{student.email}</p>
+                      </div>
+
+                      <div className="w-full sm:w-auto sm:flex-1 grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm mt-4 sm:mt-0">
+                        <div className="flex items-center gap-2">
+                          <BookOpen className="h-4 w-4 text-blue-400" />
+                          <span className="text-muted-foreground">
+                            {student.enrollmentCount} {student.enrollmentCount !== 1 ? t('students.page.coursesPlural') : t('students.page.courses')}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <TrendingUp className="h-4 w-4 text-primary-400" />
+                          <span className="text-muted-foreground">
+                            {student.totalSpent} {t('students.page.creditsSpent')}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Star className="h-4 w-4 text-yellow-400" />
+                          <span className="text-muted-foreground">
+                            {student.averageScore}{t('students.page.avgScorePercent')}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Clock className="h-4 w-4 text-purple-400" />
+                          <span className="text-muted-foreground">
+                            {formatLastActive(student.lastActive)}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <div className="w-full sm:w-auto flex justify-end mt-4 sm:mt-0">
+                        <Link to={`/teacher/students/${student.id}`} className="w-full sm:w-auto">
+                          <Button variant="outline" size="sm" className="group-hover:bg-primary/10 w-full">
+                            {t('students.page.viewDetails')}
+                            <ArrowUpRight className="h-4 w-4 ml-2" />
+                          </Button>
+                        </Link>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </div>
         </div>
-      </div>
-    </DashboardLayout>
+      </DashboardLayout>
+    </>
   );
 };

@@ -18,6 +18,7 @@ import { Plus, Calendar as CalendarIcon, Clock, Tag, GripVertical, Sparkles, Ale
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
+import { SEOHead } from '@/components/seo';
 
 type TaskInsert = Omit<Task, 'id' | 'created_at' | 'updated_at'>;
 
@@ -490,206 +491,209 @@ export default function TeacherSchedulePage() {
   }
 
   return (
-    <DashboardLayout>
-      <div className="space-y-6">
+    <>
+      <SEOHead />
+      <DashboardLayout>
+        <div className="space-y-6">
 
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-primary">Schedule Tasks</h1>
-            <p className="text-muted-foreground">Manage your teaching tasks and schedule</p>
-          </div>
-          
-          <Dialog open={isDialogOpen} onOpenChange={(isOpen) => {
-            setIsDialogOpen(isOpen);
-            if (!isOpen) {
-              setEditingTask(null);
-            }
-          }}>
-            <DialogTrigger asChild>
-              <Button onClick={() => setEditingTask(null)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Task
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-md">
-              <DialogHeader>
-                <DialogTitle>{editingTask ? 'Edit Task' : 'Create New Task'}</DialogTitle>
-                <DialogDescription>
-                  {editingTask ? 'Update the details of your task.' : 'Add a new task to your schedule. AI can help enhance it!'}
-                </DialogDescription>
-              </DialogHeader>
-              
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium">Title *</label>
-                  <Input
-                    value={formData.title}
-                    onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                    placeholder="Task title..."
-                    required
-                  />
-                </div>
-                
-                <div>
-                  <label className="text-sm font-medium">Description</label>
-                  <Textarea
-                    value={formData.description}
-                    onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                    placeholder="Brief description..."
-                    rows={3}
-                  />
-                </div>
-                
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => enhanceWithAI({ title: formData.title, description: formData.description })}
-                  disabled={isEnhancing || !formData.title || !formData.description}
-                  className="w-full"
-                >
-                  {isEnhancing ? (
-                    <>
-                      <div className="animate-spin h-4 w-4 mr-2 border-2 border-current border-t-transparent rounded-full" />
-                      Enhancing...
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="h-4 w-4 mr-2" />
-                      Enhance with AI
-                    </>
-                  )}
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-primary">Schedule Tasks</h1>
+              <p className="text-muted-foreground">Manage your teaching tasks and schedule</p>
+            </div>
+            
+            <Dialog open={isDialogOpen} onOpenChange={(isOpen) => {
+              setIsDialogOpen(isOpen);
+              if (!isOpen) {
+                setEditingTask(null);
+              }
+            }}>
+              <DialogTrigger asChild>
+                <Button onClick={() => setEditingTask(null)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Task
                 </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-md">
+                <DialogHeader>
+                  <DialogTitle>{editingTask ? 'Edit Task' : 'Create New Task'}</DialogTitle>
+                  <DialogDescription>
+                    {editingTask ? 'Update the details of your task.' : 'Add a new task to your schedule. AI can help enhance it!'}
+                  </DialogDescription>
+                </DialogHeader>
                 
-                <div className="grid grid-cols-2 gap-4">
+                <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
-                    <label className="text-sm font-medium">Priority</label>
-                    <Select value={formData.priority} onValueChange={(value: Task['priority']) => setFormData(prev => ({ ...prev, priority: value }))}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="low">Low</SelectItem>
-                        <SelectItem value="medium">Medium</SelectItem>
-                        <SelectItem value="high">High</SelectItem>
-                        <SelectItem value="urgent">Urgent</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <label className="text-sm font-medium">Title *</label>
+                    <Input
+                      value={formData.title}
+                      onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                      placeholder="Task title..."
+                      required
+                    />
                   </div>
                   
                   <div>
-                    <label className="text-sm font-medium">Est. Hours</label>
-                    <Input
-                      type="number"
-                      value={formData.estimated_hours}
-                      onChange={(e) => setFormData(prev => ({ ...prev, estimated_hours: e.target.value }))}
-                      placeholder="Hours"
-                      min="1"
+                    <label className="text-sm font-medium">Description</label>
+                    <Textarea
+                      value={formData.description}
+                      onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                      placeholder="Brief description..."
+                      rows={3}
                     />
                   </div>
-                </div>
-                
-                <div>
-                  <label className="text-sm font-medium">Due Date</label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          "w-full justify-start text-left font-normal",
-                          !formData.due_date && "text-muted-foreground"
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {formData.due_date ? format(formData.due_date, "PPP") : <span>Pick a date</span>}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <Calendar
-                        mode="single"
-                        selected={formData.due_date}
-                        onSelect={(date) => setFormData(prev => ({ ...prev, due_date: date as Date | undefined }))}
-                        initialFocus
+                  
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => enhanceWithAI({ title: formData.title, description: formData.description })}
+                    disabled={isEnhancing || !formData.title || !formData.description}
+                    className="w-full"
+                  >
+                    {isEnhancing ? (
+                      <>
+                        <div className="animate-spin h-4 w-4 mr-2 border-2 border-current border-t-transparent rounded-full" />
+                        Enhancing...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="h-4 w-4 mr-2" />
+                        Enhance with AI
+                      </>
+                    )}
+                  </Button>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium">Priority</label>
+                      <Select value={formData.priority} onValueChange={(value: Task['priority']) => setFormData(prev => ({ ...prev, priority: value }))}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="low">Low</SelectItem>
+                          <SelectItem value="medium">Medium</SelectItem>
+                          <SelectItem value="high">High</SelectItem>
+                          <SelectItem value="urgent">Urgent</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div>
+                      <label className="text-sm font-medium">Est. Hours</label>
+                      <Input
+                        type="number"
+                        value={formData.estimated_hours}
+                        onChange={(e) => setFormData(prev => ({ ...prev, estimated_hours: e.target.value }))}
+                        placeholder="Hours"
+                        min="1"
                       />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-                
-                {courses && courses.length > 0 && (
-                  <div>
-                    <label className="text-sm font-medium">Related Course</label>
-                    <Select 
-                      value={formData.course_id || 'no-course'} 
-                      onValueChange={(value) => setFormData(prev => ({ ...prev, course_id: value === 'no-course' ? null : value }))}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select course (optional)" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="no-course">No course</SelectItem>
-                        {courses.map(course => (
-                          <SelectItem key={course.id} value={course.id}>
-                            {course.title}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    </div>
                   </div>
-                )}
-                
-                <DialogFooter>
-                  <Button type="button" variant="outline" onClick={() => {
-                    setIsDialogOpen(false);
-                    setEditingTask(null);
-                  }}>
-                    Cancel
-                  </Button>
-                  <Button type="submit" disabled={createTaskMutation.isPending || updateTaskMutation.isPending}>
-                    {editingTask 
-                      ? (updateTaskMutation.isPending ? "Updating..." : "Update Task")
-                      : (createTaskMutation.isPending ? "Creating..." : "Create Task")}
-                  </Button>
-                </DialogFooter>
-              </form>
+                  
+                  <div>
+                    <label className="text-sm font-medium">Due Date</label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full justify-start text-left font-normal",
+                            !formData.due_date && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {formData.due_date ? format(formData.due_date, "PPP") : <span>Pick a date</span>}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0">
+                        <Calendar
+                          mode="single"
+                          selected={formData.due_date}
+                          onSelect={(date) => setFormData(prev => ({ ...prev, due_date: date as Date | undefined }))}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  
+                  {courses && courses.length > 0 && (
+                    <div>
+                      <label className="text-sm font-medium">Related Course</label>
+                      <Select 
+                        value={formData.course_id || 'no-course'} 
+                        onValueChange={(value) => setFormData(prev => ({ ...prev, course_id: value === 'no-course' ? null : value }))}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select course (optional)" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="no-course">No course</SelectItem>
+                          {courses.map(course => (
+                            <SelectItem key={course.id} value={course.id}>
+                              {course.title}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+                  
+                  <DialogFooter>
+                    <Button type="button" variant="outline" onClick={() => {
+                      setIsDialogOpen(false);
+                      setEditingTask(null);
+                    }}>
+                      Cancel
+                    </Button>
+                    <Button type="submit" disabled={createTaskMutation.isPending || updateTaskMutation.isPending}>
+                      {editingTask 
+                        ? (updateTaskMutation.isPending ? "Updating..." : "Update Task")
+                        : (createTaskMutation.isPending ? "Creating..." : "Create Task")}
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
+          </div>
+          
+          <DragDropContext onDragEnd={handleDragEnd}>
+            <div className="flex gap-6 overflow-x-auto pb-4">
+              {Object.entries(statusConfig).map(([status, config]) => (
+                <Column
+                  key={status}
+                  status={status as Task['status']}
+                  title={config.title}
+                  icon={config.icon}
+                  color={config.color}
+                />
+              ))}
+            </div>
+          </DragDropContext>
+           <Dialog open={!!taskToDelete} onOpenChange={(isOpen) => !isOpen && setTaskToDelete(null)}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Are you sure you want to delete this task?</DialogTitle>
+                <DialogDescription>
+                  This action cannot be undone. This will permanently delete the task from your schedule.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setTaskToDelete(null)}>
+                  Cancel
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={() => taskToDelete && deleteTaskMutation.mutate(taskToDelete.id)}
+                  disabled={deleteTaskMutation.isPending}
+                >
+                  {deleteTaskMutation.isPending ? "Deleting..." : "Delete"}
+                </Button>
+              </DialogFooter>
             </DialogContent>
           </Dialog>
         </div>
-        
-        <DragDropContext onDragEnd={handleDragEnd}>
-          <div className="flex gap-6 overflow-x-auto pb-4">
-            {Object.entries(statusConfig).map(([status, config]) => (
-              <Column
-                key={status}
-                status={status as Task['status']}
-                title={config.title}
-                icon={config.icon}
-                color={config.color}
-              />
-            ))}
-          </div>
-        </DragDropContext>
-         <Dialog open={!!taskToDelete} onOpenChange={(isOpen) => !isOpen && setTaskToDelete(null)}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Are you sure you want to delete this task?</DialogTitle>
-              <DialogDescription>
-                This action cannot be undone. This will permanently delete the task from your schedule.
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setTaskToDelete(null)}>
-                Cancel
-              </Button>
-              <Button
-                variant="destructive"
-                onClick={() => taskToDelete && deleteTaskMutation.mutate(taskToDelete.id)}
-                disabled={deleteTaskMutation.isPending}
-              >
-                {deleteTaskMutation.isPending ? "Deleting..." : "Delete"}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </div>
-    </DashboardLayout>
+      </DashboardLayout>
+    </>
   );
 }

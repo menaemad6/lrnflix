@@ -34,6 +34,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { SEOHead } from '@/components/seo';
 
 interface StudentDetailData {
   id: string;
@@ -352,8 +353,13 @@ export const StudentDetail = () => {
 
 
   return (
-    <DashboardLayout>
-      <div className="space-y-8">
+    <>
+      <SEOHead 
+        contentTitle={`${student.full_name} - Student Profile`}
+        contentDescription={`View detailed student information, progress, and performance analytics for ${student.full_name}.`}
+      />
+      <DashboardLayout>
+        <div className="space-y-8">
         <div className="flex items-center gap-4">
           <Link to="/teacher/students">
             <Button variant="outline" size="icon">
@@ -604,7 +610,8 @@ export const StudentDetail = () => {
             )}
           </div>
         </DialogContent>
-      </Dialog>
-    </DashboardLayout>
+              </Dialog>
+      </DashboardLayout>
+    </>
   );
 };

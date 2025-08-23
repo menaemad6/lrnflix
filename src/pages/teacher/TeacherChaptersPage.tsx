@@ -11,6 +11,7 @@ import { TeacherPageHeader } from '@/components/teacher/TeacherPageHeader';
 import { Input } from '@/components/ui/input';
 import { useTeacherChapters } from '@/lib/queries';
 import { useTranslation } from 'react-i18next';
+import { SEOHead } from '@/components/seo';
 
 interface Chapter {
   id: string;
@@ -43,8 +44,10 @@ export const TeacherChaptersPage = () => {
   );
 
   return (
-    <DashboardLayout>
-      <div className="space-y-6">
+    <>
+      <SEOHead />
+      <DashboardLayout>
+        <div className="space-y-6">
         <TeacherPageHeader
           title={t('chapters.management.title')}
           subtitle={t('chapters.management.subtitle')}
@@ -141,7 +144,7 @@ export const TeacherChaptersPage = () => {
                       {t('chapters.management.revenue')}: {(chapter.price * (chapter.enrollment_count || 0))} credits
                     </span>
                   </div>
-                  <Link to={`/teacher/chapter/${chapter.id}`}>
+                  <Link to={`/teacher/chapters/${chapter.id}`}>
                     <Button className="w-full btn-secondary group-hover:scale-105 transition-transform">
                       {t('chapters.management.manageChapter')}
                     </Button>
@@ -153,11 +156,12 @@ export const TeacherChaptersPage = () => {
         )}
       </div>
 
-      <CreateChapterModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        onChapterCreated={handleChapterCreated}
-      />
-    </DashboardLayout>
+        <CreateChapterModal
+          isOpen={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+          onChapterCreated={handleChapterCreated}
+        />
+      </DashboardLayout>
+    </>
   );
 };

@@ -422,5 +422,85 @@
   "ownershipValidation": {
     "accessDenied": "Access Denied",
     "itemNotOwned": "You can only access and edit items you created"
+  },
+  "authModal": {
+    "welcomeBack": "Welcome Back",
+    "createAccount": "Create Account",
+    "signInDescription": "Sign in to access your premium learning portal",
+    "signUpDescription": "Join the elite learners community",
+    "fullName": "Full name",
+    "email": "Email",
+    "password": "Password",
+    "chooseRole": "Choose role",
+    "student": "Student",
+    "teacher": "Teacher",
+    "signIn": "Sign In",
+    "signingIn": "Signing In...",
+    "createAccountButton": "Create Account",
+    "creatingAccount": "Creating Account...",
+    "dontHaveAccount": "Don't have an account? Sign up",
+    "alreadyHaveAccount": "Already have an account? Sign in",
+    "orContinueWith": "Or continue with",
+    "signInWithGoogle": "Sign in with Google",
+    "togglePasswordVisibility": "toggle password visibility",
+    "close": "Close",
+    "terms": "Terms",
+    "privacy": "Privacy",
+    "help": "Help",
+    "contact": "Contact",
+    "legalInformation": "Legal Information",
+    "termsOfService": "Terms of Service",
+    "privacyPolicy": "Privacy Policy",
+    "helpCenter": "Help Center",
+    "contactUs": "Contact Us",
+    "lastUpdated": "Last updated: January 2025",
+    "byContinuing": "By continuing, you agree to our",
+    "and": "and",
+    "copyright": "©2025 LRNFLIX LMS",
+    "footerLinks": {
+      "terms": "Terms",
+      "privacy": "Privacy",
+      "helpCenter": "Help Center",
+      "contact": "Contact"
+    },
+    "legalContent": {
+      "terms": {
+        "welcome": "Welcome to LRNFLIX LMS. By accessing our platform, you agree to these terms of service.",
+        "acceptance": "By using LRNFLIX LMS, you accept and agree to be bound by these Terms of Service and all applicable laws and regulations.",
+        "userAccounts": "You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account.",
+        "acceptableUse": "You agree not to use the service for any unlawful purpose or to violate any applicable laws or regulations.",
+        "intellectualProperty": "All content on LRNFLIX LMS is protected by copyright and other intellectual property laws.",
+        "termination": "We reserve the right to terminate or suspend your account at any time for violations of these terms."
+      },
+      "privacy": {
+        "description": "Your privacy is important to us. This policy describes how we collect, use, and protect your information.",
+        "informationCollection": "We collect information you provide directly to us, such as when you create an account, enroll in courses, or contact us.",
+        "informationUsage": "We use your information to provide and improve our services, communicate with you, and ensure platform security.",
+        "informationSharing": "We do not sell, trade, or otherwise transfer your personal information to third parties without your consent.",
+        "dataSecurity": "We implement appropriate security measures to protect your personal information against unauthorized access.",
+        "yourRights": "You have the right to access, update, or delete your personal information at any time."
+      },
+      "help": {
+        "gettingStarted": "Welcome to LRNFLIX LMS! Here's how to get started with your learning journey.",
+        "creatingAccount": "Click \"Create Account\" on the homepage and follow the simple registration process.",
+        "enrollingInCourses": "Browse our course catalog and click \"Enroll Now\" on any course that interests you.",
+        "accessingCourses": "Once enrolled, you can access your courses from your dashboard at any time.",
+        "technicalSupport": "If you encounter technical issues, please contact our support team for assistance.",
+        "paymentIssues": "For payment-related questions, please check your account settings or contact billing support."
+      },
+      "contact": {
+        "description": "We're here to help! Reach out to us through any of the following channels.",
+        "emailSupport": "Email Support",
+        "generalInquiries": "General inquiries: support@learnx.com",
+        "technicalSupport": "Technical support: tech@learnx.com",
+        "phoneSupport": "Phone Support",
+        "businessHours": "Monday - Friday, 9 AM - 6 PM EST",
+        "phoneNumber": "+1 (555) 123-4567",
+        "liveChat": "Live Chat",
+        "liveChatDescription": "Available during business hours through our website chat widget.",
+        "responseTime": "Response Time",
+        "responseTimeDescription": "We typically respond to inquiries within 24 hours during business days."
+      }
+    }
   }
 }

@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Eye, EyeOff, Mail, Lock, User, UserPlus, GraduationCap, BookOpen, LogIn, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 interface AuthFormProps {
   mode: 'login' | 'signup';
@@ -18,6 +19,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode, setMode, onClose }) => {
   const signup = useSignupForm();
   const isLogin = mode === 'login';
   const navigate = useNavigate();
+  const { t } = useTranslation('other');
 
   useEffect(() => {
     if (isLogin && login.isAuthenticated && login.user) {
@@ -45,7 +47,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode, setMode, onClose }) => {
         <button
           onClick={onClose}
           className="absolute right-4 top-4 rounded-full p-2 text-muted-foreground hover:text-foreground focus:outline-none focus:ring-2 focus:ring-primary z-10 bg-transparent"
-          aria-label="Close"
+          aria-label={t('authModal.close')}
         >
           <X className="w-5 h-5" />
         </button>
@@ -55,10 +57,10 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode, setMode, onClose }) => {
           {isLogin ? <LogIn className="w-8 h-8 text-primary-foreground" /> : <UserPlus className="w-8 h-8 text-primary-foreground" />}
         </div>
         <h2 className="text-2xl font-black tracking-wide mb-1 text-foreground">
-          {isLogin ? 'Welcome Back' : 'Create Account'}
+          {isLogin ? t('authModal.welcomeBack') : t('authModal.createAccount')}
         </h2>
         <div className="text-muted-foreground text-base">
-          {isLogin ? 'Sign in to access your premium learning portal' : 'Join the elite learners community'}
+          {isLogin ? t('authModal.signInDescription') : t('authModal.signUpDescription')}
         </div>
       </div>
       {/* Error/Success */}
@@ -84,7 +86,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode, setMode, onClose }) => {
             <User className="absolute left-3 top-1/2 -translate-y-1/2 text-primary w-5 h-5" />
             <Input
               type="text"
-              placeholder="Full name"
+              placeholder={t('authModal.fullName')}
               value={signup.formData.fullName}
               onChange={e => signup.setFormData({ ...signup.formData, fullName: e.target.value })}
               required
@@ -96,7 +98,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode, setMode, onClose }) => {
           <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-primary w-5 h-5" />
           <Input
             type="email"
-            placeholder="Email"
+            placeholder={t('authModal.email')}
             value={isLogin ? login.email : signup.formData.email}
             onChange={e => isLogin ? login.setEmail(e.target.value) : signup.setFormData({ ...signup.formData, email: e.target.value })}
             required
@@ -107,7 +109,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode, setMode, onClose }) => {
           <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-primary w-5 h-5" />
           <Input
             type={isLogin ? (login.showPassword ? 'text' : 'password') : (signup.showPassword ? 'text' : 'password')}
-            placeholder="Password"
+            placeholder={t('authModal.password')}
             value={isLogin ? login.password : signup.formData.password}
             onChange={e => isLogin ? login.setPassword(e.target.value) : signup.setFormData({ ...signup.formData, password: e.target.value })}
             required
@@ -116,7 +118,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode, setMode, onClose }) => {
           <button
             type="button"
             onClick={() => isLogin ? login.setShowPassword(!login.showPassword) : signup.setShowPassword(!signup.showPassword)}
-            aria-label="toggle password visibility"
+            aria-label={t('authModal.togglePasswordVisibility')}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
             tabIndex={-1}
           >
@@ -137,20 +139,20 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode, setMode, onClose }) => {
                   ) : (
                     <BookOpen className="w-5 h-5 text-primary" />
                   )}
-                  <SelectValue placeholder="Choose role" />
+                  <SelectValue placeholder={t('authModal.chooseRole')} />
                 </div>
               </SelectTrigger>
               <SelectContent >
                 <SelectItem value="student" >
                   <div className="flex items-center space-x-2">
                     <BookOpen className="w-4 h-4" />
-                    <span>Student</span>
+                    <span>{t('authModal.student')}</span>
                   </div>
                 </SelectItem>
                 <SelectItem value="teacher" >
                   <div className="flex items-center space-x-2">
                     <GraduationCap className="w-4 h-4" />
-                    <span>Teacher</span>
+                    <span>{t('authModal.teacher')}</span>
                   </div>
                 </SelectItem>
               </SelectContent>
@@ -164,11 +166,11 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode, setMode, onClose }) => {
         >
           {isLogin
             ? login.loading
-              ? <span className="flex items-center space-x-2"><span className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></span><span>Signing In...</span></span>
-              : 'Sign In'
+              ? <span className="flex items-center space-x-2"><span className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></span><span>{t('authModal.signingIn')}</span></span>
+              : t('authModal.signIn')
             : signup.loading
-              ? <span className="flex items-center space-x-2"><span className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></span><span>Creating Account...</span></span>
-              : 'Create Account'}
+              ? <span className="flex items-center space-x-2"><span className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></span><span>{t('authModal.creatingAccount')}</span></span>
+              : t('authModal.createAccountButton')}
         </Button>
       </form>
       {/* Google login for login mode */}
@@ -179,7 +181,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode, setMode, onClose }) => {
           </div>
           <div className="relative flex justify-center text-sm">
             <span className="bg-card px-4 py-2 text-muted-foreground rounded-full border border-border shadow-sm">
-              Or continue with
+              {t('authModal.orContinueWith')}
             </span>
           </div>
         </div>
@@ -200,7 +202,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode, setMode, onClose }) => {
               </g>
             </svg>
           </span>
-          Sign in with Google
+          {t('authModal.signInWithGoogle')}
         </Button>
       )}
       <div className="mt-6 text-center">
@@ -208,7 +210,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode, setMode, onClose }) => {
           onClick={() => setMode(isLogin ? 'signup' : 'login')}
           className="text-sm text-muted-foreground hover:text-primary transition-colors"
         >
-          {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
+          {isLogin ? t('authModal.dontHaveAccount') : t('authModal.alreadyHaveAccount')}
         </button>
       </div>
     </div>

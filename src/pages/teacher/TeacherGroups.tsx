@@ -17,6 +17,7 @@ import { ImageUploader } from '@/components/ui/ImageUploader';
 import { IMAGE_UPLOAD_BUCKETS } from '@/data/constants';
 import type { UploadedImage } from '@/hooks/useImageUpload';
 import { useTranslation } from 'react-i18next';
+import { SEOHead } from '@/components/seo';
 
 interface Group {
   id: string;
@@ -185,8 +186,10 @@ export const TeacherGroups = () => {
 
 
   return (
-    <DashboardLayout>
-      <div className="space-y-6">
+    <>
+      <SEOHead />
+      <DashboardLayout>
+        <div className="space-y-6">
         {/* Header */}
         <TeacherPageHeader
           title={t('groups.page.title')}
@@ -427,5 +430,6 @@ export const TeacherGroups = () => {
         )}
       </div>
     </DashboardLayout>
+    </>
   );
 };

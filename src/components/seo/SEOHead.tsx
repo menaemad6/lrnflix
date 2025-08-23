@@ -67,7 +67,7 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
   const language = forceLanguage || currentLanguage;
   
   // Determine tenant name
-  const tenantName = forceTenantName || teacher?.full_name || undefined;
+  const tenantName = forceTenantName || teacher?.display_name || undefined;
   
   // Get base SEO metadata for the current route
   const baseMetadata = getSEOMetadata(location.pathname, language, tenantName);
@@ -84,15 +84,15 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
   // Override with props if provided
   const finalMetadata: SEOMetadata = {
     ...metadata,
-    title: title || metadata.title,
-    description: description || metadata.description,
+    title: title || (contentTitle ? `${contentTitle} | ${metadata.title.split(' | ').pop() || 'LRNFLIX'}` : metadata.title),
+    description: description || contentDescription || metadata.description,
     keywords: keywords || metadata.keywords,
-    ogTitle: ogTitle || metadata.ogTitle || metadata.title,
-    ogDescription: ogDescription || metadata.ogDescription || metadata.description,
+    ogTitle: ogTitle || (contentTitle ? `${contentTitle} | ${metadata.ogTitle?.split(' | ').pop() || metadata.title.split(' | ').pop() || 'LRNFLIX'}` : metadata.ogTitle || metadata.title),
+    ogDescription: ogDescription || contentDescription || metadata.ogDescription || metadata.description,
     ogImage: ogImage || metadata.ogImage,
     ogType: ogType || metadata.ogType,
-    twitterTitle: twitterTitle || metadata.twitterTitle || metadata.title,
-    twitterDescription: twitterDescription || metadata.twitterDescription || metadata.description,
+    twitterTitle: twitterTitle || (contentTitle ? `${contentTitle} | ${metadata.twitterTitle?.split(' | ').pop() || metadata.title.split(' | ').pop() || 'LRNFLIX'}` : metadata.twitterTitle || metadata.title),
+    twitterDescription: twitterDescription || contentDescription || metadata.twitterDescription || metadata.description,
     twitterImage: twitterImage || metadata.twitterImage || metadata.ogImage,
     canonical: canonical || metadata.canonical,
   };

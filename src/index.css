@@ -589,12 +589,7 @@
   background: linear-gradient(to right, hsl(var(--primary) / 0.2), hsl(var(--success) / 0.2));
 }
 
-/* Hide default cursor on desktop for the landing page */
-@media (min-width: 1024px) {
-  .ultra-modern-landing * {
-    cursor: none;
-  }
-}
+
 
 :root {
   --foreground-rgb: 0, 0, 0;

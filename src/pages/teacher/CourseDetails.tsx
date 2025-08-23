@@ -54,6 +54,7 @@ import {
   X
 } from 'lucide-react';
 import { useIsLargeScreen } from '@/hooks/use-mobile';
+import { SEOHead } from '@/components/seo';
 
 interface Course {
   id: string;
@@ -678,8 +679,13 @@ export const CourseDetails = () => {
   }
 
   return (
-    <DashboardLayout>
-      <div className="flex flex-col md:flex-row min-h-[calc(100vh-6rem)] bg-background relative overflow-hidden">
+    <>
+      <SEOHead 
+        contentTitle={course.title}
+        contentDescription={course.description || 'Manage your course content, lessons, quizzes, and student enrollments.'}
+      />
+      <DashboardLayout>
+        <div className="flex flex-col md:flex-row min-h-[calc(100vh-6rem)] bg-background relative overflow-hidden">
         {/* Left Sidebar - hidden on mobile, collapsible on desktop */}
         <div className={`hidden md:block transition-all duration-300 ease-in-out border-r border-white/10 bg-gradient-to-b from-background/95 to-background/80 backdrop-blur-xl ${sidebarCollapsed ? 'md:w-20' : 'md:w-80'} md:relative z-30 shrink-0`}>
           {/* Collapse/Expand Button - Only visible on desktop */}
@@ -876,5 +882,6 @@ export const CourseDetails = () => {
         </div>
       </div>
     </DashboardLayout>
+    </>
   );
 };

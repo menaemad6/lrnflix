@@ -19,6 +19,7 @@ import {
 import { ChevronDown } from 'lucide-react';
 import { useTeacherCourses } from '@/lib/queries';
 import { useTranslation } from 'react-i18next';
+import { SEOHead } from '@/components/seo';
 // Remove direct import of PremiumCourseCard and CourseCardSkeleton
 // import { PremiumCourseCard } from '@/components/courses/PremiumCourseCard';
 // Add lazy imports:
@@ -63,8 +64,10 @@ export const TeacherCoursesPage = () => {
   });
 
   return (
-    <DashboardLayout>
-      <div className="space-y-6">
+    <>
+      <SEOHead />
+      <DashboardLayout>
+        <div className="space-y-6">
         <TeacherPageHeader
           title={t('courses.management.title')}
           subtitle={t('courses.management.subtitle')}
@@ -177,13 +180,14 @@ export const TeacherCoursesPage = () => {
             ))}
           </div>
         )}
-      </div>
+        </div>
 
-      <CreateCourseModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        onCourseCreated={handleCourseCreated}
-      />
-    </DashboardLayout>
+        <CreateCourseModal
+          isOpen={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+          onCourseCreated={handleCourseCreated}
+        />
+      </DashboardLayout>
+    </>
   );
 };

@@ -116,6 +116,192 @@ export const BASE_SEO_CONFIG: RouteSEOConfig = {
     },
   },
 
+
+
+
+
+  // Teacher groups (dynamic route)
+  '/teacher/groups/dynamic': {
+    en: {
+      title: `Group Management | ${PLATFORM_NAME}`,
+      description: 'Create and manage study groups to enhance student collaboration and learning.',
+      keywords: 'group management, study groups, student collaboration, educational communities',
+      ogType: 'website',
+      canonical: 'https://learnify.app/teacher/groups',
+    },
+    ar: {
+      title: `إدارة المجموعات | ${PLATFORM_NAME}`,
+      description: 'أنشئ وأدر مجموعات الدراسة لتعزيز تعاون الطلاب والتعلم.',
+      keywords: 'إدارة المجموعات، مجموعات الدراسة، تعاون الطلاب، المجتمعات التعليمية',
+      ogType: 'website',
+      canonical: 'https://learnify.app/teacher/groups',
+    },
+  },
+
+  // Teacher groups (list page)
+  '/teacher/groups': {
+    en: {
+      title: `My Groups | ${PLATFORM_NAME}`,
+      description: 'Manage your study groups and create collaborative learning environments.',
+      keywords: 'study groups, group management, collaborative learning, educational communities',
+      ogType: 'website',
+      canonical: 'https://learnify.app/teacher/groups',
+    },
+    ar: {
+      title: `مجموعاتي | ${PLATFORM_NAME}`,
+      description: 'أدر مجموعات الدراسة الخاصة بك وأنشئ بيئات التعلم التعاونية.',
+      keywords: 'مجموعات الدراسة، إدارة المجموعات، التعلم التعاوني، المجتمعات التعليمية',
+      ogType: 'website',
+      canonical: 'https://learnify.app/teacher/groups',
+    },
+  },
+
+  // Teacher chapters (list page)
+  '/teacher/chapters': {
+    en: {
+      title: `My Chapters | ${PLATFORM_NAME}`,
+      description: 'Organize your courses into structured chapters for better learning outcomes.',
+      keywords: 'chapter management, course organization, structured learning, educational structure',
+      ogType: 'website',
+      canonical: 'https://learnify.app/teacher/chapters',
+    },
+    ar: {
+      title: `فصولي | ${PLATFORM_NAME}`,
+      description: 'نظم دوراتك في فصول منظمة لتحقيق نتائج تعليمية أفضل.',
+      keywords: 'إدارة الفصول، تنظيم الدورات، التعلم المنظم، الهيكل التعليمي',
+      ogType: 'website',
+      canonical: 'https://learnify.app/teacher/chapters',
+    },
+  },
+
+  // Teacher codes
+  '/teacher/codes': {
+    en: {
+      title: `Access Codes | ${PLATFORM_NAME}`,
+      description: 'Create and manage access codes for your courses and content.',
+      keywords: 'access codes, course codes, student access, educational codes',
+      ogType: 'website',
+      canonical: 'https://learnify.app/teacher/codes',
+    },
+    ar: {
+      title: `رموز الوصول | ${PLATFORM_NAME}`,
+      description: 'أنشئ وأدر رموز الوصول لدوراتك ومحتواك.',
+      keywords: 'رموز الوصول، رموز الدورات، وصول الطلاب، الرموز التعليمية',
+      ogType: 'website',
+      canonical: 'https://learnify.app/teacher/codes',
+    },
+  },
+
+  // Teacher analytics
+  '/teacher/analytics': {
+    en: {
+      title: `Analytics Dashboard | ${PLATFORM_NAME}`,
+      description: 'Track student performance and course analytics to improve your teaching.',
+      keywords: 'analytics, student performance, course statistics, teaching insights',
+      ogType: 'website',
+      canonical: 'https://learnify.app/teacher/analytics',
+    },
+    ar: {
+      title: `لوحة التحليلات | ${PLATFORM_NAME}`,
+      description: 'تتبع أداء الطلاب وتحليلات الدورات لتحسين تدريسك.',
+      keywords: 'التحليلات، أداء الطلاب، إحصائيات الدورات، رؤى التدريس',
+      ogType: 'website',
+      canonical: 'https://learnify.app/teacher/analytics',
+    },
+  },
+
+  // Teacher schedule
+  '/teacher/schedule': {
+    en: {
+      title: `Teaching Schedule | ${PLATFORM_NAME}`,
+      description: 'Manage your teaching schedule and upcoming sessions.',
+      keywords: 'teaching schedule, session management, time management, educational planning',
+      ogType: 'website',
+      canonical: 'https://learnify.app/teacher/schedule',
+    },
+    ar: {
+      title: `جدول التدريس | ${PLATFORM_NAME}`,
+      description: 'أدر جدول التدريس الخاص بك والجلسات القادمة.',
+      keywords: 'جدول التدريس، إدارة الجلسات، إدارة الوقت، التخطيط التعليمي',
+      ogType: 'website',
+      canonical: 'https://learnify.app/teacher/schedule',
+    },
+  },
+
+  // Teacher notifications
+  '/teacher/notifications': {
+    en: {
+      title: `Notifications | ${PLATFORM_NAME}`,
+      description: 'Stay updated with important notifications about your courses and students.',
+      keywords: 'notifications, course updates, student alerts, teaching notifications',
+      ogType: 'website',
+      canonical: 'https://learnify.app/teacher/notifications',
+    },
+    ar: {
+      title: `الإشعارات | ${PLATFORM_NAME}`,
+      description: 'ابق محدثًا بالإشعارات المهمة حول دوراتك وطلابك.',
+      keywords: 'الإشعارات، تحديثات الدورات، تنبيهات الطلاب، إشعارات التدريس',
+      ogType: 'website',
+      canonical: 'https://learnify.app/teacher/notifications',
+    },
+  },
+
+  // Teacher colors
+  '/teacher/colors': {
+    en: {
+      title: `Branding & Colors | ${PLATFORM_NAME}`,
+      description: 'Customize your platform colors and branding to match your style.',
+      keywords: 'branding, custom colors, platform customization, visual identity',
+      ogType: 'website',
+      canonical: 'https://learnify.app/teacher/colors',
+    },
+    ar: {
+      title: `العلامة التجارية والألوان | ${PLATFORM_NAME}`,
+      description: 'خصص ألوان منصتك وعلامتك التجارية لتطابق أسلوبك.',
+      keywords: 'العلامة التجارية، الألوان المخصصة، تخصيص المنصة، الهوية البصرية',
+      ogType: 'website',
+      canonical: 'https://learnify.app/teacher/colors',
+    },
+  },
+
+  // Teacher students
+  '/teacher/students': {
+    en: {
+      title: `My Students | ${PLATFORM_NAME}`,
+      description: 'Manage and track your students across all your courses.',
+      keywords: 'student management, student tracking, course enrollment, educational oversight',
+      ogType: 'website',
+      canonical: 'https://learnify.app/teacher/students',
+    },
+    ar: {
+      title: `طلابي | ${PLATFORM_NAME}`,
+      description: 'أدر وتتبع طلابك في جميع دوراتك.',
+      keywords: 'إدارة الطلاب، تتبع الطلاب، تسجيل الدورات، الإشراف التعليمي',
+      ogType: 'website',
+      canonical: 'https://learnify.app/teacher/students',
+    },
+  },
+
+  // Teacher multiplayer quiz
+  '/teacher/multiplayer-quiz': {
+    en: {
+      title: `Quiz Management | ${PLATFORM_NAME}`,
+      description: 'Create and manage multiplayer quiz games for your students.',
+      keywords: 'quiz management, multiplayer games, educational games, interactive learning',
+      ogType: 'website',
+      canonical: 'https://learnify.app/teacher/multiplayer-quiz',
+    },
+    ar: {
+      title: `إدارة الاختبارات | ${PLATFORM_NAME}`,
+      description: 'أنشئ وأدر ألعاب الاختبارات متعددة اللاعبين لطلابك.',
+      keywords: 'إدارة الاختبارات، الألعاب متعددة اللاعبين، الألعاب التعليمية، التعلم التفاعلي',
+      ogType: 'website',
+      canonical: 'https://learnify.app/teacher/multiplayer-quiz',
+    },
+  },
+
+
+
   // Student dashboard
   '/student/dashboard': {
     en: {
@@ -404,41 +590,9 @@ export const BASE_SEO_CONFIG: RouteSEOConfig = {
     },
   },
 
-  // Student Store
-  '/student/store': {
-    en: {
-      title: `Learning Store | ${PLATFORM_NAME}`,
-      description: 'Discover premium courses, tools, and resources to enhance your learning experience.',
-      keywords: 'learning store, premium courses, educational resources, student marketplace',
-      ogType: 'website',
-      canonical: 'https://learnify.app/student/store',
-    },
-    ar: {
-      title: `متجر التعلم | ${PLATFORM_NAME}`,
-      description: 'اكتشف الدورات المميزة والأدوات والموارد لتعزيز تجربة التعلم.',
-      keywords: 'متجر التعلم، الدورات المميزة، الموارد التعليمية، سوق الطلاب',
-      ogType: 'website',
-      canonical: 'https://learnify.app/student/store',
-    },
-  },
 
-  // Teachers Directory
-  '/teachers': {
-    en: {
-      title: `Expert Teachers | ${PLATFORM_NAME}`,
-      description: 'Discover experienced teachers and instructors ready to guide your learning journey.',
-      keywords: 'teachers, instructors, expert educators, online tutors, learning mentors',
-      ogType: 'website',
-      canonical: 'https://learnify.app/teachers',
-    },
-    ar: {
-      title: `المعلمون الخبراء | ${PLATFORM_NAME}`,
-      description: 'اكتشف المعلمين والمدربين ذوي الخبرة المستعدين لتوجيه رحلة التعلم الخاصة بك.',
-      keywords: 'المعلمون، المدربون، المربون الخبراء، المدرسون عبر الإنترنت، موجهو التعلم',
-      ogType: 'website',
-      canonical: 'https://learnify.app/teachers',
-    },
-  },
+
+
 
   // Teacher Profile (dynamic route)
   '/teachers/dynamic': {
@@ -458,23 +612,79 @@ export const BASE_SEO_CONFIG: RouteSEOConfig = {
     },
   },
 
-  // Questions Page
-  '/questions': {
+  // Teacher Course Detail (dynamic route)
+  '/teacher/courses/dynamic': {
     en: {
-      title: `Questions & Answers | ${PLATFORM_NAME}`,
-      description: 'Find answers to common questions or ask your own to get expert help.',
-      keywords: 'questions, answers, Q&A, student help, learning support, educational assistance',
+      title: `Course Management | ${PLATFORM_NAME}`,
+      description: 'Manage your course content, lessons, quizzes, and student enrollments.',
+      keywords: 'course management, lesson management, quiz management, student enrollments, course content',
       ogType: 'website',
-      canonical: 'https://learnify.app/questions',
+      canonical: 'https://learnify.app/teacher/courses',
     },
     ar: {
-      title: `الأسئلة والأجوبة | ${PLATFORM_NAME}`,
-      description: 'ابحث عن إجابات للأسئلة الشائعة أو اطرح أسئلتك للحصول على مساعدة خبراء.',
-      keywords: 'الأسئلة، الأجوبة، سؤال وجواب، مساعدة الطلاب، دعم التعلم، المساعدة التعليمية',
+      title: `إدارة الدورة | ${PLATFORM_NAME}`,
+      description: 'أدر محتوى دورتك والدروس والاختبارات وتسجيلات الطلاب.',
+      keywords: 'إدارة الدورة، إدارة الدروس، إدارة الاختبارات، تسجيلات الطلاب، محتوى الدورة',
       ogType: 'website',
-      canonical: 'https://learnify.app/questions',
+      canonical: 'https://learnify.app/teacher/courses',
     },
   },
+
+  // Teacher Course Management (dynamic route)
+  '/teacher/courses/manage/dynamic': {
+    en: {
+      title: `Course Management | ${PLATFORM_NAME}`,
+      description: 'Comprehensive course management tools for lessons, quizzes, and student progress.',
+      keywords: 'course management, lesson editor, quiz editor, student progress, course administration',
+      ogType: 'website',
+      canonical: 'https://learnify.app/teacher/courses',
+    },
+    ar: {
+      title: `إدارة الدورة | ${PLATFORM_NAME}`,
+      description: 'أدوات إدارة الدورات الشاملة للدروس والاختبارات وتقدم الطلاب.',
+      keywords: 'إدارة الدورة، محرر الدروس، محرر الاختبارات، تقدم الطلاب، إدارة الدورة',
+      ogType: 'website',
+      canonical: 'https://learnify.app/teacher/courses',
+    },
+  },
+
+  // Teacher Chapter Management (dynamic route)
+  '/teacher/chapters/dynamic': {
+    en: {
+      title: `Chapter Management | ${PLATFORM_NAME}`,
+      description: 'Organize and manage your learning chapters with comprehensive tools.',
+      keywords: 'chapter management, learning organization, educational structure, course chapters',
+      ogType: 'website',
+      canonical: 'https://learnify.app/teacher/chapters',
+    },
+    ar: {
+      title: `إدارة الفصول | ${PLATFORM_NAME}`,
+      description: 'نظم وأدر فصول التعلم الخاصة بك بأدوات شاملة.',
+      keywords: 'إدارة الفصول، تنظيم التعلم، الهيكل التعليمي، فصول الدورات',
+      ogType: 'website',
+      canonical: 'https://learnify.app/teacher/chapters',
+    },
+  },
+
+  // Teacher Student Detail (dynamic route)
+  '/teacher/students/dynamic': {
+    en: {
+      title: `Student Profile | ${PLATFORM_NAME}`,
+      description: 'View detailed student information, progress, and performance analytics.',
+      keywords: 'student profile, student progress, performance analytics, student management, educational tracking',
+      ogType: 'website',
+      canonical: 'https://learnify.app/teacher/students',
+    },
+    ar: {
+      title: `ملف الطالب | ${PLATFORM_NAME}`,
+      description: 'عرض معلومات الطالب التفصيلية والتقدم وتحليلات الأداء.',
+      keywords: 'ملف الطالب، تقدم الطالب، تحليلات الأداء، إدارة الطلاب، التتبع التعليمي',
+      ogType: 'website',
+      canonical: 'https://learnify.app/teacher/students',
+    },
+  },
+
+
 
   // Group Detail (dynamic route)
   '/groups/dynamic': {
@@ -593,6 +803,21 @@ export const getSEOMetadata = (
     } else if (route.startsWith('/groups/') && route.split('/').length === 3) {
       // Group detail route (e.g., /groups/123)
       config = BASE_SEO_CONFIG['/groups/dynamic'];
+    } else if (route.startsWith('/teacher/courses/') && route.split('/').length === 3) {
+      // Teacher course detail route (e.g., /teacher/courses/123)
+      config = BASE_SEO_CONFIG['/teacher/courses/dynamic'];
+    } else if (route.startsWith('/teacher/courses/') && route.includes('/manage') && route.split('/').length >= 4) {
+      // Teacher course management route (e.g., /teacher/courses/123/manage, /teacher/courses/123/manage/lessons)
+      config = BASE_SEO_CONFIG['/teacher/courses/manage/dynamic'];
+    } else if (route.startsWith('/teacher/chapters/') && route.split('/').length === 3) {
+      // Teacher chapter management route (e.g., /teacher/chapters/123)
+      config = BASE_SEO_CONFIG['/teacher/chapters/dynamic'];
+    } else if (route.startsWith('/teacher/groups/') && route.split('/').length === 3) {
+      // Teacher group management route (e.g., /teacher/groups/123)
+      config = BASE_SEO_CONFIG['/teacher/groups/dynamic'];
+    } else if (route.startsWith('/teacher/students/') && route.split('/').length === 3) {
+      // Teacher student detail route (e.g., /teacher/students/123)
+      config = BASE_SEO_CONFIG['/teacher/students/dynamic'];
     } else {
       // Try to find a partial match (e.g., /courses/123 -> /courses)
       const baseRoute = '/' + route.split('/')[1];
@@ -607,14 +832,21 @@ export const getSEOMetadata = (
 
   const baseMetadata = config[language];
   
-  // If we have a tenant name, customize the title
+  // If we have a tenant name, customize the title and other metadata
   if (tenantName) {
     const tenantTitle = baseMetadata.title.replace(PLATFORM_NAME, tenantName);
+    const tenantOgTitle = baseMetadata.ogTitle ? baseMetadata.ogTitle.replace(PLATFORM_NAME, tenantName) : tenantTitle;
+    const tenantTwitterTitle = baseMetadata.twitterTitle ? baseMetadata.twitterTitle.replace(PLATFORM_NAME, tenantName) : tenantTitle;
+    
     return {
       ...baseMetadata,
       title: tenantTitle,
-      ogTitle: tenantTitle,
-      twitterTitle: tenantTitle,
+      ogTitle: tenantOgTitle,
+      twitterTitle: tenantTwitterTitle,
+      // Also update description to include tenant context when appropriate
+      description: baseMetadata.description.replace(PLATFORM_NAME, tenantName),
+      ogDescription: baseMetadata.ogDescription ? baseMetadata.ogDescription.replace(PLATFORM_NAME, tenantName) : undefined,
+      twitterDescription: baseMetadata.twitterDescription ? baseMetadata.twitterDescription.replace(PLATFORM_NAME, tenantName) : undefined,
     };
   }
   
@@ -644,6 +876,18 @@ export const getDynamicSEOMetadata = (
   } else if (baseRoute === '/groups') {
     // For group detail pages
     baseConfig = BASE_SEO_CONFIG['/groups/dynamic'];
+  } else if (baseRoute === '/teacher/courses') {
+    // For teacher course pages
+    baseConfig = BASE_SEO_CONFIG['/teacher/courses/dynamic'];
+  } else if (baseRoute === '/teacher/chapters') {
+    // For teacher chapter pages
+    baseConfig = BASE_SEO_CONFIG['/teacher/chapters/dynamic'];
+  } else if (baseRoute === '/teacher/groups') {
+    // For teacher group pages
+    baseConfig = BASE_SEO_CONFIG['/teacher/groups/dynamic'];
+  } else if (baseRoute === '/teacher/students') {
+    // For teacher student pages
+    baseConfig = BASE_SEO_CONFIG['/teacher/students/dynamic'];
   } else {
     // Fallback to the provided base route
     baseConfig = BASE_SEO_CONFIG[baseRoute];

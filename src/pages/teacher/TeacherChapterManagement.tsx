@@ -20,6 +20,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
 import { useTranslation } from 'react-i18next';
+import { SEOHead } from '@/components/seo';
 
 interface Chapter {
   id: string;
@@ -309,8 +310,13 @@ export const TeacherChapterManagement = () => {
   }
 
   return (
-    <DashboardLayout>
-      <div className="space-y-6">
+    <>
+      <SEOHead 
+        contentTitle={chapter.title}
+        contentDescription={chapter.description || 'Organize and manage your learning chapter with comprehensive tools.'}
+      />
+      <DashboardLayout>
+        <div className="space-y-6">
         {/* Chapter Details */}
         <Card className="glass-card border-0">
           <CardHeader>
@@ -633,5 +639,6 @@ export const TeacherChapterManagement = () => {
         </Dialog>
       </div>
     </DashboardLayout>
+    </>
   );
 };

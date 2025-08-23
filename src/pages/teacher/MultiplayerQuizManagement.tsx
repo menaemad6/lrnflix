@@ -46,6 +46,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
 import { Database } from '@/integrations/supabase/types';
 import { useMultiplayerQuizQuestions, useMultiplayerQuizCategories } from '@/lib/queries';
+import { SEOHead } from '@/components/seo';
 
 interface Question {
   id?: string;
@@ -490,554 +491,672 @@ export const MultiplayerQuizManagement = () => {
   const questionsByCategory = getQuestionsByCategory();
 
   return (
-    <DashboardLayout>
-      <div className="space-y-8">
-        {/* Header */}
-        <TeacherPageHeader
-          title="Multiplayer Quiz Management"
-          subtitle="Create and manage engaging multiplayer quiz questions by category"
-          actionLabel="New Question"
-          onAction={startNewQuestion}
-          actionIcon={<Plus className="h-4 w-4 mr-2" />}
-          actionButtonProps={{
-            className: "bg-gradient-to-r from-primary-500 via-secondary-500 to-primary-600 hover:from-primary-600 hover:via-secondary-600 hover:to-primary-700 text-black font-semibold px-6 py-3 rounded-xl shadow-lg shadow-primary-500/25 border border-primary-400/30 transition-all duration-300 hover:shadow-xl hover:shadow-primary-500/30"
-          }}
-        />
-
-        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-          <DialogTrigger asChild>
-            <Button variant="outline">
-              <FileText className="h-4 w-4 mr-2" />
-              Extract from PDF
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Extract Questions from PDF</DialogTitle>
-            </DialogHeader>
-            <PdfQuestionExtractor onQuestionsExtracted={handleQuestionsExtracted} />
-          </DialogContent>
-        </Dialog>
-
-        {isProcessing && (
-          <Card>
-            <CardContent className="p-6 flex items-center justify-center">
-              <Loader2 className="h-6 w-6 mr-2 animate-spin" />
-              <p>Processing questions and generating options with AI...</p>
-            </CardContent>
-          </Card>
-        )}
-
-        {extractedQuestions.length > 0 && !isProcessing && (
-          <QuestionsList
-            questions={extractedQuestions}
-            onSave={saveExtractedQuestions}
-            onDiscard={() => setExtractedQuestions([])}
-            onEdit={handleEditExtractedQuestion}
-            onDelete={handleDeleteExtractedQuestion}
-            onGenerateOptions={handleGenerateOptions}
-            generatingOptionsFor={generatingOptionsFor}
+    <>
+      <SEOHead />
+      <DashboardLayout>
+        <div className="space-y-8">
+          {/* Header */}
+          <TeacherPageHeader
+            title="Multiplayer Quiz Management"
+            subtitle="Create and manage engaging multiplayer quiz questions by category"
+            actionLabel="New Question"
+            onAction={startNewQuestion}
+            actionIcon={<Plus className="h-4 w-4 mr-2" />}
+            actionButtonProps={{
+              className: "bg-gradient-to-r from-primary-500 via-secondary-500 to-primary-600 hover:from-primary-600 hover:via-secondary-600 hover:to-primary-700 text-black font-semibold px-6 py-3 rounded-xl shadow-lg shadow-primary-500/25 border border-primary-400/30 transition-all duration-300 hover:shadow-xl hover:shadow-primary-500/30"
+            }}
           />
-        )}
 
-        {editingExtractedQuestion && (
-          <Dialog open={!!editingExtractedQuestion} onOpenChange={() => setEditingExtractedQuestion(null)}>
+          <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline">
+                <FileText className="h-4 w-4 mr-2" />
+                Extract from PDF
+              </Button>
+            </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Edit Extracted Question</DialogTitle>
+                <DialogTitle>Extract Questions from PDF</DialogTitle>
               </DialogHeader>
-              <div className="space-y-4">
-                <div>
-                  <label>Question Text</label>
-                  <Textarea
-                    value={editingExtractedQuestion.question_text}
-                    onChange={(e) =>
-                      setEditingExtractedQuestion({
-                        ...editingExtractedQuestion,
-                        question_text: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                {editingExtractedQuestion.options?.map((option, index) => (
-                  <div key={index}>
-                    <label>Option {index + 1}</label>
-                    <Input
-                      value={option}
-                      onChange={(e) => {
-                        const newOptions = [...(editingExtractedQuestion.options || [])];
-                        newOptions[index] = e.target.value;
-                        setEditingExtractedQuestion({
-                          ...editingExtractedQuestion,
-                          options: newOptions,
-                        });
-                      }}
-                    />
-                  </div>
-                ))}
-                <div>
-                  <label>Correct Answer</label>
-                  <Input
-                    value={editingExtractedQuestion.correct_answer || ''}
-                    onChange={(e) =>
-                      setEditingExtractedQuestion({
-                        ...editingExtractedQuestion,
-                        correct_answer: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <Button onClick={handleUpdateExtractedQuestion}>Update Question</Button>
-              </div>
+              <PdfQuestionExtractor onQuestionsExtracted={handleQuestionsExtracted} />
             </DialogContent>
           </Dialog>
-        )}
 
-        {/* Search Bar */}
-        <div className="relative max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-          <Input
-            placeholder="Search questions..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
-        </div>
+          {isProcessing && (
+            <Card>
+              <CardContent className="p-6 flex items-center justify-center">
+                <Loader2 className="h-6 w-6 mr-2 animate-spin" />
+                <p>Processing questions and generating options with AI...</p>
+              </CardContent>
+            </Card>
+          )}
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="border border-border bg-card/50 backdrop-blur-sm">
-            <CardContent className="p-6">
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-primary-500/20 to-secondary-500/20 rounded-xl flex items-center justify-center border border-primary-500/30">
-                  <Trophy className="h-6 w-6 text-primary-400" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Total Questions</p>
-                  <p className="text-2xl font-bold text-primary-400">{questions.length}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          {extractedQuestions.length > 0 && !isProcessing && (
+            <QuestionsList
+              questions={extractedQuestions}
+              onSave={saveExtractedQuestions}
+              onDiscard={() => setExtractedQuestions([])}
+              onEdit={handleEditExtractedQuestion}
+              onDelete={handleDeleteExtractedQuestion}
+              onGenerateOptions={handleGenerateOptions}
+              generatingOptionsFor={generatingOptionsFor}
+            />
+          )}
 
-          <Card className="border border-border bg-card/50 backdrop-blur-sm">
-            <CardContent className="p-6">
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500/20 to-accent-500/20 rounded-xl flex items-center justify-center border border-blue-500/30">
-                  <FolderOpen className="h-6 w-6 text-blue-400" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Categories</p>
-                  <p className="text-2xl font-bold text-blue-400">{categories.length}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border border-border bg-card/50 backdrop-blur-sm">
-            <CardContent className="p-6">
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-xl flex items-center justify-center border border-purple-500/30">
-                  <Users className="h-6 w-6 text-purple-400" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Active Quizzes</p>
-                  <p className="text-2xl font-bold text-purple-400">0</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Category Management */}
-        <Card className="border border-border bg-card/50 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle className="text-xl text-primary-300 flex items-center">
-              <Tag className="h-5 w-5 mr-2" />
-              Category Management
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex gap-4 items-end">
-              <div className="flex-1">
-                <label className="text-sm font-medium text-muted-foreground mb-2 block">New Category</label>
-                <Input
-                  placeholder="Enter new category name..."
-                  value={newCategory}
-                  onChange={(e) => setNewCategory(e.target.value)}
-                  className="bg-background/50 border-border"
-                />
-              </div>
-              <Button 
-                onClick={addNewCategory}
-                disabled={!newCategory.trim() || !user}
-               variant='default'
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Add Category
-              </Button>
-            </div>
-            
-            <div className="flex flex-wrap gap-2">
-              <Badge 
-                variant={selectedCategory === 'all' ? 'default' : 'outline'}
-                className={`cursor-pointer transition-all duration-200 ${selectedCategory === 'all' ? 'bg-primary-500 text-black' : 'hover:bg-primary-500/20 hover:border-primary-500/50'}`}
-                onClick={() => setSelectedCategory('all')}
-              >
-                All Categories ({questions.length})
-              </Badge>
-              {categories.map(category => (
-                <Badge 
-                  key={category}
-                  variant={selectedCategory === category ? 'default' : 'outline'}
-                  className={`cursor-pointer transition-all duration-200 ${selectedCategory === category ? 'bg-primary-500 text-black' : 'hover:bg-primary-500/20 hover:border-primary-500/50'}`}
-                  onClick={() => setSelectedCategory(category)}
-                >
-                  {category} ({questions.filter(q => q.category === category).length})
-                </Badge>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Question Editor */}
-        {editingQuestion && !editingQuestionId && (
-          <Card className="border border-border bg-card/50 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="text-xl text-primary-300">
-                Create New Question
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div>
-                <label className="text-sm font-medium text-muted-foreground mb-2 block">Question Text</label>
-                <Textarea
-                  placeholder="Enter your question..."
-                  value={editingQuestion.question}
-                  onChange={(e) => setEditingQuestion({
-                    ...editingQuestion,
-                    question: e.target.value
-                  })}
-                  className="bg-background/50 border-border min-h-[100px]"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground mb-2 block">Category</label>
-                  <Select
-                    value={editingQuestion.category}
-                    onValueChange={(value) => 
-                      setEditingQuestion({
-                        ...editingQuestion,
-                        category: value
-                      })
-                    }
-                  >
-                    <SelectTrigger className="bg-background/50 border-border">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categories.map(category => (
-                        <SelectItem key={category} value={category}>{category}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground mb-2 block">Difficulty</label>
-                  <Select
-                    value={editingQuestion.difficulty}
-                    onValueChange={(value: 'easy' | 'medium' | 'hard') => 
-                      setEditingQuestion({
-                        ...editingQuestion,
-                        difficulty: value
-                      })
-                    }
-                  >
-                    <SelectTrigger className="bg-background/50 border-border">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="easy">Easy</SelectItem>
-                      <SelectItem value="medium">Medium</SelectItem>
-                      <SelectItem value="hard">Hard</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div>
-                <label className="text-sm font-medium text-muted-foreground mb-2 block">Answer Options</label>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {editingQuestion.options.map((option, index) => (
-                    <div key={index} className="flex gap-2">
+          {editingExtractedQuestion && (
+            <Dialog open={!!editingExtractedQuestion} onOpenChange={() => setEditingExtractedQuestion(null)}>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Edit Extracted Question</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div>
+                    <label>Question Text</label>
+                    <Textarea
+                      value={editingExtractedQuestion.question_text}
+                      onChange={(e) =>
+                        setEditingExtractedQuestion({
+                          ...editingExtractedQuestion,
+                          question_text: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  {editingExtractedQuestion.options?.map((option, index) => (
+                    <div key={index}>
+                      <label>Option {index + 1}</label>
                       <Input
-                        placeholder={`Option ${index + 1}`}
                         value={option}
                         onChange={(e) => {
-                          const newOptions = [...editingQuestion.options];
+                          const newOptions = [...(editingExtractedQuestion.options || [])];
                           newOptions[index] = e.target.value;
-                          setEditingQuestion({
-                            ...editingQuestion,
-                            options: newOptions
+                          setEditingExtractedQuestion({
+                            ...editingExtractedQuestion,
+                            options: newOptions,
                           });
                         }}
-                        className="bg-background/50 border-border"
                       />
-                      <Button
-                        type="button"
-                        variant={editingQuestion.correct_answer === option ? "default" : "outline"}
-                        onClick={() => setEditingQuestion({
-                          ...editingQuestion,
-                          correct_answer: option
-                        })}
-                        className={editingQuestion.correct_answer === option 
-                          ? "bg-primary-500 text-black hover:bg-primary-600" 
-                          : "border-border hover:bg-muted"
-                        }
-                      >
-                        Correct
-                      </Button>
                     </div>
                   ))}
+                  <div>
+                    <label>Correct Answer</label>
+                    <Input
+                      value={editingExtractedQuestion.correct_answer || ''}
+                      onChange={(e) =>
+                        setEditingExtractedQuestion({
+                          ...editingExtractedQuestion,
+                          correct_answer: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  <Button onClick={handleUpdateExtractedQuestion}>Update Question</Button>
                 </div>
-              </div>
+              </DialogContent>
+            </Dialog>
+          )}
 
-              <div>
-                <label className="text-sm font-medium text-muted-foreground mb-2 block">Time Limit (seconds)</label>
-                <Input
-                  type="number"
-                  value={editingQuestion.time_limit}
-                  onChange={(e) => setEditingQuestion({
-                    ...editingQuestion,
-                    time_limit: parseInt(e.target.value)
-                  })}
-                  className="bg-background/50 border-border w-32"
-                />
-              </div>
+          {/* Search Bar */}
+          <div className="relative max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+            <Input
+              placeholder="Search questions..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
 
-              <div className="flex gap-3">
-                <Button
-                  onClick={() => saveQuestion(editingQuestion)}
-                  disabled={saving || !editingQuestion.question.trim() || !editingQuestion.correct_answer}
-                  className="bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 text-black"
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card className="border border-border bg-card/50 backdrop-blur-sm">
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-primary-500/20 to-secondary-500/20 rounded-xl flex items-center justify-center border border-primary-500/30">
+                    <Trophy className="h-6 w-6 text-primary-400" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Total Questions</p>
+                    <p className="text-2xl font-bold text-primary-400">{questions.length}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border border-border bg-card/50 backdrop-blur-sm">
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500/20 to-accent-500/20 rounded-xl flex items-center justify-center border border-blue-500/30">
+                    <FolderOpen className="h-6 w-6 text-blue-400" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Categories</p>
+                    <p className="text-2xl font-bold text-blue-400">{categories.length}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border border-border bg-card/50 backdrop-blur-sm">
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-xl flex items-center justify-center border border-purple-500/30">
+                    <Users className="h-6 w-6 text-purple-400" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Active Quizzes</p>
+                    <p className="text-2xl font-bold text-purple-400">0</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Category Management */}
+          <Card className="border border-border bg-card/50 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle className="text-xl text-primary-300 flex items-center">
+                <Tag className="h-5 w-5 mr-2" />
+                Category Management
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex gap-4 items-end">
+                <div className="flex-1">
+                  <label className="text-sm font-medium text-muted-foreground mb-2 block">New Category</label>
+                  <Input
+                    placeholder="Enter new category name..."
+                    value={newCategory}
+                    onChange={(e) => setNewCategory(e.target.value)}
+                    className="bg-background/50 border-border"
+                  />
+                </div>
+                <Button 
+                  onClick={addNewCategory}
+                  disabled={!newCategory.trim() || !user}
+                 variant='default'
                 >
-                  <Save className="h-4 w-4 mr-2" />
-                  {saving ? 'Saving...' : 'Save Question'}
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Category
                 </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => setEditingQuestion(null)}
-                  className="border-border hover:bg-muted"
+              </div>
+              
+              <div className="flex flex-wrap gap-2">
+                <Badge 
+                  variant={selectedCategory === 'all' ? 'default' : 'outline'}
+                  className={`cursor-pointer transition-all duration-200 ${selectedCategory === 'all' ? 'bg-primary-500 text-black' : 'hover:bg-primary-500/20 hover:border-primary-500/50'}`}
+                  onClick={() => setSelectedCategory('all')}
                 >
-                  Cancel
-                </Button>
+                  All Categories ({questions.length})
+                </Badge>
+                {categories.map(category => (
+                  <Badge 
+                    key={category}
+                    variant={selectedCategory === category ? 'default' : 'outline'}
+                    className={`cursor-pointer transition-all duration-200 ${selectedCategory === category ? 'bg-primary-500 text-black' : 'hover:bg-primary-500/20 hover:border-primary-500/50'}`}
+                    onClick={() => setSelectedCategory(category)}
+                  >
+                    {category} ({questions.filter(q => q.category === category).length})
+                  </Badge>
+                ))}
               </div>
             </CardContent>
           </Card>
-        )}
 
-        {/* Questions Display */}
-        <Tabs defaultValue="list" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 bg-background/50 border-border">
-            <TabsTrigger value="list" className="data-[state=active]:bg-primary-500 data-[state=active]:text-black">List View</TabsTrigger>
-            <TabsTrigger value="grouped" className="data-[state=active]:bg-primary-500 data-[state=active]:text-black">Grouped by Category</TabsTrigger>
-          </TabsList>
+          {/* Question Editor */}
+          {editingQuestion && !editingQuestionId && (
+            <Card className="border border-border bg-card/50 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="text-xl text-primary-300">
+                  Create New Question
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground mb-2 block">Question Text</label>
+                  <Textarea
+                    placeholder="Enter your question..."
+                    value={editingQuestion.question}
+                    onChange={(e) => setEditingQuestion({
+                      ...editingQuestion,
+                      question: e.target.value
+                    })}
+                    className="bg-background/50 border-border min-h-[100px]"
+                  />
+                </div>
 
-          <TabsContent value="list" className="space-y-6 mt-6">
-            {/* Questions List */}
-            <div className="grid gap-6">
-              {displayQuestions.map((question) => (
-                <Card key={question.id} className="border border-border bg-card/50 backdrop-blur-sm group hover:border-primary-500/50 transition-all duration-300">
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-3 flex-1">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-gradient-to-br from-primary-500/20 to-secondary-500/20 rounded-xl flex items-center justify-center group-hover:shadow-lg group-hover:shadow-primary-500/25 transition-all duration-300 border border-primary-500/30">
-                            <Brain className="h-5 w-5 text-primary-400" />
-                          </div>
-                          <div className="flex-1">
-                            {editingQuestionId === question.id ? (
-                              <Textarea
-                                value={editingQuestion?.question || ''}
-                                onChange={(e) => updateInlineQuestion('question', e.target.value)}
-                                className="bg-background/50 border-border min-h-[80px] text-lg font-medium"
-                                placeholder="Enter question text..."
-                              />
-                            ) : (
-                              <h4 className="text-lg font-medium text-primary-300 group-hover:text-primary-400 transition-colors duration-300">
-                                {question.question}
-                              </h4>
-                            )}
-                            <div className="flex items-center gap-2 mt-2">
-                              <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/40">
-                                <FolderOpen className="h-3 w-3 mr-1" />
-                                {editingQuestionId === question.id ? (
-                                  <Select
-                                    value={editingQuestion?.category || ''}
-                                    onValueChange={(value) => updateInlineQuestion('category', value)}
-                                  >
-                                    <SelectTrigger className="h-6 bg-transparent border-0 p-0 text-blue-300">
-                                      <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      {categories.map(category => (
-                                        <SelectItem key={category} value={category}>{category}</SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
-                                ) : (
-                                  question.category
-                                )}
-                              </Badge>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground mb-2 block">Category</label>
+                    <Select
+                      value={editingQuestion.category}
+                      onValueChange={(value) => 
+                        setEditingQuestion({
+                          ...editingQuestion,
+                          category: value
+                        })
+                      }
+                    >
+                      <SelectTrigger className="bg-background/50 border-border">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {categories.map(category => (
+                          <SelectItem key={category} value={category}>{category}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground mb-2 block">Difficulty</label>
+                    <Select
+                      value={editingQuestion.difficulty}
+                      onValueChange={(value: 'easy' | 'medium' | 'hard') => 
+                        setEditingQuestion({
+                          ...editingQuestion,
+                          difficulty: value
+                        })
+                      }
+                    >
+                      <SelectTrigger className="bg-background/50 border-border">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="easy">Easy</SelectItem>
+                        <SelectItem value="medium">Medium</SelectItem>
+                        <SelectItem value="hard">Hard</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground mb-2 block">Answer Options</label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {editingQuestion.options.map((option, index) => (
+                      <div key={index} className="flex gap-2">
+                        <Input
+                          placeholder={`Option ${index + 1}`}
+                          value={option}
+                          onChange={(e) => {
+                            const newOptions = [...editingQuestion.options];
+                            newOptions[index] = e.target.value;
+                            setEditingQuestion({
+                              ...editingQuestion,
+                              options: newOptions
+                            });
+                          }}
+                          className="bg-background/50 border-border"
+                        />
+                        <Button
+                          type="button"
+                          variant={editingQuestion.correct_answer === option ? "default" : "outline"}
+                          onClick={() => setEditingQuestion({
+                            ...editingQuestion,
+                            correct_answer: option
+                          })}
+                          className={editingQuestion.correct_answer === option 
+                            ? "bg-primary-500 text-black hover:bg-primary-600" 
+                            : "border-border hover:bg-muted"
+                          }
+                        >
+                          Correct
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground mb-2 block">Time Limit (seconds)</label>
+                  <Input
+                    type="number"
+                    value={editingQuestion.time_limit}
+                    onChange={(e) => setEditingQuestion({
+                      ...editingQuestion,
+                      time_limit: parseInt(e.target.value)
+                    })}
+                    className="bg-background/50 border-border w-32"
+                  />
+                </div>
+
+                <div className="flex gap-3">
+                  <Button
+                    onClick={() => saveQuestion(editingQuestion)}
+                    disabled={saving || !editingQuestion.question.trim() || !editingQuestion.correct_answer}
+                    className="bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 text-black"
+                  >
+                    <Save className="h-4 w-4 mr-2" />
+                    {saving ? 'Saving...' : 'Save Question'}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => setEditingQuestion(null)}
+                    className="border-border hover:bg-muted"
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Questions Display */}
+          <Tabs defaultValue="list" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 bg-background/50 border-border">
+              <TabsTrigger value="list" className="data-[state=active]:bg-primary-500 data-[state=active]:text-black">List View</TabsTrigger>
+              <TabsTrigger value="grouped" className="data-[state=active]:bg-primary-500 data-[state=active]:text-black">Grouped by Category</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="list" className="space-y-6 mt-6">
+              {/* Questions List */}
+              <div className="grid gap-6">
+                {displayQuestions.map((question) => (
+                  <Card key={question.id} className="border border-border bg-card/50 backdrop-blur-sm group hover:border-primary-500/50 transition-all duration-300">
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-3 flex-1">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-gradient-to-br from-primary-500/20 to-secondary-500/20 rounded-xl flex items-center justify-center group-hover:shadow-lg group-hover:shadow-primary-500/25 transition-all duration-300 border border-primary-500/30">
+                              <Brain className="h-5 w-5 text-primary-400" />
+                            </div>
+                            <div className="flex-1">
+                              {editingQuestionId === question.id ? (
+                                <Textarea
+                                  value={editingQuestion?.question || ''}
+                                  onChange={(e) => updateInlineQuestion('question', e.target.value)}
+                                  className="bg-background/50 border-border min-h-[80px] text-lg font-medium"
+                                  placeholder="Enter question text..."
+                                />
+                              ) : (
+                                <h4 className="text-lg font-medium text-primary-300 group-hover:text-primary-400 transition-colors duration-300">
+                                  {question.question}
+                                </h4>
+                              )}
+                              <div className="flex items-center gap-2 mt-2">
+                                <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/40">
+                                  <FolderOpen className="h-3 w-3 mr-1" />
+                                  {editingQuestionId === question.id ? (
+                                    <Select
+                                      value={editingQuestion?.category || ''}
+                                      onValueChange={(value) => updateInlineQuestion('category', value)}
+                                    >
+                                      <SelectTrigger className="h-6 bg-transparent border-0 p-0 text-blue-300">
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        {categories.map(category => (
+                                          <SelectItem key={category} value={category}>{category}</SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                  ) : (
+                                    question.category
+                                  )}
+                                </Badge>
+                              </div>
                             </div>
                           </div>
                         </div>
+                        <div className="flex gap-3">
+                          {editingQuestionId === question.id ? (
+                            <>
+                              <Button 
+                                size="sm"
+                                onClick={() => editingQuestion && saveQuestion(editingQuestion)}
+                                disabled={saving}
+                                className="bg-primary-500 hover:bg-primary-600 text-white"
+                              >
+                                <Save className="h-4 w-4" />
+                              </Button>
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={cancelInlineEdit}
+                                className="border-border hover:bg-muted"
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </>
+                          ) : (
+                            <>
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => startInlineEdit(question)}
+                                className="bg-primary-500/10 border-primary-500/30 hover:bg-primary-500/20 hover:border-primary-500/50 text-primary-300 backdrop-blur-sm transition-all duration-300 hover:shadow-lg hover:shadow-primary-500/20"
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => question.id && deleteQuestion(question.id)}
+                                className="bg-red-500/10 border-red-500/30 hover:bg-red-500/20 hover:border-red-500/50 text-red-300 backdrop-blur-sm transition-all duration-300 hover:shadow-lg hover:shadow-red-500/20"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </>
+                          )}
+                        </div>
                       </div>
-                      <div className="flex gap-3">
-                        {editingQuestionId === question.id ? (
-                          <>
-                            <Button 
-                              size="sm"
-                              onClick={() => editingQuestion && saveQuestion(editingQuestion)}
-                              disabled={saving}
-                              className="bg-primary-500 hover:bg-primary-600 text-white"
-                            >
-                              <Save className="h-4 w-4" />
-                            </Button>
-                            <Button 
-                              variant="outline" 
-                              size="sm"
-                              onClick={cancelInlineEdit}
-                              className="border-border hover:bg-muted"
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
-                          </>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        {question.options.length > 0 ? (
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            {question.options.map((option, index) => (
+                              <div
+                                key={index}
+                                className={`p-3 rounded-xl border transition-all duration-300 ${
+                                  option === question.correct_answer
+                                    ? 'bg-primary-500/20 border-primary-500/40 text-primary-300'
+                                    : 'bg-muted/30 border-border text-muted-foreground'
+                                }`}
+                              >
+                                {editingQuestionId === question.id ? (
+                                  <div className="flex gap-2">
+                                    <Input
+                                      value={editingQuestion?.options[index] || ''}
+                                      onChange={(e) => updateInlineOption(index, e.target.value)}
+                                      className="bg-background/50 border-border text-sm"
+                                      placeholder={`Option ${index + 1}`}
+                                    />
+                                    <Button
+                                      type="button"
+                                      variant={
+                                        editingQuestion?.correct_answer === editingQuestion?.options[index]
+                                          ? 'default'
+                                          : 'outline'
+                                      }
+                                      onClick={() => updateInlineQuestion('correct_answer', editingQuestion?.options[index])}
+                                      size="sm"
+                                      className={
+                                        editingQuestion?.correct_answer === editingQuestion?.options[index]
+                                          ? 'bg-primary-500 text-black hover:bg-primary-600 h-8 px-2'
+                                          : 'border-border hover:bg-muted h-8 px-2'
+                                      }
+                                    >
+                                      ✓
+                                    </Button>
+                                  </div>
+                                ) : (
+                                  <>
+                                    <span className="text-sm font-medium">{String.fromCharCode(65 + index)}.</span>{' '}
+                                    {option}
+                                    {option === question.correct_answer && (
+                                      <Badge className="ml-2 bg-primary-500/30 text-primary-300 border-primary-500/50">
+                                        Correct
+                                      </Badge>
+                                    )}
+                                  </>
+                                )}
+                              </div>
+                            ))}
+                          </div>
                         ) : (
-                          <>
-                            <Button 
-                              variant="outline" 
+                          <div className="text-center text-muted-foreground py-4">
+                            <p>This question is missing options.</p>
+                            <Button
                               size="sm"
-                              onClick={() => startInlineEdit(question)}
-                              className="bg-primary-500/10 border-primary-500/30 hover:bg-primary-500/20 hover:border-primary-500/50 text-primary-300 backdrop-blur-sm transition-all duration-300 hover:shadow-lg hover:shadow-primary-500/20"
+                              variant="link"
+                              onClick={() => handleGenerateOptionsForSavedQuestion(question.id || '')}
+                              disabled={generatingSavedQuestionOptions === question.id}
                             >
-                              <Edit className="h-4 w-4" />
+                              {generatingSavedQuestionOptions === question.id ? (
+                                <>
+                                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                  Generating...
+                                </>
+                              ) : (
+                                'Generate Options with AI'
+                              )}
                             </Button>
-                            <Button 
-                              variant="outline" 
-                              size="sm"
-                              onClick={() => question.id && deleteQuestion(question.id)}
-                              className="bg-red-500/10 border-red-500/30 hover:bg-red-500/20 hover:border-red-500/50 text-red-300 backdrop-blur-sm transition-all duration-300 hover:shadow-lg hover:shadow-red-500/20"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </>
+                          </div>
                         )}
+
+                        <div className="flex gap-3 flex-wrap">
+                          {editingQuestionId === question.id ? (
+                            <>
+                              <Select
+                                value={editingQuestion?.difficulty || 'medium'}
+                                onValueChange={(value: 'easy' | 'medium' | 'hard') => updateInlineQuestion('difficulty', value)}
+                              >
+                                <SelectTrigger className="h-8 bg-background/50 border-border">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="easy">Easy</SelectItem>
+                                  <SelectItem value="medium">Medium</SelectItem>
+                                  <SelectItem value="hard">Hard</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <Input
+                                type="number"
+                                value={editingQuestion?.time_limit || 15}
+                                onChange={(e) => updateInlineQuestion('time_limit', parseInt(e.target.value))}
+                                className="bg-background/50 border-border w-20 h-8"
+                              />
+                            </>
+                          ) : (
+                            <>
+                              <Badge 
+                                className={
+                                  question.difficulty === 'easy' 
+                                    ? "bg-green-500/20 text-green-300 border-green-500/40" 
+                                    : question.difficulty === 'medium'
+                                    ? "bg-yellow-500/20 text-yellow-300 border-yellow-500/40"
+                                    : "bg-red-500/20 text-red-300 border-red-500/40"
+                                }
+                              >
+                                <Target className="h-3 w-3 mr-1" />
+                                {question.difficulty}
+                              </Badge>
+                              <Badge className="bg-accent-500/20 text-accent-300 border-accent-500/40">
+                                <Clock className="h-3 w-3 mr-1" />
+                                {question.time_limit}s
+                              </Badge>
+                            </>
+                          )}
+                        </div>
                       </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              {/* Empty State */}
+              {displayQuestions.length === 0 && (
+                <Card className="border border-border bg-card/50 backdrop-blur-sm">
+                  <CardContent className="text-center py-16 space-y-6">
+                    <div className="w-20 h-20 bg-gradient-to-br from-primary-500/20 to-secondary-500/20 rounded-2xl flex items-center justify-center mx-auto border border-primary-500/30">
+                      <Brain className="h-10 w-10 text-primary-400" />
                     </div>
+                    <div className="space-y-3">
+                      <h3 className="text-2xl font-semibold bg-gradient-to-r from-primary-400 to-secondary-400 bg-clip-text text-transparent">
+                        {searchTerm ? 'No matching questions found' : selectedCategory === 'all' ? 'No questions yet' : `No questions in ${selectedCategory}`}
+                      </h3>
+                      <p className="text-muted-foreground text-lg max-w-md mx-auto leading-relaxed">
+                        {searchTerm 
+                          ? 'Try adjusting your search terms to find the right questions'
+                          : selectedCategory === 'all' 
+                          ? 'Create your first multiplayer quiz question to get started'
+                          : `Create questions for the ${selectedCategory} category`
+                        }
+                      </p>
+                    </div>
+                    {!searchTerm && (
+                      <Button 
+                        onClick={startNewQuestion}
+                        className="bg-gradient-to-r from-primary-500 via-secondary-500 to-primary-600 hover:from-primary-600 hover:via-secondary-600 hover:to-primary-700 text-black font-semibold px-8 py-4 rounded-2xl shadow-lg shadow-primary-500/25 border border-primary-400/30 transition-all duration-300 hover:shadow-xl hover:shadow-primary-500/30"
+                      >
+                        <Plus className="h-5 w-5 mr-2" />
+                        Create Question
+                      </Button>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+            </TabsContent>
+
+            <TabsContent value="grouped" className="space-y-6 mt-6">
+              {/* Questions Grouped by Category */}
+              {Object.entries(questionsByCategory).map(([category, categoryQuestions]) => (
+                <Card key={category} className="border border-border bg-card/50 backdrop-blur-sm">
+                  <CardHeader>
+                    <CardTitle className="text-xl text-primary-300 flex items-center justify-between">
+                      <div className="flex items-center">
+                        <FolderOpen className="h-5 w-5 mr-2" />
+                        {category}
+                      </div>
+                      <Badge className="bg-primary-500/20 text-primary-300 border-primary-500/40">
+                        {categoryQuestions.length} questions
+                      </Badge>
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      {question.options.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                          {question.options.map((option, index) => (
-                            <div
-                              key={index}
-                              className={`p-3 rounded-xl border transition-all duration-300 ${
-                                option === question.correct_answer
-                                  ? 'bg-primary-500/20 border-primary-500/40 text-primary-300'
-                                  : 'bg-muted/30 border-border text-muted-foreground'
-                              }`}
-                            >
-                              {editingQuestionId === question.id ? (
-                                <div className="flex gap-2">
-                                  <Input
-                                    value={editingQuestion?.options[index] || ''}
-                                    onChange={(e) => updateInlineOption(index, e.target.value)}
-                                    className="bg-background/50 border-border text-sm"
-                                    placeholder={`Option ${index + 1}`}
-                                  />
-                                  <Button
-                                    type="button"
-                                    variant={
-                                      editingQuestion?.correct_answer === editingQuestion?.options[index]
-                                        ? 'default'
-                                        : 'outline'
-                                    }
-                                    onClick={() => updateInlineQuestion('correct_answer', editingQuestion?.options[index])}
-                                    size="sm"
-                                    className={
-                                      editingQuestion?.correct_answer === editingQuestion?.options[index]
-                                        ? 'bg-primary-500 text-black hover:bg-primary-600 h-8 px-2'
-                                        : 'border-border hover:bg-muted h-8 px-2'
-                                    }
-                                  >
-                                    ✓
-                                  </Button>
-                                </div>
-                              ) : (
-                                <>
-                                  <span className="text-sm font-medium">{String.fromCharCode(65 + index)}.</span>{' '}
-                                  {option}
-                                  {option === question.correct_answer && (
-                                    <Badge className="ml-2 bg-primary-500/30 text-primary-300 border-primary-500/50">
-                                      Correct
-                                    </Badge>
-                                  )}
-                                </>
-                              )}
+                      {categoryQuestions.map((question) => (
+                        <div key={question.id} className="p-4 border border-border rounded-lg hover:border-primary-500/50 transition-colors duration-200 bg-background/30">
+                          <div className="flex items-center justify-between mb-3">
+                            <h4 className="text-lg font-medium text-foreground">{question.question}</h4>
+                            <div className="flex gap-2">
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => startInlineEdit(question)}
+                                className="bg-primary-500/10 border-primary-500/30 hover:bg-primary-500/20 hover:border-primary-500/50 text-primary-300"
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => question.id && deleteQuestion(question.id)}
+                                className="bg-red-500/10 border-red-500/30 hover:bg-red-500/20 hover:border-red-500/50 text-red-300"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
                             </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="text-center text-muted-foreground py-4">
-                          <p>This question is missing options.</p>
-                          <Button
-                            size="sm"
-                            variant="link"
-                            onClick={() => handleGenerateOptionsForSavedQuestion(question.id || '')}
-                            disabled={generatingSavedQuestionOptions === question.id}
-                          >
-                            {generatingSavedQuestionOptions === question.id ? (
-                              <>
-                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                Generating...
-                              </>
-                            ) : (
-                              'Generate Options with AI'
-                            )}
-                          </Button>
-                        </div>
-                      )}
-
-                      <div className="flex gap-3 flex-wrap">
-                        {editingQuestionId === question.id ? (
-                          <>
-                            <Select
-                              value={editingQuestion?.difficulty || 'medium'}
-                              onValueChange={(value: 'easy' | 'medium' | 'hard') => updateInlineQuestion('difficulty', value)}
-                            >
-                              <SelectTrigger className="h-8 bg-background/50 border-border">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="easy">Easy</SelectItem>
-                                <SelectItem value="medium">Medium</SelectItem>
-                                <SelectItem value="hard">Hard</SelectItem>
-                              </SelectContent>
-                            </Select>
-                            <Input
-                              type="number"
-                              value={editingQuestion?.time_limit || 15}
-                              onChange={(e) => updateInlineQuestion('time_limit', parseInt(e.target.value))}
-                              className="bg-background/50 border-border w-20 h-8"
-                            />
-                          </>
-                        ) : (
-                          <>
+                          </div>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-3">
+                            {question.options.map((option, index) => (
+                              <div 
+                                key={index} 
+                                className={`p-2 rounded-lg text-sm ${
+                                  option === question.correct_answer 
+                                    ? 'bg-primary-500/20 text-primary-300' 
+                                    : 'bg-muted/30 text-muted-foreground'
+                                }`}
+                              >
+                                <span className="font-medium">{String.fromCharCode(65 + index)}.</span> {option}
+                              </div>
+                            ))}
+                          </div>
+                          
+                          <div className="flex gap-3 flex-wrap">
                             <Badge 
                               className={
                                 question.difficulty === 'easy' 
@@ -1054,132 +1173,17 @@ export const MultiplayerQuizManagement = () => {
                               <Clock className="h-3 w-3 mr-1" />
                               {question.time_limit}s
                             </Badge>
-                          </>
-                        )}
-                      </div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </CardContent>
                 </Card>
               ))}
-            </div>
-
-            {/* Empty State */}
-            {displayQuestions.length === 0 && (
-              <Card className="border border-border bg-card/50 backdrop-blur-sm">
-                <CardContent className="text-center py-16 space-y-6">
-                  <div className="w-20 h-20 bg-gradient-to-br from-primary-500/20 to-secondary-500/20 rounded-2xl flex items-center justify-center mx-auto border border-primary-500/30">
-                    <Brain className="h-10 w-10 text-primary-400" />
-                  </div>
-                  <div className="space-y-3">
-                    <h3 className="text-2xl font-semibold bg-gradient-to-r from-primary-400 to-secondary-400 bg-clip-text text-transparent">
-                      {searchTerm ? 'No matching questions found' : selectedCategory === 'all' ? 'No questions yet' : `No questions in ${selectedCategory}`}
-                    </h3>
-                    <p className="text-muted-foreground text-lg max-w-md mx-auto leading-relaxed">
-                      {searchTerm 
-                        ? 'Try adjusting your search terms to find the right questions'
-                        : selectedCategory === 'all' 
-                        ? 'Create your first multiplayer quiz question to get started'
-                        : `Create questions for the ${selectedCategory} category`
-                      }
-                    </p>
-                  </div>
-                  {!searchTerm && (
-                    <Button 
-                      onClick={startNewQuestion}
-                      className="bg-gradient-to-r from-primary-500 via-secondary-500 to-primary-600 hover:from-primary-600 hover:via-secondary-600 hover:to-primary-700 text-black font-semibold px-8 py-4 rounded-2xl shadow-lg shadow-primary-500/25 border border-primary-400/30 transition-all duration-300 hover:shadow-xl hover:shadow-primary-500/30"
-                    >
-                      <Plus className="h-5 w-5 mr-2" />
-                      Create Question
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
-            )}
-          </TabsContent>
-
-          <TabsContent value="grouped" className="space-y-6 mt-6">
-            {/* Questions Grouped by Category */}
-            {Object.entries(questionsByCategory).map(([category, categoryQuestions]) => (
-              <Card key={category} className="border border-border bg-card/50 backdrop-blur-sm">
-                <CardHeader>
-                  <CardTitle className="text-xl text-primary-300 flex items-center justify-between">
-                    <div className="flex items-center">
-                      <FolderOpen className="h-5 w-5 mr-2" />
-                      {category}
-                    </div>
-                    <Badge className="bg-primary-500/20 text-primary-300 border-primary-500/40">
-                      {categoryQuestions.length} questions
-                    </Badge>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {categoryQuestions.map((question) => (
-                      <div key={question.id} className="p-4 border border-border rounded-lg hover:border-primary-500/50 transition-colors duration-200 bg-background/30">
-                        <div className="flex items-center justify-between mb-3">
-                          <h4 className="text-lg font-medium text-foreground">{question.question}</h4>
-                          <div className="flex gap-2">
-                            <Button 
-                              variant="outline" 
-                              size="sm"
-                              onClick={() => startInlineEdit(question)}
-                              className="bg-primary-500/10 border-primary-500/30 hover:bg-primary-500/20 hover:border-primary-500/50 text-primary-300"
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button 
-                              variant="outline" 
-                              size="sm"
-                              onClick={() => question.id && deleteQuestion(question.id)}
-                              className="bg-red-500/10 border-red-500/30 hover:bg-red-500/20 hover:border-red-500/50 text-red-300"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-3">
-                          {question.options.map((option, index) => (
-                            <div 
-                              key={index} 
-                              className={`p-2 rounded-lg text-sm ${
-                                option === question.correct_answer 
-                                  ? 'bg-primary-500/20 text-primary-300' 
-                                  : 'bg-muted/30 text-muted-foreground'
-                              }`}
-                            >
-                              <span className="font-medium">{String.fromCharCode(65 + index)}.</span> {option}
-                            </div>
-                          ))}
-                        </div>
-                        
-                        <div className="flex gap-3 flex-wrap">
-                          <Badge 
-                            className={
-                              question.difficulty === 'easy' 
-                                ? "bg-green-500/20 text-green-300 border-green-500/40" 
-                                : question.difficulty === 'medium'
-                                ? "bg-yellow-500/20 text-yellow-300 border-yellow-500/40"
-                                : "bg-red-500/20 text-red-300 border-red-500/40"
-                            }
-                          >
-                            <Target className="h-3 w-3 mr-1" />
-                            {question.difficulty}
-                          </Badge>
-                          <Badge className="bg-accent-500/20 text-accent-300 border-accent-500/40">
-                            <Clock className="h-3 w-3 mr-1" />
-                            {question.time_limit}s
-                          </Badge>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </TabsContent>
-        </Tabs>
-      </div>
-    </DashboardLayout>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </DashboardLayout>
+    </>
   );
 };

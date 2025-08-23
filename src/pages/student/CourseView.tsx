@@ -841,7 +841,7 @@ export const CourseView = () => {
             <Button onClick={() => navigate('/auth/login')}>
               {t('studentCourseView.signIn')}
             </Button>
-            <Button onClick={() => navigate('/authsignup')}>
+            <Button onClick={() => navigate('/auth/signup')}>
               {t('studentCourseView.createAccount')}
             </Button>
           </div>
