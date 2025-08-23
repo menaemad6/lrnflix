@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Bell, Check, Trash2, User, DollarSign, BookOpen, MessageSquare } from 'lucide-react';
+import { Bell, Check, Trash2, User, DollarSign, BookOpen, MessageSquare, Users, CheckCircle } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 interface Notification {
@@ -149,6 +149,18 @@ export const NotificationCenter = () => {
         return <BookOpen className="h-4 w-4 text-purple-500" />;
       case 'new_discussion':
         return <MessageSquare className="h-4 w-4 text-orange-500" />;
+      case 'question_answer':
+        return <MessageSquare className="h-4 w-4 text-blue-500" />;
+      case 'question_reply':
+        return <MessageSquare className="h-4 w-4 text-indigo-500" />;
+      case 'quiz_completion':
+        return <CheckCircle className="h-4 w-4 text-green-500" />;
+      case 'lesson_completion':
+        return <BookOpen className="h-4 w-4 text-emerald-500" />;
+      case 'group_invitation':
+        return <Users className="h-4 w-4 text-purple-500" />;
+      case 'system_message':
+        return <Bell className="h-4 w-4 text-gray-500" />;
       default:
         return <Bell className="h-4 w-4 text-gray-500" />;
     }
