@@ -101,7 +101,6 @@ export const NotificationExamples = () => {
       'Advanced React Patterns',
       150
     );
-
     if (success) {
       toast({
         title: 'Success',
