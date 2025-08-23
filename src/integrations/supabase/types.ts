@@ -6,19 +6,6 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
-// Quiz answer structure types
-export interface QuizAnswer {
-  answer: string;
-  isCorrect: boolean | null;
-}
-
-export interface QuizAttemptAnswers {
-  [questionId: string]: QuizAnswer;
-}
-
-// Legacy support for backward compatibility
-export type LegacyQuizAnswers = Record<string, string>;
-
 export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
@@ -589,6 +576,7 @@ export type Database = {
           is_public: boolean | null
           max_members: number | null
           name: string
+          thumbnail_url: string | null
           updated_at: string | null
         }
         Insert: {
@@ -602,6 +590,7 @@ export type Database = {
           is_public?: boolean | null
           max_members?: number | null
           name: string
+          thumbnail_url?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -615,7 +604,59 @@ export type Database = {
           is_public?: boolean | null
           max_members?: number | null
           name?: string
+          thumbnail_url?: string | null
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      invoices: {
+        Row: {
+          created_at: string
+          id: string
+          instructor_id: string
+          invoice_number: string
+          item_id: string
+          item_type: Database["public"]["Enums"]["item_type"]
+          notes: string | null
+          paid_at: string | null
+          payment_reference: string | null
+          payment_type: Database["public"]["Enums"]["payment_type"]
+          status: Database["public"]["Enums"]["invoice_status"]
+          total_price: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          instructor_id: string
+          invoice_number: string
+          item_id: string
+          item_type: Database["public"]["Enums"]["item_type"]
+          notes?: string | null
+          paid_at?: string | null
+          payment_reference?: string | null
+          payment_type?: Database["public"]["Enums"]["payment_type"]
+          status?: Database["public"]["Enums"]["invoice_status"]
+          total_price: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          instructor_id?: string
+          invoice_number?: string
+          item_id?: string
+          item_type?: Database["public"]["Enums"]["item_type"]
+          notes?: string | null
+          paid_at?: string | null
+          payment_reference?: string | null
+          payment_type?: Database["public"]["Enums"]["payment_type"]
+          status?: Database["public"]["Enums"]["invoice_status"]
+          total_price?: number
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -1121,7 +1162,7 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "teachers"
             referencedColumns: ["id"]
-          }
+          },
         ]
       }
       quiz_attempts: {
@@ -1729,6 +1770,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      generate_invoice_number: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       generate_wallet_code: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -1763,6 +1808,9 @@ export type Database = {
       }
     }
     Enums: {
+      invoice_status: "pending" | "paid" | "cancelled" | "refunded"
+      item_type: "course" | "chapter" | "lesson" | "quiz"
+      payment_type: "vodafone_cash" | "credit_card" | "bank_transfer" | "wallet"
       user_role: "admin" | "teacher" | "student"
     }
     CompositeTypes: {
@@ -1891,6 +1939,9 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      invoice_status: ["pending", "paid", "cancelled", "refunded"],
+      item_type: ["course", "chapter", "lesson", "quiz"],
+      payment_type: ["vodafone_cash", "credit_card", "bank_transfer", "wallet"],
       user_role: ["admin", "teacher", "student"],
     },
   },
