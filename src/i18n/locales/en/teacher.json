@@ -518,10 +518,18 @@
       "descriptionPlaceholder": "Enter lesson description...",
       "videoUrlLabel": "Video URL",
       "videoUrlPlaceholder": "Enter video URL...",
+      "deviceLimitLabel": "Device Limit",
+      "deviceLimitPlaceholder": "Enter device limit...",
       "viewLimitLabel": "View Limit",
       "viewLimitPlaceholder": "Enter view limit...",
       "durationLabel": "Duration (minutes)",
-      "durationPlaceholder": "Enter duration in minutes..."
+      "durationPlaceholder": "Enter duration in minutes...",
+      "viewLimitDescription": "Maximum number of times this lesson can be viewed",
+      "durationDescription": "Estimated time to complete this lesson in minutes",
+      "deviceLimit": "Device Limit",
+      "enterDeviceLimit": "Enter device limit...",
+      "deviceLimitDescription": "Maximum number of different devices that can access this lesson"
+
     },
     "aiContent": {
       "title": "AI-Generated Content",
@@ -544,6 +552,7 @@
       "studentViews": "Student Views",
       "viewedAt": "Viewed At",
       "duration": "Duration",
+      "deviceInfo": "Device Info",
       "status": "Status",
       "inProgress": "In Progress",
       "noViewsRecorded": "No views recorded yet",

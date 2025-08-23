@@ -40,7 +40,16 @@
     "none": "None",
     "select": "Select",
     "required": "Required",
-    "optional": "Optional"
+    "optional": "Optional",
+    "devices": "Devices",
+    "device": "Device",
+    "deviceType": "Device Type",
+    "mobile": "Mobile",
+    "tablet": "Tablet",
+    "desktop": "Desktop",
+    "unknown": "Unknown",
+    "limit": "Limit",
+    "unlimited": "Unlimited"
   },
   "time": {
     "today": "Today",

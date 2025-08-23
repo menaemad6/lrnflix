@@ -110,6 +110,8 @@
   "lessonContent": {
     "viewLimitReached": "View Limit Reached",
     "viewLimitDescription": "You have reached the maximum number of views for this lesson.",
+    "deviceLimitReached": "Device Limit Reached",
+    "deviceLimitDescription": "You have reached the maximum number of devices for this lesson.",
     "lessonHeader": "Lesson",
     "duration": "Duration",
     "minutes": "min",
@@ -127,9 +129,17 @@
     "markAsCompleted": "Mark as Completed",
     "estimatedTime": "Estimated time",
     "viewLimit": "View limit",
+    "deviceLimit": "Device limit",
     "lessonVideo": "Lesson Video",
     "watchInstructional": "Watch the instructional content",
-    "unlimited": "Unlimited"
+    "unlimited": "Unlimited",
+    "devices": "Devices",
+    "deviceCount": "Device Count",
+    "deviceType": "Device Type",
+    "mobile": "Mobile",
+    "tablet": "Tablet",
+    "desktop": "Desktop",
+    "unknown": "Unknown"
   },
   "quizTaker": {
     "quizResumed": "Quiz Resumed",

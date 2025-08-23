@@ -18,6 +18,7 @@ interface Lesson {
   description: string | null;
   video_url: string | null;
   course_id: string;
+  device_limit: number | null;
   view_limit: number | null;
   order_index: number;
 }
@@ -62,6 +63,7 @@ export const LessonDetails = () => {
     title: '',
     description: '',
     video_url: '',
+    device_limit: '',
     view_limit: ''
   });
   const [contentForm, setContentForm] = useState({
@@ -95,6 +97,7 @@ export const LessonDetails = () => {
         title: lessonData.title,
         description: lessonData.description || '',
         video_url: lessonData.video_url || '',
+        device_limit: lessonData.device_limit?.toString() || '',
         view_limit: lessonData.view_limit?.toString() || ''
       });
 
@@ -244,6 +247,7 @@ export const LessonDetails = () => {
           title: editForm.title,
           description: editForm.description || null,
           video_url: editForm.video_url || null,
+          device_limit: editForm.device_limit ? parseInt(editForm.device_limit) : null,
           view_limit: editForm.view_limit ? parseInt(editForm.view_limit) : null
         })
         .eq('id', id);
@@ -255,6 +259,7 @@ export const LessonDetails = () => {
         title: editForm.title,
         description: editForm.description || null,
         video_url: editForm.video_url || null,
+        device_limit: editForm.device_limit ? parseInt(editForm.device_limit) : null,
         view_limit: editForm.view_limit ? parseInt(editForm.view_limit) : null
       } : null);
 
@@ -433,6 +438,15 @@ export const LessonDetails = () => {
                     />
                   </div>
                   <div>
+                    <label className="text-sm font-medium">Device Limit</label>
+                    <Input
+                      type="number"
+                      value={editForm.device_limit}
+                      onChange={(e) => setEditForm(prev => ({ ...prev, device_limit: e.target.value }))}
+                      placeholder="Leave empty for unlimited devices"
+                    />
+                  </div>
+                  <div>
                     <label className="text-sm font-medium">View Limit</label>
                     <Input
                       type="number"
@@ -473,6 +487,11 @@ export const LessonDetails = () => {
                     <Badge variant="outline">
                       Order: {lesson.order_index}
                     </Badge>
+                    {lesson.device_limit && (
+                      <Badge variant="outline">
+                        Device Limit: {lesson.device_limit}
+                      </Badge>
+                    )}
                     {lesson.view_limit && (
                       <Badge variant="outline">
                         View Limit: {lesson.view_limit}

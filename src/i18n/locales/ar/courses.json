@@ -110,6 +110,8 @@
   "lessonContent": {
     "viewLimitReached": "تم الوصول إلى حد المشاهدة",
     "viewLimitDescription": "لقد وصلت إلى الحد الأقصى لعدد مرات مشاهدة هذا الدرس.",
+    "deviceLimitReached": "تم الوصول إلى حد الأجهزة",
+    "deviceLimitDescription": "لقد وصلت إلى الحد الأقصى لعدد الأجهزة لهذا الدرس.",
     "lessonHeader": "درس",
     "duration": "المدة",
     "minutes": "دقيقة",
@@ -127,9 +129,17 @@
     "markAsCompleted": "تمييز كمكتمل",
     "estimatedTime": "الوقت المقدر",
     "viewLimit": "حد المشاهدة",
+    "deviceLimit": "حد الأجهزة",
     "lessonVideo": "فيديو الدرس",
     "watchInstructional": "شاهد المحتوى التعليمي",
-    "unlimited": "غير محدود"
+    "unlimited": "غير محدود",
+    "devices": "الأجهزة",
+    "deviceCount": "عدد الأجهزة",
+    "deviceType": "نوع الجهاز",
+    "mobile": "جوال",
+    "tablet": "تابلت",
+    "desktop": "كمبيوتر",
+    "unknown": "غير معروف"
   },
   "quizTaker": {
     "quizResumed": "تم استئناف الاختبار",

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -29,6 +29,7 @@ import {
 import { usePdfAi } from '@/hooks/usePdfAi';
 import { ContentManagementSkeleton } from '@/components/ui/skeletons';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { DeviceInfoDisplay } from '@/components/lessons/DeviceInfoDisplay';
 import {
   Table,
   TableBody,
@@ -45,6 +46,7 @@ interface Lesson {
   video_url: string | null;
   course_id: string;
   order_index: number;
+  device_limit: number | null;
   view_limit: number | null;
   created_at: string;
   duration_minutes?: number;
@@ -65,6 +67,7 @@ interface LessonView {
   viewed_at: string;
   view_duration: number;
   completed: boolean;
+  device_type: string;
   student_name?: string;
   student_email?: string;
 }
@@ -86,6 +89,7 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
     title: '',
     description: '',
     video_url: '',
+    device_limit: '',
     view_limit: '',
     duration_minutes: '',
   });
@@ -150,6 +154,7 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
         title: lessonData.title || '',
         description: lessonData.description || '',
         video_url: lessonData.video_url || '',
+        device_limit: lessonData.device_limit?.toString() || '',
         view_limit: lessonData.view_limit?.toString() || '',
         duration_minutes: lessonData.duration_minutes?.toString() || '',
       });
@@ -216,6 +221,7 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
           title: formData.title,
           description: formData.description || null,
           video_url: formData.video_url || null,
+          device_limit: formData.device_limit ? parseInt(formData.device_limit) : null,
           view_limit: formData.view_limit ? parseInt(formData.view_limit) : null,
           duration_minutes: formData.duration_minutes ? parseInt(formData.duration_minutes) : null,
         })
@@ -412,7 +418,18 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
                     placeholder={t('lessonEditor.lessonDetails.videoUrlPlaceholder')}
                   />
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="space-y-3">
+                    <label className="text-sm font-medium text-primary-300">{t('lessonEditor.lessonDetails.deviceLimit')}</label>
+                    <Input
+                      value={formData.device_limit}
+                      onChange={(e) => setFormData(prev => ({ ...prev, device_limit: e.target.value }))}
+                      className="bg-background/50 border-primary-500/30 focus:border-primary-500/50 text-primary-100 placeholder:text-primary-300/50"
+                      placeholder={t('lessonEditor.lessonDetails.enterDeviceLimit')}
+                      type="number"
+                      min="0"
+                    />
+                  </div>
                   <div className="space-y-3">
                     <label className="text-sm font-medium text-primary-300">{t('lessonEditor.lessonDetails.viewLimitLabel')}</label>
                     <Input
@@ -631,6 +648,7 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
                         <TableHead className="text-purple-300">{t('quizEditor.attempts.email')}</TableHead>
                         <TableHead className="text-purple-300">{t('lessonEditor.analytics.viewedAt')}</TableHead>
                         <TableHead className="text-purple-300">{t('lessonEditor.analytics.duration')}</TableHead>
+                        <TableHead className="text-purple-300">{t('lessonEditor.analytics.deviceInfo')}</TableHead>
                         <TableHead className="text-purple-300">{t('lessonEditor.analytics.status')}</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -638,7 +656,7 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
                       {lessonViews.map((view) => (
                         <TableRow key={view.id} className="border-b border-purple-500/10 hover:bg-purple-500/5">
                           <TableCell className="text-purple-200">
-                            {view.student_name}
+                            <Link to={`/teacher/students/${view.student_id}`}>{view.student_name}</Link>
                           </TableCell>
                           <TableCell className="text-purple-200">
                             {view.student_email}
@@ -646,24 +664,27 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
                           <TableCell className="text-purple-200">
                             {new Date(view.viewed_at).toLocaleString()}
                           </TableCell>
-                                                      <TableCell className="text-purple-200">
-                              {view.view_duration} {t('lessonEditor.analytics.minutes')}
-                            </TableCell>
-                            <TableCell>
-                              <Badge 
-                                className={view.completed 
-                                  ? "bg-primary-500/20 text-primary-300 border-primary-500/40" 
-                                  : "bg-yellow-500/20 text-yellow-300 border-yellow-500/40"
-                                }
-                              >
-                                {view.completed ? t('lessonEditor.analytics.completed') : t('lessonEditor.analytics.inProgress')}
-                              </Badge>
-                            </TableCell>
+                                                                                <TableCell className="text-purple-200">
+                            {view.view_duration} {t('lessonEditor.analytics.minutes')}
+                          </TableCell>
+                          <TableCell className="text-purple-200">
+                            <DeviceInfoDisplay deviceType={view.device_type} />
+                          </TableCell>
+                          <TableCell>
+                            <Badge 
+                              className={view.completed 
+                                ? "bg-primary-500/20 text-primary-300 border-primary-500/40" 
+                                : "bg-yellow-500/20 text-yellow-300 border-yellow-500/40"
+                              }
+                            >
+                              {view.completed ? t('lessonEditor.analytics.completed') : t('lessonEditor.analytics.inProgress')}
+                            </Badge>
+                          </TableCell>
                           </TableRow>
                         ))}
                         {lessonViews.length === 0 && (
                           <TableRow>
-                            <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                            <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                               {t('lessonEditor.analytics.noViewsRecorded')}
                             </TableCell>
                           </TableRow>

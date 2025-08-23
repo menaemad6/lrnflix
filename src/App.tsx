@@ -1,6 +1,4 @@
 
-import React from 'react';
-import { createRoot } from 'react-dom/client';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -33,8 +31,7 @@ import { TeacherAnalyticsPage } from './pages/teacher/TeacherAnalyticsPage';
 import { TeacherNotificationsPage } from './pages/teacher/TeacherNotificationsPage';
 import DashboardSettingsPage from "./pages/DashboardSettingsPage";
 
-import { QuizEditor } from './pages/teacher/QuizEditor';
-import { LessonDetails } from './pages/teacher/LessonDetails';
+
 import { MultiplayerQuizManagement } from './pages/teacher/MultiplayerQuizManagement';
 
 // Teacher's Chapters 
@@ -53,7 +50,7 @@ import { Courses } from './pages/student/Courses';
 import { CourseDetails } from './pages/teacher/CourseDetails';
 import { CourseView } from './pages/student/CourseView';
 import { CourseProgress } from './pages/student/CourseProgress';
-import { LessonView } from './pages/student/LessonView';
+
 
 import { StudentGroups } from './pages/student/StudentGroups';
 import { StudentChaptersPage } from './pages/student/StudentChaptersPage';

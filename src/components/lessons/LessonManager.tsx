@@ -16,6 +16,7 @@ interface Lesson {
   title: string;
   description: string | null;
   video_url: string | null;
+  device_limit: number | null;
   view_limit: number | null;
   order_index: number;
   created_at: string;

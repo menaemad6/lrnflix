@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from 'react-i18next';
-import { Play, CheckCircle, Clock, Eye, FileText } from 'lucide-react';
+import { Play, CheckCircle, Clock, Eye, FileText, Smartphone } from 'lucide-react';
+import { detectDeviceType, getDetailedDeviceFingerprint } from '@/utils/deviceDetection';
 import { VoiceTutor } from '@/components/lessons/VoiceTutor';
 import { SecureVideoPlayer } from '@/components/video/SecureVideoPlayer';
 import { LessonContentSkeleton } from '@/components/student/skeletons';
@@ -16,6 +17,7 @@ interface Lesson {
   description: string | null;
   video_url: string | null;
   course_id: string;
+  device_limit: number | null;
   view_limit: number | null;
   duration_minutes: number | null;
 }
@@ -61,7 +63,9 @@ export const LessonContent = ({ lesson, course, isCompleted, onLessonComplete, o
   const { t } = useTranslation('courses');
   const [lessonContent, setLessonContent] = useState<LessonContent | null>(null);
   const [viewCount, setViewCount] = useState(0);
+  const [deviceCount, setDeviceCount] = useState(0);
   const [canView, setCanView] = useState(true);
+  const [canViewOnDevice, setCanViewOnDevice] = useState(true);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -99,6 +103,24 @@ export const LessonContent = ({ lesson, course, isCompleted, onLessonComplete, o
         if (lesson.view_limit && viewsData) {
           setCanView(viewsData.length < lesson.view_limit);
         }
+
+        // Check device count for this user
+        const { data: deviceViewsData } = await supabase
+          .from('lesson_views')
+          .select('device_type')
+          .eq('lesson_id', lesson.id)
+          .eq('student_id', user.id);
+
+        if (deviceViewsData) {
+          // Count unique devices based on detailed device fingerprints
+          const uniqueDevices = new Set(deviceViewsData.map(view => view.device_type));
+          setDeviceCount(uniqueDevices.size);
+
+          // Check if user can still view on this device type (if there's a device limit)
+          if (lesson.device_limit) {
+            setCanViewOnDevice(uniqueDevices.size < lesson.device_limit);
+          }
+        }
       }
     } catch (error: any) {
       console.error('Error fetching lesson data:', error);
@@ -111,11 +133,15 @@ export const LessonContent = ({ lesson, course, isCompleted, onLessonComplete, o
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
+        // Get detailed device fingerprint for unique device identification
+        const deviceFingerprint = getDetailedDeviceFingerprint();
+        
         const { error } = await supabase
           .from('lesson_views')
           .insert({
             lesson_id: lesson.id,
             student_id: user.id,
+            device_type: deviceFingerprint,
           });
 
         if (error) {
@@ -175,6 +201,21 @@ export const LessonContent = ({ lesson, course, isCompleted, onLessonComplete, o
             <h2 className="text-xl font-semibold mb-2">{t('lessonContent.viewLimitReached')}</h2>
             <p className="text-muted-foreground">
               {t('lessonContent.viewLimitDescription')} ({lesson.view_limit})
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (lesson.device_limit && !canViewOnDevice) {
+    return (
+      <div className="container mx-auto py-8">
+        <Card>
+          <CardContent className="text-center py-12">
+            <h2 className="text-xl font-semibold mb-2">{t('lessonContent.deviceLimitReached')}</h2>
+            <p className="text-muted-foreground">
+              {t('lessonContent.deviceLimitDescription')} ({lesson.device_limit})
             </p>
           </CardContent>
         </Card>
@@ -245,8 +286,16 @@ export const LessonContent = ({ lesson, course, isCompleted, onLessonComplete, o
                       </div>
                     </Badge>
                   )}
+                  {lesson.device_limit && (
+                    <Badge variant="default" className="px-4 py-2">
+                      <div className="flex items-center gap-2">
+                        <Smartphone className="h-4 w-4" />
+                        <span className="font-medium">Devices: {deviceCount}/{lesson.device_limit}</span>
+                      </div>
+                    </Badge>
+                  )}
                   {isCompleted && (
-                                       <Badge variant="default" className="px-4 py-2">
+                    <Badge variant="default" className="px-4 py-2">
                       <div className="flex items-center gap-2">
                         <CheckCircle className="h-4 w-4" />
                         <span>{t('lessonContent.completed')}</span>
@@ -270,7 +319,7 @@ export const LessonContent = ({ lesson, course, isCompleted, onLessonComplete, o
             </div>
 
             {/* Lesson Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-8 border-t border-border/50">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-8 border-t border-border/50">
               {/* Estimated Time */}
               <Card className="bg-card/50 backdrop-blur-sm border-border/50 hover:shadow-lg transition-all duration-300">
                 <CardContent className="p-6">
@@ -299,6 +348,22 @@ export const LessonContent = ({ lesson, course, isCompleted, onLessonComplete, o
                         {lesson.view_limit ? `${viewCount}/${lesson.view_limit}` : t('lessonContent.unlimited')}
                       </div>
                       <div className="text-sm text-muted-foreground">{t('lessonContent.viewLimit')}</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              {/* Device Status */}
+              <Card className="bg-card/50 backdrop-blur-sm border-border/50 hover:shadow-lg transition-all duration-300">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-primary/30 rounded-xl flex items-center justify-center shadow-lg border border-primary/30">
+                      <Smartphone className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                      <div className="font-bold text-foreground text-lg">
+                        {lesson.device_limit ? `${deviceCount}/${lesson.device_limit}` : t('lessonContent.unlimited')}
+                      </div>
+                      <div className="text-sm text-muted-foreground">{t('lessonContent.deviceLimit')}</div>
                     </div>
                   </div>
                 </CardContent>

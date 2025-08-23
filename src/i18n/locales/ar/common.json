@@ -40,7 +40,16 @@
     "none": "لا شيء",
     "select": "اختيار",
     "required": "مطلوب",
-    "optional": "اختياري"
+    "optional": "اختياري",
+    "devices": "الأجهزة",
+    "device": "الجهاز",
+    "deviceType": "نوع الجهاز",
+    "mobile": "جوال",
+    "tablet": "تابلت",
+    "desktop": "كمبيوتر",
+    "unknown": "غير معروف",
+    "limit": "الحد",
+    "unlimited": "غير محدود"
   },
   "time": {
     "today": "اليوم",

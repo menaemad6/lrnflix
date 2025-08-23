@@ -689,6 +689,7 @@ export type Database = {
       lesson_views: {
         Row: {
           completed: boolean | null
+          device_type: string
           id: string
           lesson_id: string
           student_id: string
@@ -697,6 +698,7 @@ export type Database = {
         }
         Insert: {
           completed?: boolean | null
+          device_type?: string
           id?: string
           lesson_id: string
           student_id: string
@@ -705,6 +707,7 @@ export type Database = {
         }
         Update: {
           completed?: boolean | null
+          device_type?: string
           id?: string
           lesson_id?: string
           student_id?: string
@@ -719,6 +722,7 @@ export type Database = {
           course_id: string
           created_at: string
           description: string | null
+          device_limit: number | null
           duration_minutes: number | null
           id: string
           order_index: number
@@ -732,6 +736,7 @@ export type Database = {
           course_id: string
           created_at?: string
           description?: string | null
+          device_limit?: number | null
           duration_minutes?: number | null
           id?: string
           order_index?: number
@@ -745,6 +750,7 @@ export type Database = {
           course_id?: string
           created_at?: string
           description?: string | null
+          device_limit?: number | null
           duration_minutes?: number | null
           id?: string
           order_index?: number
