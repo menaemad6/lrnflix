@@ -1,172 +1,230 @@
-import React, { useEffect } from 'react';
-import { Toaster } from "@/components/ui/sonner";
-import { Helmet } from 'react-helmet-async';
-import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ThemeProvider } from '@/contexts/ThemeContext';
-import { TenantProvider } from '@/contexts/TenantContext';
-import { LanguageProvider } from '@/contexts/LanguageContext';
-import { AuthProvider } from '@/contexts/AuthContext';
-import { useRandomBackground } from '@/hooks/useRandomBackground';
+
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { Provider } from 'react-redux';
+import { store } from './store/store';
+import { AuthProvider } from './contexts/AuthContext';
+import { ThemeProvider } from './contexts/ThemeContext';
+import { ChatbotProvider, useChatbot } from './contexts/ChatbotContext';
+import { ProtectedRoute } from './components/auth/ProtectedRoute';
+import { Navbar } from './components/layout/Navbar';
+import { GlobalChatbotSidebar } from './components/chatbot/GlobalChatbotSidebar';
+import { MessageSquare } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Suspense } from 'react';
+import { SparkLoader } from "@/components/ui/SparkLoader";
 import { useScrollToTop } from '@/hooks/useScrollToTop';
+import { HelmetProvider } from 'react-helmet-async';
 
-// Page imports
-import Index from './pages/Index';
-import Home from './pages/Home';
-import Auth from './pages/auth/Auth';
-import AuthCallback from './pages/auth/AuthCallback';
-import Login from './pages/auth/Login';
-import LoginModern from './pages/auth/LoginModern';
-import Signup from './pages/auth/Signup';
-import NotFound from './pages/NotFound';
-import Unauthorized from './pages/Unauthorized';
-import RedeemPage from './pages/RedeemPage';
-import CodeRedemption from './pages/CodeRedemption';
-import QuestionsPage from './pages/QuestionsPage';
-import DashboardSettingsPage from './pages/DashboardSettingsPage';
-import TeacherLanding from './pages/TeacherLanding';
-import InvoiceDetailPage from './pages/InvoiceDetailPage';
+// Pages
+import Index from "./pages/Index";
+import { AuthCallback } from './pages/auth/AuthCallback';
 
-// Student pages
-import StudentDashboard from './pages/student/StudentDashboard';
-import Courses from './pages/student/Courses';
-import StudentCoursesPage from './pages/student/StudentCoursesPage';
-import CourseCatalog from './pages/student/CourseCatalog';
-import CourseView from './pages/student/CourseView';
-import CourseProgress from './pages/student/CourseProgress';
-import QuizTaker from './pages/student/QuizTaker';
+import { TeacherDashboard } from './pages/teacher/TeacherDashboard';
+import { TeacherCourseManagement } from './components/courses/TeacherCourseManagement';
+import { TeacherCoursesPage } from './pages/teacher/TeacherCoursesPage';
+import { TeacherCodesPage } from './pages/teacher/TeacherCodesPage';
+import { TeacherAnalyticsPage } from './pages/teacher/TeacherAnalyticsPage';
+import { TeacherNotificationsPage } from './pages/teacher/TeacherNotificationsPage';
+import DashboardSettingsPage from "./pages/DashboardSettingsPage";
+
+
+import { MultiplayerQuizManagement } from './pages/teacher/MultiplayerQuizManagement';
+
+// Teacher's Chapters 
+import { TeacherChaptersPage } from './pages/teacher/TeacherChaptersPage';
+import { TeacherChapterManagement } from './pages/teacher/TeacherChapterManagement';
+
+// Teacher's Groups 
+import { TeacherGroups } from './pages/teacher/TeacherGroups';
+
+import { StudentDashboard } from './pages/student/StudentDashboard';
+import { StudentCoursesPage } from './pages/student/StudentCoursesPage';
+import { StudentNotificationsPage } from './pages/student/StudentNotificationsPage';
+import { StudentTransactions } from './pages/student/StudentTransactions';
+
+import { Courses } from './pages/student/Courses';
+import { CourseDetails } from './pages/teacher/CourseDetails';
+import { CourseView } from './pages/student/CourseView';
+import { CourseProgress } from './pages/student/CourseProgress';
+
+
+import { StudentGroups } from './pages/student/StudentGroups';
+import { StudentChaptersPage } from './pages/student/StudentChaptersPage';
 import MultiplayerQuiz from './pages/student/MultiplayerQuiz';
+
+// Shared Pages
+import { GroupDetailPage } from './pages/groups/GroupDetailPage';
+import { ChaptersPage } from './pages/chapters/ChaptersPage';
+import { ChapterDetailPage } from './pages/chapters/ChapterDetailPage';
+
+import RedeemPage from './pages/RedeemPage';
+
+import { Unauthorized } from "./pages/Unauthorized";
+
+import NotFound from "./pages/NotFound";
+
 import Store from './pages/student/Store';
-import StudentGroups from './pages/student/StudentGroups';
-import StudentChaptersPage from './pages/student/StudentChaptersPage';
-import StudentTransactions from './pages/student/StudentTransactions';
-import StudentNotificationsPage from './pages/student/StudentNotificationsPage';
-
-// Teacher pages
-import TeacherDashboard from './pages/teacher/TeacherDashboard';
-import CreateCourse from './pages/teacher/CreateCourse';
-import CourseDetails from './pages/teacher/CourseDetails';
-import LessonDetails from './pages/teacher/LessonDetails';
-import QuizEditor from './pages/teacher/QuizEditor';
-import TeacherCoursesPage from './pages/teacher/TeacherCoursesPage';
-import TeacherChaptersPage from './pages/teacher/TeacherChaptersPage';
-import TeacherChapterManagement from './pages/teacher/TeacherChapterManagement';
-import TeacherGroups from './pages/teacher/TeacherGroups';
-import StudentStudents from './pages/teacher/StudentStudents';
-import StudentDetail from './pages/teacher/StudentDetail';
-import TeachersPage from './pages/teacher/TeachersPage';
-import TeacherProfile from './pages/teacher/TeacherProfile';
-import TeacherCodesPage from './pages/teacher/TeacherCodesPage';
-import TeacherColorSettings from './pages/teacher/TeacherColorSettings';
-import TeacherAnalyticsPage from './pages/teacher/TeacherAnalyticsPage';
-import TeacherNotificationsPage from './pages/teacher/TeacherNotificationsPage';
+import Auth from "./pages/auth/Auth";
+import { QuestionsPage } from "./pages/QuestionsPage";
+import { TeachersPage } from './pages/teacher/TeachersPage';
+import { TeacherProfile } from './pages/teacher/TeacherProfile';
+import { TenantProvider, useTenant } from './contexts/TenantContext';
+import { StudentStudents } from './pages/teacher/StudentStudents';
+import { StudentDetail } from './pages/teacher/StudentDetail';
 import TeacherSchedulePage from './pages/teacher/TeacherSchedulePage';
-import MultiplayerQuizManagement from './pages/teacher/MultiplayerQuizManagement';
+import { TeacherColorSettings } from './pages/teacher/TeacherColorSettings';
+import { LanguageProvider } from './contexts/LanguageContext';
 
-// Chapter and Group pages
-import ChaptersPage from './pages/chapters/ChaptersPage';
-import ChapterDetailPage from './pages/chapters/ChapterDetailPage';
-import GroupDetailPage from './pages/groups/GroupDetailPage';
-import DiscussionsPage from './pages/discussions/DiscussionsPage';
 
 const queryClient = new QueryClient();
 
-function App() {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { getBackgroundClass } = useRandomBackground();
-  useScrollToTop();
 
-  useEffect(() => {
-    // Redirect to /home if the user is authenticated and tries to access / or /auth
-    const token = localStorage.getItem('sb-access-token');
-    const isAuthPage = location.pathname === '/auth' || location.pathname === '/';
 
-    if (token && isAuthPage) {
-      navigate('/home', { replace: true });
-    }
-  }, [navigate, location]);
-
+const ChatSidebarToggle = () => {
+  const { isOpen, openChatbot } = useChatbot();
+  if (isOpen) return null;
   return (
-    <ThemeProvider>
-      <TenantProvider>
-        <LanguageProvider>
-          <AuthProvider>
-            <Helmet>
-              <title>LrnFlix - AI-Powered Learning Management System</title>
-              <meta name="description" content="Experience the future of education with LrnFlix's AI-powered LMS. Gamified learning, intelligent tutoring, and personalized education paths." />
-            </Helmet>
-            <div className={`min-h-screen transition-all duration-500 ${getBackgroundClass()}`}>
-              <QueryClientProvider client={queryClient}>
-                <Toaster />
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/home" element={<Home />} />
-                  <Route path="/auth" element={<Auth />} />
-                  <Route path="/auth/callback" element={<AuthCallback />} />
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/login-modern" element={<LoginModern />} />
-                  <Route path="/signup" element={<Signup />} />
-                  <Route path="/404" element={<NotFound />} />
-                  <Route path="/401" element={<Unauthorized />} />
-                  <Route path="/redeem" element={<RedeemPage />} />
-                  <Route path="/code-redemption" element={<CodeRedemption />} />
-                  <Route path="/questions" element={<QuestionsPage />} />
-                  <Route path="/dashboard-settings" element={<DashboardSettingsPage />} />
-                  <Route path="/teacher-landing" element={<TeacherLanding />} />
-
-                  {/* Student Routes */}
-                  <Route path="/student/dashboard" element={<StudentDashboard />} />
-                  <Route path="/student/courses" element={<Courses />} />
-                  <Route path="/student/my-courses" element={<StudentCoursesPage />} />
-                  <Route path="/student/course-catalog" element={<CourseCatalog />} />
-                  <Route path="/student/course/:courseId" element={<CourseView />} />
-                  <Route path="/student/course/:courseId/progress" element={<CourseProgress />} />
-                  <Route path="/student/quiz/:quizId" element={<QuizTaker />} />
-                  <Route path="/student/multiplayer-quiz" element={<MultiplayerQuiz />} />
-                  <Route path="/student/store" element={<Store />} />
-                  <Route path="/student/groups" element={<StudentGroups />} />
-                  <Route path="/student/chapters" element={<StudentChaptersPage />} />
-                  <Route path="/student/transactions" element={<StudentTransactions />} />
-                  <Route path="/student/notifications" element={<StudentNotificationsPage />} />
-
-                  {/* Teacher Routes */}
-                  <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
-                  <Route path="/teacher/create-course" element={<CreateCourse />} />
-                  <Route path="/teacher/course/:courseId" element={<CourseDetails />} />
-                  <Route path="/teacher/lesson/:lessonId" element={<LessonDetails />} />
-                  <Route path="/teacher/quiz/:quizId" element={<QuizEditor />} />
-                  <Route path="/teacher/courses" element={<TeacherCoursesPage />} />
-                  <Route path="/teacher/chapters" element={<TeacherChaptersPage />} />
-                  <Route path="/teacher/chapter-management" element={<TeacherChapterManagement />} />
-                  <Route path="/teacher/groups" element={<TeacherGroups />} />
-                  <Route path="/teacher/students" element={<StudentStudents />} />
-                  <Route path="/teacher/student/:studentId" element={<StudentDetail />} />
-                  <Route path="/teacher/teachers" element={<TeachersPage />} />
-                  <Route path="/teacher/profile" element={<TeacherProfile />} />
-                  <Route path="/teacher/codes" element={<TeacherCodesPage />} />
-                  <Route path="/teacher/color-settings" element={<TeacherColorSettings />} />
-                  <Route path="/teacher/analytics" element={<TeacherAnalyticsPage />} />
-                  <Route path="/teacher/notifications" element={<TeacherNotificationsPage />} />
-                  <Route path="/teacher/schedule" element={<TeacherSchedulePage />} />
-                  <Route path="/teacher/multiplayer-quiz-management" element={<MultiplayerQuizManagement />} />
-
-                  {/* Chapter and Group Routes */}
-                  <Route path="/chapters" element={<ChaptersPage />} />
-                  <Route path="/chapter/:chapterId" element={<ChapterDetailPage />} />
-                  <Route path="/group/:groupId" element={<GroupDetailPage />} />
-                  <Route path="/discussions" element={<DiscussionsPage />} />
-                  
-                  {/* Invoice Detail Route */}
-                  <Route path="/invoices/:invoiceId" element={<InvoiceDetailPage />} />
-                </Routes>
-              </QueryClientProvider>
-            </div>
-          </AuthProvider>
-        </LanguageProvider>
-      </TenantProvider>
-    </ThemeProvider>
+    <button
+      onClick={openChatbot}
+      className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 shadow-lg shadow-primary-500/25 z-[10050] animate-pulse-glow flex items-center justify-center"
+      style={{ pointerEvents: 'auto' }}
+    >
+      <MessageSquare className="h-5 w-5 sm:h-6 sm:w-6 text-black" />
+    </button>
   );
-}
+};
+
+const AppRoutes = () => {
+  const location = useLocation();
+  // Auto-scroll to top on route change
+  useScrollToTop();
+  // Hide Navbar on auth pages
+  const hideNavbar = location.pathname.startsWith('/auth');
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+      {!hideNavbar && <Navbar extraXSpacing />}
+      <main className="" >
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/auth/login" element={<Auth />} />
+          <Route path="/auth/signup" element={<Auth />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
+          <Route path="/redeem" element={<ProtectedRoute><RedeemPage /></ProtectedRoute>} />
+          <Route path="/unauthorized" element={<Unauthorized />} />
+          {/* Teacher Routes */}
+          <Route path="/teacher/dashboard" element={<ProtectedRoute requiredRole={['teacher']}><TeacherDashboard /></ProtectedRoute>} />
+          <Route path="/teacher/courses" element={<ProtectedRoute requiredRole={['teacher']}><TeacherCoursesPage /></ProtectedRoute>} />
+          <Route path="/teacher/courses/:id" element={<ProtectedRoute requiredRole={['teacher']}><CourseDetails /></ProtectedRoute>} />
+          <Route path="/teacher/courses/:id/manage" element={<ProtectedRoute requiredRole={['teacher']}><TeacherCourseManagement /></ProtectedRoute>} />
+          <Route path="/teacher/courses/:id/manage/lessons" element={<ProtectedRoute requiredRole={['teacher']}><TeacherCourseManagement /></ProtectedRoute>} />
+          <Route path="/teacher/courses/:id/manage/quizzes" element={<ProtectedRoute requiredRole={['teacher']}><TeacherCourseManagement /></ProtectedRoute>} />
+          <Route path="/teacher/courses/:id/manage/lessons/:lessonId" element={<ProtectedRoute requiredRole={['teacher']}><TeacherCourseManagement /></ProtectedRoute>} />
+          <Route path="/teacher/courses/:id/manage/quizzes/:quizId" element={<ProtectedRoute requiredRole={['teacher']}><TeacherCourseManagement /></ProtectedRoute>} />
+          <Route path="/teacher/groups" element={<ProtectedRoute requiredRole={['teacher']}><TeacherGroups /></ProtectedRoute>} />
+          <Route path="/teacher/chapters" element={<ProtectedRoute requiredRole={['teacher']}><TeacherChaptersPage /></ProtectedRoute>} />
+          <Route path="/teacher/chapters/:chapterId" element={<ProtectedRoute requiredRole={['teacher']}><TeacherChapterManagement /></ProtectedRoute>} />
+          <Route path="/teacher/codes" element={<ProtectedRoute requiredRole={['teacher']}><TeacherCodesPage /></ProtectedRoute>} />
+          <Route path="/teacher/analytics" element={<ProtectedRoute requiredRole={['teacher']}><TeacherAnalyticsPage /></ProtectedRoute>} />
+          <Route path="/teacher/schedule" element={<ProtectedRoute requiredRole={['teacher']}><TeacherSchedulePage /></ProtectedRoute>} />
+          <Route path="/teacher/notifications" element={<ProtectedRoute requiredRole={['teacher']}><TeacherNotificationsPage /></ProtectedRoute>} />
+          <Route path="/teacher/colors" element={<ProtectedRoute requiredRole={['teacher']}><TeacherColorSettings /></ProtectedRoute>} />
+          <Route path="/teacher/students" element={<ProtectedRoute requiredRole={['teacher']}><StudentStudents /></ProtectedRoute>} />
+          <Route path="/teacher/students/:studentId" element={<ProtectedRoute requiredRole={['teacher']}><StudentDetail /></ProtectedRoute>} />
+          <Route path="/teacher/multiplayer-quiz" element={<ProtectedRoute requiredRole={['teacher']}><MultiplayerQuizManagement /></ProtectedRoute>} />
+          <Route path="/dashboard/settings" element={<ProtectedRoute requiredRole={['teacher']}><DashboardSettingsPage /></ProtectedRoute>} />
+          {/* Student Routes */}
+          <Route path="/student/dashboard" element={<ProtectedRoute requiredRole={['student']}><StudentDashboard /></ProtectedRoute>} />
+          <Route path="/student/courses" element={<ProtectedRoute requiredRole={['student']}><StudentCoursesPage /></ProtectedRoute>} />
+          <Route path="/student/chapters" element={<ProtectedRoute requiredRole={['student']}><StudentChaptersPage /></ProtectedRoute>} />
+          <Route path="/student/groups" element={<ProtectedRoute requiredRole={['student']}><StudentGroups /></ProtectedRoute>} />
+          <Route path="/student/transactions" element={<ProtectedRoute requiredRole={['student']}><StudentTransactions /></ProtectedRoute>} />
+          <Route path="/multiplayer-quiz" element={<ProtectedRoute requiredRole={['student']}><MultiplayerQuiz /></ProtectedRoute>} />
+          <Route path="/courses" element={<Courses />} />
+          <Route path="/courses/:id" element={<CourseView />} />
+          <Route path="/courses/:id/progress" element={<ProtectedRoute><CourseProgress /></ProtectedRoute>} />
+          <Route path="/courses/:id/progress/lesson/:lessonId" element={<ProtectedRoute><CourseProgress /></ProtectedRoute>} />
+          <Route path="/courses/:id/progress/quiz/:quizId" element={<ProtectedRoute><CourseProgress /></ProtectedRoute>} />
+          <Route path="/courses/:id/progress/quiz/:quizId/attempt/:attemptId" element={<ProtectedRoute><CourseProgress /></ProtectedRoute>} />
+          <Route path="/chapters" element={<ProtectedRoute><ChaptersPage /></ProtectedRoute>} />
+          <Route path="/chapters/:id" element={<ProtectedRoute><ChapterDetailPage /></ProtectedRoute>} />
+          <Route path="/student/notifications" element={<ProtectedRoute requiredRole={['student']}><StudentNotificationsPage /></ProtectedRoute>} />
+          <Route path="/student/store" element={<ProtectedRoute requiredRole={['student']}><Store /></ProtectedRoute>} />
+          {/* Shared Routes */}
+
+          <Route path="/teachers" element={<TeachersPage />} />
+          <Route path="/teachers/:teacherSlug" element={<TeacherProfile />} />
+
+          <Route path="/questions" element={<ProtectedRoute><QuestionsPage /></ProtectedRoute>} />
+          <Route path="/groups/:id" element={<ProtectedRoute><GroupDetailPage /></ProtectedRoute>} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </main>
+      <GlobalChatbotSidebar />
+      <ChatSidebarToggle />
+    </div>
+  );
+};
+
+const AppRoutesWithTenant = () => {
+  const { slug, teacher, loading } = useTenant();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black">
+        <SparkLoader text="It all starts with a spark" color="white" size={56} />
+      </div>
+    );
+  }
+
+  // If subdomain is 'platform' or 'www', render main platform as usual
+  if (!slug || slug === 'platform' || slug === 'www') {
+    return <AppRoutes />;
+  }
+
+  // If subdomain is a teacher's slug and teacher exists, render the same routes (for now)
+  if (teacher) {
+    return <AppRoutes />;
+  }
+
+  // If subdomain is not found, show fallback (optional)
+  return <AppRoutes />;
+};
+
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <Provider store={store}>
+      <HelmetProvider>
+        <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+          <AuthProvider>
+            <ChatbotProvider>
+              <LanguageProvider>
+                <TooltipProvider>
+                  <Toaster />
+                  <Sonner />
+                  <TenantProvider>
+                    <Suspense fallback={
+                      <div className="min-h-screen flex items-center justify-center bg-black">
+                        <SparkLoader text="It all starts with a spark" color="white" size={56} />
+                      </div>
+                    }>
+                      <BrowserRouter>
+                        <AppRoutesWithTenant />
+                      </BrowserRouter>
+                    </Suspense>
+                  </TenantProvider>
+                </TooltipProvider>
+              </LanguageProvider>
+            </ChatbotProvider>
+          </AuthProvider>
+        </ThemeProvider>
+      </HelmetProvider>
+    </Provider>
+  </QueryClientProvider>
+);
 
 export default App;
