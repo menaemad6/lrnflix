@@ -8,6 +8,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { PurchaseModal } from '@/components/courses/PurchaseModal';
+import { PurchaseChoicesModal } from '@/components/courses/PurchaseChoicesModal';
 import { DiscussionForum } from '@/components/discussions/DiscussionForum';
 import { StudentLectureView } from '@/components/lectures/StudentLectureView';
 import { 
@@ -100,6 +101,7 @@ export const CourseView = () => {
   const [loading, setLoading] = useState(true);
   const [userWallet, setUserWallet] = useState(0);
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
+  const [showPurchaseChoicesModal, setShowPurchaseChoicesModal] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [activeTab, setActiveTab] = useState('lessons');
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
@@ -234,8 +236,12 @@ export const CourseView = () => {
     if (!userId) {
       setShowAuthModal(true);
     } else {
-      setShowPurchaseModal(true);
+      setShowPurchaseChoicesModal(true);
     }
+  };
+
+  const handleWalletSelected = () => {
+    setShowPurchaseModal(true);
   };
 
   // Share logic
@@ -792,12 +798,34 @@ export const CourseView = () => {
         </div>
       </div>
 
+      {/* Purchase Choices Modal */}
+      {course && (
+        <PurchaseChoicesModal
+          isOpen={showPurchaseChoicesModal}
+          onClose={() => setShowPurchaseChoicesModal(false)}
+          item={{
+            id: course.id,
+            title: course.title,
+            price: course.price,
+            instructor_id: course.instructor_id,
+            type: 'course'
+          }}
+          onWalletSelected={handleWalletSelected}
+        />
+      )}
+
       {/* Purchase Modal */}
       {course && (
         <PurchaseModal
           isOpen={showPurchaseModal}
           onClose={() => setShowPurchaseModal(false)}
-          course={course}
+          item={{
+            id: course.id,
+            title: course.title,
+            price: course.price,
+            instructor_id: course.instructor_id,
+            type: 'course'
+          }}
           userWallet={userWallet}
           onPurchaseSuccess={handlePurchaseSuccess}
         />

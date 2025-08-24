@@ -423,6 +423,150 @@
     "accessDenied": "Access Denied",
     "itemNotOwned": "You can only access and edit items you created"
   },
+  "invoices": {
+    "title": "Invoices",
+    "choosePaymentMethod": "Choose Payment Method",
+    "courseInfo": "Course Information",
+    "securePaymentProcessing": "Secure Payment Processing",
+    "securePaymentDescription": "Your payment information is encrypted and secure. You'll receive a detailed invoice after payment.",
+    "cancel": "Cancel",
+    "paymentMethods": {
+      "wallet": {
+        "name": "Wallet Credits",
+        "description": "Use your available wallet credits"
+      },
+      "vodafoneCash": {
+        "name": "Vodafone Cash",
+        "description": "Pay via Vodafone Cash mobile payment"
+      },
+      "creditCard": {
+        "name": "Credit Card",
+        "description": "Pay with credit or debit card"
+      },
+      "bankTransfer": {
+        "name": "Bank Transfer",
+        "description": "Direct bank transfer payment"
+      }
+    },
+    "notifications": {
+      "authenticationRequired": "Authentication Required",
+      "authenticationDescription": "Please sign in to continue with your purchase.",
+      "invoiceCreated": "Invoice Created",
+      "invoiceCreatedDescription": "Your invoice has been created successfully. Redirecting to payment details...",
+      "error": "Error",
+      "errorDescription": "Failed to create invoice. Please try again."
+    },
+    "ui": {
+      "instructorId": "Instructor ID",
+      "courseId": "Course ID",
+      "instantAccess": "Instant Access",
+      "instantAccessDescription": "Get immediate access to all course content after payment",
+      "detailedInvoice": "Detailed Invoice",
+      "detailedInvoiceDescription": "Receive a comprehensive invoice for your records",
+      "secureTransaction": "Secure Transaction",
+      "secureTransactionDescription": "All payments are processed through secure, encrypted channels"
+    },
+    "detailPage": {
+      "title": "Invoice Details",
+      "invoiceNumber": "Invoice #{{number}}",
+      "status": {
+        "paid": "PAID",
+        "pending": "PENDING",
+        "cancelled": "CANCELLED",
+        "refunded": "REFUNDED"
+      },
+      "actions": {
+        "download": "Download",
+        "downloadShort": "DL",
+        "share": "Share",
+        "copy": "Copy",
+        "copyNumber": "Copy Number"
+      },
+      "sections": {
+        "invoiceInformation": "Invoice Information",
+        "itemDetails": "Item Details",
+        "paymentReference": "Payment Reference",
+        "paymentInstructions": "Payment Instructions"
+      },
+      "fields": {
+        "invoiceNumber": "Invoice Number",
+        "totalAmount": "Total Amount",
+        "createdDate": "Created Date",
+        "paidDate": "Paid Date",
+        "instructor": "Instructor"
+      },
+      "paymentTypes": {
+        "vodafoneCash": {
+          "title": "Vodafone Cash",
+          "sendPaymentTo": "Send payment to:",
+          "vodafoneCashNumber": "Vodafone Cash Number"
+        },
+        "fawry": {
+          "title": "Fawry"
+        },
+        "bankTransfer": {
+          "title": "Bank Transfer",
+          "accountInformation": "Account Information:"
+        },
+        "creditCard": {
+          "title": "Credit Card",
+          "payNow": "Pay Now"
+        },
+        "other": {
+          "title": "Other Payment Method"
+        }
+      },
+      "paymentSteps": {
+        "title": "Payment Steps:",
+        "vodafoneCash": [
+          "Open your Vodafone Cash app",
+          "Send exactly {{amount}} EGP to {{phoneNumber}}",
+          "Keep the transaction reference number",
+          "Your instructor will confirm the payment and activate your access"
+        ],
+        "fawry": [
+          "Visit any Fawry outlet (pharmacy, supermarket, etc.)",
+          "Pay exactly {{amount}} EGP",
+          "Provide the reference number: {{reference}}",
+          "Keep the receipt for verification"
+        ],
+        "bankTransfer": [
+          "Transfer to Bank: Commercial International Bank (CIB)",
+          "Account: {{account}}",
+          "Amount: {{amount}} EGP",
+          "Reference: {{reference}}"
+        ],
+        "creditCard": [
+          "Click the payment button below",
+          "Enter your card details securely",
+          "Complete the payment process",
+          "You will receive immediate confirmation"
+        ],
+        "other": [
+          "Contact support for payment instructions",
+          "Reference: {{reference}}",
+          "Amount: {{amount}} EGP"
+        ]
+      },
+      "warnings": {
+        "vodafoneCash": "Make sure to send the exact amount ({{amount}} EGP) to avoid delays in processing.",
+        "fawry": "Payment may take 24-48 hours to process. Keep your receipt safe.",
+        "bankTransfer": "Bank transfers typically take 1-3 business days to process.",
+        "creditCard": "Your payment is processed securely through our payment gateway.",
+        "other": "Please contact our support team for specific payment instructions."
+      },
+      "errors": {
+        "invoiceNotFound": "Invoice Not Found",
+        "invoiceNotFoundDescription": "The invoice you're looking for doesn't exist or you don't have access to it.",
+        "invalidInvoice": "Invalid Invoice",
+        "invalidInvoiceDescription": "This invoice is missing required item information.",
+        "itemLoadError": "Error loading item information",
+        "itemLoadErrorDescription": "There was an error loading the item details. Please try refreshing the page.",
+        "itemNotAvailable": "Item information could not be loaded. The item may have been deleted or you may not have access to it."
+      },
+      "important": "Important:"
+    }
+  },
   "authModal": {
     "welcomeBack": "Welcome Back",
     "createAccount": "Create Account",

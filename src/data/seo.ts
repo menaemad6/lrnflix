@@ -300,6 +300,42 @@ export const BASE_SEO_CONFIG: RouteSEOConfig = {
     },
   },
 
+  // Teacher invoices
+  '/teacher/invoices': {
+    en: {
+      title: `Invoice Management | ${PLATFORM_NAME}`,
+      description: 'Manage and track all your course invoices, confirm payments, and enroll students automatically.',
+      keywords: 'invoice management, payment tracking, student enrollment, course billing, payment confirmation',
+      ogType: 'website',
+      canonical: 'https://learnify.app/teacher/invoices',
+    },
+    ar: {
+      title: `إدارة الفواتير | ${PLATFORM_NAME}`,
+      description: 'أدر وتتبع جميع فواتير دوراتك، أكد المدفوعات، وسجل الطلاب تلقائياً.',
+      keywords: 'إدارة الفواتير، تتبع المدفوعات، تسجيل الطلاب، فوترة الدورات، تأكيد الدفع',
+      ogType: 'website',
+      canonical: 'https://learnify.app/teacher/invoices',
+    },
+  },
+
+  // Invoice detail page (dynamic)
+  '/invoices/dynamic': {
+    en: {
+      title: `Invoice Details | ${PLATFORM_NAME}`,
+      description: 'View detailed information about your invoice, payment status, and enrollment details.',
+      keywords: 'invoice details, payment status, enrollment information, course access, payment history',
+      ogType: 'website',
+      canonical: 'https://learnify.app/invoices',
+    },
+    ar: {
+      title: `تفاصيل الفاتورة | ${PLATFORM_NAME}`,
+      description: 'عرض معلومات مفصلة حول فاتورتك وحالة الدفع وتفاصيل التسجيل.',
+      keywords: 'تفاصيل الفاتورة، حالة الدفع، معلومات التسجيل، الوصول للدورة، سجل المدفوعات',
+      ogType: 'website',
+      canonical: 'https://learnify.app/invoices',
+    },
+  },
+
 
 
   // Student dashboard
@@ -818,6 +854,9 @@ export const getSEOMetadata = (
     } else if (route.startsWith('/teacher/students/') && route.split('/').length === 3) {
       // Teacher student detail route (e.g., /teacher/students/123)
       config = BASE_SEO_CONFIG['/teacher/students/dynamic'];
+    } else if (route.startsWith('/invoices/') && route.split('/').length === 3) {
+      // Invoice detail route (e.g., /invoices/123)
+      config = BASE_SEO_CONFIG['/invoices/dynamic'];
     } else {
       // Try to find a partial match (e.g., /courses/123 -> /courses)
       const baseRoute = '/' + route.split('/')[1];
@@ -888,6 +927,9 @@ export const getDynamicSEOMetadata = (
   } else if (baseRoute === '/teacher/students') {
     // For teacher student pages
     baseConfig = BASE_SEO_CONFIG['/teacher/students/dynamic'];
+  } else if (baseRoute === '/invoices') {
+    // For invoice detail pages
+    baseConfig = BASE_SEO_CONFIG['/invoices/dynamic'];
   } else {
     // Fallback to the provided base route
     baseConfig = BASE_SEO_CONFIG[baseRoute];

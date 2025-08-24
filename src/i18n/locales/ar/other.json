@@ -419,6 +419,150 @@
     "accessDenied": "الوصول مرفوض",
     "itemNotOwned": "يمكنك فقط الوصول إلى العناصر التي أنشأتها وتحريرها"
   },
+  "invoices": {
+    "title": "الفواتير",
+    "choosePaymentMethod": "اختر طريقة الدفع",
+    "courseInfo": "معلومات الدورة",
+    "securePaymentProcessing": "معالجة الدفع الآمنة",
+    "securePaymentDescription": "معلومات الدفع الخاصة بك مشفرة وآمنة. ستحصل على فاتورة مفصلة بعد الدفع.",
+    "cancel": "إلغاء",
+    "paymentMethods": {
+      "wallet": {
+        "name": "رصيد المحفظة",
+        "description": "استخدم رصيد المحفظة المتاح لديك"
+      },
+      "vodafoneCash": {
+        "name": "فودافون كاش",
+        "description": "ادفع عبر فودافون كاش للدفع عبر الهاتف المحمول"
+      },
+      "creditCard": {
+        "name": "بطاقة ائتمان",
+        "description": "ادفع ببطاقة ائتمان أو خصم"
+      },
+      "bankTransfer": {
+        "name": "تحويل بنكي",
+        "description": "دفع التحويل البنكي المباشر"
+      }
+    },
+    "notifications": {
+      "authenticationRequired": "المصادقة مطلوبة",
+      "authenticationDescription": "يرجى تسجيل الدخول للمتابعة مع عملية الشراء.",
+      "invoiceCreated": "تم إنشاء الفاتورة",
+      "invoiceCreatedDescription": "تم إنشاء فاتورتك بنجاح. إعادة التوجيه إلى تفاصيل الدفع...",
+      "error": "خطأ",
+      "errorDescription": "فشل في إنشاء الفاتورة. يرجى المحاولة مرة أخرى."
+    },
+    "ui": {
+      "instructorId": "معرف المعلم",
+      "courseId": "معرف الدورة",
+      "instantAccess": "وصول فوري",
+      "instantAccessDescription": "احصل على وصول فوري لجميع محتوى الدورة بعد الدفع",
+      "detailedInvoice": "فاتورة مفصلة",
+      "detailedInvoiceDescription": "احصل على فاتورة شاملة لسجلاتك",
+      "secureTransaction": "معاملة آمنة",
+      "secureTransactionDescription": "جميع المدفوعات تتم معالجتها من خلال قنوات آمنة ومشفرة"
+    },
+    "detailPage": {
+      "title": "تفاصيل الفاتورة",
+      "invoiceNumber": "الفاتورة رقم {{number}}",
+      "status": {
+        "paid": "مدفوع",
+        "pending": "في الانتظار",
+        "cancelled": "ملغي",
+        "refunded": "مسترد"
+      },
+      "actions": {
+        "download": "تحميل",
+        "downloadShort": "تحم",
+        "share": "مشاركة",
+        "copy": "نسخ",
+        "copyNumber": "نسخ الرقم"
+      },
+      "sections": {
+        "invoiceInformation": "معلومات الفاتورة",
+        "itemDetails": "تفاصيل العنصر",
+        "paymentReference": "مرجع الدفع",
+        "paymentInstructions": "تعليمات الدفع"
+      },
+      "fields": {
+        "invoiceNumber": "رقم الفاتورة",
+        "totalAmount": "المبلغ الإجمالي",
+        "createdDate": "تاريخ الإنشاء",
+        "paidDate": "تاريخ الدفع",
+        "instructor": "المعلم"
+      },
+      "paymentTypes": {
+        "vodafoneCash": {
+          "title": "فودافون كاش",
+          "sendPaymentTo": "أرسل الدفع إلى:",
+          "vodafoneCashNumber": "رقم فودافون كاش"
+        },
+        "fawry": {
+          "title": "فوري"
+        },
+        "bankTransfer": {
+          "title": "تحويل بنكي",
+          "accountInformation": "معلومات الحساب:"
+        },
+        "creditCard": {
+          "title": "بطاقة ائتمان",
+          "payNow": "ادفع الآن"
+        },
+        "other": {
+          "title": "طريقة دفع أخرى"
+        }
+      },
+      "paymentSteps": {
+        "title": "خطوات الدفع:",
+        "vodafoneCash": [
+          "افتح تطبيق فودافون كاش",
+          "أرسل بالضبط {{amount}} جنيه مصري إلى {{phoneNumber}}",
+          "احتفظ برقم مرجع المعاملة",
+          "سيؤكد معلمك الدفع ويُفعل وصولك"
+        ],
+        "fawry": [
+          "زر أي منفذ فوري (صيدلية، سوبر ماركت، إلخ)",
+          "ادفع بالضبط {{amount}} جنيه مصري",
+          "قدم رقم المرجع: {{reference}}",
+          "احتفظ بالإيصال للتحقق"
+        ],
+        "bankTransfer": [
+          "حول إلى البنك: البنك التجاري الدولي (CIB)",
+          "الحساب: {{account}}",
+          "المبلغ: {{amount}} جنيه مصري",
+          "المرجع: {{reference}}"
+        ],
+        "creditCard": [
+          "انقر على زر الدفع أدناه",
+          "أدخل تفاصيل بطاقتك بأمان",
+          "أكمل عملية الدفع",
+          "ستحصل على تأكيد فوري"
+        ],
+        "other": [
+          "اتصل بالدعم لتعليمات الدفع",
+          "المرجع: {{reference}}",
+          "المبلغ: {{amount}} جنيه مصري"
+        ]
+      },
+      "warnings": {
+        "vodafoneCash": "تأكد من إرسال المبلغ بالضبط ({{amount}} جنيه مصري) لتجنب تأخير المعالجة.",
+        "fawry": "قد يستغرق الدفع 24-48 ساعة للمعالجة. احتفظ بالإيصال بأمان.",
+        "bankTransfer": "التحويلات البنكية تستغرق عادة 1-3 أيام عمل للمعالجة.",
+        "creditCard": "يتم معالجة دفعتك بأمان من خلال بوابة الدفع الخاصة بنا.",
+        "other": "يرجى الاتصال بفريق الدعم لتعليمات الدفع المحددة."
+      },
+      "errors": {
+        "invoiceNotFound": "الفاتورة غير موجودة",
+        "invoiceNotFoundDescription": "الفاتورة التي تبحث عنها غير موجودة أو ليس لديك حق الوصول إليها.",
+        "invalidInvoice": "فاتورة غير صالحة",
+        "invalidInvoiceDescription": "هذه الفاتورة تفتقد إلى معلومات العنصر المطلوبة.",
+        "itemLoadError": "خطأ في تحميل معلومات العنصر",
+        "itemLoadErrorDescription": "حدث خطأ في تحميل تفاصيل العنصر. يرجى تحديث الصفحة.",
+        "itemNotAvailable": "لا يمكن تحميل معلومات العنصر. قد يكون العنصر قد تم حذفه أو قد لا يكون لديك حق الوصول إليه."
+      },
+      "important": "مهم:"
+    }
+  },
   "authModal": {
     "welcomeBack": "مرحباً بعودتك",
     "createAccount": "إنشاء حساب",

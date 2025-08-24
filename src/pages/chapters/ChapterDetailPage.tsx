@@ -23,6 +23,10 @@ import { CourseViewSkeleton } from '@/components/student/skeletons/CourseViewSke
 import { useTranslation } from 'react-i18next';
 import { SEOHead } from '@/components/seo';
 import { getDynamicSEOMetadata } from '@/data/seo';
+import { PurchaseChoicesModal } from '@/components/courses/PurchaseChoicesModal';
+import { PurchaseModal } from '@/components/courses/PurchaseModal';
+import AuthModal from '@/components/ui/AuthModal';
+import AuthForm from '@/pages/auth/AuthForm';
 
 interface Chapter {
   id: string;
@@ -85,6 +89,18 @@ export const ChapterDetailPage = () => {
   const bgClass = useRandomBackground();
   const [chapterCourses, setChapterCourses] = useState<ChapterCourse[]>([]);
   const [instructorAvatars, setInstructorAvatars] = useState<Record<string, string | undefined>>({});
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showPurchaseChoicesModal, setShowPurchaseChoicesModal] = useState(false);
+  const [showPurchaseModal, setShowPurchaseModal] = useState(false);
+  const [userId, setUserId] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    async function fetchUser() {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUserId(user?.id);
+    }
+    fetchUser();
+  }, []);
 
   useEffect(() => {
     if (id) {
@@ -138,6 +154,21 @@ export const ChapterDetailPage = () => {
           .maybeSingle();
 
         setIsEnrolled(!!enrollment);
+        
+        // If enrolled, sync course enrollments to ensure they have access to all chapter courses
+        if (enrollment) {
+          try {
+            const { syncChapterCourseEnrollments } = await import('@/utils/enrollmentUtils');
+            const syncResult = await syncChapterCourseEnrollments(user.id, id);
+            if (syncResult.success) {
+              console.log('Course enrollments synced:', syncResult.message);
+            } else {
+              console.warn('Course enrollment sync failed:', syncResult.message);
+            }
+          } catch (syncError) {
+            console.error('Error syncing course enrollments:', syncError);
+          }
+        }
       }
 
       // Fetch courses for this chapter using chapter_objects, including instructor profile
@@ -175,7 +206,10 @@ export const ChapterDetailPage = () => {
   const handlePurchaseChapter = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) {
+        setShowAuthModal(true);
+        return;
+      }
 
       const result = await supabase.rpc('enroll_chapter_with_payment', {
         p_chapter_id: id
@@ -208,6 +242,25 @@ export const ChapterDetailPage = () => {
         variant: 'destructive',
       });
     }
+  };
+
+  const handleEnrollClick = () => {
+    if (!userId) {
+      setShowAuthModal(true);
+    } else {
+      setShowPurchaseChoicesModal(true);
+    }
+  };
+
+  const handleWalletSelected = () => {
+    setShowPurchaseModal(true);
+  };
+
+  const handlePurchaseSuccess = () => {
+    setIsEnrolled(true);
+    setShowPurchaseModal(false);
+    fetchChapterData();
+    fetchUserWallet();
   };
 
   if (loading) {
@@ -383,7 +436,7 @@ export const ChapterDetailPage = () => {
                   ) : (
                     <div className="space-y-3">
                       <Button 
-                        onClick={handlePurchaseChapter}
+                        onClick={handleEnrollClick}
                         className="w-full btn-primary"
                         disabled={userWallet < chapter.price}
                       >
@@ -401,6 +454,45 @@ export const ChapterDetailPage = () => {
         </div>
         </div>
       </div>
+
+      {/* Modals */}
+      <AuthModal
+        open={showAuthModal}
+        onOpenChange={setShowAuthModal}
+      >
+        <AuthForm 
+          mode="login" 
+          setMode={() => {}} 
+          onClose={() => setShowAuthModal(false)}
+        />
+      </AuthModal>
+
+      <PurchaseChoicesModal
+        isOpen={showPurchaseChoicesModal}
+        onClose={() => setShowPurchaseChoicesModal(false)}
+        item={{
+          id: id || '',
+          title: chapter?.title || '',
+          price: chapter?.price || 0,
+          instructor_id: chapterCourses[0]?.course?.instructor_id || '',
+          type: 'chapter'
+        }}
+        onWalletSelected={handleWalletSelected}
+      />
+
+      <PurchaseModal
+        isOpen={showPurchaseModal}
+        onClose={() => setShowPurchaseModal(false)}
+        item={{
+          id: id || '',
+          title: chapter?.title || '',
+          price: chapter?.price || 0,
+          instructor_id: chapterCourses[0]?.course?.instructor_id || '',
+          type: 'chapter'
+        }}
+        userWallet={userWallet}
+        onPurchaseSuccess={handlePurchaseSuccess}
+      />
     </>
   );
 };

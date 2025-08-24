@@ -15,7 +15,7 @@ import { AddCourseToChapterModal } from '@/components/chapters/AddCourseToChapte
 import { ImageUploader } from '@/components/ui/ImageUploader';
 import { IMAGE_UPLOAD_BUCKETS } from '@/data/constants';
 import type { UploadedImage } from '@/hooks/useImageUpload';
-import { BookOpen, Plus, Trash2, Edit, Save, X, Settings, Sparkles, Upload } from 'lucide-react';
+import { BookOpen, Plus, Trash2, Edit, Save, X, Settings, Sparkles, Upload, RefreshCw } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
@@ -208,6 +208,66 @@ export const TeacherChapterManagement = () => {
         description: t('teacherChapterManagement.failedToRemoveStudent'),
         variant: 'destructive',
       });
+    }
+  };
+
+  const handleSyncCourseEnrollments = async () => {
+    try {
+      setLoading(true);
+      
+      // Get all students enrolled in this chapter
+      const { data: chapterEnrollments, error: enrollmentsError } = await supabase
+        .from('chapter_enrollments')
+        .select('student_id')
+        .eq('chapter_id', chapterId);
+      
+      if (enrollmentsError) throw enrollmentsError;
+      
+      if (!chapterEnrollments || chapterEnrollments.length === 0) {
+        toast({
+          title: 'Info',
+          description: 'No students enrolled in this chapter to sync',
+        });
+        return;
+      }
+
+      // Import and use the sync function
+      const { syncChapterCourseEnrollments } = await import('@/utils/enrollmentUtils');
+      
+      let successCount = 0;
+      let errorCount = 0;
+      
+      // Sync course enrollments for each student
+      for (const enrollment of chapterEnrollments) {
+        try {
+          const result = await syncChapterCourseEnrollments(enrollment.student_id, chapterId);
+          if (result.success) {
+            successCount++;
+          } else {
+            errorCount++;
+            console.error(`Failed to sync for student ${enrollment.student_id}:`, result.message);
+          }
+        } catch (error) {
+          errorCount++;
+          console.error(`Error syncing for student ${enrollment.student_id}:`, error);
+        }
+      }
+      
+      toast({
+        title: 'Sync Complete',
+        description: `Successfully synced ${successCount} students. ${errorCount > 0 ? `${errorCount} errors occurred.` : ''}`,
+        variant: errorCount > 0 ? 'destructive' : 'default',
+      });
+      
+    } catch (error: any) {
+      console.error('Error syncing course enrollments:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to sync course enrollments',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -441,7 +501,21 @@ export const TeacherChapterManagement = () => {
           <TabsContent value="students">
             <Card className="glass-card border-0">
               <CardHeader>
-                <CardTitle>{t('teacherChapterManagement.enrolledStudents')} ({students.length})</CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle>{t('teacherChapterManagement.enrolledStudents')} ({students.length})</CardTitle>
+                  <Button 
+                    variant='outline'
+                    onClick={handleSyncCourseEnrollments}
+                    disabled={loading}
+                    className="flex items-center gap-2"
+                  >
+                    <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                    Sync Course Enrollments
+                  </Button>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  This will ensure all enrolled students have access to all courses within this chapter.
+                </p>
               </CardHeader>
               <CardContent>
                 <div className="overflow-x-auto">

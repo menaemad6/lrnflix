@@ -12,21 +12,37 @@ import { Wallet, CreditCard, Percent, AlertCircle } from 'lucide-react';
 interface PurchaseModalProps {
   isOpen: boolean;
   onClose: () => void;
-  course: any;
+  item: {
+    id: string;
+    title: string;
+    price: number;
+    instructor_id: string;
+    type?: 'course' | 'chapter' | 'lesson' | 'quiz';
+  };
   userWallet: number;
   onPurchaseSuccess: () => void;
 }
 
-export const PurchaseModal = ({ isOpen, onClose, course, userWallet, onPurchaseSuccess }: PurchaseModalProps) => {
+export const PurchaseModal = ({ isOpen, onClose, item, userWallet, onPurchaseSuccess }: PurchaseModalProps) => {
   const { toast } = useToast();
   const { t } = useTranslation('dashboard');
   const [discountCode, setDiscountCode] = useState('');
   const [discountApplied, setDiscountApplied] = useState<any>(null);
-  const [finalPrice, setFinalPrice] = useState(course?.price || 0);
+  const [finalPrice, setFinalPrice] = useState(item?.price || 0);
   const [loading, setLoading] = useState(false);
 
   const applyDiscount = async () => {
     if (!discountCode.trim()) return;
+
+    // Disable discount codes for non-course items
+    if (item.type !== 'course') {
+      toast({
+        title: t('purchaseModal.discountNotAvailable'),
+        description: t('purchaseModal.discountNotAvailableDesc'),
+        variant: 'destructive',
+      });
+      return;
+    }
 
     try {
       setLoading(true);
@@ -35,7 +51,7 @@ export const PurchaseModal = ({ isOpen, onClose, course, userWallet, onPurchaseS
         .from('course_codes')
         .select('*')
         .eq('code', discountCode.toUpperCase())
-        .eq('course_id', course.id)
+        .eq('course_id', item.id)
         .maybeSingle();
 
       if (error) throw error;
@@ -81,12 +97,12 @@ export const PurchaseModal = ({ isOpen, onClose, course, userWallet, onPurchaseS
 
       let discount = 0;
       if (data.discount_percentage) {
-        discount = Math.round((course.price * data.discount_percentage) / 100);
+        discount = Math.round((item.price * data.discount_percentage) / 100);
       } else if (data.discount_amount) {
         discount = data.discount_amount;
       }
 
-      const newPrice = Math.max(0, course.price - discount);
+      const newPrice = Math.max(0, item.price - discount);
       setFinalPrice(newPrice);
       setDiscountApplied({ ...data, discount });
 
@@ -110,14 +126,26 @@ export const PurchaseModal = ({ isOpen, onClose, course, userWallet, onPurchaseS
     try {
       setLoading(true);
 
-      const { data, error } = await supabase.rpc('enroll_with_payment', {
-        p_course_id: course.id,
-        p_discount_code: discountCode.trim() || null
-      });
-
-      if (error) throw error;
-
-      const result = data as any;
+      let result;
+      
+      if (item.type === 'chapter') {
+        // Use chapter enrollment function
+        const { data, error } = await supabase.rpc('enroll_chapter_with_payment', {
+          p_chapter_id: item.id
+        });
+        
+        if (error) throw error;
+        result = data;
+      } else {
+        // Use course enrollment function
+        const { data, error } = await supabase.rpc('enroll_with_payment', {
+          p_course_id: item.id,
+          p_discount_code: discountCode.trim() || null
+        });
+        
+        if (error) throw error;
+        result = data;
+      }
 
       if (!result.success) {
         toast({
@@ -129,11 +157,12 @@ export const PurchaseModal = ({ isOpen, onClose, course, userWallet, onPurchaseS
       }
 
       // Create notification for the instructor
+      const itemType = item.type === 'chapter' ? 'chapter' : 'course';
       await createNotification(
-        course.instructor_id,
-        'New Course Purchase!',
-        `A student has purchased your course "${course.title}" for ${result.amount_paid} credits.`,
-        'course_purchase'
+        item.instructor_id,
+        `New ${itemType.charAt(0).toUpperCase() + itemType.slice(1)} Purchase!`,
+        `A student has purchased your ${itemType} "${item.title}" for ${result.amount_paid || item.price} credits.`,
+        `${itemType}_purchase`
       );
 
       toast({
@@ -144,7 +173,7 @@ export const PurchaseModal = ({ isOpen, onClose, course, userWallet, onPurchaseS
       onPurchaseSuccess();
       onClose();
     } catch (error: any) {
-      console.error('Error purchasing course:', error);
+      console.error('Error purchasing item:', error);
       toast({
         title: 'Error',
         description: error.message,
@@ -168,7 +197,7 @@ export const PurchaseModal = ({ isOpen, onClose, course, userWallet, onPurchaseS
   const removeDiscount = () => {
     setDiscountCode('');
     setDiscountApplied(null);
-    setFinalPrice(course?.price || 0);
+    setFinalPrice(item?.price || 0);
   };
 
   return (
@@ -183,10 +212,10 @@ export const PurchaseModal = ({ isOpen, onClose, course, userWallet, onPurchaseS
         
         <div className="space-y-6">
           <div className="text-center">
-            <h3 className="font-semibold text-lg">{course?.title}</h3>
+            <h3 className="font-semibold text-lg">{item?.title}</h3>
             <div className="flex items-center justify-center gap-2 mt-2">
               <Badge variant="outline">
-                {t('purchaseModal.originalPrice', { price: course?.price })}
+                {t('purchaseModal.originalPrice', { price: item?.price })}
               </Badge>
             </div>
           </div>
@@ -204,13 +233,13 @@ export const PurchaseModal = ({ isOpen, onClose, course, userWallet, onPurchaseS
                   value={discountCode}
                   onChange={(e) => setDiscountCode(e.target.value.toUpperCase())}
                   placeholder={t('purchaseModal.enterDiscountCode')}
-                  disabled={loading || !!discountApplied}
+                  disabled={loading || !!discountApplied || item.type !== 'course'}
                 />
                 {!discountApplied ? (
                   <Button
                     variant="outline"
                     onClick={applyDiscount}
-                    disabled={!discountCode.trim() || loading}
+                    disabled={!discountCode.trim() || loading || item.type !== 'course'}
                   >
                     <Percent className="h-4 w-4" />
                     {t('purchaseModal.apply')}
@@ -221,6 +250,11 @@ export const PurchaseModal = ({ isOpen, onClose, course, userWallet, onPurchaseS
                   </Button>
                 )}
               </div>
+              {item.type !== 'course' && (
+                <p className="text-xs text-muted-foreground">
+                  {t('purchaseModal.discountNotAvailableForChapters')}
+                </p>
+              )}
             </div>
 
             {discountApplied && (

@@ -22,12 +22,17 @@ import { useDispatch } from 'react-redux';
 import { updateUser } from '@/store/slices/authSlice';
 import { useTranslation } from 'react-i18next';
 import { SEOHead } from '@/components/seo';
+import { PurchaseChoicesModal } from '@/components/courses/PurchaseChoicesModal';
 
 const Store = () => {
   const { user } = useSelector((state: RootState) => state.auth);
   const { toast } = useToast();
   const { t } = useTranslation('dashboard');
   const [loading, setLoading] = useState<string | null>(null);
+  const [showCreditsModal, setShowCreditsModal] = useState(false);
+  const [showMinutesModal, setShowMinutesModal] = useState(false);
+  const [selectedCreditsPackage, setSelectedCreditsPackage] = useState<typeof creditPackages[0] | null>(null);
+  const [selectedMinutesPackage, setSelectedMinutesPackage] = useState<typeof minutePackages[0] | null>(null);
   const bgClass = useRandomBackground();
   const dispatch = useDispatch();
 
@@ -65,14 +70,16 @@ const Store = () => {
       id: 'starter',
       name: t('studentStore.extraMinutes'),
       minutes: 30,
-      cost: 30, // credits
+      cost: 30, // credits (for display purposes)
+      price: 15, // EGP price for real money purchase
       description: t('studentStore.perfectForShortSessions')
     },
     {
       id: 'standard',
       name: t('studentStore.studySession'),
       minutes: 60,
-      cost: 50, // credits (discounted)
+      cost: 50, // credits (for display purposes)
+      price: 25, // EGP price for real money purchase
       description: t('studentStore.greatForFocusedLearning'),
       savings: 10
     },
@@ -80,67 +87,31 @@ const Store = () => {
       id: 'extended',
       name: t('studentStore.deepLearning'),
       minutes: 120,
-      cost: 90, // credits (more discounted)
+      cost: 90, // credits (for display purposes)
+      price: 45, // EGP price for real money purchase
       description: t('studentStore.forComprehensiveStudy'),
       savings: 30
     }
   ];
 
-  const handlePurchaseCredits = async (packageId: string) => {
-    setLoading(packageId);
-    
-    // Simulate credit purchase (you'll integrate real payment later)
-    setTimeout(() => {
-      toast({
-        title: t('studentStore.paymentIntegrationRequired'),
-        description: t('studentStore.willBeIntegratedWithPaymentGateway'),
-        variant: "default"
-      });
-      setLoading(null);
-    }, 2000);
+  const handlePurchaseCredits = (pkg: typeof creditPackages[0]) => {
+    setSelectedCreditsPackage(pkg);
+    setShowCreditsModal(true);
   };
 
-  const handlePurchaseMinutes = async (pkg: typeof minutePackages[0]) => {
-    if (!user) return;
-    
-    setLoading(pkg.id);
-    
-    try {
-      const { data, error } = await supabase.rpc('purchase_minutes', {
-        p_minutes: pkg.minutes,
-        p_cost_per_minute: Math.ceil(pkg.cost / pkg.minutes)
-      });
+  const handlePurchaseMinutes = (pkg: typeof minutePackages[0]) => {
+    setSelectedMinutesPackage(pkg);
+    setShowMinutesModal(true);
+  };
 
-      if (error) throw error;
+  const handleCreditsModalClose = () => {
+    setShowCreditsModal(false);
+    setSelectedCreditsPackage(null);
+  };
 
-      const result = data as { success: boolean; error?: string; message?: string, cost?: number };
-
-      if (result.success) {
-        toast({
-          title: t('studentStore.minutesPurchased'),
-          description: t('studentStore.successfullyPurchasedMinutes', { minutes: pkg.minutes }),
-        });
-        dispatch(updateUser({ 
-          wallet: (user.wallet || 0) - (result.cost || 0), 
-          minutes: (user.minutes || 0) + pkg.minutes 
-        }));
-      } else {
-        toast({
-          title: t('studentStore.purchaseFailed'),
-          description: result.error || t('studentStore.somethingWentWrong'),
-          variant: "destructive"
-        });
-      }
-    } catch (error) {
-      console.error('Error purchasing minutes:', error);
-      toast({
-        title: t('studentStore.error'),
-        description: t('studentStore.failedToPurchaseMinutes'),
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(null);
-    }
+  const handleMinutesModalClose = () => {
+    setShowMinutesModal(false);
+    setSelectedMinutesPackage(null);
   };
 
   return (
@@ -227,7 +198,7 @@ const Store = () => {
                   <Button 
                     className="w-full" 
                     variant={pkg.popular ? "default" : "outline"}
-                    onClick={() => handlePurchaseCredits(pkg.id)}
+                    onClick={() => handlePurchaseCredits(pkg)}
                     disabled={loading === pkg.id}
                   >
                     {loading === pkg.id ? t('studentStore.processing') : t('studentStore.purchasePackage')}
@@ -249,7 +220,7 @@ const Store = () => {
           <div className="flex items-center gap-3 mb-6">
             <MessageSquare className="h-6 w-6 text-blue-500" />
             <h2 className="text-2xl font-bold">{t('studentStore.assistantMinutesTitle')}</h2>
-            <Badge variant="default">{t('studentStore.payWithCredits')}</Badge>
+            <Badge variant="default">{t('studentStore.payWithEgp')}</Badge>
           </div>
 
           {/* Free Minutes Info */}
@@ -276,9 +247,12 @@ const Store = () => {
                   <CardTitle className="text-xl">{pkg.name}</CardTitle>
                   <CardDescription>{pkg.description}</CardDescription>
                   <div className="mt-4">
-                    <div className="text-3xl font-bold">{pkg.cost} {t('studentStore.credits')}</div>
+                    <div className="text-3xl font-bold">{pkg.price} {t('studentStore.egp')}</div>
                     <div className="text-lg text-muted-foreground">
                       {pkg.minutes} {t('studentStore.minutes')}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      {t('studentStore.creditEquivalent')}: {pkg.cost} {t('studentStore.credits')}
                     </div>
                     {pkg.savings && (
                       <div className="text-primary-600 text-sm">
@@ -293,16 +267,14 @@ const Store = () => {
                     className="w-full" 
                     variant="outline"
                     onClick={() => handlePurchaseMinutes(pkg)}
-                    disabled={loading === pkg.id || (user?.wallet || 0) < pkg.cost}
+                    disabled={loading === pkg.id}
                   >
-                    {loading === pkg.id ? t('studentStore.processing') : t('studentStore.buyMinutes')}
+                    {loading === pkg.id ? t('studentStore.processing') : t('studentStore.purchaseMinutes')}
                   </Button>
                   
-                  {(user?.wallet || 0) < pkg.cost && (
-                    <div className="text-center text-xs text-red-500 mt-2">
-                      {t('studentStore.needMoreCredits', { amount: pkg.cost - (user?.wallet || 0) })}
-                    </div>
-                  )}
+                  <div className="text-center text-xs text-muted-foreground mt-2">
+                    {t('studentStore.creditEquivalent')}: {pkg.cost} {t('studentStore.credits')}
+                  </div>
                 </CardContent>
               </Card>
             ))}
@@ -325,6 +297,36 @@ const Store = () => {
         </div>
         </div>
       </div>
+
+      {/* Credits Purchase Modal */}
+      {selectedCreditsPackage && (
+        <PurchaseChoicesModal
+          isOpen={showCreditsModal}
+          onClose={handleCreditsModalClose}
+          item={{
+            title: selectedCreditsPackage.name,
+            price: selectedCreditsPackage.price,
+            type: 'credits',
+            credits_amount: selectedCreditsPackage.credits + (selectedCreditsPackage.bonus || 0)
+          }}
+          showWalletPayment={false} // Don't show wallet payment for credits purchases
+        />
+      )}
+
+      {/* Minutes Purchase Modal */}
+      {selectedMinutesPackage && (
+        <PurchaseChoicesModal
+          isOpen={showMinutesModal}
+          onClose={handleMinutesModalClose}
+          item={{
+            title: selectedMinutesPackage.name,
+            price: selectedMinutesPackage.price,
+            type: 'ai_minutes',
+            minutes_amount: selectedMinutesPackage.minutes
+          }}
+          showWalletPayment={false} // Don't show wallet payment for minutes purchases
+        />
+      )}
     </>
   );
 };

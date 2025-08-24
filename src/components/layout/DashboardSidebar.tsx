@@ -25,7 +25,8 @@ import {
   ChevronRight,
   File,
   Calendar,
-  Palette
+  Palette,
+  FileText
 } from 'lucide-react';
 import {
   Sidebar,
@@ -145,6 +146,12 @@ export const DashboardSidebar = () => {
       url: "/teacher/groups", 
       icon: Users,
       description: t('sidebar.studentManagement')
+    },
+    { 
+      title: t('sidebar.invoices'), 
+      url: "/teacher/invoices", 
+      icon: FileText,
+      description: t('sidebar.manageInvoices')
     },
     { 
       title: t('sidebar.students'), 
