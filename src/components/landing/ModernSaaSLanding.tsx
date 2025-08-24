@@ -558,7 +558,7 @@ const ModernSaaSLanding = () => {
                 <Trophy className="w-8 h-8 text-yellow-400" />
               </motion.div>
             </motion.div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
