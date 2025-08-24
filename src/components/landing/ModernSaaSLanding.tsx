@@ -14,29 +14,35 @@ import {
   Target,
   Zap,
   Menu,
-  X
+  X,
+  Eye,
+  Clock,
+  Award,
+  TrendingUp
 } from 'lucide-react';
 
 const ModernSaaSLanding = () => {
   const { scrollYProgress } = useScroll();
-  const [currentStep, setCurrentStep] = useState(0);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   
   const heroRef = useRef(null);
   const featuresRef = useRef(null);
-  const demoRef = useRef(null);
+  const instructorsRef = useRef(null);
+  const coursesRef = useRef(null);
   const testimonialsRef = useRef(null);
   
   const heroInView = useInView(heroRef, { once: false });
   const featuresInView = useInView(featuresRef, { once: false });
-  const demoInView = useInView(demoRef, { once: false });
+  const instructorsInView = useInView(instructorsRef, { once: false });
+  const coursesInView = useInView(coursesRef, { once: false });
   const testimonialsInView = useInView(testimonialsRef, { once: false });
 
   // Advanced parallax transforms
   const heroParallax = useTransform(scrollYProgress, [0, 0.3], [0, -50]);
   const featuresParallax = useTransform(scrollYProgress, [0.2, 0.6], [100, -100]);
-  const demoParallax = useTransform(scrollYProgress, [0.4, 0.8], [50, -150]);
-  const testimonialsParallax = useTransform(scrollYProgress, [0.6, 1], [0, -100]);
+  const instructorsParallax = useTransform(scrollYProgress, [0.4, 0.7], [50, -50]);
+  const coursesParallax = useTransform(scrollYProgress, [0.5, 0.8], [0, -100]);
+  const testimonialsParallax = useTransform(scrollYProgress, [0.7, 1], [0, -100]);
   
   // 3D floating objects parallax
   const float1Y = useTransform(scrollYProgress, [0, 1], [0, -200]);
@@ -70,24 +76,77 @@ const ModernSaaSLanding = () => {
     }
   ];
 
-  const steps = [
+  const instructors = [
     {
-      number: "01",
-      title: "Sign Up & Profile",
-      description: "Create your account and set learning preferences",
-      icon: Users
+      name: "Dr. Amira Hassan",
+      subject: "Mathematics",
+      rating: 4.9,
+      students: "2.5K",
+      image: "👩‍🏫"
     },
     {
-      number: "02", 
-      title: "AI Assessment",
-      description: "Our AI analyzes your knowledge and creates personalized paths",
-      icon: Brain
+      name: "Ahmed Mostafa",
+      subject: "Physics",
+      rating: 4.8,
+      students: "1.8K",
+      image: "👨‍🏫"
     },
     {
-      number: "03",
-      title: "Start Learning",
-      description: "Begin your gamified journey with quests and achievements",
-      icon: Target
+      name: "Fatima Al-Zahra",
+      subject: "Chemistry",
+      rating: 5.0,
+      students: "3.2K",
+      image: "👩‍💼"
+    },
+    {
+      name: "Omar Khalil",
+      subject: "Computer Science",
+      rating: 4.9,
+      students: "4.1K",
+      image: "👨‍🎓"
+    }
+  ];
+
+  const courses = [
+    {
+      title: "Advanced Calculus Mastery",
+      instructor: "Dr. Amira Hassan",
+      views: "125K",
+      duration: "12h 30m",
+      rating: 4.9,
+      thumbnail: "🧮"
+    },
+    {
+      title: "Quantum Physics Fundamentals",
+      instructor: "Ahmed Mostafa",
+      views: "98K",
+      duration: "15h 20m",
+      rating: 4.8,
+      thumbnail: "⚛️"
+    },
+    {
+      title: "Organic Chemistry Lab",
+      instructor: "Fatima Al-Zahra",
+      views: "87K",
+      duration: "10h 45m",
+      rating: 5.0,
+      thumbnail: "🧪"
+    },
+    {
+      title: "Machine Learning Basics",
+      instructor: "Omar Khalil",
+      views: "156K",
+      duration: "18h 15m",
+      rating: 4.9,
+      thumbnail: "🤖"
+    },
+    {
+      title: "Data Structures & Algorithms",
+      instructor: "Omar Khalil",
+      views: "203K",
+      duration: "22h 10m",
+      rating: 4.8,
+      thumbnail: "💻"
     }
   ];
 
@@ -155,19 +214,17 @@ const ModernSaaSLanding = () => {
   }, [textIndex, fullText]);
 
   // Modern Wave Separator Component with Variations
-  const WaveSeparator = ({ flip = false, variant = 'wave' }) => {
+  const WaveSeparator = ({ flip = false, variant = 'wave', className = "" }) => {
     const variants = {
       wave: "M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z",
-      
       angular: "M0,0 L400,60 L800,20 L1200,80 L1200,0 Z M0,120 L300,40 L700,100 L1200,60 L1200,120 Z",
-      
       organic: "M0,20 C150,100 350,0 500,80 C650,160 850,40 1000,120 C1150,200 1350,100 1500,180 L1500,0 L0,0 Z",
-      
-      geometric: "M0,0 L200,50 L400,20 L600,70 L800,30 L1000,60 L1200,40 L1200,0 Z"
+      geometric: "M0,0 L200,50 L400,20 L600,70 L800,30 L1000,60 L1200,40 L1200,0 Z",
+      diagonal: "M0,0 L1200,120 L1200,0 Z"
     };
     
     return (
-      <div className={`relative w-full ${flip ? 'transform rotate-180' : ''}`}>
+      <div className={`relative w-full ${flip ? 'transform rotate-180' : ''} ${className}`}>
         <svg 
           viewBox="0 0 1200 120" 
           preserveAspectRatio="none" 
@@ -205,12 +262,38 @@ const ModernSaaSLanding = () => {
     </motion.div>
   );
 
+  // Background particles
+  const BackgroundParticles = () => (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {[...Array(20)].map((_, i) => (
+        <motion.div
+          key={i}
+          className="absolute w-1 h-1 bg-white rounded-full opacity-30"
+          style={{
+            top: `${Math.random() * 100}%`,
+            left: `${Math.random() * 100}%`,
+          }}
+          animate={{
+            y: [-20, 20, -20],
+            opacity: [0.3, 0.7, 0.3],
+          }}
+          transition={{
+            duration: 4 + Math.random() * 4,
+            repeat: Infinity,
+            delay: Math.random() * 2,
+            ease: "easeInOut"
+          }}
+        />
+      ))}
+    </div>
+  );
+
   return (
-    <div className="min-h-screen bg-white text-black font-sans overflow-hidden relative">
+    <div className="min-h-screen bg-black text-white font-sans overflow-hidden relative">
       
       {/* Modern SaaS Navbar */}
       <motion.nav 
-        className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-lg border-b border-gray-100"
+        className="fixed top-0 w-full z-50 bg-black/80 backdrop-blur-lg border-b border-white/10"
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.8 }}
@@ -222,19 +305,18 @@ const ModernSaaSLanding = () => {
               className="flex items-center space-x-3"
               whileHover={{ scale: 1.05 }}
             >
-              <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
-                <Brain className="w-5 h-5 text-white" />
+              <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
+                <Brain className="w-5 h-5 text-black" />
               </div>
               <span className="text-xl font-black">EduAI</span>
             </motion.div>
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-8">
-              <a href="#features" className="text-gray-600 hover:text-black transition-colors">Features</a>
-              <a href="#how-it-works" className="text-gray-600 hover:text-black transition-colors">How it Works</a>
-              <a href="#demo" className="text-gray-600 hover:text-black transition-colors">Demo</a>
-              <a href="#testimonials" className="text-gray-600 hover:text-black transition-colors">Testimonials</a>
-              <a href="#pricing" className="text-gray-600 hover:text-black transition-colors">Pricing</a>
+              <a href="#features" className="text-gray-400 hover:text-white transition-colors">Features</a>
+              <a href="#instructors" className="text-gray-400 hover:text-white transition-colors">Instructors</a>
+              <a href="#courses" className="text-gray-400 hover:text-white transition-colors">Courses</a>
+              <a href="#testimonials" className="text-gray-400 hover:text-white transition-colors">Testimonials</a>
             </div>
 
             {/* CTA Button */}
@@ -242,7 +324,7 @@ const ModernSaaSLanding = () => {
               <motion.button 
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="bg-black text-white px-6 py-2 rounded-lg font-medium hover:bg-gray-800 transition-colors"
+                className="bg-white text-black px-6 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors"
               >
                 Get Started
               </motion.button>
@@ -261,18 +343,17 @@ const ModernSaaSLanding = () => {
         {/* Mobile Menu */}
         {isMenuOpen && (
           <motion.div 
-            className="md:hidden bg-white border-t border-gray-100"
+            className="md:hidden bg-black/95 border-t border-white/10"
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
           >
             <div className="px-6 py-4 space-y-4">
-              <a href="#features" className="block text-gray-600">Features</a>
-              <a href="#how-it-works" className="block text-gray-600">How it Works</a>
-              <a href="#demo" className="block text-gray-600">Demo</a>
-              <a href="#testimonials" className="block text-gray-600">Testimonials</a>
-              <a href="#pricing" className="block text-gray-600">Pricing</a>
-              <button className="w-full bg-black text-white px-6 py-2 rounded-lg font-medium">
+              <a href="#features" className="block text-gray-400">Features</a>
+              <a href="#instructors" className="block text-gray-400">Instructors</a>
+              <a href="#courses" className="block text-gray-400">Courses</a>
+              <a href="#testimonials" className="block text-gray-400">Testimonials</a>
+              <button className="w-full bg-white text-black px-6 py-2 rounded-lg font-medium">
                 Get Started
               </button>
             </div>
@@ -281,33 +362,33 @@ const ModernSaaSLanding = () => {
       </motion.nav>
 
       {/* Hero Section with Enhanced 3D Background */}
-      <section ref={heroRef} className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
+      <section ref={heroRef} className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden pt-16">
         {/* Enhanced 3D Abstract Background Objects */}
         <div className="absolute inset-0 z-0">
           {/* Large Floating Sphere with Glass Effect */}
           <motion.div 
             style={{ y: float1Y }}
-            className="absolute top-20 right-20 w-80 h-80 opacity-10"
+            className="absolute top-20 right-20 w-80 h-80 opacity-20"
           >
             <FloatingObject delay={0}>
-              <div className="w-full h-full rounded-full bg-gradient-to-br from-black/20 via-gray-400/30 to-black/20 backdrop-blur-3xl border border-black/5 shadow-2xl"></div>
+              <div className="w-full h-full rounded-full bg-gradient-to-br from-white/20 via-gray-400/30 to-white/20 backdrop-blur-3xl border border-white/5 shadow-2xl"></div>
             </FloatingObject>
           </motion.div>
 
           {/* Medium Glassmorphism Cube */}
           <motion.div 
             style={{ y: float2Y }}
-            className="absolute bottom-32 left-16 w-64 h-64 opacity-8"
+            className="absolute bottom-32 left-16 w-64 h-64 opacity-15"
           >
             <FloatingObject delay={2}>
-              <div className="w-full h-full transform rotate-12 bg-gradient-to-tr from-black/10 via-gray-300/20 to-black/10 backdrop-blur-2xl border border-black/10 rounded-3xl shadow-xl"></div>
+              <div className="w-full h-full transform rotate-12 bg-gradient-to-tr from-white/10 via-gray-300/20 to-white/10 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-xl"></div>
             </FloatingObject>
           </motion.div>
 
           {/* Small Geometric Shapes */}
           <motion.div 
             style={{ y: float3Y }}
-            className="absolute top-1/2 left-1/4 w-40 h-40 opacity-6"
+            className="absolute top-1/2 left-1/4 w-40 h-40 opacity-10"
           >
             <FloatingObject delay={4}>
               <div className="w-full h-full transform rotate-45 bg-gradient-to-br from-gray-200/50 to-gray-500/50 rounded-2xl backdrop-blur-sm shadow-lg"></div>
@@ -315,187 +396,147 @@ const ModernSaaSLanding = () => {
           </motion.div>
 
           {/* Futuristic Grid Pattern */}
-          <div className="absolute inset-0 opacity-5">
-            <div className="absolute inset-0 bg-[linear-gradient(90deg,transparent_24px,rgba(0,0,0,0.03)_25px,rgba(0,0,0,0.03)_26px,transparent_27px),linear-gradient(rgba(0,0,0,0.03)_24px,transparent_25px,transparent_26px,rgba(0,0,0,0.03)_27px)] bg-[25px_25px]" />
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute inset-0 bg-[linear-gradient(90deg,transparent_24px,rgba(255,255,255,0.03)_25px,rgba(255,255,255,0.03)_26px,transparent_27px),linear-gradient(rgba(255,255,255,0.03)_24px,transparent_25px,transparent_26px,rgba(255,255,255,0.03)_27px)] bg-[25px_25px]" />
           </div>
 
-          {/* Floating Particles */}
-          {[...Array(12)].map((_, i) => (
-            <motion.div
-              key={i}
-              style={{ y: useTransform(scrollYProgress, [0, 1], [0, -100 - i * 20]) }}
-              className="absolute w-2 h-2 bg-black/20 rounded-full"
-              style={{
-                top: `${20 + i * 8}%`,
-                left: `${10 + i * 8}%`,
-              }}
-              animate={{
-                scale: [1, 1.5, 1],
-                opacity: [0.2, 0.6, 0.2],
-              }}
-              transition={{
-                duration: 4 + i * 0.5,
-                repeat: Infinity,
-                delay: i * 0.3,
-              }}
-            />
-          ))}
+          {/* Background Particles */}
+          <BackgroundParticles />
         </div>
 
-        {/* Hero Content */}
-        <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            
-            {/* Left Column - Text Content */}
-            <motion.div 
-              style={{ y: heroParallax }}
-              className="space-y-12"
+        {/* Hero Content - Centered Layout */}
+        <div className="relative z-10 max-w-6xl mx-auto px-6 lg:px-8 text-center">
+          <motion.div 
+            style={{ y: heroParallax }}
+            className="space-y-12"
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 100 }}
+              animate={{ opacity: heroInView ? 1 : 0, y: heroInView ? 0 : 100 }}
+              transition={{ duration: 1, ease: "easeOut" }}
+              className="space-y-8"
             >
+              {/* Animated Badge */}
               <motion.div
-                initial={{ opacity: 0, y: 100 }}
-                animate={{ opacity: heroInView ? 1 : 0, y: heroInView ? 0 : 100 }}
-                transition={{ duration: 1, ease: "easeOut" }}
-                className="space-y-8"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: heroInView ? 1 : 0, scale: heroInView ? 1 : 0.8 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                className="inline-flex items-center space-x-2 bg-white/5 backdrop-blur-sm border border-white/10 px-4 py-2 rounded-full"
               >
-                {/* Animated Badge */}
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: heroInView ? 1 : 0, scale: heroInView ? 1 : 0.8 }}
-                  transition={{ duration: 0.6, delay: 0.2 }}
-                  className="inline-flex items-center space-x-2 bg-black/5 backdrop-blur-sm border border-black/10 px-4 py-2 rounded-full"
-                >
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                  <span className="text-sm font-medium text-black/70">🇪🇬 Made in Egypt</span>
-                </motion.div>
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span className="text-sm font-medium text-white/70">🇪🇬 Made in Egypt</span>
+              </motion.div>
 
-                {/* Main Headline with Typewriter */}
-                <div className="space-y-6">
-                  <h1 className="text-6xl lg:text-7xl xl:text-8xl font-black leading-tight">
-                    <span className="block bg-gradient-to-r from-black via-gray-700 to-black bg-clip-text text-transparent">
-                      {displayedText}
-                    </span>
-                    <motion.span 
-                      animate={{ opacity: [1, 0] }}
-                      transition={{ repeat: Infinity, duration: 1 }}
-                      className="inline-block w-1 h-16 lg:h-20 xl:h-24 bg-black ml-2"
-                    />
-                  </h1>
-                  
-                  <motion.p 
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: heroInView ? 1 : 0, y: heroInView ? 0 : 30 }}
-                    transition={{ delay: 3.5, duration: 0.8 }}
-                    className="text-xl lg:text-2xl text-gray-600 max-w-2xl leading-relaxed"
-                  >
-                    Transform education with AI-powered personalization and game-like engagement. 
-                    Built for the modern Egyptian classroom.
-                  </motion.p>
-                </div>
-
-                {/* Enhanced CTA Buttons */}
-                <motion.div 
+              {/* Main Headline with Typewriter */}
+              <div className="space-y-6">
+                <h1 className="text-6xl lg:text-8xl xl:text-9xl font-black leading-tight">
+                  <span className="block bg-gradient-to-r from-white via-gray-300 to-white bg-clip-text text-transparent">
+                    {displayedText}
+                  </span>
+                  <motion.span 
+                    animate={{ opacity: [1, 0] }}
+                    transition={{ repeat: Infinity, duration: 1 }}
+                    className="inline-block w-1 h-16 lg:h-20 xl:h-24 bg-white ml-2"
+                  />
+                </h1>
+                
+                <motion.p 
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: heroInView ? 1 : 0, y: heroInView ? 0 : 30 }}
-                  transition={{ delay: 4.2, duration: 0.6 }}
-                  className="flex flex-col sm:flex-row gap-4"
+                  transition={{ delay: 3.5, duration: 0.8 }}
+                  className="text-xl lg:text-2xl text-gray-400 max-w-4xl mx-auto leading-relaxed"
                 >
-                  <motion.button 
-                    whileHover={{ 
-                      scale: 1.05,
-                      boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
-                    }}
-                    whileTap={{ scale: 0.95 }}
-                    className="group relative bg-black text-white px-8 py-4 text-lg font-semibold rounded-xl overflow-hidden transition-all duration-300"
-                  >
-                    <motion.div
-                      className="absolute inset-0 bg-gradient-to-r from-gray-800 to-black"
-                      initial={{ x: "-100%" }}
-                      whileHover={{ x: 0 }}
-                      transition={{ duration: 0.3 }}
-                    />
-                    <span className="relative z-10 flex items-center">
-                      <Play className="mr-3 w-5 h-5" />
-                      See It Live
-                      <ArrowRight className="ml-3 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                    </span>
-                  </motion.button>
-                  
-                  <motion.button 
-                    whileHover={{ 
-                      scale: 1.05,
-                      backgroundColor: "rgba(0, 0, 0, 0.05)"
-                    }}
-                    whileTap={{ scale: 0.95 }}
-                    className="border-2 border-black text-black px-8 py-4 text-lg font-semibold rounded-xl hover:bg-black hover:text-white transition-all duration-300"
-                  >
-                    Watch Demo
-                  </motion.button>
-                </motion.div>
+                  Transform education with AI-powered personalization and game-like engagement. 
+                  Built for the modern Egyptian classroom.
+                </motion.p>
+              </div>
 
-                {/* Trust Indicators */}
-                <motion.div 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: heroInView ? 1 : 0 }}
-                  transition={{ delay: 5, duration: 1 }}
-                  className="flex items-center space-x-8 pt-8"
+              {/* Enhanced CTA Buttons */}
+              <motion.div 
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: heroInView ? 1 : 0, y: heroInView ? 0 : 30 }}
+                transition={{ delay: 4.2, duration: 0.6 }}
+                className="flex flex-col sm:flex-row gap-4 justify-center"
+              >
+                <motion.button 
+                  whileHover={{ 
+                    scale: 1.05,
+                    boxShadow: "0 25px 50px -12px rgba(255, 255, 255, 0.25)"
+                  }}
+                  whileTap={{ scale: 0.95 }}
+                  className="group relative bg-white text-black px-8 py-4 text-lg font-semibold rounded-xl overflow-hidden transition-all duration-300"
                 >
-                  <div className="flex items-center space-x-2 text-sm text-gray-500">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>Free 30-day trial</span>
-                  </div>
-                  <div className="flex items-center space-x-2 text-sm text-gray-500">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>No credit card required</span>
-                  </div>
-                </motion.div>
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-gray-100 to-white"
+                    initial={{ x: "-100%" }}
+                    whileHover={{ x: 0 }}
+                    transition={{ duration: 0.3 }}
+                  />
+                  <span className="relative z-10 flex items-center">
+                    <Play className="mr-3 w-5 h-5" />
+                    See It Live
+                    <ArrowRight className="ml-3 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </span>
+                </motion.button>
+                
+                <motion.button 
+                  whileHover={{ 
+                    scale: 1.05,
+                    backgroundColor: "rgba(255, 255, 255, 0.05)"
+                  }}
+                  whileTap={{ scale: 0.95 }}
+                  className="border-2 border-white text-white px-8 py-4 text-lg font-semibold rounded-xl hover:bg-white hover:text-black transition-all duration-300"
+                >
+                  Watch Demo
+                </motion.button>
               </motion.div>
             </motion.div>
-            
-            {/* Right Column - Modern Demo Card */}
+
+            {/* 3D Demo Card - Centered */}
             <motion.div
-              initial={{ opacity: 0, x: 100, rotateY: -15 }}
+              initial={{ opacity: 0, y: 100, rotateX: 30 }}
               animate={{ 
                 opacity: heroInView ? 1 : 0, 
-                x: heroInView ? 0 : 100,
-                rotateY: heroInView ? 0 : -15
+                y: heroInView ? 0 : 100,
+                rotateX: heroInView ? 0 : 30
               }}
-              transition={{ duration: 1.2, delay: 0.8 }}
-              className="relative"
+              transition={{ duration: 1.2, delay: 1 }}
+              className="relative max-w-4xl mx-auto mt-16"
             >
-              {/* Glassmorphism Demo Card */}
-              <div className="relative transform rotate-2 hover:rotate-0 transition-transform duration-700">
-                <div className="absolute inset-0 bg-gradient-to-br from-black/10 via-gray-200/20 to-black/10 backdrop-blur-2xl rounded-3xl border border-black/10 shadow-2xl"></div>
+              {/* 3D Tilted Demo Card with Glass Effect */}
+              <div className="relative transform rotate-2 hover:rotate-0 transition-transform duration-700 perspective-1000">
+                <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-white/5 to-white/10 backdrop-blur-2xl rounded-3xl border border-white/10 shadow-2xl"></div>
                 <div className="relative p-8 lg:p-12">
                   
-                  {/* Demo Content Placeholder */}
-                  <div className="aspect-video bg-gradient-to-br from-gray-100 via-white to-gray-100 rounded-2xl border border-gray-200 flex items-center justify-center overflow-hidden">
+                  {/* Demo Content */}
+                  <div className="aspect-video bg-gradient-to-br from-gray-900 via-black to-gray-900 rounded-2xl border border-white/20 flex items-center justify-center overflow-hidden">
                     <div className="text-center space-y-4">
                       <motion.div
                         animate={{ rotate: 360 }}
                         transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                        className="w-16 h-16 mx-auto"
+                        className="w-20 h-20 mx-auto"
                       >
-                        <Brain className="w-full h-full text-black/60" />
+                        <Brain className="w-full h-full text-white/60" />
                       </motion.div>
                       <div>
-                        <h3 className="text-xl font-bold text-black/80">Interactive Demo</h3>
-                        <p className="text-black/60">Live platform preview</p>
+                        <h3 className="text-2xl font-bold text-white/80">Interactive Demo</h3>
+                        <p className="text-white/60">Live platform preview</p>
                       </div>
                     </div>
                   </div>
                   
                   {/* Demo Features */}
-                  <div className="mt-6 space-y-4">
-                    <div className="flex items-center justify-between p-3 bg-white/50 rounded-xl border border-black/5">
-                      <span className="text-sm font-medium text-black/70">AI Tutor Active</span>
+                  <div className="mt-6 grid grid-cols-2 gap-4">
+                    <div className="flex items-center justify-between p-4 bg-white/10 rounded-xl border border-white/5">
+                      <span className="text-sm font-medium text-white/70">AI Tutor Active</span>
                       <div className="flex items-center space-x-2">
                         <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                        <span className="text-xs text-green-600">Online</span>
+                        <span className="text-xs text-green-400">Online</span>
                       </div>
                     </div>
-                    <div className="flex items-center justify-between p-3 bg-white/50 rounded-xl border border-black/5">
-                      <span className="text-sm font-medium text-black/70">Students Engaged</span>
-                      <span className="text-sm font-bold text-black">2,547</span>
+                    <div className="flex items-center justify-between p-4 bg-white/10 rounded-xl border border-white/5">
+                      <span className="text-sm font-medium text-white/70">Students Engaged</span>
+                      <span className="text-sm font-bold text-white">2,547</span>
                     </div>
                   </div>
                 </div>
@@ -503,7 +544,7 @@ const ModernSaaSLanding = () => {
 
               {/* Floating Achievement Badge */}
               <motion.div
-                className="absolute -top-6 -right-6 bg-white border border-gray-200 rounded-2xl p-4 shadow-xl"
+                className="absolute -top-6 -right-6 bg-white/10 border border-white/20 rounded-2xl p-4 shadow-xl backdrop-blur-sm"
                 animate={{
                   y: [-10, 10, -10],
                   rotate: [0, 5, -5, 0],
@@ -514,20 +555,20 @@ const ModernSaaSLanding = () => {
                   ease: "easeInOut"
                 }}
               >
-                <Trophy className="w-8 h-8 text-yellow-500" />
+                <Trophy className="w-8 h-8 text-yellow-400" />
               </motion.div>
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Modern Angular Separator */}
-      <div className="relative bg-black">
-        <WaveSeparator variant="angular" />
+      {/* Diagonal Separator */}
+      <div className="relative bg-white">
+        <WaveSeparator variant="diagonal" />
       </div>
 
       {/* Enhanced Features Section */}
-      <section id="features" ref={featuresRef} className="relative py-32 bg-black text-white overflow-hidden">
+      <section id="features" ref={featuresRef} className="relative py-32 bg-white text-black overflow-hidden">
         <motion.div 
           style={{ y: featuresParallax }}
           className="max-w-7xl mx-auto px-6 lg:px-8"
@@ -538,10 +579,10 @@ const ModernSaaSLanding = () => {
             transition={{ duration: 1 }}
             className="text-center mb-24"
           >
-            <h2 className="text-5xl lg:text-7xl font-black mb-8 bg-gradient-to-r from-white via-gray-300 to-white bg-clip-text text-transparent">
+            <h2 className="text-5xl lg:text-7xl font-black mb-8 bg-gradient-to-r from-black via-gray-700 to-black bg-clip-text text-transparent">
               Revolutionary Learning Experience
             </h2>
-            <p className="text-2xl text-gray-300 max-w-4xl mx-auto font-light">
+            <p className="text-2xl text-gray-600 max-w-4xl mx-auto font-light">
               Cutting-edge features designed to transform how Egyptian students learn and teachers teach.
             </p>
           </motion.div>
@@ -561,22 +602,22 @@ const ModernSaaSLanding = () => {
                 <motion.div 
                   whileHover={{ 
                     scale: 1.02,
-                    boxShadow: "0 25px 50px -12px rgba(255, 255, 255, 0.1)"
+                    boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.1)"
                   }}
-                  className="bg-white/5 backdrop-blur-lg p-10 lg:p-14 border border-white/10 hover:border-white/30 transition-all duration-500 rounded-3xl"
+                  className="bg-gray-50 p-10 lg:p-14 border border-gray-200 hover:border-black transition-all duration-500 rounded-3xl"
                 >
                   <div className="flex items-start space-x-8">
                     <motion.div 
                       whileHover={{ rotate: 360 }}
                       transition={{ duration: 0.6 }}
-                      className="bg-white text-black p-6 rounded-2xl group-hover:bg-gray-100 transition-colors duration-300"
+                      className="bg-black text-white p-6 rounded-2xl group-hover:bg-gray-800 transition-colors duration-300"
                     >
                       <feature.icon className="w-10 h-10" />
                     </motion.div>
                     <div className="flex-1">
-                      <h3 className="text-3xl font-bold mb-6 text-white">{feature.title}</h3>
-                      <p className="text-gray-300 text-xl mb-6 leading-relaxed">{feature.description}</p>
-                      <p className="text-lg text-gray-400 leading-relaxed">{feature.details}</p>
+                      <h3 className="text-3xl font-bold mb-6 text-black">{feature.title}</h3>
+                      <p className="text-gray-600 text-xl mb-6 leading-relaxed">{feature.description}</p>
+                      <p className="text-lg text-gray-500 leading-relaxed">{feature.details}</p>
                     </div>
                   </div>
                 </motion.div>
@@ -587,196 +628,185 @@ const ModernSaaSLanding = () => {
       </section>
 
       {/* Organic Wave Separator */}
-      <div className="relative bg-white">
+      <div className="relative bg-black">
         <WaveSeparator flip variant="organic" />
       </div>
 
-      {/* Enhanced How It Works Section */}
-      <section id="how-it-works" className="relative py-32 bg-white overflow-hidden">
-        <div className="max-w-6xl mx-auto px-6 lg:px-8">
+      {/* Top Instructors Section */}
+      <section id="instructors" ref={instructorsRef} className="relative py-32 bg-black text-white overflow-hidden">
+        <motion.div 
+          style={{ y: instructorsParallax }}
+          className="max-w-7xl mx-auto px-6 lg:px-8"
+        >
           <motion.div 
             initial={{ opacity: 0, y: 80 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            animate={{ opacity: instructorsInView ? 1 : 0, y: instructorsInView ? 0 : 80 }}
             transition={{ duration: 1 }}
             className="text-center mb-24"
           >
-            <h2 className="text-5xl lg:text-7xl font-black mb-8 text-black">How It Works</h2>
-            <p className="text-2xl text-gray-600 font-light">Simple steps to transform your educational experience</p>
+            <h2 className="text-5xl lg:text-7xl font-black mb-8 text-white">Top Instructors</h2>
+            <p className="text-2xl text-gray-400 font-light">Learn from Egypt's most renowned educators</p>
           </motion.div>
 
-          <div className="relative">
-            {/* Animated Timeline Line */}
-            <motion.div 
-              className="absolute left-1/2 transform -translate-x-px h-full w-1 bg-gradient-to-b from-black via-gray-500 to-black hidden lg:block"
-              initial={{ scaleY: 0 }}
-              whileInView={{ scaleY: 1 }}
-              transition={{ duration: 2, ease: "easeInOut" }}
-              style={{ originY: 0 }}
-            />
-
-            {steps.map((step, index) => (
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {instructors.map((instructor, index) => (
               <motion.div 
-                key={step.number}
+                key={instructor.name}
                 initial={{ 
                   opacity: 0, 
-                  x: index % 2 === 0 ? -100 : 100,
-                  scale: 0.8
+                  y: 100,
+                  rotateY: -15
                 }}
-                whileInView={{ 
-                  opacity: 1, 
-                  x: 0,
-                  scale: 1
+                animate={{ 
+                  opacity: instructorsInView ? 1 : 0, 
+                  y: instructorsInView ? 0 : 100,
+                  rotateY: instructorsInView ? 0 : -15
                 }}
                 transition={{ 
-                  delay: index * 0.4,
+                  delay: index * 0.2, 
                   duration: 0.8,
                   type: "spring",
                   stiffness: 100
                 }}
-                className={`relative flex items-center mb-20 ${
-                  index % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'
-                }`}
+                whileHover={{ 
+                  scale: 1.05,
+                  y: -10,
+                  boxShadow: "0 25px 50px -12px rgba(255, 255, 255, 0.1)",
+                  borderColor: "rgba(255, 255, 255, 0.3)"
+                }}
+                className="bg-white/5 backdrop-blur-lg p-8 border border-white/10 hover:border-white/30 transition-all duration-500 rounded-3xl cursor-pointer group"
               >
-                {/* Enhanced Timeline Node */}
-                <motion.div 
-                  className="hidden lg:block absolute left-1/2 transform -translate-x-1/2 w-8 h-8 bg-black rounded-full border-4 border-white z-10 shadow-lg"
-                  whileInView={{ scale: [0, 1.2, 1] }}
-                  transition={{ delay: index * 0.4 + 0.5, duration: 0.6 }}
-                />
-
-                {/* Enhanced Content */}
-                <div className={`lg:w-5/12 ${index % 2 === 0 ? 'lg:pr-20' : 'lg:pl-20'}`}>
-                  <motion.div 
-                    whileHover={{ 
-                      scale: 1.05,
-                      boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
-                    }}
-                    className="bg-white p-10 border-2 border-gray-100 hover:border-black transition-all duration-500 shadow-lg rounded-3xl"
+                <div className="text-center">
+                  <motion.div
+                    whileHover={{ scale: 1.1, rotate: 5 }}
+                    className="text-6xl mb-6 group-hover:scale-110 transition-transform duration-300"
                   >
-                    <div className="flex items-center mb-8">
-                      <motion.div 
-                        whileHover={{ rotate: 360 }}
-                        transition={{ duration: 0.6 }}
-                        className="bg-black text-white p-4 mr-6 rounded-2xl"
-                      >
-                        <step.icon className="w-8 h-8" />
-                      </motion.div>
-                      <span className="text-8xl font-black text-gray-200">{step.number}</span>
-                    </div>
-                    <h3 className="text-3xl font-bold mb-6 text-black">{step.title}</h3>
-                    <p className="text-gray-600 text-xl leading-relaxed">{step.description}</p>
+                    {instructor.image}
                   </motion.div>
+                  
+                  <h3 className="text-2xl font-bold mb-2 text-white">{instructor.name}</h3>
+                  <p className="text-gray-400 mb-4">{instructor.subject}</p>
+                  
+                  <div className="flex items-center justify-center space-x-4 mb-4">
+                    <div className="flex items-center space-x-1">
+                      <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                      <span className="text-white font-medium">{instructor.rating}</span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <Users className="w-4 h-4 text-gray-400" />
+                      <span className="text-gray-400">{instructor.students}</span>
+                    </div>
+                  </div>
                 </div>
               </motion.div>
             ))}
           </div>
-        </div>
+        </motion.div>
       </section>
 
       {/* Geometric Separator */}
-      <div className="relative bg-black">
+      <div className="relative bg-white">
         <WaveSeparator variant="geometric" />
       </div>
 
-      {/* Enhanced Demo Section */}
-      <section id="demo" ref={demoRef} className="relative py-32 bg-black text-white overflow-hidden">
+      {/* Most Watched Courses Section */}
+      <section id="courses" ref={coursesRef} className="relative py-32 bg-white text-black overflow-hidden">
         <motion.div 
-          style={{ y: demoParallax }}
+          style={{ y: coursesParallax }}
           className="max-w-7xl mx-auto px-6 lg:px-8"
         >
           <motion.div 
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: demoInView ? 1 : 0, scale: demoInView ? 1 : 0.8 }}
+            initial={{ opacity: 0, y: 80 }}
+            animate={{ opacity: coursesInView ? 1 : 0, y: coursesInView ? 0 : 80 }}
             transition={{ duration: 1 }}
-            className="text-center mb-20"
+            className="text-center mb-24"
           >
-            <h2 className="text-5xl lg:text-7xl font-black mb-8 bg-gradient-to-r from-white via-gray-300 to-white bg-clip-text text-transparent">
-              See It In Action
-            </h2>
-            <p className="text-2xl text-gray-300 font-light">Experience the future of education</p>
+            <h2 className="text-5xl lg:text-7xl font-black mb-8 text-black">Most Watched Courses</h2>
+            <p className="text-2xl text-gray-600 font-light">Discover our most popular learning content</p>
           </motion.div>
 
-          <motion.div 
-            initial={{ opacity: 0, y: 100 }}
-            animate={{ opacity: demoInView ? 1 : 0, y: demoInView ? 0 : 100 }}
+          {/* Horizontal Scroll Carousel */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: coursesInView ? 1 : 0 }}
             transition={{ delay: 0.5, duration: 1 }}
-            className="relative"
+            className="overflow-hidden"
           >
-            <div className="bg-gradient-to-br from-white/10 via-white/5 to-white/10 backdrop-blur-lg p-12 lg:p-20 border border-white/20 shadow-2xl rounded-3xl">
-              <div className="grid lg:grid-cols-3 gap-10">
-                <div className="lg:col-span-2">
-                  <motion.div 
-                    whileHover={{ scale: 1.02 }}
-                    className="aspect-video bg-gradient-to-br from-gray-900 via-black to-gray-900 rounded-2xl flex items-center justify-center border border-gray-700 overflow-hidden"
-                  >
-                    <div className="text-center">
-                      <motion.div
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                      >
-                        <Zap className="w-20 h-20 mx-auto mb-6 text-white" />
-                      </motion.div>
-                      <h3 className="text-3xl font-bold mb-4 text-white">Interactive Demo</h3>
-                      <p className="text-gray-300 text-lg">Live platform preview</p>
+            <motion.div 
+              drag="x"
+              dragConstraints={{ left: -800, right: 0 }}
+              className="flex space-x-8 pb-8"
+              style={{ cursor: 'grab' }}
+              whileDrag={{ cursor: 'grabbing' }}
+            >
+              {courses.map((course, index) => (
+                <motion.div
+                  key={course.title}
+                  initial={{ opacity: 0, x: 100 }}
+                  animate={{ 
+                    opacity: coursesInView ? 1 : 0, 
+                    x: coursesInView ? 0 : 100 
+                  }}
+                  transition={{ delay: index * 0.2, duration: 0.8 }}
+                  whileHover={{ 
+                    scale: 1.05,
+                    y: -10,
+                    boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
+                  }}
+                  className="flex-shrink-0 w-80 bg-gray-50 border border-gray-200 hover:border-black rounded-3xl p-8 transition-all duration-500 cursor-pointer group"
+                >
+                  {/* Course Thumbnail */}
+                  <div className="aspect-video bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-105 transition-transform duration-300">
+                    <span className="text-4xl">{course.thumbnail}</span>
+                  </div>
+                  
+                  {/* Course Info */}
+                  <h3 className="text-xl font-bold mb-3 text-black group-hover:text-gray-800 transition-colors">{course.title}</h3>
+                  <p className="text-gray-600 mb-4">by {course.instructor}</p>
+                  
+                  {/* Course Stats */}
+                  <div className="flex items-center justify-between text-sm text-gray-500">
+                    <div className="flex items-center space-x-1">
+                      <Eye className="w-4 h-4" />
+                      <span>{course.views}</span>
                     </div>
-                  </motion.div>
-                </div>
-                <div className="space-y-8">
-                  <motion.div 
-                    whileHover={{ scale: 1.05 }}
-                    className="bg-black/50 backdrop-blur-sm p-8 rounded-2xl border border-white/10"
-                  >
-                    <h4 className="font-bold mb-4 text-xl text-white">Real-time Progress</h4>
-                    <div className="w-full bg-gray-700 rounded-full h-3">
-                      <motion.div 
-                        initial={{ width: 0 }}
-                        animate={{ width: demoInView ? "75%" : 0 }}
-                        transition={{ delay: 1.5, duration: 2 }}
-                        className="bg-white h-3 rounded-full"
-                      />
+                    <div className="flex items-center space-x-1">
+                      <Clock className="w-4 h-4" />
+                      <span>{course.duration}</span>
                     </div>
-                    <p className="text-gray-300 mt-4">75% Course Completion</p>
-                  </motion.div>
-                  <motion.div 
-                    whileHover={{ scale: 1.05 }}
-                    className="bg-black/50 backdrop-blur-sm p-8 rounded-2xl border border-white/10"
-                  >
-                    <h4 className="font-bold mb-4 text-xl text-white">Achievement Unlocked</h4>
-                    <div className="flex items-center space-x-3">
-                      <motion.div
-                        animate={{ rotate: [0, 10, -10, 0] }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                      >
-                        <Trophy className="w-8 h-8 text-white" />
-                      </motion.div>
-                      <span className="text-gray-300">Mathematics Master</span>
+                    <div className="flex items-center space-x-1">
+                      <Star className="w-4 h-4 text-yellow-500 fill-current" />
+                      <span>{course.rating}</span>
                     </div>
-                  </motion.div>
-                </div>
-              </div>
-            </div>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
           </motion.div>
         </motion.div>
       </section>
 
-      {/* Wave Separator */}
-      <div className="relative bg-white">
-        <WaveSeparator flip />
+      {/* Angular Wave Separator */}
+      <div className="relative bg-black">
+        <WaveSeparator variant="angular" />
       </div>
 
       {/* Enhanced Modern Testimonials Section */}
-      <section id="testimonials" ref={testimonialsRef} className="relative py-32 bg-white overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+      <section id="testimonials" ref={testimonialsRef} className="relative py-32 bg-black text-white overflow-hidden">
+        <motion.div 
+          style={{ y: testimonialsParallax }}
+          className="max-w-7xl mx-auto px-6 lg:px-8"
+        >
           <motion.div 
             initial={{ opacity: 0, y: 80 }}
             animate={{ opacity: testimonialsInView ? 1 : 0, y: testimonialsInView ? 0 : 80 }}
             transition={{ duration: 1 }}
             className="text-center mb-24"
           >
-            <h2 className="text-5xl lg:text-7xl font-black mb-8 text-black">
+            <h2 className="text-5xl lg:text-7xl font-black mb-8 text-white">
               Trusted by Egyptian Educators
             </h2>
-            <p className="text-2xl text-gray-600 font-light">
+            <p className="text-2xl text-gray-400 font-light">
               See how we're transforming education across Egypt
             </p>
           </motion.div>
@@ -811,18 +841,19 @@ const ModernSaaSLanding = () => {
                   whileHover={{ 
                     scale: 1.05,
                     rotate: index % 2 === 0 ? 2 : -2,
-                    boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+                    boxShadow: "0 25px 50px -12px rgba(255, 255, 255, 0.1)",
                     y: -10
                   }}
                   className={`
                     ${rotation}
-                    bg-white p-8 
-                    border border-gray-200 hover:border-black 
+                    bg-white/5 p-8 
+                    border border-white/10 hover:border-white/30 
                     shadow-xl hover:shadow-2xl 
                     transition-all duration-500 
                     cursor-pointer
                     rounded-3xl
                     break-inside-avoid
+                    backdrop-blur-sm
                     ${testimonial.size === 'large' ? 'p-10' : ''}
                     ${testimonial.size === 'small' ? 'p-6' : ''}
                   `}
@@ -836,14 +867,14 @@ const ModernSaaSLanding = () => {
                         animate={{ scale: testimonialsInView ? 1 : 0 }}
                         transition={{ delay: index * 0.2 + i * 0.1 + 0.5 }}
                       >
-                        <Star className="w-5 h-5 text-black fill-current" />
+                        <Star className="w-5 h-5 text-white fill-current" />
                       </motion.div>
                     ))}
                   </div>
 
                   {/* Testimonial Content */}
                   <blockquote className={`
-                    font-medium mb-8 leading-relaxed text-black
+                    font-medium mb-8 leading-relaxed text-white
                     ${testimonial.size === 'large' ? 'text-xl lg:text-2xl' : 'text-lg lg:text-xl'}
                   `}>
                     "{testimonial.content}"
@@ -858,8 +889,8 @@ const ModernSaaSLanding = () => {
                       {testimonial.image}
                     </motion.div>
                     <div className="min-w-0 flex-1">
-                      <div className="font-bold text-lg text-black">{testimonial.name}</div>
-                      <div className="text-gray-600">{testimonial.role}</div>
+                      <div className="font-bold text-lg text-white">{testimonial.name}</div>
+                      <div className="text-gray-400">{testimonial.role}</div>
                       <div className="text-gray-500 text-sm">{testimonial.company}</div>
                     </div>
                   </div>
@@ -867,22 +898,22 @@ const ModernSaaSLanding = () => {
               );
             })}
           </div>
-        </div>
+        </motion.div>
       </section>
 
-      {/* Angular Separator */}
-      <div className="relative bg-black">
-        <WaveSeparator variant="angular" />
+      {/* Wave Separator */}
+      <div className="relative bg-white">
+        <WaveSeparator flip />
       </div>
 
       {/* Enhanced Final CTA Section */}
-      <section className="relative py-32 bg-black text-white overflow-hidden">
+      <section className="relative py-32 bg-white text-black overflow-hidden">
         {/* Animated Background Elements */}
         <div className="absolute inset-0">
           {[...Array(20)].map((_, i) => (
             <motion.div
               key={i}
-              className="absolute w-2 h-2 bg-white rounded-full opacity-20"
+              className="absolute w-2 h-2 bg-black rounded-full opacity-20"
               style={{
                 top: `${Math.random() * 100}%`,
                 left: `${Math.random() * 100}%`,
@@ -908,10 +939,10 @@ const ModernSaaSLanding = () => {
             transition={{ duration: 1 }}
             className="space-y-12"
           >
-            <h2 className="text-5xl lg:text-7xl font-black leading-tight bg-gradient-to-r from-white via-gray-300 to-white bg-clip-text text-transparent">
+            <h2 className="text-5xl lg:text-7xl font-black leading-tight bg-gradient-to-r from-black via-gray-700 to-black bg-clip-text text-transparent">
               Join Egypt's Educational Revolution
             </h2>
-            <p className="text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed font-light">
+            <p className="text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed font-light">
               Transform your classroom with AI-powered personalization and gamified learning. 
               Start your journey today.
             </p>
@@ -919,13 +950,13 @@ const ModernSaaSLanding = () => {
             <motion.button 
               whileHover={{ 
                 scale: 1.05,
-                boxShadow: "0 25px 50px -12px rgba(255, 255, 255, 0.3)"
+                boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.3)"
               }}
               whileTap={{ scale: 0.95 }}
-              className="group relative bg-white text-black px-16 py-8 text-2xl font-black overflow-hidden transition-all duration-500 rounded-2xl"
+              className="group relative bg-black text-white px-16 py-8 text-2xl font-black overflow-hidden transition-all duration-500 rounded-2xl"
             >
               <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-gray-100 to-white"
+                className="absolute inset-0 bg-gradient-to-r from-gray-800 to-black"
                 initial={{ x: "-100%" }}
                 whileHover={{ x: 0 }}
                 transition={{ duration: 0.3 }}
@@ -940,18 +971,18 @@ const ModernSaaSLanding = () => {
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               transition={{ delay: 0.5, duration: 1 }}
-              className="flex flex-wrap items-center justify-center gap-8 mt-16 text-gray-400"
+              className="flex flex-wrap items-center justify-center gap-8 mt-16 text-gray-500"
             >
               <div className="flex items-center space-x-3">
-                <CheckCircle className="w-6 h-6 text-white" />
+                <CheckCircle className="w-6 h-6 text-black" />
                 <span className="text-lg">Free 30-day trial</span>
               </div>
               <div className="flex items-center space-x-3">
-                <CheckCircle className="w-6 h-6 text-white" />
+                <CheckCircle className="w-6 h-6 text-black" />
                 <span className="text-lg">No credit card required</span>
               </div>
               <div className="flex items-center space-x-3">
-                <CheckCircle className="w-6 h-6 text-white" />
+                <CheckCircle className="w-6 h-6 text-black" />
                 <span className="text-lg">Setup in 5 minutes</span>
               </div>
             </motion.div>
@@ -960,7 +991,7 @@ const ModernSaaSLanding = () => {
       </section>
 
       {/* Enhanced Footer */}
-      <footer className="relative bg-white text-black py-20 border-t border-gray-200">
+      <footer className="relative bg-black text-white py-20 border-t border-white/10">
         <div className="max-w-6xl mx-auto px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-12 mb-16">
             <motion.div
@@ -969,12 +1000,12 @@ const ModernSaaSLanding = () => {
               transition={{ duration: 0.6 }}
             >
               <div className="flex items-center space-x-3 mb-6">
-                <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
-                  <Brain className="w-5 h-5 text-white" />
+                <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
+                  <Brain className="w-5 h-5 text-black" />
                 </div>
                 <span className="text-2xl font-black">EduAI</span>
               </div>
-              <p className="text-gray-600 text-lg leading-relaxed">Egypt's first AI-gamified learning management system.</p>
+              <p className="text-gray-400 text-lg leading-relaxed">Egypt's first AI-gamified learning management system.</p>
             </motion.div>
             {['Product', 'Company', 'Support'].map((title, index) => (
               <motion.div
@@ -983,11 +1014,11 @@ const ModernSaaSLanding = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
               >
-                <h4 className="font-bold text-xl mb-6 text-black">{title}</h4>
-                <div className="space-y-4 text-gray-600 text-lg">
-                  <div className="hover:text-black transition-colors cursor-pointer">Features</div>
-                  <div className="hover:text-black transition-colors cursor-pointer">Pricing</div>
-                  <div className="hover:text-black transition-colors cursor-pointer">Demo</div>
+                <h4 className="font-bold text-xl mb-6 text-white">{title}</h4>
+                <div className="space-y-4 text-gray-400 text-lg">
+                  <div className="hover:text-white transition-colors cursor-pointer">Features</div>
+                  <div className="hover:text-white transition-colors cursor-pointer">Pricing</div>
+                  <div className="hover:text-white transition-colors cursor-pointer">Demo</div>
                 </div>
               </motion.div>
             ))}
@@ -997,13 +1028,13 @@ const ModernSaaSLanding = () => {
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             transition={{ duration: 1 }}
-            className="border-t border-gray-200 pt-12 flex flex-col md:flex-row justify-between items-center"
+            className="border-t border-white/10 pt-12 flex flex-col md:flex-row justify-between items-center"
           >
-            <p className="text-gray-600 text-lg">&copy; 2024 EduAI. All rights reserved.</p>
-            <div className="flex space-x-8 mt-6 md:mt-0 text-gray-600 text-lg">
-              <span className="hover:text-black transition-colors cursor-pointer">Privacy</span>
-              <span className="hover:text-black transition-colors cursor-pointer">Terms</span>
-              <span className="hover:text-black transition-colors cursor-pointer">Cookies</span>
+            <p className="text-gray-400 text-lg">&copy; 2024 EduAI. All rights reserved.</p>
+            <div className="flex space-x-8 mt-6 md:mt-0 text-gray-400 text-lg">
+              <span className="hover:text-white transition-colors cursor-pointer">Privacy</span>
+              <span className="hover:text-white transition-colors cursor-pointer">Terms</span>
+              <span className="hover:text-white transition-colors cursor-pointer">Cookies</span>
             </div>
           </motion.div>
         </div>
