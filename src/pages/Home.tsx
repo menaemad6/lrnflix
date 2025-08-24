@@ -106,7 +106,7 @@ const FloatingElements3D = () => {
           }}
           transition={{
             duration: 8 + i * 0.5,
-            repeat: Infinity,
+            repeatType: "loop",
             ease: "easeInOut",
             delay: i * 0.3,
           }}
@@ -195,8 +195,8 @@ export const Home = () => {
               scale: [1, 1.1, 1],
             }}
             transition={{ 
-              rotate: { duration: 20, repeat: Infinity, ease: "linear" },
-              scale: { duration: 2, repeat: Infinity }
+              rotate: { duration: 20, repeatType: "loop", ease: "linear" },
+              scale: { duration: 2, repeatType: "loop" }
             }}
           >
             <Rocket className="h-16 w-16 text-black" />
@@ -238,7 +238,7 @@ export const Home = () => {
                     Launch Your Platform
                     <motion.div
                       animate={{ rotate: [0, 180, 360] }}
-                      transition={{ duration: 2, repeat: Infinity }}
+                      transition={{ duration: 2, repeatType: "loop" }}
                     >
                       <Sparkles className="ml-4 h-8 w-8" />
                     </motion.div>

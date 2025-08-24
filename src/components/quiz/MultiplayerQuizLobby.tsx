@@ -533,7 +533,7 @@ export const MultiplayerQuizLobby = ({
                     <div className="flex items-center justify-center space-x-2">
                       <motion.div
                         animate={{ rotate: 360 }}
-                        transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                        transition={{ duration: 2, repeatType: "loop", ease: "linear" }}
                         className="w-6 h-6 border-2 border-white/20 border-t-white rounded-full"
                       />
                       <span className="text-foreground font-medium">

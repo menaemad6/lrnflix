@@ -10,7 +10,7 @@ interface InfoBoxProps {
 
 const InfoBox: React.FC<InfoBoxProps> = ({ variants, initial = 'hidden', animate = 'visible', children }) => (
   <motion.div
-    className="absolute bottom-20 left-2 bg-background dark:bg-background backdrop-blur-sm p-6 max-w-sm h-[220px]"
+    className="absolute bottom-20 left-2 bg-background dark:bg-black backdrop-blur-sm p-6 max-w-sm h-[220px]"
     style={{
       clipPath: 'polygon(0 0, 100% 0, 100% 100%, 60% 100%, 0 80%)',
       borderBottomLeftRadius: '2.5rem',

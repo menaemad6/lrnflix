@@ -218,10 +218,10 @@ const ModernLayoutHero: React.FC = () => {
     // Dark Bottom Card
     <div key="dark" className="bg-gradient-to-br from-muted to-muted-foreground/80 dark:from-gray-800 dark:to-gray-900 rounded-3xl p-8 text-foreground dark:text-white">
       <h3 className="text-xl font-bold mb-4">
-        Your Pathway to Success
+        AI-Powered Learning Revolution
       </h3>
       <p className="text-muted-foreground text-sm leading-relaxed dark:text-gray-300">
-        Our platform adapts to your learning style, offering personalized recommendations and progress tracking to help you achieve your goals.
+        Experience the world's first AI voice tutor (Hossam), multiplayer quiz games, and personalized AI recommendations that make learning addictive and effective.
       </p>
     </div>,
   ];
@@ -252,7 +252,7 @@ const ModernLayoutHero: React.FC = () => {
   }
 
   return (
-    <section className="relative h-screen max-h-screen bg-background dark:bg-background overflow-hidden">
+    <section className="relative h-screen max-h-screen bg-background dark:bg-black overflow-hidden">
       <div className="flex h-full">
         {/* Left Panel */}
         <div className="relative w-[73%] flex flex-col">
@@ -276,9 +276,9 @@ const ModernLayoutHero: React.FC = () => {
             >
               <div className="text-white z-10">
                 <h1 className="text-6xl font-bold leading-tight mb-4">
-                  {PLATFORM_NAME} LMS<br />
-                  Empowering Modern<br />
-                  Education
+                  {PLATFORM_NAME}<br />
+                  The Egypt's First<br />
+                  AI-Powered Gamified LMS
                 </h1>
               </div>
             </motion.div>
@@ -287,7 +287,7 @@ const ModernLayoutHero: React.FC = () => {
           <FloatingExpertCard variants={floatingCardVariants} />
           <InfoBox variants={infoBoxVariants}>
             <p className="text-muted-foreground text-sm leading-relaxed">
-              {PLATFORM_NAME} is a next-generation Learning Management System designed to make education accessible, engaging, and effective. Track your progress, join live classes, collaborate with peers, and unlock your full potential with our intuitive platform.
+              {PLATFORM_NAME} is the Egypt's first AI-powered gamified learning platform that revolutionizes education through cutting-edge AI tutors, multiplayer quiz games, voice conversations with AI, and personalized learning experiences. Experience the future of education where learning becomes an adventure.
             </p>
           </InfoBox>
           <HeroBottomSection
@@ -320,7 +320,7 @@ const ModernLayoutHero: React.FC = () => {
           />
         </div>
         {/* Right Panel */}
-        <div className="w-[27%] bg-background dark:bg-background relative flex flex-col">
+        <div className="w-[27%] bg-background dark:bg-black relative flex flex-col">
           <div className="absolute top-4 right-8 z-20">
             <motion.div
               className="flex items-center gap-8 xl:gap-16 xxl:gap-24 bg-card/90 dark:bg-card/80 backdrop-blur-sm rounded-full p-2 shadow-lg"

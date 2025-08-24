@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { getFeaturedInstructors, getTopCourses } from '@/lib/queries';
+import { useTheme } from '@/contexts/ThemeContext';
 import {
   ArrowRight,
   Star,
@@ -45,6 +46,14 @@ import ModernLayoutHero from './ModernLayoutHero';
 import HeroSection from '../home/HeroSection';
 import FeaturedInstructorsSkeleton from "./skeletons/FeaturedInstructorsSkeleton";
 import TopCoursesSkeleton from "./skeletons/TopCoursesSkeleton";
+
+// Import new landing page sections
+import UltraModernHero from './UltraModernHero';
+import AIShowcaseSection from './AIShowcaseSection';
+import InnovativeFeaturesSection from './InnovativeFeaturesSection';
+import GamificationSection from './GamificationSection';
+import PremiumFooter from './PremiumFooter';
+
 
 
 interface Instructor {
@@ -540,6 +549,7 @@ const RevolutionaryHero = React.memo(() => {
 
 // AI-Powered Features Showcase with 3D Cards
 const AIFeaturesShowcase = React.memo(() => {
+  const { theme } = useTheme();
   const [activeFeature, setActiveFeature] = useState(0);
   const [isInteracting, setIsInteracting] = useState(false);
   const mouseX = useMotionValue(0);
@@ -552,61 +562,61 @@ const AIFeaturesShowcase = React.memo(() => {
     {
       id: 0,
       icon: Brain,
-      title: "Neural Learning Engine",
-      subtitle: "MIND ENHANCEMENT PROTOCOL",
-      description: "AI that learns how YOU learn, adapting in real-time to your cognitive patterns",
-      power: "340% faster retention",
+      title: "AI Voice Tutor (Hossam)",
+      subtitle: "REVOLUTIONARY VOICE LEARNING",
+      description: "The world's first AI voice tutor that speaks naturally, understands context, and adapts to your learning pace in real-time conversations",
+      power: "Natural voice conversations",
       color: "#00ff88",
       particles: 120,
       demo: {
-        title: "NEURAL SYNC ACTIVE",
-        status: "Analyzing cognitive patterns...",
-        metrics: ["Pattern Recognition: 94%", "Memory Optimization: 87%", "Focus Enhancement: 91%"]
+        title: "VOICE TUTOR ACTIVE",
+        status: "Engaging in natural conversation...",
+        metrics: ["Voice Recognition: 98%", "Context Understanding: 95%", "Learning Adaptation: 92%"]
       }
     },
     {
       id: 1,
       icon: Zap,
-      title: "Quantum Knowledge Transfer",
-      subtitle: "INSTANT MASTERY SYSTEM",
-      description: "Download skills directly into your brain using quantum-entangled learning matrices",
-      power: "Instant skill acquisition",
+      title: "Multiplayer Quiz Games",
+      subtitle: "COMPETITIVE LEARNING SYSTEM",
+      description: "Real-time multiplayer quiz competitions with live matchmaking, leaderboards, and confetti celebrations for achievements",
+      power: "Live competitive learning",
       color: "#ff0080",
       particles: 150,
       demo: {
-        title: "QUANTUM LINK ESTABLISHED",
-        status: "Transferring advanced calculus...",
-        metrics: ["Transfer Rate: 99.7%", "Retention Lock: 100%", "Neural Integration: 95%"]
+        title: "MULTIPLAYER ACTIVE",
+        status: "Matching players globally...",
+        metrics: ["Matchmaking Speed: 2.3s", "Active Players: 1,247", "Game Rooms: 89"]
       }
     },
     {
       id: 2,
       icon: Eye,
-      title: "Reality Augmentation",
-      subtitle: "PERCEPTION AMPLIFIER",
-      description: "See knowledge layers overlaid on reality through advanced AR neural interfaces",
-      power: "360° enhanced perception",
+      title: "AI Content Generation",
+      subtitle: "INTELLIGENT CONTENT CREATION",
+      description: "AI-powered question generation, PDF extraction, content summarization, and personalized learning recommendations",
+      power: "AI-generated content",
       color: "#00ffff",
       particles: 200,
       demo: {
-        title: "AR MATRIX ONLINE",
-        status: "Overlaying knowledge layers...",
-        metrics: ["Visual Processing: 98%", "Data Integration: 92%", "Reality Sync: 89%"]
+        title: "AI GENERATOR ONLINE",
+        status: "Creating personalized content...",
+        metrics: ["Content Quality: 96%", "Generation Speed: 3.2s", "Personalization: 94%"]
       }
     },
     {
       id: 3,
       icon: Cpu,
-      title: "Consciousness Expansion",
-      subtitle: "MIND MULTIPLICATION CORE",
-      description: "Multiply your consciousness across parallel learning dimensions simultaneously",
-      power: "∞ parallel processing",
+      title: "Global AI Assistant",
+      subtitle: "CONTEXT-AWARE INTELLIGENCE",
+      description: "24/7 AI chatbot with course integration, action capabilities, and role-specific assistance for students and teachers",
+      power: "Always-on AI support",
       color: "#ffaa00",
       particles: 180,
       demo: {
-        title: "CONSCIOUSNESS MULTIPLIED",
-        status: "Processing 47 subjects simultaneously...",
-        metrics: ["Parallel Streams: 47", "Sync Efficiency: 96%", "Mind Load: 23%"]
+        title: "AI ASSISTANT ACTIVE",
+        status: "Providing contextual help...",
+        metrics: ["Response Time: 0.8s", "Accuracy: 97%", "User Satisfaction: 96%"]
       }
     }
   ];
@@ -628,15 +638,15 @@ const AIFeaturesShowcase = React.memo(() => {
   };
 
   return (
-    <section className="py-32 relative overflow-hidden bg-black">
+    <section className={`py-32 relative overflow-hidden ${theme === 'dark' ? 'bg-black' : 'bg-white'}`}>
       {/* Holographic Grid Background - Darkened */}
       <div className="absolute inset-0 opacity-10">
         <motion.div
           className="absolute inset-0"
           style={{
             backgroundImage: `
-              linear-gradient(rgba(0,255,136,0.08) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(0,255,136,0.08) 1px, transparent 1px)
+              linear-gradient(${theme === 'dark' ? 'rgba(0,255,136,0.08)' : 'rgba(0,255,136,0.15)'} 1px, transparent 1px),
+              linear-gradient(90deg, ${theme === 'dark' ? 'rgba(0,255,136,0.08)' : 'rgba(0,255,136,0.15)'} 1px, transparent 1px)
             `,
             backgroundSize: '40px 40px',
           }}
@@ -656,7 +666,7 @@ const AIFeaturesShowcase = React.memo(() => {
       </div>
 
       {/* Neural Network Background */}
-      <div className="absolute inset-0 opacity-15">
+      <div className={`absolute inset-0 ${theme === 'dark' ? 'opacity-15' : 'opacity-20'}`}>
         <motion.svg 
           className="w-full h-full" 
           viewBox="0 0 1000 1000"
@@ -726,7 +736,7 @@ const AIFeaturesShowcase = React.memo(() => {
                   WebkitTextFillColor: "transparent",
                 }}
               >
-                SUPERHUMAN
+                THE FUTURE OF
                 <br />
                 <span 
                   className="bg-clip-text"
@@ -735,18 +745,22 @@ const AIFeaturesShowcase = React.memo(() => {
                     WebkitTextFillColor: "transparent",
                   }}
                 >
-                  COGNITION
+                  EDUCATION
                 </span>
               </motion.span>
             </AnimatePresence>
           </motion.h2>
-          <motion.p 
-            className="text-2xl text-white/70 max-w-4xl mx-auto"
-            animate={{ color: [`rgba(255,255,255,0.7)`, `${features[activeFeature].color}80`, `rgba(255,255,255,0.7)`] }}
-            transition={{ duration: 3, repeatType: "loop" }}
-          >
-            Transcend human limitations. Unlock infinite potential.
-          </motion.p>
+                      <motion.p 
+              className={`text-2xl max-w-4xl mx-auto ${theme === 'dark' ? 'text-white/70' : 'text-gray-700'}`}
+              animate={{ 
+                color: theme === 'dark' 
+                  ? [`rgba(255,255,255,0.7)`, `${features[activeFeature].color}80`, `rgba(255,255,255,0.7)`]
+                  : [`rgba(55,65,81,1)`, `${features[activeFeature].color}`, `rgba(55,65,81,1)`]
+              }}
+              transition={{ duration: 3, repeatType: "loop" }}
+            >
+              The world's first AI-powered gamified learning platform. Experience education reimagined.
+            </motion.p>
         </motion.div>
 
         {/* Main Interactive Display */}
@@ -767,7 +781,7 @@ const AIFeaturesShowcase = React.memo(() => {
             }}
           >
             {/* Hologram Effect */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/30" />
+            <div className={`absolute inset-0 ${theme === 'dark' ? 'bg-gradient-to-t from-black/50 via-transparent to-black/30' : 'bg-gradient-to-t from-white/50 via-transparent to-white/30'}`} />
             <motion.div
               className="absolute inset-0 border-2 rounded-3xl"
               style={{ borderColor: features[activeFeature].color }}
@@ -807,7 +821,7 @@ const AIFeaturesShowcase = React.memo(() => {
                       border: `2px solid ${features[activeFeature].color}`,
                     }}
                   >
-                    {React.createElement(features[activeFeature].icon, { className: "h-12 w-12 md:h-16 md:w-16 text-white" })}
+                    {React.createElement(features[activeFeature].icon, { className: `h-12 w-12 md:h-16 md:w-16 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}` })}
                   </div>
                 </motion.div>
 
@@ -821,10 +835,10 @@ const AIFeaturesShowcase = React.memo(() => {
                   >
                     {features[activeFeature].subtitle}
                   </motion.p>
-                  <h3 className="text-3xl md:text-5xl font-black text-white">
+                  <h3 className={`text-3xl md:text-5xl font-black ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
                     {features[activeFeature].title}
                   </h3>
-                  <p className="text-base md:text-xl text-white/80 max-w-2xl mx-auto leading-relaxed">
+                  <p className={`text-base md:text-xl max-w-2xl mx-auto leading-relaxed ${theme === 'dark' ? 'text-white/80' : 'text-gray-700'}`}>
                     {features[activeFeature].description}
                   </p>
                   <motion.div
@@ -846,7 +860,7 @@ const AIFeaturesShowcase = React.memo(() => {
 
                 {/* Live Demo Panel */}
                 <motion.div
-                  className="bg-black/40 backdrop-blur-sm rounded-2xl p-4 md:p-6 border max-w-sm mx-auto"
+                  className={`${theme === 'dark' ? 'bg-black/40' : 'bg-white/80'} backdrop-blur-sm rounded-2xl p-4 md:p-6 border max-w-sm mx-auto`}
                   style={{ borderColor: `${features[activeFeature].color}40` }}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -865,13 +879,13 @@ const AIFeaturesShowcase = React.memo(() => {
                         {features[activeFeature].demo.title}
                       </span>
                     </div>
-                    <p className="text-white/70 text-sm">
+                    <p className={`text-sm ${theme === 'dark' ? 'text-white/70' : 'text-gray-600'}`}>
                       {features[activeFeature].demo.status}
                     </p>
                     <div className="space-y-2">
                       {features[activeFeature].demo.metrics.map((metric, i) => (
                         <div key={i} className="flex justify-between text-xs">
-                          <span className="text-white/60">{metric.split(':')[0]}:</span>
+                          <span className={theme === 'dark' ? 'text-white/60' : 'text-gray-500'}>{metric.split(':')[0]}:</span>
                           <motion.span
                             className="font-mono font-bold"
                             style={{ color: features[activeFeature].color }}
@@ -901,7 +915,7 @@ const AIFeaturesShowcase = React.memo(() => {
                 }}
                 className="relative w-12 h-12 md:w-16 md:h-16 rounded-full border-2 transition-all duration-300"
                 style={{
-                  borderColor: activeFeature === index ? feature.color : 'rgba(255,255,255,0.3)',
+                  borderColor: activeFeature === index ? feature.color : theme === 'dark' ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.2)',
                   backgroundColor: activeFeature === index ? `${feature.color}20` : 'transparent',
                 }}
                 whileHover={{ scale: 1.2 }}
@@ -909,7 +923,7 @@ const AIFeaturesShowcase = React.memo(() => {
               >
                 {React.createElement(feature.icon, { 
                   className: "h-6 w-6 md:h-8 md:w-8 mx-auto", 
-                  style: { color: activeFeature === index ? feature.color : 'rgba(255,255,255,0.6)' }
+                  style: { color: activeFeature === index ? feature.color : theme === 'dark' ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.4)' }
                 })}
                 {activeFeature === index && (
                   <motion.div
@@ -942,7 +956,7 @@ const AIFeaturesShowcase = React.memo(() => {
             ].map((stat, i) => (
               <motion.div
                 key={i}
-                className="text-center p-4 md:p-6 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10"
+                className={`text-center p-4 md:p-6 rounded-2xl backdrop-blur-sm border ${theme === 'dark' ? 'bg-white/5 border-white/10' : 'bg-gray-50/80 border-gray-200'}`}
                 whileHover={{ 
                   scale: 1.05,
                   borderColor: features[activeFeature].color,
@@ -954,7 +968,7 @@ const AIFeaturesShowcase = React.memo(() => {
                 <div className="text-xl md:text-3xl font-black mb-2" style={{ color: features[activeFeature].color }}>
                   {stat.value}
                 </div>
-                <div className="text-xs md:text-sm text-white/70">{stat.label}</div>
+                <div className={`text-xs md:text-sm ${theme === 'dark' ? 'text-white/70' : 'text-gray-600'}`}>{stat.label}</div>
               </motion.div>
             ))}
           </div>
@@ -967,6 +981,7 @@ const AIFeaturesShowcase = React.memo(() => {
 
 // Revolutionary Elite Instructors Showcase with Mind-Bending Animations
 const FeaturedInstructors = React.memo(() => {
+    const { theme } = useTheme();
     const { data: instructors, isLoading, isError } = useQuery({
         queryKey: ['featuredInstructors'],
         queryFn: getFeaturedInstructors,
@@ -1023,19 +1038,19 @@ const FeaturedInstructors = React.memo(() => {
     return (
     <section 
       ref={sectionRef}
-      className="py-32 relative overflow-hidden bg-black"
+      className={`py-32 relative overflow-hidden ${theme === 'dark' ? 'bg-black' : 'bg-white'}`}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
       onMouseMove={handleMouseMove}
     >
       {/* Holographic Grid Background - Darkened */}
-      <div className="absolute inset-0 opacity-8">
+      <div className={`absolute inset-0 ${theme === 'dark' ? 'opacity-8' : 'opacity-15'}`}>
         <motion.div
           className="absolute inset-0"
           style={{
             backgroundImage: `
-              linear-gradient(rgba(0,255,136,0.06) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(0,255,136,0.06) 1px, transparent 1px)
+              linear-gradient(${theme === 'dark' ? 'rgba(0,255,136,0.06)' : 'rgba(0,255,136,0.12)'} 1px, transparent 1px),
+              linear-gradient(90deg, ${theme === 'dark' ? 'rgba(0,255,136,0.06)' : 'rgba(0,255,136,0.12)'} 1px, transparent 1px)
             `,
             backgroundSize: '60px 60px',
           }}
@@ -1107,11 +1122,15 @@ const FeaturedInstructors = React.memo(() => {
             </AnimatePresence>
           </motion.h2>
           <motion.p 
-            className="text-2xl text-white/70 max-w-4xl mx-auto"
+            className={`text-2xl max-w-4xl mx-auto ${theme === 'dark' ? 'text-white/70' : 'text-gray-700'}`}
             animate={{
               color: instructors.length > 0 
-                ? getInstructorColors(instructors[activeInstructor]?.specialization).primary + '70'
-                : '#ffffff70'
+                ? theme === 'dark' 
+                  ? getInstructorColors(instructors[activeInstructor]?.specialization).primary + '70'
+                  : getInstructorColors(instructors[activeInstructor]?.specialization).primary
+                : theme === 'dark' 
+                  ? '#ffffff70'
+                  : '#374151'
             }}
             transition={{ duration: 0.8 }}
           >
@@ -1204,7 +1223,7 @@ const FeaturedInstructors = React.memo(() => {
                   </motion.div>
 
                   <motion.p 
-                    className="text-2xl text-white/80 mb-8 leading-relaxed"
+                    className={`text-2xl mb-8 leading-relaxed ${theme === 'dark' ? 'text-white/80' : 'text-gray-700'}`}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.6 }}
@@ -1320,7 +1339,7 @@ const FeaturedInstructors = React.memo(() => {
                     }}
                     transition={{
                       duration: 2,
-                      repeat: index === activeInstructor ? Infinity : 0,
+                      repeat: index === activeInstructor ? Infinity : 0 as number,
                       ease: "easeInOut",
                     }}
                   >
@@ -1335,7 +1354,7 @@ const FeaturedInstructors = React.memo(() => {
                     style={{
                       color: index === activeInstructor 
                         ? getInstructorColors(instructor.specialization).primary
-                        : '#ffffff80'
+                        : theme === 'dark' ? '#ffffff80' : '#6b7280'
                     }}
                   >
                     {instructor.display_name.split(' ')[0]}
@@ -1352,6 +1371,7 @@ const FeaturedInstructors = React.memo(() => {
 
 // Revolutionary Holographic Courses Showcase - MIND-BLOWING EDITION
 const TopCoursesSection = React.memo(() => {
+    const { theme } = useTheme();
     const { data: courses, isLoading, isError } = useQuery({
         queryKey: ['topCourses'],
         queryFn: getTopCourses,
@@ -1392,13 +1412,13 @@ const TopCoursesSection = React.memo(() => {
     }
 
   const courseCategories = {
-    'AI & Machine Learning': { primary: '#ff0080', secondary: '#cc0066', glow: '#ff88cc', icon: Brain },
-    'Web Development': { primary: '#00ff88', secondary: '#00cc66', glow: '#88ffaa', icon: Globe },
-    'Data Science': { primary: '#0080ff', secondary: '#0066cc', glow: '#88ccff', icon: TrendingUp },
-    'Mobile Development': { primary: '#8000ff', secondary: '#6600cc', glow: '#cc88ff', icon: Video },
-    'Cybersecurity': { primary: '#ff8000', secondary: '#cc6600', glow: '#ffaa88', icon: Shield },
-    'DevOps': { primary: '#00ffff', secondary: '#00cccc', glow: '#88ffff', icon: Cpu },
-    default: { primary: '#00ff88', secondary: '#00cc66', glow: '#88ffaa', icon: BookOpen }
+    'AI & Machine Learning': { primary: '#ff0080', secondary: '#cc0066', glow: '#ff88cc' },
+    'Web Development': { primary: '#00ff88', secondary: '#00cc66', glow: '#88ffaa' },
+    'Data Science': { primary: '#0080ff', secondary: '#0066cc', glow: '#88ccff' },
+    'Mobile Development': { primary: '#8000ff', secondary: '#6600cc', glow: '#cc88ff' },
+    'Cybersecurity': { primary: '#ff8000', secondary: '#cc6600', glow: '#ffaa88' },
+    'DevOps': { primary: '#00ffff', secondary: '#00cccc', glow: '#88ffff' },
+    default: { primary: '#00ff88', secondary: '#00cc66', glow: '#88ffaa' }
   };
 
   const getCourseColors = (courseTitle: string) => {
@@ -1422,19 +1442,19 @@ const TopCoursesSection = React.memo(() => {
     return (
     <section 
       ref={sectionRef}
-      className="py-32 relative overflow-hidden bg-black"
+      className={`py-32 relative overflow-hidden ${theme === 'dark' ? 'bg-black' : 'bg-white'}`}
       onMouseEnter={() => setIsInteracting(true)}
       onMouseLeave={() => setIsInteracting(false)}
       onMouseMove={handleMouseMove}
     >
       {/* Holographic Grid Background */}
-      <div className="absolute inset-0 opacity-20">
+      <div className={`absolute inset-0 ${theme === 'dark' ? 'opacity-20' : 'opacity-25'}`}>
         <motion.div
           className="absolute inset-0"
           style={{
             backgroundImage: `
-              linear-gradient(rgba(0,255,136,0.1) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(0,255,136,0.1) 1px, transparent 1px)
+              linear-gradient(${theme === 'dark' ? 'rgba(0,255,136,0.1)' : 'rgba(0,255,136,0.15)'} 1px, transparent 1px),
+              linear-gradient(90deg, ${theme === 'dark' ? 'rgba(0,255,136,0.1)' : 'rgba(0,255,136,0.15)'} 1px, transparent 1px)
             `,
             backgroundSize: '50px 50px',
           }}
@@ -1506,11 +1526,15 @@ const TopCoursesSection = React.memo(() => {
             </AnimatePresence>
           </motion.h2>
           <motion.p 
-            className="text-2xl text-white/70 max-w-4xl mx-auto mb-8"
+            className={`text-2xl max-w-4xl mx-auto mb-8 ${theme === 'dark' ? 'text-white/70' : 'text-gray-700'}`}
             animate={{
               color: courses.length > 0 
-                ? getCourseColors(courses[activeCourse]?.title || '').primary + '70'
-                : '#ffffff70'
+                ? theme === 'dark'
+                  ? getCourseColors(courses[activeCourse]?.title || '').primary + '70'
+                  : getCourseColors(courses[activeCourse]?.title || '').primary
+                : theme === 'dark'
+                  ? '#ffffff70'
+                  : '#374151'
             }}
             transition={{ duration: 1 }}
           >
@@ -1643,7 +1667,7 @@ const TopCoursesSection = React.memo(() => {
                           scale: { duration: 3, repeatType: "loop", ease: "easeInOut" },
                         }}
                       >
-                        {React.createElement(getCourseColors(courses[activeCourse].title).icon, { className: "h-8 w-8 text-black" })}
+                        <BookOpen className="h-8 w-8 text-black" />
                       </motion.div>
                     </motion.div>
                   </motion.div>
@@ -1679,20 +1703,20 @@ const TopCoursesSection = React.memo(() => {
                         whileHover={{ scale: 1.1 }}
                       >
                         <div 
-                          className="w-full h-full flex items-center justify-center text-white font-bold text-lg"
+                          className={`w-full h-full flex items-center justify-center font-bold text-lg ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}
                           style={{ background: `linear-gradient(45deg, ${getCourseColors(courses[activeCourse].title).primary}, ${getCourseColors(courses[activeCourse].title).secondary})` }}
                         >
                           {courses[activeCourse].profiles.full_name.charAt(0)}
                         </div>
                       </motion.div>
                       <div>
-                        <p className="text-white font-bold text-lg">{courses[activeCourse].profiles.full_name}</p>
+                        <p className={`font-bold text-lg ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{courses[activeCourse].profiles.full_name}</p>
                         {/* <p className="text-white/60 text-sm">Course Architect</p> */}
                       </div>
                     </motion.div>
 
                     <motion.p 
-                      className="text-xl text-white/80 mb-8 leading-relaxed"
+                      className={`text-xl mb-8 leading-relaxed ${theme === 'dark' ? 'text-white/80' : 'text-gray-700'}`}
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       transition={{ delay: 0.7 }}
@@ -1729,8 +1753,8 @@ const TopCoursesSection = React.memo(() => {
                         >
                           {React.createElement(stat.icon, { className: "h-5 w-5", style: { color: stat.color } })}
                           <div>
-                            <div className="font-bold text-white text-lg">{stat.value}</div>
-                            <div className="text-xs text-white/60">{stat.label}</div>
+                            <div className={`font-bold text-lg ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{stat.value}</div>
+                            <div className={`text-xs ${theme === 'dark' ? 'text-white/60' : 'text-gray-600'}`}>{stat.label}</div>
                           </div>
                         </motion.div>
                       ))}
@@ -1860,7 +1884,7 @@ const TopCoursesSection = React.memo(() => {
                             ease: "linear",
                           }}
                         >
-                          {React.createElement(getCourseColors(course.title).icon, { className: "h-4 w-4 text-black" })}
+                          <BookOpen className="h-4 w-4 text-black" />
                         </motion.div>
                         <div className="text-right">
                           <div className="text-white font-bold text-sm" >{course.price || 99} EGP</div>
@@ -1908,7 +1932,7 @@ const TopCoursesSection = React.memo(() => {
                     style={{
                       color: index === activeCourse 
                         ? getCourseColors(course.title).primary
-                        : '#ffffff60'
+                        : theme === 'dark' ? '#ffffff60' : '#6b7280'
                     }}
                   >
                     {course.title.length > 30 ? course.title.substring(0, 30) + '...' : course.title}
@@ -1925,6 +1949,7 @@ const TopCoursesSection = React.memo(() => {
 
 // Final Revolutionary CTA - Ultra Modern Interactive Experience
 const RevolutionaryCTA = React.memo(() => {
+  const { theme } = useTheme();
   const [isHovering, setIsHovering] = useState(false);
   const [energyLevel, setEnergyLevel] = useState(0);
   const [currentPhase, setCurrentPhase] = useState(0);
@@ -1984,7 +2009,7 @@ const RevolutionaryCTA = React.memo(() => {
 
   return (
     <section 
-      className="py-32 relative overflow-hidden bg-black min-h-screen flex items-center justify-center"
+      className={`py-32 relative overflow-hidden min-h-screen flex items-center justify-center ${theme === 'dark' ? 'bg-black' : 'bg-white'}`}
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
@@ -2006,7 +2031,7 @@ const RevolutionaryCTA = React.memo(() => {
 
       {/* Neural Network Grid */}
       <motion.div
-        className="absolute inset-0 opacity-10"
+        className={`absolute inset-0 ${theme === 'dark' ? 'opacity-10' : 'opacity-15'}`}
         animate={{
           backgroundPosition: [
             '0px 0px, 0px 0px',
@@ -2021,8 +2046,8 @@ const RevolutionaryCTA = React.memo(() => {
         }}
         style={{
           backgroundImage: `
-            linear-gradient(${currentPhaseData.color}20 1px, transparent 1px),
-            linear-gradient(90deg, ${currentPhaseData.color}20 1px, transparent 1px)
+            linear-gradient(${theme === 'dark' ? currentPhaseData.color + '20' : currentPhaseData.color + '25'} 1px, transparent 1px),
+            linear-gradient(90deg, ${theme === 'dark' ? currentPhaseData.color + '20' : currentPhaseData.color + '25'} 1px, transparent 1px)
           `,
           backgroundSize: '60px 60px',
         }}
@@ -2110,7 +2135,7 @@ const RevolutionaryCTA = React.memo(() => {
                     scale: { duration: 4, repeatType: "loop" },
                   }}
                 >
-                  <Infinity className="h-24 w-24 md:h-32 md:w-32 text-white" />
+                  <Infinity className={`h-24 w-24 md:h-32 md:w-32 text-white `} />
                 </motion.div>
               </motion.div>
 
@@ -2177,9 +2202,11 @@ const RevolutionaryCTA = React.memo(() => {
 
                 {/* Description */}
                 <motion.p
-                  className="text-xl md:text-2xl text-white/80 max-w-4xl mx-auto leading-relaxed"
+                  className={`text-xl md:text-2xl max-w-4xl mx-auto leading-relaxed ${theme === 'dark' ? 'text-white/80' : 'text-gray-700'}`}
                   animate={{
-                    color: [`rgba(255,255,255,0.8)`, `${currentPhaseData.color}`, `rgba(255,255,255,0.8)`],
+                    color: theme === 'dark' 
+                      ? [`rgba(255,255,255,0.8)`, `${currentPhaseData.color}`, `rgba(255,255,255,0.8)`]
+                      : [`rgba(55,65,81,1)`, `${currentPhaseData.color}`, `rgba(55,65,81,1)`],
                   }}
                   transition={{ duration: 4, repeatType: "loop" }}
                 >
@@ -2305,7 +2332,7 @@ const RevolutionaryCTA = React.memo(() => {
                   key={index}
                   className="w-4 h-4 rounded-full border-2 cursor-pointer"
                   style={{
-                    borderColor: currentPhase === index ? phase.color : 'rgba(255,255,255,0.3)',
+                    borderColor: currentPhase === index ? phase.color : (theme === 'dark' ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.2)'),
                     backgroundColor: currentPhase === index ? phase.color : 'transparent',
                   }}
                   animate={{
@@ -2328,7 +2355,7 @@ const RevolutionaryCTA = React.memo(() => {
         transition={{ delay: 1.5 }}
         viewport={{ once: true }}
       >
-        <div className="text-sm font-mono text-white/60 mb-2">ENERGY LEVEL</div>
+        <div className={`text-sm font-mono mb-2 ${theme === 'dark' ? 'text-white/60' : 'text-gray-600'}`}>ENERGY LEVEL</div>
         <motion.div
           className="text-4xl font-black"
           style={{ color: currentPhaseData.color }}
@@ -2343,7 +2370,7 @@ const RevolutionaryCTA = React.memo(() => {
         >
           {energyLevel}%
         </motion.div>
-        <div className="w-32 h-2 bg-white/10 rounded-full overflow-hidden mt-2">
+        <div className={`w-32 h-2 rounded-full overflow-hidden mt-2 ${theme === 'dark' ? 'bg-white/10' : 'bg-gray-200'}`}>
           <motion.div
             className="h-full rounded-full"
             style={{ backgroundColor: currentPhaseData.color }}
@@ -2358,26 +2385,34 @@ const RevolutionaryCTA = React.memo(() => {
 
 // Main Ultra Modern Landing Component
 const UltraModernLanding = () => {
+  const { theme } = useTheme();
   return (
-    <div className="min-h-screen bg-black text-white relative overflow-hidden ultra-modern-landing">
+    <div className={`min-h-screen relative overflow-hidden ultra-modern-landing ${theme === 'dark' ? 'bg-black text-white' : 'bg-white text-gray-900'}`}>
 
-
-      {/* Premium Mouse Lighting Effect */}
-      <PremiumMouseLightingEffect />
       
-      {/* Show ModernLayoutHero on large screens and up, RevolutionaryHero on smaller screens */}
-      <div className="hidden lg:block" data-hero-section>
+    <div className="hidden lg:block" data-hero-section>
         <ModernLayoutHero />
       </div>
       <div className="block lg:hidden" data-hero-section>
         <HeroSection />
         {/* <RevolutionaryHero /> */}
       </div>
-      <AIFeaturesShowcase />
 
       <FeaturedInstructors />
+
       <TopCoursesSection />
-      <RevolutionaryCTA />
+      
+      {/* AI Showcase Section - Hossam AI Tutor */}
+      <AIShowcaseSection />
+      
+      {/* Innovative Features Section - Non-traditional features showcase */}
+      <InnovativeFeaturesSection />
+      
+      {/* Gamification Section - Multiplayer quizzes and gaming */}
+      <GamificationSection />
+      
+      <PremiumFooter />
+      
     </div>
   );
 };

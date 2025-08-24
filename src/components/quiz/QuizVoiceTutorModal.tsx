@@ -104,7 +104,7 @@ export const QuizVoiceTutorModal = ({
                     {isLoading ? (
                       <motion.div
                         animate={{ rotate: 360 }}
-                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                        transition={{ duration: 1, repeatType: "loop", ease: "linear" }}
                         className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
                       />
                     ) : (
@@ -119,7 +119,7 @@ export const QuizVoiceTutorModal = ({
                 <div className="text-center space-y-4">
                   <motion.div
                     animate={{ scale: [1, 1.1, 1] }}
-                    transition={{ duration: 2, repeat: Infinity }}
+                    transition={{ duration: 2, repeatType: "loop" }}
                     className="w-16 h-16 mx-auto bg-gradient-to-br from-green-500 to-secondary-600 rounded-full flex items-center justify-center"
                   >
                     <Bot className="h-8 w-8 text-white" />
