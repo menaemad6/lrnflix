@@ -6,7 +6,9 @@ import {
   generateColorScheme,
   generateNeutralColors,
   generateTrueNeutralColors,
-  generateSemanticColors
+  generateSemanticColors,
+  generateDarkThemeColors,
+  generateLightThemeColors
 } from '@/utils/colorUtils';
 
 export const PLATFORM_NAME = "LRNFLIX"
@@ -188,6 +190,10 @@ export const generateCssVariables = (tenantColors?: {
   const secondaryPalette = generateColorPalette(colors.secondary);
   const accentPalette = generateColorPalette(colors.accent);
   
+  // Generate dynamic theme colors based on primary color
+  const darkThemeColors = generateDarkThemeColors(colors.primary);
+  const lightThemeColors = generateLightThemeColors(colors.primary);
+  
   // Dynamically calculate theme colors based on primary color
   const primaryHsl = hexToHsl(colors.primary);
   
@@ -209,37 +215,37 @@ export const generateCssVariables = (tenantColors?: {
   });
   
   const themeColors = theme === 'dark' ? {
-    // Dark theme: true neutral colors (no hue tint) for backgrounds
-    '--background': '0 0% 0%',  // Pure black
+    // Dark theme: dynamic colors based on primary color hue
+    '--background': darkThemeColors.background,
     '--foreground': '0 0% 100%',
-    '--card': '0 0% 3%',        // Very dark gray (almost black)
+    '--card': darkThemeColors.card,
     '--card-foreground': '0 0% 100%',
-    '--popover': '0 0% 3%',     // Very dark gray (almost black)
+    '--popover': darkThemeColors.popover,
     '--popover-foreground': '0 0% 100%',
-    '--muted': '0 0% 3%',       // Very dark gray (almost black)
+    '--muted': darkThemeColors.muted,
     '--muted-foreground': '0 0% 69%',
-    '--border': '0 0% 12%',     // Dark gray
-    '--input': '0 0% 12%',      // Dark gray
+    '--border': darkThemeColors.border,
+    '--input': darkThemeColors.input,
     '--ring': `${borderHue} ${borderSaturation}% 60%`,
-    '--sidebar-background': '0 0% 3%', // Very dark gray (almost black)
+    '--sidebar-background': darkThemeColors['sidebar-background'],
     '--sidebar-foreground': '0 0% 100%',
-    '--sidebar-border': '0 0% 12%',    // Dark gray
+    '--sidebar-border': darkThemeColors['sidebar-border'],
   } : {
-    // Light theme: lighter colors with primary tint
-    '--background': `${primaryHsl.h} ${Math.min(primaryHsl.s, 5)}% 100%`,
+    // Light theme: dynamic colors based on primary color hue
+    '--background': lightThemeColors.background,
     '--foreground': '0 0% 0%',
-    '--card': `${primaryHsl.h} ${Math.min(primaryHsl.s, 5)}% 100%`,
+    '--card': lightThemeColors.card,
     '--card-foreground': '0 0% 0%',
-    '--popover': `${primaryHsl.h} ${Math.min(primaryHsl.s, 5)}% 100%`,
+    '--popover': lightThemeColors.popover,
     '--popover-foreground': '0 0% 0%',
-    '--muted': `${primaryHsl.h} ${Math.min(primaryHsl.s, 10)}% 96%`,
+    '--muted': lightThemeColors.muted,
     '--muted-foreground': `${primaryHsl.h} ${Math.min(primaryHsl.s, 15)}% 47%`,
-    '--border': `${borderHue} ${borderSaturation}% 91%`,
-    '--input': `${borderHue} ${borderSaturation}% 91%`,
+    '--border': lightThemeColors.border,
+    '--input': lightThemeColors.input,
     '--ring': `${borderHue} ${borderSaturation}% 60%`,
-    '--sidebar-background': `${primaryHsl.h} ${Math.min(primaryHsl.s, 5)}% 98%`,
+    '--sidebar-background': lightThemeColors['sidebar-background'],
     '--sidebar-foreground': '0 0% 0%',
-    '--sidebar-border': `${borderHue} ${borderSaturation}% 91%`,
+    '--sidebar-border': lightThemeColors['sidebar-border'],
   };
   
   return {

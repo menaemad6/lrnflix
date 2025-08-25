@@ -86,20 +86,20 @@
   .dark {
     /* Dark theme variables - will be overridden by JavaScript */
     /* These are just fallbacks, the real values come from the dynamic color system */
-    --background: 0 0% 0%; /* Pure black - will be overridden by JS */
+    --background: 0 0% 4%; /* Dynamic dark background - will be overridden by JS */
     --foreground: 0 0% 100%; /* Will be overridden by JS */
     --text-secondary: 0 0% 69%; /* Will be overridden by JS */
 
-    --card: 0 0% 3%; /* Very dark gray (almost black) - will be overridden by JS */
+    --card: 0 0% 7%; /* Dynamic dark card - will be overridden by JS */
     --card-foreground: 0 0% 100%; /* Will be overridden by JS */
 
-    --popover: 0 0% 3%; /* Very dark gray (almost black) - will be overridden by JS */
+    --popover: 0 0% 8%; /* Dynamic dark popover - will be overridden by JS */
     --popover-foreground: 0 0% 100%; /* Will be overridden by JS */
 
     --primary-foreground: 0 0% 100%; /* Will be overridden by JS */
     --secondary-foreground: 0 0% 100%; /* Will be overridden by JS */
 
-    --muted: 0 0% 3%; /* Very dark gray (almost black) - will be overridden by JS */
+    --muted: 0 0% 10%; /* Dynamic dark muted - will be overridden by JS */
     --muted-foreground: 0 0% 69%; /* Will be overridden by JS */
 
     --accent-foreground: 0 0% 100%; /* Will be overridden by JS */
@@ -107,12 +107,12 @@
     --destructive: 12 98% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 12%; /* Dark gray - will be overridden by JS */
-    --input: 0 0% 12%; /* Dark gray - will be overridden by JS */
+    --border: 0 0% 15%; /* Dynamic dark border - will be overridden by JS */
+    --input: 0 0% 12%; /* Dynamic dark input - will be overridden by JS */
 
-    --sidebar-background: 0 0% 3%; /* Very dark gray (almost black) - will be overridden by JS */
+    --sidebar-background: 0 0% 5%; /* Dynamic dark sidebar - will be overridden by JS */
     --sidebar-foreground: 0 0% 100%; /* Will be overridden by JS */
-    --sidebar-border: 0 0% 12%; /* Dark gray - will be overridden by JS */
+    --sidebar-border: 0 0% 18%; /* Dynamic dark sidebar border - will be overridden by JS */
 
     /* Gradients using CSS variables */
     --gradient-mint: linear-gradient(90deg, hsl(var(--primary-light)) 0%, hsl(var(--primary)) 100%);
@@ -468,6 +468,114 @@
   .premium-bg-gradient {
     background: linear-gradient(120deg, hsl(var(--neutral-900)) 60%, hsl(var(--neutral-800)) 100%);
   }
+}
+
+/* Dynamic Dark Theme Utility Classes */
+.dark .dynamic-card {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  box-shadow: 
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06),
+    0 0 0 1px hsl(var(--primary) / 0.05);
+}
+
+.dark .dynamic-card-elevated {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  box-shadow: 
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05),
+    0 0 0 1px hsl(var(--primary) / 0.08),
+    0 0 20px hsl(var(--primary) / 0.1);
+}
+
+.dark .dynamic-background {
+  background: hsl(var(--background));
+  background-image: 
+    radial-gradient(circle at 20% 20%, hsl(var(--primary) / 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, hsl(var(--secondary) / 0.02) 0%, transparent 50%);
+}
+
+.dark .dynamic-sidebar {
+  background: hsl(var(--sidebar-background));
+  border-right: 1px solid hsl(var(--sidebar-border));
+  box-shadow: 
+    2px 0 8px rgba(0, 0, 0, 0.1),
+    0 0 0 1px hsl(var(--primary) / 0.05);
+}
+
+.dark .dynamic-input {
+  background: hsl(var(--input));
+  border: 1px solid hsl(var(--border));
+  color: hsl(var(--foreground));
+}
+
+.dark .dynamic-input:focus {
+  border-color: hsl(var(--primary));
+  box-shadow: 0 0 0 2px hsl(var(--primary) / 0.2);
+}
+
+.dark .dynamic-border {
+  border-color: hsl(var(--border));
+}
+
+.dark .dynamic-border-elevated {
+  border-color: hsl(var(--border));
+  box-shadow: 0 0 0 1px hsl(var(--primary) / 0.1);
+}
+
+/* Enhanced glass effects for dark theme */
+.dark .glass-enhanced {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.dark .glass-card-enhanced {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 0 0 1px hsl(var(--primary) / 0.05);
+}
+
+/* Primary color tinted backgrounds for dark theme */
+.dark .primary-tint-bg {
+  background: linear-gradient(
+    135deg,
+    hsl(var(--primary) / 0.02) 0%,
+    hsl(var(--primary) / 0.01) 50%,
+    hsl(var(--background)) 100%
+  );
+}
+
+.dark .primary-tint-card {
+  background: linear-gradient(
+    135deg,
+    hsl(var(--primary) / 0.03) 0%,
+    hsl(var(--primary) / 0.02) 50%,
+    hsl(var(--card)) 100%
+  );
+  border: 1px solid hsl(var(--primary) / 0.1);
+}
+
+/* Subtle primary color borders for dark theme */
+.dark .primary-border-subtle {
+  border: 1px solid hsl(var(--primary) / 0.15);
+}
+
+.dark .primary-border-medium {
+  border: 1px solid hsl(var(--primary) / 0.25);
+}
+
+.dark .primary-border-strong {
+  border: 1px solid hsl(var(--primary) / 0.4);
 }
 
 @keyframes float {

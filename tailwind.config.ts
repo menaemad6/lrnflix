@@ -218,15 +218,25 @@ export default {
 			backgroundImage: {
 				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
 				'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
-				'mesh-gradient': 'radial-gradient(at 40% 20%, hsl(var(--primary) / 0.3) 0px, transparent 50%), radial-gradient(at 80% 0%, hsl(var(--primary) / 0.2) 0px, transparent 50%), radial-gradient(at 0% 50%, hsl(var(--primary-light) / 0.2) 0px, transparent 50%)'
+				'mesh-gradient': 'radial-gradient(at 40% 20%, hsl(var(--primary) / 0.3) 0px, transparent 50%), radial-gradient(at 80% 0%, hsl(var(--secondary) / 0.2) 0px, transparent 50%), radial-gradient(at 0% 50%, hsl(var(--primary-light) / 0.2) 0px, transparent 50%)',
+				'dynamic-dark': 'radial-gradient(at 40% 20%, hsl(var(--primary) / 0.03) 0%, transparent 50%), radial-gradient(at 80% 80%, hsl(var(--secondary) / 0.02) 0%, transparent 50%)',
+				'primary-tint': 'linear-gradient(135deg, hsl(var(--primary) / 0.02) 0%, hsl(var(--primary) / 0.01) 50%, hsl(var(--background)) 100%)',
+				'primary-tint-card': 'linear-gradient(135deg, hsl(var(--primary) / 0.03) 0%, hsl(var(--primary) / 0.02) 50%, hsl(var(--card)) 100%)',
 			},
 			backdropBlur: {
 				xs: '2px',
+			},
+			boxShadow: {
+				'dynamic-card': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 0 0 1px hsl(var(--primary) / 0.05)',
+				'dynamic-card-elevated': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05), 0 0 0 1px hsl(var(--primary) / 0.08), 0 0 20px hsl(var(--primary) / 0.1)',
+				'dynamic-sidebar': '2px 0 8px rgba(0, 0, 0, 0.1), 0 0 0 1px hsl(var(--primary) / 0.05)',
+				'glass-enhanced': '0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
+				'glass-card-enhanced': '0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 0 0 1px hsl(var(--primary) / 0.05)',
 			}
 		}
 	},
 	plugins: [
-		// eslint-disable-next-line @typescript-eslint/no-var-requires
-		require("tailwindcss-animate")
+		// Temporarily disabled due to import issues
+		// import("tailwindcss-animate")
 	],
 } satisfies Config;

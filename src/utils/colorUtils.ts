@@ -303,3 +303,76 @@ export function generateSemanticColors(primary: string): Record<string, string> 
     info: hslToHex(217, 91, 60),         // Blue
   };
 }
+
+// Generate dynamic dark theme colors based on primary color
+export function generateDarkThemeColors(primary: string): Record<string, string> {
+  const hsl = hexToHsl(primary);
+  const baseHue = hsl.h;
+  
+  // Use primary color hue with very low saturation for dark backgrounds
+  // This creates a sophisticated dark theme that's not pure black
+  const darkSaturation = Math.max(2, Math.min(hsl.s * 0.1, 8)); // 2-8% saturation
+  
+  return {
+    // Background: primary hue with very low saturation, very low lightness
+    'background': hslToHex(baseHue, darkSaturation, 4),      // 4% lightness
+    'background-elevated': hslToHex(baseHue, darkSaturation, 6), // 6% lightness
+    
+    // Card: slightly lighter than background for subtle elevation
+    'card': hslToHex(baseHue, darkSaturation, 7),            // 7% lightness
+    'card-elevated': hslToHex(baseHue, darkSaturation, 9),   // 9% lightness
+    
+    // Popover: similar to card but with slight variation
+    'popover': hslToHex(baseHue, darkSaturation, 8),         // 8% lightness
+    
+    // Muted: slightly lighter than card for subtle backgrounds
+    'muted': hslToHex(baseHue, darkSaturation, 10),          // 10% lightness
+    
+    // Border: subtle borders that maintain the theme
+    'border': hslToHex(baseHue, darkSaturation, 15),         // 15% lightness
+    'border-elevated': hslToHex(baseHue, darkSaturation, 20), // 20% lightness
+    
+    // Input: slightly lighter than border
+    'input': hslToHex(baseHue, darkSaturation, 12),          // 12% lightness
+    
+    // Sidebar: slightly different from main background
+    'sidebar-background': hslToHex(baseHue, darkSaturation, 5), // 5% lightness
+    'sidebar-border': hslToHex(baseHue, darkSaturation, 18),    // 18% lightness
+  };
+}
+
+// Generate light theme colors based on primary color
+export function generateLightThemeColors(primary: string): Record<string, string> {
+  const hsl = hexToHsl(primary);
+  const baseHue = hsl.h;
+  
+  // Use primary color hue with very low saturation for light backgrounds
+  const lightSaturation = Math.max(3, Math.min(hsl.s * 0.08, 12)); // 3-12% saturation
+  
+  return {
+    // Background: primary hue with very low saturation, very high lightness
+    'background': hslToHex(baseHue, lightSaturation, 100),     // 100% lightness
+    'background-elevated': hslToHex(baseHue, lightSaturation, 98), // 98% lightness
+    
+    // Card: slightly darker than background for subtle elevation
+    'card': hslToHex(baseHue, lightSaturation, 100),           // 100% lightness
+    'card-elevated': hslToHex(baseHue, lightSaturation, 98),   // 98% lightness
+    
+    // Popover: similar to card
+    'popover': hslToHex(baseHue, lightSaturation, 100),        // 100% lightness
+    
+    // Muted: slightly darker than background for subtle backgrounds
+    'muted': hslToHex(baseHue, lightSaturation, 96),           // 96% lightness
+    
+    // Border: subtle borders that maintain the theme
+    'border': hslToHex(baseHue, lightSaturation, 91),          // 91% lightness
+    'border-elevated': hslToHex(baseHue, lightSaturation, 84), // 84% lightness
+    
+    // Input: similar to border
+    'input': hslToHex(baseHue, lightSaturation, 91),           // 91% lightness
+    
+    // Sidebar: slightly different from main background
+    'sidebar-background': hslToHex(baseHue, lightSaturation, 98), // 98% lightness
+    'sidebar-border': hslToHex(baseHue, lightSaturation, 91),     // 91% lightness
+  };
+}
