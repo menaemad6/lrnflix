@@ -63,8 +63,8 @@ export const Navbar = ({ extraXSpacing = false }: { extraXSpacing?: boolean }) =
       if (!ticking) {
         window.requestAnimationFrame(() => {
           const currentScrollY = window.scrollY;
-          // Home page: hide until scrolled past hero, then use scroll direction logic
-          if (location.pathname === '/' && isLargeScreen) {
+          // Home page with tenant: hide until scrolled past hero, then use scroll direction logic
+          if (location.pathname === '/' && teacher && isLargeScreen) {
             if (currentScrollY < window.innerHeight) {
               setHidden(true);
             } else {
@@ -99,7 +99,12 @@ export const Navbar = ({ extraXSpacing = false }: { extraXSpacing?: boolean }) =
     window.addEventListener('scroll', handleScroll);
     handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [isMobile, isLargeScreen, location.pathname]);
+  }, [isMobile, isLargeScreen, location.pathname, teacher]);
+
+  // Hide navbar completely on home route when there's no tenant
+  if (location.pathname === '/' && !teacher) {
+    return null;
+  }
 
   const handleLogout = async () => {
     await supabase.auth.signOut();

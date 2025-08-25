@@ -82,6 +82,8 @@ import { LanguageProvider } from './contexts/LanguageContext';
 import InvoiceDetailPage from "./pages/InvoiceDetailPage";
 
 
+import SaasLanding from "./components/landing/SaasLanding";
+
 const queryClient = new QueryClient();
 
 
@@ -111,7 +113,7 @@ const AppRoutes = () => {
       {!hideNavbar && <Navbar extraXSpacing />}
       <main className="" >
         <Routes>
-          <Route path="/" element={<Index />} />
+          <Route path="/" element={<SaasLanding/>} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/auth/login" element={<Auth />} />
           <Route path="/auth/signup" element={<Auth />} />

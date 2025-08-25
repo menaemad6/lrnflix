@@ -318,11 +318,11 @@
 
   /* Webkit Scrollbar Styling */
   ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 3px;
+    height: 3px;
   }
   ::-webkit-scrollbar-track {
-    background: hsl(var(--primary-dark)); /* Dark primary track */
+    background: black; /* Black track background */
     border-radius: 9999px;
   }
   ::-webkit-scrollbar-thumb {
@@ -334,11 +334,11 @@
     background: hsl(var(--primary-light)); /* Light primary on hover */
   }
   ::-webkit-scrollbar-corner {
-    background: transparent;
+    background: black;
   }
   /* Light mode overrides */
   .light ::-webkit-scrollbar-track {
-    background: hsl(var(--neutral-50)); /* Very light neutral for light mode */
+    background: black; /* Black track for light mode */
   }
   .light ::-webkit-scrollbar-thumb {
     background: hsl(var(--primary)); /* Primary for light mode */
@@ -349,10 +349,10 @@
   /* Firefox Scrollbar Styling */
   * {
     scrollbar-width: thin;
-    scrollbar-color: hsl(var(--primary)) hsl(var(--primary-dark));
+    scrollbar-color: hsl(var(--primary)) black;
   }
   .light * {
-    scrollbar-color: hsl(var(--primary)) hsl(var(--neutral-50));
+    scrollbar-color: hsl(var(--primary)) black;
   }
 }
 
