@@ -15,15 +15,20 @@ export const PLATFORM_NAME = "LRNFLIX"
 export const API_URL = import.meta.env.VITE_API_URL;
 
 // Base primary color - this is the ONLY hardcoded color, everything else is calculated
-const BASE_PRIMARY_COLOR = '#10b981';
+// const BASE_PRIMARY_COLOR = '#10b981';
+const BASE_PRIMARY_COLOR = '#1a66ff';
 
 // Default tenant colors object that matches the teachers table structure
+// export const DEFAULT_TENANT_COLORS = {
+//   primary: '#10b981', // Emerald green as default
+//   secondary: '#12A594',    // Will be auto-calculated from primary
+//   accent: '#06B6D4',       // Will be auto-calculated from primary
+// };
 export const DEFAULT_TENANT_COLORS = {
-  primary: '#10b981', // Emerald green as default
-  secondary: '#12A594',    // Will be auto-calculated from primary
-  accent: '#06B6D4',       // Will be auto-calculated from primary
+  primary: '#1a66ff', // Emerald green as default
+  secondary: '#1fc7ff',    // Will be auto-calculated from primary
+  accent: '#3884ff',       // Will be auto-calculated from primary
 };
-
 /**
  * Dynamic color system for the application
  * All colors are calculated from the primary color to ensure consistency

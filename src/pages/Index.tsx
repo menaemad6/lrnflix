@@ -5,6 +5,7 @@ import { useRandomBackground } from "../hooks/useRandomBackground";
 import { useTenant } from '@/contexts/TenantContext';
 import TeacherLanding from './TeacherLanding';
 import { SEOHead } from '@/components/seo/SEOHead';
+import SaasLanding from '@/components/landing/SaasLanding';
 
 const Index = () => {
   const bgClass = useRandomBackground();
@@ -24,7 +25,7 @@ const Index = () => {
   return (
     <>
       <SEOHead />
-      <UltraModernLanding />
+      <SaasLanding />
     </>
   );
 };

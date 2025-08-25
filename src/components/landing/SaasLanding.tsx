@@ -1,7 +1,8 @@
-import React, { useRef } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import React, { useRef, useState, useEffect } from 'react';
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { getTopCourses, getFeaturedInstructors } from '@/lib/queries';
+import { PLATFORM_NAME } from '@/data/constants';
 import { 
   FaArrowRight, 
   FaLinkedin, 
@@ -85,7 +86,9 @@ const TopLine: React.FC = () => {
             🚀 First AI-powered gamified learning platform in Egypt
           </span>
           <span className="pr-1">
+            <Link to="/auth/signup">
             Start learning for free <FaArrowRight className="inline h-2 w-2" />
+            </Link>
           </span>
     </div>
   )
@@ -97,11 +100,34 @@ const Header: React.FC = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
   const userRole = user?.role || 'student';
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate('/');
+    setIsMobileNavOpen(false);
   };
+
+  const closeMobileNav = () => {
+    setIsMobileNavOpen(false);
+    // Re-enable body scroll
+    document.body.style.overflow = 'unset';
+  };
+
+  const openMobileNav = () => {
+    setIsMobileNavOpen(true);
+    // Disable body scroll when mobile nav is open
+    document.body.style.overflow = 'hidden';
+  };
+
+  // Cleanup effect to restore body scroll when component unmounts
+  useEffect(() => {
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, []);
+
+
 
   const getAuthButton = () => {
     if (isAuthenticated) {
@@ -193,13 +219,12 @@ const Header: React.FC = () => {
         <Button 
           variant="ghost" 
           onClick={() => navigate('/auth/login')}
-          className="text-black hover:text-gray-700"
         >
           Sign In
         </Button>
         <Button 
           onClick={() => navigate('/auth/signup')}
-          className="text-white bg-black py-2 px-4 rounded-sm cursor-pointer hover:bg-gray-800"
+          className="bg-black py-2 px-4 rounded-sm cursor-pointer"
         >
           Start Learning
         </Button>
@@ -211,11 +236,10 @@ const Header: React.FC = () => {
     if (!isAuthenticated) {
       return (
         <>
-          <li><a href="#about" className='text-black hover:text-gray-700 transition-colors'>About</a></li>
-          <li><a href="#features" className='text-black hover:text-gray-700 transition-colors'>Features</a></li>
-          <li><a href="#courses" className='text-black hover:text-gray-700 transition-colors'>Courses</a></li>
-          <li><a href="#ai-tutor" className='text-black hover:text-gray-700 transition-colors'>AI Tutor</a></li>
-          <li><a href="#help" className='text-black hover:text-gray-700 transition-colors'>Help</a></li>
+          <li><Link to="/courses" className='text-black hover:text-gray-700 transition-colors'>Courses</Link></li>
+          <li><Link to="/chapters" className='text-black hover:text-gray-700 transition-colors'>Chapters</Link></li>
+          <li><Link to="/teachers" className='text-black hover:text-gray-700 transition-colors'>Instructors</Link></li>
+
         </>
       );
     }
@@ -249,12 +273,19 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="flex justify-between items-center px-6 py-4 backdrop-blur-md sticky top-0 z-20 bg-gradient-to-r from-[#E0E7FD] to-[#FDFEFF] shadow-md">
-      <Link to="/" className="cursor-pointer">
+    <header className="flex justify-between items-center px-6 py-4 backdrop-blur-md sticky top-0 z-30 bg-gradient-to-r from-[#E0E7FD] to-[#FDFEFF] shadow-md">
+      <Link to="/" className="cursor-pointer flex items-center space-x-2">
         <img src="/assests/logo.png" alt="Logo" className="h-8 w-auto"/>
+        <span className="text-black font-semibold text-xl">{PLATFORM_NAME}</span>
       </Link>
       
-      <FaBars className="block md:hidden" />
+      <button 
+        onClick={openMobileNav}
+        className="block md:hidden p-2 hover:bg-black/5 rounded-lg transition-colors"
+        aria-label="Open mobile menu"
+      >
+        <FaBars className="h-6 w-6 text-black" />
+      </button>
       
       <nav className="hidden md:block">
         <ul className="flex gap-6 items-center">
@@ -262,7 +293,271 @@ const Header: React.FC = () => {
           {getAuthButton()}
         </ul>
       </nav>
+
+      {/* Mobile Navigation Overlay */}
+      <AnimatePresence>
+        {isMobileNavOpen && (
+          <MobileNavigation 
+            isOpen={isMobileNavOpen}
+            onClose={closeMobileNav}
+            isAuthenticated={isAuthenticated}
+            userRole={userRole}
+            user={user}
+            onLogout={handleLogout}
+          />
+        )}
+      </AnimatePresence>
     </header>
+  );
+};
+
+// Mobile Navigation Component
+const MobileNavigation: React.FC<{
+  isOpen: boolean;
+  onClose: () => void;
+  isAuthenticated: boolean;
+  userRole: string;
+  user: RootState['auth']['user'];
+  onLogout: () => void;
+}> = ({ isOpen, onClose, isAuthenticated, userRole, user, onLogout }) => {
+  const navigate = useNavigate();
+  const containerVariants = {
+    closed: {
+      opacity: 0,
+      scale: 0.95,
+      transition: {
+        duration: 0.3
+      }
+    },
+    open: {
+      opacity: 1,
+      scale: 1,
+      transition: {
+        duration: 0.4,
+        staggerChildren: 0.1,
+        delayChildren: 0.2
+      }
+    }
+  };
+
+  const itemVariants = {
+    closed: {
+      opacity: 0,
+      y: 20,
+      transition: {
+        duration: 0.2
+      }
+    },
+    open: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.3
+      }
+    }
+  };
+
+  const backdropVariants = {
+    closed: {
+      opacity: 0,
+      transition: {
+        duration: 0.3
+      }
+    },
+    open: {
+      opacity: 1,
+      transition: {
+        duration: 0.4
+      }
+    }
+  };
+
+  const getMobileNavLinks = () => {
+          if (!isAuthenticated) {
+        return [
+          { label: 'Browse Courses', action: () => { navigate('/courses'); onClose(); } },
+          { label: 'Chapters', action: () => { navigate('/chapters'); onClose(); } },
+          { label: 'Instructors', action: () => { navigate('/teachers'); onClose(); } },
+        ];
+      }
+
+    if (userRole === 'student') {
+      return [
+        { label: 'Dashboard', action: () => navigate('/student/dashboard') },
+        { label: 'My Courses', action: () => navigate('/student/courses') },
+        { label: 'Chapters', action: () => navigate('/student/chapters') },
+        { label: 'Groups', action: () => navigate('/student/groups') },
+        { label: 'Browse Courses', action: () => navigate('/courses') },
+        { label: 'Wallet', action: () => navigate('/student/transactions') }
+      ];
+    }
+
+    if (userRole === 'teacher') {
+      return [
+        { label: 'Dashboard', action: () => navigate('/teacher/dashboard') },
+        { label: 'My Courses', action: () => navigate('/teacher/courses') },
+        { label: 'Chapters', action: () => navigate('/teacher/chapters') },
+        { label: 'Groups', action: () => navigate('/teacher/groups') },
+        { label: 'Analytics', action: () => navigate('/teacher/analytics') },
+        { label: 'Wallet Codes', action: () => navigate('/teacher/codes') }
+      ];
+    }
+
+    return [];
+  };
+
+  const getMobileAuthSection = () => {
+    if (isAuthenticated) {
+      return (
+        <motion.div 
+          variants={itemVariants}
+          className="flex flex-col items-center space-y-4 p-6 bg-gradient-to-br from-white/80 to-white/40 rounded-2xl backdrop-blur-xl border border-white/20"
+        >
+          <div className="flex items-center space-x-3">
+            <Avatar className="h-16 w-16 ring-4 ring-white/30">
+              <AvatarImage src={user?.avatar_url || undefined} />
+              <AvatarFallback className="text-xl font-semibold bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+                {user?.full_name?.charAt(0) || user?.email?.charAt(0) || 'U'}
+              </AvatarFallback>
+            </Avatar>
+            <div className="text-left">
+              <p className="text-lg font-semibold text-gray-900">
+                {user?.full_name || 'User'}
+              </p>
+              <p className="text-sm text-gray-600">
+                {user?.email}
+              </p>
+              <p className="text-xs font-medium text-blue-600 capitalize bg-blue-50 px-2 py-1 rounded-full">
+                {userRole}
+              </p>
+            </div>
+          </div>
+          
+          <div className="w-full space-y-2">
+            <button
+              onClick={() => { navigate('/dashboard/settings'); onClose(); }}
+              className="w-full py-3 px-4 bg-white/80 hover:bg-white text-gray-700 rounded-xl transition-all duration-200 hover:shadow-lg border border-gray-200"
+            >
+              Settings
+            </button>
+            <button
+              onClick={onLogout}
+              className="w-full py-3 px-4 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl transition-all duration-200 hover:shadow-lg border border-red-200"
+            >
+              Logout
+            </button>
+          </div>
+        </motion.div>
+      );
+    }
+
+    return (
+      <motion.div 
+        variants={itemVariants}
+        className="flex flex-col space-y-3 p-6 bg-gradient-to-br from-white/80 to-white/40 rounded-2xl backdrop-blur-xl border border-white/20"
+      >
+        <Button
+          onClick={() => navigate('/auth/login')}
+          variant='outline'
+          className="w-full py-4 px-6 rounded-xl transition-all duration-200 hover:shadow-lg border border-gray-200 font-medium"
+        >
+          Sign In
+        </Button>
+        <Button
+          onClick={() => navigate('/auth/signup')}
+          className="w-full py-4 px-6 bg-gradient-to-r from-primary-500 to-secondary-600 hover:from-primary-700 hover:to-secondary-700 text-white rounded-xl transition-all duration-200 hover:shadow-xl font-medium"
+        >
+          Start Learning
+        </Button>
+      </motion.div>
+    );
+  };
+
+  return (
+    <>
+      {/* Backdrop */}
+      <motion.div
+        variants={backdropVariants}
+        initial="closed"
+        animate="open"
+        exit="closed"
+        onClick={onClose}
+        className="fixed inset-0 bg-black/80 backdrop-blur-md z-[9999]"
+      />
+      
+      {/* Navigation Panel */}
+      <motion.div
+        variants={containerVariants}
+        initial="closed"
+        animate="open"
+        exit="closed"
+        className="fixed top-0 left-0 right-0 bottom-0 w-screen h-screen z-[9999] flex flex-col bg-white"
+        style={{ 
+          minHeight: '100vh', 
+          minWidth: '100vw',
+          maxHeight: '100vh',
+          maxWidth: '100vw'
+        }}
+      >
+        {/* Header */}
+        <motion.div 
+          variants={itemVariants}
+          className="flex justify-between items-center p-6 bg-gradient-to-br from-white/95 to-white/80 backdrop-blur-xl border-b border-white/20 flex-shrink-0"
+        >
+          <Link to="/" onClick={onClose} className="cursor-pointer flex items-center space-x-2">
+            <img src="/assests/logo.png" alt="Logo" className="h-8 w-auto"/>
+            <span className="text-black font-semibold text-xl">{PLATFORM_NAME}</span>
+          </Link>
+          
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-black/5 rounded-xl transition-colors"
+            aria-label="Close mobile menu"
+          >
+            <motion.div
+              animate={{ rotate: isOpen ? 180 : 0 }}
+              transition={{ duration: 0.3 }}
+              className="w-6 h-6 flex items-center justify-center"
+            >
+              <div className="w-5 h-5 relative">
+                <span className="absolute inset-0 w-0.5 h-5 bg-gray-600 transform rotate-45 origin-center"></span>
+                <span className="absolute inset-0 w-0.5 h-5 bg-gray-600 transform -rotate-45 origin-center"></span>
+              </div>
+            </motion.div>
+          </button>
+        </motion.div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto bg-gradient-to-br from-blue-50/80 via-white/90 to-purple-50/80 min-h-0">
+          <div className="p-6 space-y-6">
+            {/* Navigation Links */}
+            <motion.div variants={itemVariants} className="space-y-2">
+              <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">
+                {isAuthenticated ? 'Navigation' : 'Menu'}
+              </h3>
+              {getMobileNavLinks().map((link, index) => (
+                <motion.div
+                  key={index}
+                  variants={itemVariants}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <button
+                    onClick={link.action}
+                    className="w-full text-left py-4 px-4 bg-white/70 hover:bg-white text-gray-800 rounded-xl transition-all duration-200 hover:shadow-lg border border-white/30 font-medium"
+                  >
+                    {link.label}
+                  </button>
+                </motion.div>
+              ))}
+            </motion.div>
+
+            {/* Auth Section */}
+            {getMobileAuthSection()}
+          </div>
+        </div>
+      </motion.div>
+    </>
   );
 };
 
@@ -1244,7 +1539,10 @@ const Footer: React.FC = () => {
   return (
     <div className="flex flex-col md:flex-row bg-black text-white p-16 gap-8 justify-between md:px-20 xl:px-44">
       <div className="flex flex-col gap-8 text-gray-300/85 max-w-[300px]">
-        <img src="/assests/logo.png" alt="Logo" className="cursor-pointer h-12 w-12" />
+        <div className="flex items-center space-x-3">
+          <img src="/assests/logo.png" alt="Logo" className="cursor-pointer h-12 w-12" />
+          <span className="text-white font-semibold text-2xl">{PLATFORM_NAME}</span>
+        </div>
         <div>
           Egypt's first AI-powered learning platform developed by{" "}
           <div className="font-semibold text-white hover:underline text-lg">

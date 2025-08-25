@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
-import { BookOpen, Layout, LogOut, Home, Search, Store, Menu, Sidebar, MessageCircleQuestion, Gamepad2, Users, Gift, Bell, PieChart, DollarSign, CircleDollarSign, GraduationCap } from 'lucide-react';
+import { Layout, LogOut, Home, Search, Store, Menu, Sidebar, MessageCircleQuestion, Gamepad2, Users, Gift, Bell, PieChart, DollarSign, CircleDollarSign, GraduationCap } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import type { RootState } from '@/store/store';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -26,6 +26,11 @@ import type { User } from '@/store/slices/authSlice';
 import WalletCardDesign from '@/components/student/WalletCardDesign'
 import { PLATFORM_NAME } from '@/data/constants';
 import { useTranslation } from 'react-i18next';
+
+// Logo component to replace BookOpen icons
+const Logo = ({ className = "" }: { className?: string }) => (
+  <img src="/assests/logo.png" alt="Logo" className={className} />
+);
 
 // NavLink must be above NavbarSidebarContent for scope
 const NavLink = ({ to, children, icon: Icon, onClick, className = "", isActive }: { to: string; children: React.ReactNode; icon: React.ComponentType<{ className?: string }>; onClick?: () => void; className?: string; isActive: (path: string) => boolean }) => (
@@ -141,7 +146,7 @@ export const Navbar = ({ extraXSpacing = false }: { extraXSpacing?: boolean }) =
           { to: '/teachers', label: t('navbar.teachers'), icon: GraduationCap },
           { to: '/courses', label: t('navbar.courses'), icon: Search },
           { to: '/student/store', label: t('navbar.store'), icon: CircleDollarSign },
-          { to: '/chapters', label: t('navbar.chapters'), icon: BookOpen },
+          { to: '/chapters', label: t('navbar.chapters'), icon: Logo },
           { to: '/student/groups', label: t('navbar.myGroups'), icon: Users },
           { to: '/questions', label: t('navbar.questions'), icon: MessageCircleQuestion },
           { to: '/multiplayer-quiz', label: t('navbar.quizGame'), icon: Gamepad2 },
@@ -152,7 +157,7 @@ export const Navbar = ({ extraXSpacing = false }: { extraXSpacing?: boolean }) =
       ...((userRole === 'teacher' || userRole === 'admin')
         ? [
             { to: '/teacher/dashboard', label: t('navbar.dashboard'), icon: Layout },
-            { to: '/teacher/chapters', label: t('navbar.myChapters'), icon: BookOpen },
+            { to: '/teacher/chapters', label: t('navbar.myChapters'), icon: Logo },
             { to: '/questions', label: t('navbar.questions'), icon: MessageCircleQuestion },
             { to: '/teacher/multiplayer-quiz', label: t('navbar.quizGame'), icon: Gamepad2 },
             { to: '/teacher/groups', label: t('navbar.myGroups'), icon: Users },
@@ -175,7 +180,7 @@ export const Navbar = ({ extraXSpacing = false }: { extraXSpacing?: boolean }) =
         <div className="px-6 py-4">
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center space-x-2">
-              <BookOpen className="h-8 w-8 text-primary" />
+              <Logo className="h-8 w-auto" />
               <span className="text-2xl font-bold gradient-text">{teacher?.display_name || PLATFORM_NAME}</span>
             </Link>
             {isMobile ? (
@@ -190,7 +195,7 @@ export const Navbar = ({ extraXSpacing = false }: { extraXSpacing?: boolean }) =
                     {/* Top: Logo and Theme Toggle (not scrollable) */}
                     <div className="flex flex-col gap-2 pt-8 pb-2 px-6 border-b border-border/10">
                       <div className="flex flex-col items-center justify-center w-full">
-                        <BookOpen className="h-8 w-8 text-primary mb-1" />
+                        <Logo className="h-8 w-auto mb-1" />
                         <span className="text-2xl font-bold gradient-text text-center w-full">{teacher?.display_name || PLATFORM_NAME}</span>
                       </div>
                       <div className="mt-4">
@@ -247,7 +252,7 @@ export const Navbar = ({ extraXSpacing = false }: { extraXSpacing?: boolean }) =
       <div className="px-6 py-4">
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center space-x-2">
-            <BookOpen className="h-8 w-8 text-primary" />
+            <Logo className="h-8 w-auto" />
             <span className="text-2xl font-bold gradient-text">{teacher?.display_name || PLATFORM_NAME}</span>
           </Link>
           {/* Sidebar Trigger and Profile Dropdown */}
@@ -317,7 +322,7 @@ export const Navbar = ({ extraXSpacing = false }: { extraXSpacing?: boolean }) =
                         className="w-full flex items-center gap-2 justify-start px-2 py-1.5 rounded hover:bg-accent transition text-sm"
                         onClick={() => { setDropdownOpen(false); navigate('/student/courses'); }}
                       >
-                        <BookOpen className="h-4 w-4" />
+                        <Logo className="h-4 w-auto" />
                         {t('sidebar.myCourses')}
                       </button>
                     </DropdownMenuItem>
@@ -408,7 +413,7 @@ function NavbarSidebarContent({ user, navLinks, handleLogout, setSheetOpen, isAc
       {/* Top: Logo and Theme Toggle (not scrollable) */}
       <div className="flex flex-col gap-2 pt-8 pb-2 px-6 border-b border-border/10">
         <div className="flex flex-col items-center justify-center w-full">
-          <BookOpen className="h-8 w-8 text-primary mb-1" />
+          <Logo className="h-8 w-auto mb-1" />
           <span className="text-2xl font-bold gradient-text text-center w-full">{teacher?.display_name || PLATFORM_NAME}</span>
         </div>
         <div className="mt-4">

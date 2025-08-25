@@ -113,7 +113,7 @@ const AppRoutes = () => {
       {!hideNavbar && <Navbar extraXSpacing />}
       <main className="" >
         <Routes>
-          <Route path="/" element={<SaasLanding/>} />
+          <Route path="/" element={<Index/>} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/auth/login" element={<Auth />} />
           <Route path="/auth/signup" element={<Auth />} />
@@ -159,8 +159,8 @@ const AppRoutes = () => {
           <Route path="/courses/:id/progress/attachment/:attachmentId" element={<ProtectedRoute><CourseProgress /></ProtectedRoute>} />
           <Route path="/courses/:id/progress/quiz/:quizId" element={<ProtectedRoute><CourseProgress /></ProtectedRoute>} />
           <Route path="/courses/:id/progress/quiz/:quizId/attempt/:attemptId" element={<ProtectedRoute><CourseProgress /></ProtectedRoute>} />
-          <Route path="/chapters" element={<ProtectedRoute><ChaptersPage /></ProtectedRoute>} />
-          <Route path="/chapters/:id" element={<ProtectedRoute><ChapterDetailPage /></ProtectedRoute>} />
+          <Route path="/chapters" element={<ChaptersPage />} />
+          <Route path="/chapters/:id" element={<ChapterDetailPage />} />
           <Route path="/student/notifications" element={<ProtectedRoute requiredRole={['student']}><StudentNotificationsPage /></ProtectedRoute>} />
           <Route path="/student/store" element={<ProtectedRoute requiredRole={['student']}><Store /></ProtectedRoute>} />
           {/* Shared Routes */}
