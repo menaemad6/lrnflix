@@ -127,8 +127,11 @@ const AppRoutes = () => {
           <Route path="/teacher/courses/:id/manage" element={<ProtectedRoute requiredRole={['teacher']}><TeacherCourseManagement /></ProtectedRoute>} />
           <Route path="/teacher/courses/:id/manage/lessons" element={<ProtectedRoute requiredRole={['teacher']}><TeacherCourseManagement /></ProtectedRoute>} />
           <Route path="/teacher/courses/:id/manage/quizzes" element={<ProtectedRoute requiredRole={['teacher']}><TeacherCourseManagement /></ProtectedRoute>} />
+          <Route path="/teacher/courses/:id/manage/attachments" element={<ProtectedRoute requiredRole={['teacher']}><TeacherCourseManagement /></ProtectedRoute>} />
+          <Route path="/teacher/courses/:id/manage/live-lectures" element={<ProtectedRoute requiredRole={['teacher']}><TeacherCourseManagement /></ProtectedRoute>} />
           <Route path="/teacher/courses/:id/manage/lessons/:lessonId" element={<ProtectedRoute requiredRole={['teacher']}><TeacherCourseManagement /></ProtectedRoute>} />
           <Route path="/teacher/courses/:id/manage/quizzes/:quizId" element={<ProtectedRoute requiredRole={['teacher']}><TeacherCourseManagement /></ProtectedRoute>} />
+          <Route path="/teacher/courses/:id/manage/attachments/:attachmentId" element={<ProtectedRoute requiredRole={['teacher']}><TeacherCourseManagement /></ProtectedRoute>} />
           <Route path="/teacher/groups" element={<ProtectedRoute requiredRole={['teacher']}><TeacherGroups /></ProtectedRoute>} />
           <Route path="/teacher/chapters" element={<ProtectedRoute requiredRole={['teacher']}><TeacherChaptersPage /></ProtectedRoute>} />
           <Route path="/teacher/chapters/:chapterId" element={<ProtectedRoute requiredRole={['teacher']}><TeacherChapterManagement /></ProtectedRoute>} />
@@ -153,6 +156,7 @@ const AppRoutes = () => {
           <Route path="/courses/:id" element={<CourseView />} />
           <Route path="/courses/:id/progress" element={<ProtectedRoute><CourseProgress /></ProtectedRoute>} />
           <Route path="/courses/:id/progress/lesson/:lessonId" element={<ProtectedRoute><CourseProgress /></ProtectedRoute>} />
+          <Route path="/courses/:id/progress/attachment/:attachmentId" element={<ProtectedRoute><CourseProgress /></ProtectedRoute>} />
           <Route path="/courses/:id/progress/quiz/:quizId" element={<ProtectedRoute><CourseProgress /></ProtectedRoute>} />
           <Route path="/courses/:id/progress/quiz/:quizId/attempt/:attemptId" element={<ProtectedRoute><CourseProgress /></ProtectedRoute>} />
           <Route path="/chapters" element={<ProtectedRoute><ChaptersPage /></ProtectedRoute>} />

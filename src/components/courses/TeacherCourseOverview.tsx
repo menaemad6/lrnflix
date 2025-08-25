@@ -7,6 +7,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { CreateLessonModal } from '@/components/lessons/CreateLessonModal';
 import { CreateQuizModal } from '@/components/quizzes/CreateQuizModal';
+import { CreateAttachmentModal } from '@/components/attachments/CreateAttachmentModal';
 import { 
   BookOpen, 
   FileText, 
@@ -21,8 +22,10 @@ import {
   Target,
   Video,
   Brain,
-  TrendingUp
+  TrendingUp,
+  Paperclip
 } from 'lucide-react';
+import { Attachment } from '@/lib/attachmentQueries';
 
 interface Course {
   id: string;
@@ -54,27 +57,30 @@ interface TeacherCourseOverviewProps {
   course: Course;
   lessons: Lesson[];
   quizzes: Quiz[];
-  onItemSelect: (type: 'lesson' | 'quiz', id: string) => void;
+  attachments: Attachment[];
+  onItemSelect: (type: 'lesson' | 'quiz' | 'attachment', id: string) => void;
 }
 
 export const TeacherCourseOverview = ({ 
   course, 
   lessons, 
   quizzes,
-  onViewModeChange,
+  attachments,
   onItemSelect
 }: TeacherCourseOverviewProps) => {
   const { id: courseId } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [showLessonModal, setShowLessonModal] = useState(false);
   const [showQuizModal, setShowQuizModal] = useState(false);
+  const [showAttachmentModal, setShowAttachmentModal] = useState(false);
   const { t } = useTranslation('dashboard');
   
-  const totalContent = lessons.length + quizzes.length;
+  const totalContent = lessons.length + quizzes.length + attachments.length;
   const lastUpdated = new Date(
     Math.max(
       ...lessons.map(l => new Date(l.created_at).getTime()),
-      ...quizzes.map(q => new Date(q.created_at).getTime())
+      ...quizzes.map(q => new Date(q.created_at).getTime()),
+      ...attachments.map(a => new Date(a.created_at).getTime())
     )
   );
 
@@ -85,6 +91,11 @@ export const TeacherCourseOverview = ({
 
   const handleQuizCreated = () => {
     setShowQuizModal(false);
+    // Refresh data will be handled by parent
+  };
+
+  const handleAttachmentCreated = () => {
+    setShowAttachmentModal(false);
     // Refresh data will be handled by parent
   };
 
@@ -128,6 +139,12 @@ export const TeacherCourseOverview = ({
                 <Brain className="h-4 w-4 mr-2" />
                                   {t('teacherCourseOverview.manageQuizzes')}
               </Button>
+              <Button 
+                onClick={() => navigate(`/teacher/courses/${course.id}/manage/attachments`)}
+                variant="default" >
+                <Paperclip className="h-4 w-4 mr-2" />
+                {t('attachments.manageAttachments')}
+              </Button>
             </div>
           </div>
         </div>
@@ -145,8 +162,8 @@ export const TeacherCourseOverview = ({
               <div className="text-3xl font-bold text-primary-300">
                 {totalContent}
               </div>
-              <p className="text-xs text-muted-foreground mt-2">
-                                 {t('teacherCourseOverview.lessonsAndQuizzes', { lessons: lessons.length, quizzes: quizzes.length })}
+                            <p className="text-xs text-muted-foreground mt-2">
+                {t('teacherCourseOverview.lessonsAndQuizzes', { lessons: lessons.length, quizzes: quizzes.length })} + {t('attachments.attachmentsCount', { count: attachments.length })}
               </p>
             </CardContent>
           </Card>
@@ -205,7 +222,7 @@ export const TeacherCourseOverview = ({
         </div>
 
         {/* Recent Content (unified accent, tighter gaps) */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           <Card className="card border border-border bg-card">
             <CardHeader className="pb-4">
               <CardTitle className="flex items-center gap-3 text-lg sm:text-xl text-primary-300">
@@ -306,6 +323,60 @@ export const TeacherCourseOverview = ({
               </div>
             </CardContent>
           </Card>
+
+          <Card className="card border border-border bg-card">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-3 text-lg sm:text-xl text-primary-300">
+                <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-lg flex items-center justify-center">
+                  <Paperclip className="h-4 w-4 text-black" />
+                </div>
+                {t('attachments.recentAttachments')}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {attachments.slice(0, 3).map((attachment) => (
+                  <div 
+                    key={attachment.id} 
+                    className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-primary-500/10 to-secondary-500/10 hover:from-primary-500/20 hover:to-secondary-500/20 border border-primary-500/20 hover:border-primary-500/40 cursor-pointer transition-all duration-300 group"
+                    onClick={() => onItemSelect('attachment', attachment.id)}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-gradient-to-br from-primary-500/20 to-secondary-500/20 rounded-lg flex items-center justify-center group-hover:shadow-lg group-hover:shadow-primary-500/25 transition-all duration-300">
+                        <Paperclip className="h-5 w-5 text-primary-400" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-primary-300 group-hover:text-primary-400 transition-colors truncate max-w-[200px] sm:max-w-none">
+                          {attachment.title}
+                        </p>
+                        <div className="flex gap-2 mt-1">
+                          <Badge variant="outline" className="text-xs border-primary-500/30 text-primary-400 bg-primary-500/10">
+                            {attachment.type}
+                          </Badge>
+                          {attachment.view_limit && (
+                            <Badge variant="outline" className="text-xs border-primary-500/30 text-primary-400 bg-primary-500/10">
+                              {attachment.view_limit} views
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <Button variant="ghost" size="sm" className="text-primary-400 hover:text-primary-300 hover:bg-primary-500/10">
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+                {attachments.length === 0 && (
+                  <div className="text-center py-8">
+                    <div className="w-16 h-16 bg-gradient-to-br from-primary-500/20 to-secondary-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      <Paperclip className="h-8 w-8 text-primary-400" />
+                    </div>
+                    <p className="text-sm text-muted-foreground">{t('attachments.noAttachmentsYetSimple')}</p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Quick Actions (unified accent) */}
@@ -319,7 +390,7 @@ export const TeacherCourseOverview = ({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
               <Button 
                 variant="outline" 
                 className="h-auto py-6 bg-gradient-to-br from-primary-500/10 to-secondary-500/10 hover:from-primary-500/20 hover:to-secondary-500/20 border-primary-500/30 hover:border-primary-500/50 text-primary-300 hover:text-primary-400 backdrop-blur-sm transition-all duration-300" 
@@ -344,7 +415,18 @@ export const TeacherCourseOverview = ({
                   <span className="font-semibold">{t('teacherCourseOverview.createNewQuiz')}</span>
                 </div>
               </Button>
-
+              <Button 
+                variant="outline" 
+                className="h-auto py-6 bg-gradient-to-br from-primary-500/10 to-secondary-500/10 hover:from-primary-500/20 hover:to-secondary-500/20 border-primary-500/30 hover:border-primary-500/50 text-primary-300 hover:text-primary-400 backdrop-blur-sm transition-all duration-300" 
+                onClick={() => setShowAttachmentModal(true)}
+              >
+                <div className="flex flex-col items-center gap-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-xl flex items-center justify-center shadow-lg shadow-primary-500/25">
+                    <Plus className="h-6 w-6 text-black" />
+                  </div>
+                  <span className="font-semibold">{t('attachments.createAttachment')}</span>
+                </div>
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -365,6 +447,15 @@ export const TeacherCourseOverview = ({
             onOpenChange={setShowQuizModal}
             courseId={course.id}
             onQuizCreated={handleQuizCreated}
+          />
+        )}
+
+        {showAttachmentModal && (
+          <CreateAttachmentModal
+            isOpen={showAttachmentModal}
+            onClose={() => setShowAttachmentModal(false)}
+            onAttachmentCreated={handleAttachmentCreated}
+            courseId={course.id}
           />
         )}
       </div>

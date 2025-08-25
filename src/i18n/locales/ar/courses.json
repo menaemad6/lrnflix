@@ -434,5 +434,61 @@
       "preview": "معاينة",
       "enrollNow": "سجل الآن"
     }
+  },
+  "courseManagementSidebar": {
+    "management": "الإدارة",
+    "courseContent": "محتوى الدورة",
+    "noContentYet": "لا يوجد محتوى بعد",
+    "back": "رجوع",
+    "total": "المجموع",
+    "lessons": "الدروس",
+    "quizzes": "الاختبارات",
+    "attachments": "المرفقات",
+    "liveLectures": "المحاضرات المباشرة",
+    "googleMeet": "جوجل ميت",
+    "createLesson": "إنشاء درس",
+    "createQuiz": "إنشاء اختبار",
+    "createAttachment": "إنشاء مرفق",
+    "contentReorderedSuccess": "تم إعادة ترتيب المحتوى بنجاح!",
+    "contentReorderError": "فشل في إعادة ترتيب المحتوى"
+  },
+  "createLessonModal": {
+    "title": "إنشاء درس جديد",
+    "lessonTitle": "عنوان الدرس",
+    "lessonTitlePlaceholder": "أدخل عنوان الدرس...",
+    "description": "الوصف",
+    "descriptionPlaceholder": "وصف الدرس...",
+    "videoUrl": "رابط الفيديو",
+    "videoUrlPlaceholder": "https://youtube.com/watch?v=...",
+    "createLesson": "إنشاء درس",
+    "creating": "جاري الإنشاء...",
+    "cancel": "إلغاء",
+    "titleRequired": "يرجى إدخال عنوان الدرس",
+    "lessonCreatedSuccess": "تم إنشاء الدرس بنجاح!",
+    "lessonCreatedError": "فشل في إنشاء الدرس"
+  },
+  "createQuizModal": {
+    "title": "إنشاء اختبار جديد",
+    "quizTitle": "عنوان الاختبار",
+    "quizTitlePlaceholder": "أدخل عنوان الاختبار...",
+    "type": "النوع",
+    "description": "الوصف",
+    "descriptionPlaceholder": "وصف الاختبار...",
+    "timeLimit": "الحد الزمني (دقائق)",
+    "maxAttempts": "الحد الأقصى للمحاولات",
+    "createQuiz": "إنشاء اختبار",
+    "creating": "جاري الإنشاء...",
+    "cancel": "إلغاء",
+    "titleRequired": "يرجى إدخال عنوان الاختبار",
+    "quizCreatedSuccess": "تم إنشاء الاختبار بنجاح!",
+    "quizCreatedError": "فشل في إنشاء الاختبار"
+  },
+  "attachments": {
+    "attachmentsLabel": "المرفقات",
+    "pdfDocument": "مستند PDF",
+    "externalLink": "رابط خارجي"
+  },
+  "quizProgress": {
+    "bestScore": "الأفضل:"
   }
 }

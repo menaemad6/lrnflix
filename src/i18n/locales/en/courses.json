@@ -434,5 +434,61 @@
       "preview": "Preview",
       "enrollNow": "Enroll Now"
     }
+  },
+  "courseManagementSidebar": {
+    "management": "Management",
+    "courseContent": "Course Content",
+    "noContentYet": "No content yet",
+    "back": "Back",
+    "total": "Total",
+    "lessons": "Lessons",
+    "quizzes": "Quizzes",
+    "attachments": "Attachments",
+    "liveLectures": "Live Lectures",
+    "googleMeet": "Google Meet",
+    "createLesson": "Create Lesson",
+    "createQuiz": "Create Quiz",
+    "createAttachment": "Create Attachment",
+    "contentReorderedSuccess": "Content reordered successfully!",
+    "contentReorderError": "Failed to reorder content"
+  },
+  "createLessonModal": {
+    "title": "Create New Lesson",
+    "lessonTitle": "Lesson Title",
+    "lessonTitlePlaceholder": "Enter lesson title...",
+    "description": "Description",
+    "descriptionPlaceholder": "Lesson description...",
+    "videoUrl": "Video URL",
+    "videoUrlPlaceholder": "https://youtube.com/watch?v=...",
+    "createLesson": "Create Lesson",
+    "creating": "Creating...",
+    "cancel": "Cancel",
+    "titleRequired": "Please enter a lesson title",
+    "lessonCreatedSuccess": "Lesson created successfully!",
+    "lessonCreatedError": "Failed to create lesson"
+  },
+  "createQuizModal": {
+    "title": "Create New Quiz",
+    "quizTitle": "Quiz Title",
+    "quizTitlePlaceholder": "Enter quiz title...",
+    "type": "Type",
+    "description": "Description",
+    "descriptionPlaceholder": "Quiz description...",
+    "timeLimit": "Time Limit (minutes)",
+    "maxAttempts": "Max Attempts",
+    "createQuiz": "Create Quiz",
+    "creating": "Creating...",
+    "cancel": "Cancel",
+    "titleRequired": "Please enter a quiz title",
+    "quizCreatedSuccess": "Quiz created successfully!",
+    "quizCreatedError": "Failed to create quiz"
+  },
+  "attachments": {
+    "attachmentsLabel": "Attachments",
+    "pdfDocument": "PDF Document",
+    "externalLink": "External Link"
+  },
+  "quizProgress": {
+    "bestScore": "Best:"
   }
 }

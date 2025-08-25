@@ -3,7 +3,8 @@ import React from 'react';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { Card, CardContent } from '@/components/ui/card';
-import { Play, FileQuestion, GripVertical, Clock } from 'lucide-react';
+import { Play, FileQuestion, GripVertical, Clock, Paperclip } from 'lucide-react';
+import { Attachment } from '@/lib/attachmentQueries';
 
 interface Lesson {
   id: string;
@@ -25,8 +26,8 @@ interface Quiz {
   created_at: string;
 }
 
-interface CourseItem extends Partial<Lesson>, Partial<Quiz> {
-  type: 'lesson' | 'quiz';
+interface CourseItem extends Partial<Lesson>, Partial<Quiz>, Partial<Attachment> {
+  type: 'lesson' | 'quiz' | 'attachment';
   order_index: number;
 }
 
@@ -34,7 +35,7 @@ interface DraggableItemProps {
   item: CourseItem;
   index: number;
   moveItem: (dragIndex: number, hoverIndex: number) => void;
-  onSelect?: (type: 'lesson' | 'quiz', id: string) => void;
+  onSelect?: (type: 'lesson' | 'quiz' | 'attachment', id: string) => void;
   isSelected?: boolean;
 }
 
@@ -79,10 +80,27 @@ const DraggableItem: React.FC<DraggableItemProps> = ({
   });
 
   const isLesson = item.type === 'lesson';
-  const icon = isLesson ? Play : FileQuestion;
-  const iconColor = isLesson ? 'text-primary' : 'text-orange-500';
-  const borderColor = isLesson ? 'border-primary/30' : 'border-orange-500/30';
-  const selectedBorderColor = isLesson ? 'border-primary/50 bg-primary/5' : 'border-orange-500/50 bg-orange-500/5';
+  const isQuiz = item.type === 'quiz';
+  const isAttachment = item.type === 'attachment';
+  
+  let icon, iconColor, borderColor, selectedBorderColor;
+  
+  if (isLesson) {
+    icon = Play;
+    iconColor = 'text-primary';
+    borderColor = 'border-primary/30';
+    selectedBorderColor = 'border-primary/50 bg-primary/5';
+  } else if (isQuiz) {
+    icon = FileQuestion;
+    iconColor = 'text-orange-500';
+    borderColor = 'border-orange-500/30';
+    selectedBorderColor = 'border-orange-500/50 bg-orange-500/5';
+  } else if (isAttachment) {
+    icon = Paperclip;
+    iconColor = 'text-blue-500';
+    borderColor = 'border-blue-500/30';
+    selectedBorderColor = 'border-blue-500/50 bg-blue-500/5';
+  }
 
   return (
     <div ref={drop}>
@@ -102,7 +120,9 @@ const DraggableItem: React.FC<DraggableItemProps> = ({
             </div>
             
             <div className={`flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br ${
-              isLesson ? 'from-primary/20 to-primary-500/20' : 'from-orange-500/20 to-yellow-500/20'
+              isLesson ? 'from-primary/20 to-primary-500/20' : 
+              isQuiz ? 'from-orange-500/20 to-yellow-500/20' :
+              'from-blue-500/20 to-blue-600/20'
             } border ${borderColor}`}>
               <span className="text-sm font-bold text-primary">{index + 1}</span>
             </div>
@@ -117,10 +137,21 @@ const DraggableItem: React.FC<DraggableItemProps> = ({
                   {item.description}
                 </p>
               )}
-              {!isLesson && item.time_limit && (
+              {isQuiz && item.time_limit && (
                 <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
                   <Clock className="h-3 w-3" />
                   <span>{item.time_limit}min</span>
+                </div>
+              )}
+              {isAttachment && item.type && (
+                <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
+                  <span className="capitalize">{item.type}</span>
+                  {item.view_limit && (
+                    <>
+                      <span>•</span>
+                      <span>{item.view_limit} views</span>
+                    </>
+                  )}
                 </div>
               )}
             </div>
@@ -134,21 +165,23 @@ const DraggableItem: React.FC<DraggableItemProps> = ({
 interface DraggableCourseContentProps {
   lessons: Lesson[];
   quizzes: Quiz[];
+  attachments: Attachment[];
   onReorder: (items: CourseItem[]) => void;
-  onSelect?: (type: 'lesson' | 'quiz', id: string) => void;
+  onSelect?: (type: 'lesson' | 'quiz' | 'attachment', id: string) => void;
   selectedItemId?: string;
-  selectedItemType?: 'lesson' | 'quiz';
+  selectedItemType?: 'lesson' | 'quiz' | 'attachment';
 }
 
 export const DraggableCourseContent: React.FC<DraggableCourseContentProps> = ({
   lessons,
   quizzes,
+  attachments,
   onReorder,
   onSelect,
   selectedItemId,
   selectedItemType
 }) => {
-  // Mix lessons and quizzes and sort by order_index
+  // Mix lessons, quizzes, and attachments and sort by order_index
   const mixedItems: CourseItem[] = React.useMemo(() => {
     const lessonItems: CourseItem[] = lessons.map(lesson => ({
       ...lesson,
@@ -159,9 +192,14 @@ export const DraggableCourseContent: React.FC<DraggableCourseContentProps> = ({
       ...quiz,
       type: 'quiz' as const
     }));
+
+    const attachmentItems: CourseItem[] = attachments.map(attachment => ({
+      ...attachment,
+      type: 'attachment' as const
+    }));
     
-    return [...lessonItems, ...quizItems].sort((a, b) => a.order_index - b.order_index);
-  }, [lessons, quizzes]);
+    return [...lessonItems, ...quizItems, ...attachmentItems].sort((a, b) => a.order_index - b.order_index);
+  }, [lessons, quizzes, attachments]);
 
   const [localItems, setLocalItems] = React.useState(mixedItems);
 
@@ -195,7 +233,7 @@ export const DraggableCourseContent: React.FC<DraggableCourseContentProps> = ({
             item={item}
             index={index}
             moveItem={moveItem}
-            onSelect={() => onSelect(item.type, item.id!)}
+            onSelect={() => onSelect?.(item.type, item.id!)}
             isSelected={selectedItemType === item.type && selectedItemId === item.id}
           />
         ))}

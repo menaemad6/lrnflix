@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -21,6 +22,7 @@ export const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
   courseId,
   onLessonCreated
 }) => {
+  const { t } = useTranslation('courses');
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -34,8 +36,8 @@ export const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
     
     if (!formData.title.trim()) {
       toast({
-        title: 'Error',
-        description: 'Please enter a lesson title',
+        title: t('teacherCourseDetails.error'),
+        description: t('createLessonModal.titleRequired'),
         variant: 'destructive',
       });
       return;
@@ -56,8 +58,8 @@ export const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
       if (error) throw error;
 
       toast({
-        title: 'Success',
-        description: 'Lesson created successfully!',
+        title: t('teacherCourseDetails.success'),
+        description: t('createLessonModal.lessonCreatedSuccess'),
       });
 
       setFormData({ title: '', description: '', video_url: '' });
@@ -66,8 +68,8 @@ export const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
     } catch (error: any) {
       console.error('Error creating lesson:', error);
       toast({
-        title: 'Error',
-        description: error.message || 'Failed to create lesson',
+        title: t('teacherCourseDetails.error'),
+        description: t('createLessonModal.lessonCreatedError'),
         variant: 'destructive',
       });
     } finally {
@@ -81,32 +83,32 @@ export const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Plus className="h-5 w-5 text-primary" />
-            Create New Lesson
+            {t('createLessonModal.title')}
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="text-sm font-medium">Lesson Title</label>
+            <label className="text-sm font-medium">{t('createLessonModal.lessonTitle')}</label>
             <Input
-              placeholder="Enter lesson title..."
+              placeholder={t('createLessonModal.lessonTitlePlaceholder')}
               value={formData.title}
               onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
               required
             />
           </div>
           <div>
-            <label className="text-sm font-medium">Description</label>
+            <label className="text-sm font-medium">{t('createLessonModal.description')}</label>
             <Textarea
-              placeholder="Lesson description..."
+              placeholder={t('createLessonModal.descriptionPlaceholder')}
               value={formData.description}
               onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
               rows={3}
             />
           </div>
           <div>
-            <label className="text-sm font-medium">Video URL</label>
+            <label className="text-sm font-medium">{t('createLessonModal.videoUrl')}</label>
             <Input
-              placeholder="https://youtube.com/watch?v=..."
+              placeholder={t('createLessonModal.videoUrlPlaceholder')}
               value={formData.video_url}
               onChange={(e) => setFormData(prev => ({ ...prev, video_url: e.target.value }))}
             />
@@ -114,7 +116,7 @@ export const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
           <div className="flex gap-3 pt-2">
             <Button type="submit" className="btn-primary flex-1" disabled={loading}>
               <Sparkles className="h-4 w-4 mr-2" />
-              {loading ? 'Creating...' : 'Create Lesson'}
+              {loading ? t('createLessonModal.creating') : t('createLessonModal.createLesson')}
             </Button>
             <Button 
               type="button" 
@@ -122,7 +124,7 @@ export const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
               onClick={() => onOpenChange(false)}
               disabled={loading}
             >
-              Cancel
+              {t('createLessonModal.cancel')}
             </Button>
           </div>
         </form>

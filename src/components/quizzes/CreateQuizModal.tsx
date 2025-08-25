@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -22,6 +23,7 @@ export const CreateQuizModal: React.FC<CreateQuizModalProps> = ({
   courseId,
   onQuizCreated
 }) => {
+  const { t } = useTranslation('courses');
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -37,8 +39,8 @@ export const CreateQuizModal: React.FC<CreateQuizModalProps> = ({
     
     if (!formData.title.trim()) {
       toast({
-        title: 'Error',
-        description: 'Please enter a quiz title',
+        title: t('teacherCourseDetails.error'),
+        description: t('createQuizModal.titleRequired'),
         variant: 'destructive',
       });
       return;
@@ -61,8 +63,8 @@ export const CreateQuizModal: React.FC<CreateQuizModalProps> = ({
       if (error) throw error;
 
       toast({
-        title: 'Success',
-        description: 'Quiz created successfully!',
+        title: t('teacherCourseDetails.success'),
+        description: t('createQuizModal.quizCreatedSuccess'),
       });
 
       setFormData({
@@ -77,8 +79,8 @@ export const CreateQuizModal: React.FC<CreateQuizModalProps> = ({
     } catch (error: any) {
       console.error('Error creating quiz:', error);
       toast({
-        title: 'Error',
-        description: error.message || 'Failed to create quiz',
+        title: t('teacherCourseDetails.error'),
+        description: t('createQuizModal.quizCreatedError'),
         variant: 'destructive',
       });
     } finally {
@@ -92,22 +94,22 @@ export const CreateQuizModal: React.FC<CreateQuizModalProps> = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <FileQuestion className="h-5 w-5 text-orange-500" />
-            Create New Quiz
+            {t('createQuizModal.title')}
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-sm font-medium">Quiz Title</label>
+              <label className="text-sm font-medium">{t('createQuizModal.quizTitle')}</label>
               <Input
-                placeholder="Enter quiz title..."
+                placeholder={t('createQuizModal.quizTitlePlaceholder')}
                 value={formData.title}
                 onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
                 required
               />
             </div>
             <div>
-              <label className="text-sm font-medium">Type</label>
+              <label className="text-sm font-medium">{t('createQuizModal.type')}</label>
               <Select value={formData.type} onValueChange={(value: 'quiz' | 'assignment') => setFormData(prev => ({ ...prev, type: value }))}>
                 <SelectTrigger>
                   <SelectValue />
@@ -121,9 +123,9 @@ export const CreateQuizModal: React.FC<CreateQuizModalProps> = ({
           </div>
           
           <div>
-            <label className="text-sm font-medium">Description</label>
+            <label className="text-sm font-medium">{t('createQuizModal.description')}</label>
             <Textarea
-              placeholder="Quiz description..."
+              placeholder={t('createQuizModal.descriptionPlaceholder')}
               value={formData.description}
               onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
               rows={3}
@@ -132,7 +134,7 @@ export const CreateQuizModal: React.FC<CreateQuizModalProps> = ({
           
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-sm font-medium">Time Limit (minutes)</label>
+              <label className="text-sm font-medium">{t('createQuizModal.timeLimit')}</label>
               <Input
                 type="number"
                 value={formData.time_limit}
@@ -140,7 +142,7 @@ export const CreateQuizModal: React.FC<CreateQuizModalProps> = ({
               />
             </div>
             <div>
-              <label className="text-sm font-medium">Max Attempts</label>
+              <label className="text-sm font-medium">{t('createQuizModal.maxAttempts')}</label>
               <Input
                 type="number"
                 value={formData.max_attempts}
@@ -152,7 +154,7 @@ export const CreateQuizModal: React.FC<CreateQuizModalProps> = ({
           <div className="flex gap-3 pt-2">
             <Button type="submit" className="btn-primary flex-1" disabled={loading}>
               <FileQuestion className="h-4 w-4 mr-2" />
-              {loading ? 'Creating...' : 'Create Quiz'}
+              {loading ? t('createQuizModal.creating') : t('createQuizModal.createQuiz')}
             </Button>
             <Button 
               type="button" 
@@ -160,7 +162,7 @@ export const CreateQuizModal: React.FC<CreateQuizModalProps> = ({
               onClick={() => onOpenChange(false)}
               disabled={loading}
             >
-              Cancel
+              {t('createQuizModal.cancel')}
             </Button>
           </div>
         </form>

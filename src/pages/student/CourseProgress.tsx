@@ -7,6 +7,7 @@ import { useTenantItemValidation } from '@/hooks/useTenantItemValidation';
 import { CourseSidebar } from '@/components/courses/CourseSidebar';
 import { LessonContent } from '@/components/lessons/LessonContent';
 import { StudentQuizTaker } from '@/components/quizzes/StudentQuizTaker';
+import { AttachmentContent } from '@/components/attachments/AttachmentContent';
 import { EnrollmentPrompt } from '@/components/courses/EnrollmentPrompt';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -35,6 +36,7 @@ interface Lesson {
   order_index: number;
   video_url: string | null;
   view_limit: number | null;
+  device_limit: number | null;
   duration_minutes: number | null;
 }
 
@@ -60,8 +62,19 @@ interface QuizAttempt {
   max_score: number;
 }
 
+interface Attachment {
+  id: string;
+  title: string;
+  description: string | null;
+  attachment_url: string | null;
+  type: string;
+  order_index: number;
+  course_id: string;
+  size: number | null;
+}
+
 export const CourseProgress = () => {
-  const { id, lessonId, quizId, attemptId } = useParams<{ id: string; lessonId?: string; quizId?: string; attemptId?: string }>();
+  const { id, lessonId, quizId, attachmentId, attemptId } = useParams<{ id: string; lessonId?: string; quizId?: string; attachmentId?: string; attemptId?: string }>();
   const { toast } = useToast();
   const { validateAndHandle, validateWithCreatorId } = useTenantItemValidation({
     redirectTo: '/student/courses',
@@ -69,12 +82,15 @@ export const CourseProgress = () => {
   const [course, setCourse] = useState<Course | null>(null);
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [quizAttempts, setQuizAttempts] = useState<QuizAttempt[]>([]);
   const [currentLesson, setCurrentLesson] = useState<Lesson | null>(null);
   const [currentQuiz, setCurrentQuiz] = useState<Quiz | null>(null);
+  const [currentAttachment, setCurrentAttachment] = useState<Attachment | null>(null);
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [loading, setLoading] = useState(true);
   const [progress, setProgress] = useState<string[]>([]);
+  const [attachmentProgress, setAttachmentProgress] = useState<string[]>([]);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const navigate = useNavigate();
   const bgClass = useRandomBackground();
@@ -88,43 +104,59 @@ export const CourseProgress = () => {
 
   // Set the first lesson as default when lessons are loaded, or select based on URL params
   useEffect(() => {
-    if (lessons.length > 0 || quizzes.length > 0) {
+    if (lessons.length > 0 || quizzes.length > 0 || attachments.length > 0) {
       if (lessonId) {
         const lesson = lessons.find(l => l.id === lessonId);
         if (lesson) {
           setCurrentLesson(lesson);
           setCurrentQuiz(null);
+          setCurrentAttachment(null);
         }
       } else if (quizId) {
         const quiz = quizzes.find(q => q.id === quizId);
         if (quiz) {
           setCurrentQuiz(quiz);
           setCurrentLesson(null);
+          setCurrentAttachment(null);
+        }
+      } else if (attachmentId) {
+        const attachment = attachments.find(a => a.id === attachmentId);
+        if (attachment) {
+          setCurrentAttachment(attachment);
+          setCurrentLesson(null);
+          setCurrentQuiz(null);
         }
       } else {
-        // Auto-select the first available content (lesson or quiz) when no specific content is selected
+        // Auto-select the first available content (lesson, quiz, or attachment) when no specific content is selected
         const firstLesson = lessons.sort((a, b) => a.order_index - b.order_index)[0];
         const firstQuiz = quizzes.sort((a, b) => a.order_index - b.order_index)[0];
+        const firstAttachment = attachments.sort((a, b) => a.order_index - b.order_index)[0];
         
-        if (firstLesson && firstQuiz) {
-          // If both exist, select the one with lower order_index
-          if (firstLesson.order_index <= firstQuiz.order_index) {
-            setCurrentLesson(firstLesson);
+        // Find the item with the lowest order_index
+        const allContent = [
+          { type: 'lesson', item: firstLesson, order: firstLesson?.order_index || 999 },
+          { type: 'quiz', item: firstQuiz, order: firstQuiz?.order_index || 999 },
+          { type: 'attachment', item: firstAttachment, order: firstAttachment?.order_index || 999 }
+        ].sort((a, b) => a.order - b.order);
+        
+        if (allContent[0].item) {
+          if (allContent[0].type === 'lesson') {
+            setCurrentLesson(allContent[0].item as Lesson);
             setCurrentQuiz(null);
-          } else {
-            setCurrentQuiz(firstQuiz);
+            setCurrentAttachment(null);
+          } else if (allContent[0].type === 'quiz') {
+            setCurrentQuiz(allContent[0].item as Quiz);
             setCurrentLesson(null);
+            setCurrentAttachment(null);
+          } else if (allContent[0].type === 'attachment') {
+            setCurrentAttachment(allContent[0].item as Attachment);
+            setCurrentLesson(null);
+            setCurrentQuiz(null);
           }
-        } else if (firstLesson) {
-          setCurrentLesson(firstLesson);
-          setCurrentQuiz(null);
-        } else if (firstQuiz) {
-          setCurrentQuiz(firstQuiz);
-          setCurrentLesson(null);
         }
       }
     }
-  }, [lessons, quizzes, lessonId, quizId]);
+  }, [lessons, quizzes, attachments, lessonId, quizId, attachmentId]);
 
   const fetchCourseData = async () => {
     try {
@@ -171,6 +203,9 @@ export const CourseProgress = () => {
 
         setProgress(progressData?.map(p => p.lesson_id) || []);
 
+        // Note: Attachment progress tracking will be implemented later
+        setAttachmentProgress([]);
+
         // Fetch quiz attempts
         const { data: attemptsData } = await supabase
           .from('quiz_attempts')
@@ -200,6 +235,17 @@ export const CourseProgress = () => {
 
       if (quizzesError) throw quizzesError;
       setQuizzes(quizzesData || []);
+
+      // Fetch attachments for this course
+      const { data: attachmentsData, error: attachmentsError } = await supabase
+        .from('attachments')
+        .select('*')
+        .eq('course_id', id)
+        .is('chapter_id', null)
+        .order('order_index');
+
+      if (attachmentsError) throw attachmentsError;
+      setAttachments(attachmentsData || []);
     } catch (error: unknown) {
       console.error('Error fetching course:', error);
       toast({
@@ -216,6 +262,10 @@ export const CourseProgress = () => {
     setProgress(prev => [...prev, lessonId]);
   };
 
+  const handleAttachmentComplete = (attachmentId: string) => {
+    setAttachmentProgress(prev => [...prev, attachmentId]);
+  };
+
   const handleQuizSelect = (quiz: Quiz) => {
     setCurrentQuiz(quiz);
     setCurrentLesson(null);
@@ -224,7 +274,15 @@ export const CourseProgress = () => {
   const handleLessonSelect = (lesson: Lesson) => {
     setCurrentLesson(lesson);
     setCurrentQuiz(null);
+    setCurrentAttachment(null);
     navigate(`/courses/${id}/progress/lesson/${lesson.id}`);
+  };
+
+  const handleAttachmentSelect = (attachment: Attachment) => {
+    setCurrentAttachment(attachment);
+    setCurrentLesson(null);
+    setCurrentQuiz(null);
+    navigate(`/courses/${id}/progress/attachment/${attachment.id}`);
   };
 
   const handleBackToCourse = () => {
@@ -267,15 +325,23 @@ export const CourseProgress = () => {
               onBackToCourse={handleBackToCourse}
               attemptId={attemptId}
             />
+          ) : currentAttachment ? (
+            <AttachmentContent
+              attachment={currentAttachment}
+              course={course}
+              isCompleted={attachmentProgress.includes(currentAttachment.id)}
+              onAttachmentComplete={handleAttachmentComplete}
+              onBackToCourse={handleBackToCourse}
+            />
           ) : currentLesson ? (
-                         <LessonContent
-               lesson={currentLesson}
-               course={course}
-               isCompleted={progress.includes(currentLesson.id)}
-               onLessonComplete={handleLessonComplete}
-               onBackToCourse={handleBackToCourse}
-             />
-                     ) : lessons.length === 0 && quizzes.length === 0 ? (
+            <LessonContent
+              lesson={currentLesson}
+              course={course}
+              isCompleted={progress.includes(currentLesson.id)}
+              onLessonComplete={handleLessonComplete}
+              onBackToCourse={handleBackToCourse}
+            />
+          ) : lessons.length === 0 && quizzes.length === 0 && attachments.length === 0 ? (
              <div className="flex items-center justify-center h-full">
                <div className="text-center space-y-4">
                  <Skeleton className="h-16 w-16 rounded-full mx-auto" />
@@ -283,15 +349,15 @@ export const CourseProgress = () => {
                   <p className="text-muted-foreground">{t('courseProgress.noContentDescription')}</p>
                </div>
              </div>
-                     ) : (
-             <div className="flex items-center justify-center h-full">
-               <div className="text-center space-y-4">
-                 <Skeleton className="h-8 w-8 rounded-full mx-auto" />
-                                   <h2 className="text-xl font-semibold mb-2">{t('courseProgress.loadingContent')}</h2>
-                  <p className="text-muted-foreground">{t('courseProgress.loadingContentDescription')}</p>
-               </div>
-             </div>
-           )}
+          ) : (
+            <div className="flex items-center justify-center h-full">
+              <div className="text-center space-y-4">
+                <Skeleton className="h-8 w-8 rounded-full mx-auto" />
+                <h2 className="text-xl font-semibold mb-2">{t('courseProgress.loadingContent')}</h2>
+                <p className="text-muted-foreground">{t('courseProgress.loadingContentDescription')}</p>
+              </div>
+            </div>
+          )}
         </div>
         
         {/* Right Sidebar */}
@@ -319,9 +385,12 @@ export const CourseProgress = () => {
               onLessonSelect={handleLessonSelect}
               lessons={lessons}
               quizzes={quizzes}
+              attachments={attachments}
               quizAttempts={quizAttempts}
               onQuizSelect={handleQuizSelect}
+              onAttachmentSelect={handleAttachmentSelect}
               currentQuiz={currentQuiz}
+              currentAttachment={currentAttachment}
             />
           ) : (
             <div className="p-4 flex flex-col items-center gap-4">

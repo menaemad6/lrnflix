@@ -18,7 +18,8 @@ import {
   Target,
   Video,
   Calendar,
-  ExternalLink
+  ExternalLink,
+  Link as LinkIcon
 } from 'lucide-react';
 import { useLiveLectures } from '@/hooks/useLiveLectures';
 import { getLectureStatusInfo, formatLectureTime } from '@/utils/lectureUtils';
@@ -67,15 +68,35 @@ interface Quiz {
   order_index: number;
 }
 
+interface QuizAttempt {
+  quiz_id: string;
+  score: number;
+  max_score: number;
+}
+
+interface Attachment {
+  id: string;
+  title: string;
+  description: string | null;
+  attachment_url: string | null;
+  type: string;
+  order_index: number;
+  course_id: string;
+  size: number | null;
+}
+
 interface CourseSidebarProps {
   course: Course;
   currentLesson: Lesson | null;
   onLessonSelect: (lesson: Lesson) => void;
   lessons: Lesson[];
   quizzes: Quiz[];
-  quizAttempts: any[];
+  attachments: Attachment[];
+  quizAttempts: QuizAttempt[];
   onQuizSelect?: (quiz: Quiz) => void;
+  onAttachmentSelect?: (attachment: Attachment) => void;
   currentQuiz?: Quiz | null;
+  currentAttachment?: Attachment | null;
 }
 
 export const CourseSidebar = ({ 
@@ -84,9 +105,12 @@ export const CourseSidebar = ({
   onLessonSelect,
   lessons,
   quizzes,
+  attachments,
   quizAttempts,
   onQuizSelect,
-  currentQuiz
+  onAttachmentSelect,
+  currentQuiz,
+  currentAttachment
 }: CourseSidebarProps) => {
   const { t } = useTranslation('courses');
   const navigate = useNavigate();
@@ -113,10 +137,11 @@ export const CourseSidebar = ({
     return attempts[0].max_score;
   };
 
-  // Combine lessons and quizzes, sort by order_index, and mark type
+  // Combine lessons, quizzes, and attachments, sort by order_index, and mark type
   const allContent = [
     ...lessons.map(lesson => ({ ...lesson, type: 'lesson' as const })),
-    ...quizzes.map(quiz => ({ ...quiz, type: 'quiz' as const }))
+    ...quizzes.map(quiz => ({ ...quiz, type: 'quiz' as const })),
+    ...attachments.map(attachment => ({ ...attachment, type: 'attachment' as const }))
   ].sort((a, b) => a.order_index - b.order_index);
 
   return (
@@ -144,16 +169,20 @@ export const CourseSidebar = ({
           <div className="space-y-3">
             <div className="flex justify-between text-sm">
               <span>{t('sidebar.progress')}</span>
-              <span>{Math.round(progress.progressPercentage)}%</span>
+              <span>{Math.round(((progress.completedLessons + progress.completedQuizzes) / (progress.totalLessons + progress.totalQuizzes + attachments.length)) * 100)}%</span>
             </div>
-            <Progress value={progress.progressPercentage} className="h-2 bg-primary-foreground/20" />
+            <Progress 
+              value={Math.round(((progress.completedLessons + progress.completedQuizzes) / (progress.totalLessons + progress.totalQuizzes + attachments.length)) * 100)} 
+              className="h-2 bg-primary-foreground/20" 
+            />
             <div className="flex justify-between text-xs text-primary-foreground/80">
               <span>{progress.completedLessons + progress.completedQuizzes} {t('sidebar.completed')}</span>
-              <span>{progress.totalLessons + progress.totalQuizzes - (progress.completedLessons + progress.completedQuizzes)} {t('sidebar.remaining')}</span>
+              <span>{progress.totalLessons + progress.totalQuizzes + attachments.length - (progress.completedLessons + progress.completedQuizzes)} {t('sidebar.remaining')}</span>
             </div>
             <div className="flex justify-between text-xs text-primary-foreground/80 mt-1">
               <span>{t('sidebar.lessons')}: {progress.completedLessons}/{progress.totalLessons}</span>
               <span>{t('sidebar.quizzes')}: {progress.completedQuizzes}/{progress.totalQuizzes}</span>
+              <span>{t('attachments.attachmentsLabel')}: 0/{attachments.length}</span>
             </div>
           </div>
         </CardContent>
@@ -199,7 +228,7 @@ export const CourseSidebar = ({
                           <div className="font-medium text-sm">{item.title}</div>
                           {item.duration_minutes && (
                             <div className="text-xs text-muted-foreground mt-1">
-                              ~{item.duration_minutes} min
+                              ~{item.duration_minutes} {t('lessonContent.minutes')}
                             </div>
                           )}
                         </div>
@@ -245,14 +274,14 @@ export const CourseSidebar = ({
                             {item.time_limit && (
                               <Badge variant="outline" className="text-xs">
                                 <Clock className="h-3 w-3 mr-1" />
-                                {item.time_limit}m
+                                {item.time_limit}{t('lessonContent.minutes')}
                               </Badge>
                             )}
                           </div>
                           
                           {hasAttempts && (
                             <div className="text-xs text-muted-foreground mt-1">
-                              Best: {bestScore}/{maxScore} ({Math.round((bestScore! / maxScore!) * 100)}%)
+                              {t('quizProgress.bestScore')} {bestScore}/{maxScore} ({Math.round((bestScore! / maxScore!) * 100)}%)
                             </div>
                           )}
                         </div>
@@ -263,6 +292,53 @@ export const CourseSidebar = ({
                           )}
                           <Badge variant="outline" className="text-xs">
                             {t('sidebar.quiz')}
+                          </Badge>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              } else if (item.type === 'attachment') {
+                const isCurrent = currentAttachment?.id === item.id;
+                const isCompleted = false; // TODO: Implement attachment progress tracking
+                
+                return (
+                  <Card
+                    key={`attachment-${item.id}`}
+                    className={`cursor-pointer transition-all hover:shadow-md ${
+                      isCurrent
+                        ? 'border-primary bg-primary/5'
+                        : isCompleted
+                        ? 'border-primary-500/40 bg-primary-100/10'
+                        : 'border-border hover:border-primary/30'
+                    }`}
+                    onClick={() => onAttachmentSelect?.(item)}
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                          isCurrent
+                            ? 'bg-primary text-primary-foreground'
+                            : isCompleted
+                            ? 'bg-primary-500 text-white'
+                            : 'bg-muted'
+                        }`}>
+                          {(item as Attachment).type === 'pdf' ? (
+                            <FileText className="h-5 w-5" />
+                          ) : (
+                            <LinkIcon className="h-5 w-5" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium text-sm">{item.title}</div>
+                          <div className="text-xs text-muted-foreground mt-1">
+                            {(item as Attachment).type === 'pdf' ? t('attachments.pdfDocument') : t('attachments.externalLink')}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {isCompleted && <CheckCircle className="h-4 w-4 text-primary-500" />}
+                          <Badge variant="outline" className="text-xs">
+                            {(item as Attachment).type === 'pdf' ? t('attachments.pdfFile') : t('attachments.externalLink')}
                           </Badge>
                         </div>
                       </div>

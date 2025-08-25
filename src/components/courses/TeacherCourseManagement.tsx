@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -6,9 +7,11 @@ import { useItemOwnershipValidation } from '@/hooks/useItemOwnershipValidation';
 import { TeacherCourseSidebar } from './TeacherCourseSidebar';
 import { LessonManager } from '@/components/lessons/LessonManager';
 import { QuizManager } from '@/components/quizzes/QuizManager';
+import { AttachmentManager } from '@/components/attachments/AttachmentManager';
 import { Card, CardContent } from '@/components/ui/card';
 import { QuizEditor } from '@/components/quizzes/QuizEditor';
 import { LessonEditor } from '@/components/lessons/LessonEditor';
+import { AttachmentEditor } from '@/components/attachments/AttachmentEditor';
 import { TeacherCourseOverview } from './TeacherCourseOverview';
 import { GoogleMeetIntegration } from '../lectures/GoogleMeetIntegration';
 import { TeacherCourseManagementSkeleton } from '@/components/ui/skeletons';
@@ -16,6 +19,7 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Menu } from 'lucide-react';
 import { SEOHead } from '@/components/seo';
+import { Attachment } from '@/lib/attachmentQueries';
 
 interface Course {
   id: string;
@@ -32,7 +36,6 @@ interface Lesson {
   order_index: number;
   created_at: string;
   course_id: string;
-  view_limit: number | null;
 }
 
 interface Quiz {
@@ -46,17 +49,19 @@ interface Quiz {
   created_at: string;
 }
 
-type ViewMode = 'overview' | 'lessons' | 'quizzes' | 'edit-lesson' | 'edit-quiz'| 'live-lectures';
+type ViewMode = 'overview' | 'lessons' | 'quizzes' | 'attachments' | 'edit-lesson' | 'edit-quiz' | 'edit-attachment' | 'live-lectures';
 
 export const TeacherCourseManagement = () => {
-  const { id, lessonId, quizId } = useParams<{ id: string; lessonId?: string; quizId?: string }>();
+  const { t } = useTranslation('courses');
+  const { id, lessonId, quizId, attachmentId } = useParams<{ id: string; lessonId?: string; quizId?: string; attachmentId?: string }>();
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [course, setCourse] = useState<Course | null>(null);
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
-  const [currentItem, setCurrentItem] = useState<{ type: 'lesson' | 'quiz' | null; id: string | null }>({ type: null, id: null });
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
+  const [currentItem, setCurrentItem] = useState<{ type: 'lesson' | 'quiz' | 'attachment' | null; id: string | null }>({ type: null, id: null });
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<ViewMode>('overview');
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
@@ -79,8 +84,11 @@ export const TeacherCourseManagement = () => {
     } else if (quizId) {
       setCurrentItem({ type: 'quiz', id: quizId });
       setViewMode('edit-quiz');
+    } else if (attachmentId) {
+      setCurrentItem({ type: 'attachment', id: attachmentId });
+      setViewMode('edit-attachment');
     }
-  }, [lessonId, quizId]);
+  }, [lessonId, quizId, attachmentId]);
 
   // Handle route-based view mode changes
   useEffect(() => {
@@ -90,6 +98,12 @@ export const TeacherCourseManagement = () => {
       setCurrentItem({ type: null, id: null });
     } else if (path.includes('/manage/quizzes') && !path.includes('/manage/quizzes/')) {
       setViewMode('quizzes');
+      setCurrentItem({ type: null, id: null });
+    } else if (path.includes('/manage/attachments') && !path.includes('/manage/attachments/')) {
+      setViewMode('attachments');
+      setCurrentItem({ type: null, id: null });
+    } else if (path.includes('/manage/live-lectures')) {
+      setViewMode('live-lectures');
       setCurrentItem({ type: null, id: null });
     } else if (path.endsWith('/manage')) {
       setViewMode('overview');
@@ -114,11 +128,11 @@ export const TeacherCourseManagement = () => {
         const creatorId = courseData.instructor_id;
         
         if (!creatorId) {
-          toast({
-            title: 'Access Denied',
-            description: 'Course ownership information not found',
-            variant: 'destructive',
-          });
+                  toast({
+          title: t('teacherCourseDetails.error'),
+          description: 'Course ownership information not found',
+          variant: 'destructive',
+        });
           navigate('/teacher/courses');
           return;
         }
@@ -148,11 +162,22 @@ export const TeacherCourseManagement = () => {
 
         if (quizzesError) throw quizzesError;
         setQuizzes(quizzesData || []);
+
+        // Fetch attachments
+        const { data: attachmentsData, error: attachmentsError } = await supabase
+          .from('attachments')
+          .select('*')
+          .eq('course_id', id)
+          .is('chapter_id', null)
+          .order('order_index');
+
+        if (attachmentsError) throw attachmentsError;
+        setAttachments(attachmentsData || []);
       }
     } catch (error: unknown) {
       console.error('Error fetching course data:', error);
       toast({
-        title: 'Error',
+        title: t('teacherCourseDetails.error'),
         description: 'Failed to load course data',
         variant: 'destructive',
       });
@@ -161,12 +186,12 @@ export const TeacherCourseManagement = () => {
     }
   };
 
-  const handleItemSelect = (type: 'lesson' | 'quiz', id: string) => {
+  const handleItemSelect = (type: 'lesson' | 'quiz' | 'attachment', id: string) => {
     setCurrentItem({ type, id });
   };
 
   const handleDeleteLesson = async (lessonId: string) => {
-    if (!confirm('Are you sure you want to delete this lesson?')) return;
+    if (!confirm(t('teacherCourseDetails.deleteCourseConfirmDescription'))) return;
 
     try {
       const { error } = await supabase
@@ -177,7 +202,7 @@ export const TeacherCourseManagement = () => {
       if (error) throw error;
 
       toast({
-        title: 'Success',
+        title: t('teacherCourseDetails.success'),
         description: 'Lesson deleted successfully',
       });
 
@@ -185,7 +210,7 @@ export const TeacherCourseManagement = () => {
     } catch (error: unknown) {
       console.error('Error deleting lesson:', error);
       toast({
-        title: 'Error',
+        title: t('teacherCourseDetails.error'),
         description: error instanceof Error ? error.message : 'Failed to delete lesson',
         variant: 'destructive',
       });
@@ -193,7 +218,7 @@ export const TeacherCourseManagement = () => {
   };
 
   const handleDeleteQuiz = async (quizId: string) => {
-    if (!confirm('Are you sure you want to delete this quiz?')) return;
+    if (!confirm(t('teacherCourseDetails.deleteCourseConfirmDescription'))) return;
 
     try {
       const { error } = await supabase
@@ -204,7 +229,7 @@ export const TeacherCourseManagement = () => {
       if (error) throw error;
 
       toast({
-        title: 'Success',
+        title: t('teacherCourseDetails.success'),
         description: 'Quiz deleted successfully',
       });
 
@@ -212,8 +237,35 @@ export const TeacherCourseManagement = () => {
     } catch (error: unknown) {
       console.error('Error deleting quiz:', error);
       toast({
-        title: 'Error',
+        title: t('teacherCourseDetails.error'),
         description: error instanceof Error ? error.message : 'Failed to delete quiz',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleDeleteAttachment = async (attachmentId: string) => {
+    if (!confirm(t('teacherCourseDetails.deleteCourseConfirmDescription'))) return;
+
+    try {
+      const { error } = await supabase
+        .from('attachments')
+        .delete()
+        .eq('id', attachmentId);
+
+      if (error) throw error;
+
+      toast({
+        title: t('teacherCourseDetails.success'),
+        description: 'Attachment deleted successfully',
+      });
+
+      fetchCourseData();
+    } catch (error: unknown) {
+      console.error('Error deleting attachment:', error);
+      toast({
+        title: t('teacherCourseDetails.error'),
+        description: error instanceof Error ? error.message : 'Failed to delete attachment',
         variant: 'destructive',
       });
     }
@@ -226,6 +278,8 @@ export const TeacherCourseManagement = () => {
       navigate(`/teacher/courses/${id}/manage/lessons`);
     } else if (mode === 'quizzes') {
       navigate(`/teacher/courses/${id}/manage/quizzes`);
+    } else if (mode === 'attachments') {
+      navigate(`/teacher/courses/${id}/manage/attachments`);
     } else if (mode === 'overview') {
       navigate(`/teacher/courses/${id}/manage`);
     }
@@ -266,6 +320,20 @@ export const TeacherCourseManagement = () => {
       );
     }
 
+    if (attachmentId && currentItem.type === 'attachment' && currentItem.id === attachmentId) {
+      return (
+        <AttachmentEditor 
+          attachmentId={attachmentId}
+          onBack={() => {
+            setViewMode('overview');
+            setCurrentItem({ type: null, id: null });
+            // Update URL to remove attachmentId
+            navigate(`/teacher/courses/${id}/manage`);
+          }}
+        />
+      );
+    }
+
     switch (viewMode) {
       case 'lessons':
         return (
@@ -281,6 +349,13 @@ export const TeacherCourseManagement = () => {
               onBack={() => setViewMode('overview')}
             />
           );
+      case 'attachments':
+        return (
+          <AttachmentManager
+            courseId={id!}
+            onBack={() => setViewMode('overview')}
+          />
+        );
       case 'edit-lesson':
         return (
           <LessonEditor 
@@ -302,6 +377,16 @@ export const TeacherCourseManagement = () => {
             }}
           />
         );
+      case 'edit-attachment':
+        return (
+          <AttachmentEditor 
+            attachmentId={currentItem.id!}
+            onBack={() => {
+              setViewMode('overview');
+              setCurrentItem({ type: null, id: null });
+            }}
+          />
+        );
       case 'live-lectures':
         return (
           <GoogleMeetIntegration
@@ -316,11 +401,19 @@ export const TeacherCourseManagement = () => {
               course={course}
               lessons={lessons}
               quizzes={quizzes}
+              attachments={attachments}
               onItemSelect={(type, id) => {
                 setCurrentItem({ type, id });
-                setViewMode(type === 'lesson' ? 'edit-lesson' : 'edit-quiz');
-                // Update URL to include the item ID
-                navigate(`/teacher/courses/${id}/manage/${type === 'lesson' ? 'lessons' : 'quizzes'}/${id}`);
+                if (type === 'lesson') {
+                  setViewMode('edit-lesson');
+                  navigate(`/teacher/courses/${id}/manage/lessons/${id}`);
+                } else if (type === 'quiz') {
+                  setViewMode('edit-quiz');
+                  navigate(`/teacher/courses/${id}/manage/quizzes/${id}`);
+                } else if (type === 'attachment') {
+                  setViewMode('edit-attachment');
+                  navigate(`/teacher/courses/${id}/manage/attachments/${id}`);
+                }
               }}
             />
           );
@@ -340,7 +433,7 @@ export const TeacherCourseManagement = () => {
     <>
       <SEOHead 
         contentTitle={`${course.title} - Management`}
-        contentDescription={`Manage content, lessons, quizzes, and student progress for ${course.title}.`}
+        contentDescription={`Manage content, lessons, quizzes, attachments, and student progress for ${course.title}.`}
       />
       <div className="min-h-screen bg-background pt-20 flex lg:flex-row">
       {/* Static sidebar on large screens */}
@@ -349,12 +442,14 @@ export const TeacherCourseManagement = () => {
           course={course}
           lessons={lessons}
           quizzes={quizzes}
+          attachments={attachments}
           currentItem={currentItem}
           onItemSelect={(type, id) => {
             handleItemSelect(type, id);
           }}
           onDeleteLesson={handleDeleteLesson}
           onDeleteQuiz={handleDeleteQuiz}
+          onDeleteAttachment={handleDeleteAttachment}
           onContentUpdate={fetchCourseData}
           onViewModeChange={(mode) => {
             handleViewModeChange(mode);
@@ -374,7 +469,7 @@ export const TeacherCourseManagement = () => {
       <Button
         onClick={() => setMobileSidebarOpen(true)}
         className="lg:hidden fixed bottom-4 left-4 z-[60] rounded-full w-12 h-12 p-0 shadow-lg shadow-primary-500/25 bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600"
-        aria-label="Open course management sidebar"
+        aria-label={t('courseManagementSidebar.management')}
       >
         <Menu className="h-5 w-5 text-black" />
       </Button>
@@ -386,6 +481,7 @@ export const TeacherCourseManagement = () => {
             course={course}
             lessons={lessons}
             quizzes={quizzes}
+            attachments={attachments}
             currentItem={currentItem}
             onItemSelect={(type, id) => {
               handleItemSelect(type, id);
@@ -393,6 +489,7 @@ export const TeacherCourseManagement = () => {
             }}
             onDeleteLesson={handleDeleteLesson}
             onDeleteQuiz={handleDeleteQuiz}
+            onDeleteAttachment={handleDeleteAttachment}
             onContentUpdate={fetchCourseData}
             onViewModeChange={(mode) => {
               handleViewModeChange(mode);
