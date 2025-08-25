@@ -5,6 +5,7 @@ import {
   generateColorPalette,
   generateColorScheme,
   generateNeutralColors,
+  generateTrueNeutralColors,
   generateSemanticColors
 } from '@/utils/colorUtils';
 
@@ -114,11 +115,11 @@ export const colorSystem = {
     text: 'linear-gradient(90deg, var(--primary) 0%, var(--secondary) 50%, var(--accent) 100%)',
     background: {
       light: 'linear-gradient(180deg, var(--neutral-50) 0%, rgba(16, 185, 129, 0.05) 100%)',
-      dark: 'linear-gradient(180deg, var(--background) 0%, rgba(16, 185, 129, 0.1) 100%)',
+      dark: 'linear-gradient(180deg, var(--background) 0%, rgba(0, 0, 0, 0.1) 100%)',
     },
     premium: {
       light: 'linear-gradient(120deg, rgba(16, 185, 129, 0.1) 60%, var(--neutral-50) 100%)',
-      dark: 'linear-gradient(120deg, var(--background) 0%, rgba(16, 185, 129, 0.05) 100%)',
+      dark: 'linear-gradient(120deg, var(--background) 0%, rgba(0, 0, 0, 0.05) 100%)',
     },
   },
   
@@ -180,7 +181,7 @@ export const generateCssVariables = (tenantColors?: {
   
   // Generate full color palette from primary color
   const primaryPalette = generateColorPalette(colors.primary);
-  const neutralColors = generateNeutralColors(colors.primary);
+  const neutralColors = theme === 'dark' ? generateTrueNeutralColors() : generateNeutralColors(colors.primary);
   const semanticColors = generateSemanticColors(colors.primary);
   
   // Generate secondary and accent palettes
@@ -208,21 +209,21 @@ export const generateCssVariables = (tenantColors?: {
   });
   
   const themeColors = theme === 'dark' ? {
-    // Dark theme: darker colors with primary tint
-    '--background': `${primaryHsl.h} ${Math.min(primaryHsl.s, 8)}% 6%`,
+    // Dark theme: true neutral colors (no hue tint) for backgrounds
+    '--background': '0 0% 0%',  // Pure black
     '--foreground': '0 0% 100%',
-    '--card': `${primaryHsl.h} ${Math.min(primaryHsl.s, 8)}% 8%`,
+    '--card': '0 0% 3%',        // Very dark gray (almost black)
     '--card-foreground': '0 0% 100%',
-    '--popover': `${primaryHsl.h} ${Math.min(primaryHsl.s, 8)}% 8%`,
+    '--popover': '0 0% 3%',     // Very dark gray (almost black)
     '--popover-foreground': '0 0% 100%',
-    '--muted': `${primaryHsl.h} ${Math.min(primaryHsl.s, 8)}% 8%`,
+    '--muted': '0 0% 3%',       // Very dark gray (almost black)
     '--muted-foreground': '0 0% 69%',
-    '--border': `${borderHue} ${borderSaturation}% 20%`,
-    '--input': `${borderHue} ${borderSaturation}% 20%`,
+    '--border': '0 0% 12%',     // Dark gray
+    '--input': '0 0% 12%',      // Dark gray
     '--ring': `${borderHue} ${borderSaturation}% 60%`,
-    '--sidebar-background': `${primaryHsl.h} ${Math.min(primaryHsl.s, 8)}% 8%`,
+    '--sidebar-background': '0 0% 3%', // Very dark gray (almost black)
     '--sidebar-foreground': '0 0% 100%',
-    '--sidebar-border': `${borderHue} ${borderSaturation}% 20%`,
+    '--sidebar-border': '0 0% 12%',    // Dark gray
   } : {
     // Light theme: lighter colors with primary tint
     '--background': `${primaryHsl.h} ${Math.min(primaryHsl.s, 5)}% 100%`,
@@ -293,7 +294,7 @@ export const generateCssVariables = (tenantColors?: {
 // Function to get all colors as a flat object for easy access
 export const getAllColors = () => {
   const scheme = generateColorScheme(BASE_PRIMARY_COLOR);
-  const neutralColors = generateNeutralColors(BASE_PRIMARY_COLOR);
+  const neutralColors = generateTrueNeutralColors(); // Always use true neutral colors
   const semanticColors = generateSemanticColors(BASE_PRIMARY_COLOR);
   
   return {

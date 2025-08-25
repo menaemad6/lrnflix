@@ -276,6 +276,22 @@ export function generateNeutralColors(primary: string): Record<string, string> {
   };
 }
 
+// Generate true neutral colors (no hue tint) for backgrounds and cards
+export function generateTrueNeutralColors(): Record<string, string> {
+  return {
+    '50': hslToHex(0, 0, 98),   // Pure white with slight gray
+    '100': hslToHex(0, 0, 96),  // Pure white with light gray
+    '200': hslToHex(0, 0, 91),  // Pure light gray
+    '300': hslToHex(0, 0, 84),  // Pure medium light gray
+    '400': hslToHex(0, 0, 64),  // Pure medium gray
+    '500': hslToHex(0, 0, 47),  // Pure medium dark gray
+    '600': hslToHex(0, 0, 35),  // Pure dark gray
+    '700': hslToHex(0, 0, 27),  // Pure darker gray
+    '800': hslToHex(0, 0, 17),  // Pure very dark gray
+    '900': hslToHex(0, 0, 9),   // Pure almost black
+  };
+}
+
 // Generate semantic colors with primary influence
 export function generateSemanticColors(primary: string): Record<string, string> {
   const hsl = hexToHsl(primary);

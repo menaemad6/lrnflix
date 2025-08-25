@@ -23,16 +23,16 @@
     --accent-dark: 187 94% 33%; /* Will be overridden by JS */
     
     /* Neutral scale - will be set by JavaScript */
-    --neutral-50: 210 40% 98%; /* Will be overridden by JS */
-    --neutral-100: 210 40% 96%; /* Will be overridden by JS */
-    --neutral-200: 214 32% 91%; /* Will be overridden by JS */
-    --neutral-300: 213 27% 84%; /* Will be overridden by JS */
-    --neutral-400: 0 0% 64%; /* Will be overridden by JS */
-    --neutral-500: 215 16% 47%; /* Will be overridden by JS */
-    --neutral-600: 215 19% 35%; /* Will be overridden by JS */
-    --neutral-700: 215 25% 27%; /* Will be overridden by JS */
-    --neutral-800: 217 33% 17%; /* Will be overridden by JS */
-    --neutral-900: 0 0% 9%; /* Will be overridden by JS */
+    --neutral-50: 0 0% 98%; /* Pure white with slight gray - will be overridden by JS */
+    --neutral-100: 0 0% 96%; /* Pure white with light gray - will be overridden by JS */
+    --neutral-200: 0 0% 91%; /* Pure light gray - will be overridden by JS */
+    --neutral-300: 0 0% 84%; /* Pure medium light gray - will be overridden by JS */
+    --neutral-400: 0 0% 64%; /* Pure medium gray - will be overridden by JS */
+    --neutral-500: 0 0% 47%; /* Pure medium dark gray - will be overridden by JS */
+    --neutral-600: 0 0% 35%; /* Pure dark gray - will be overridden by JS */
+    --neutral-700: 0 0% 27%; /* Pure darker gray - will be overridden by JS */
+    --neutral-800: 0 0% 17%; /* Pure very dark gray - will be overridden by JS */
+    --neutral-900: 0 0% 9%; /* Pure almost black - will be overridden by JS */
     
     /* Semantic colors - will be set by JavaScript */
     --success: 142 76% 36%; /* Will be overridden by JS */
@@ -86,20 +86,20 @@
   .dark {
     /* Dark theme variables - will be overridden by JavaScript */
     /* These are just fallbacks, the real values come from the dynamic color system */
-    --background: 168 16% 6%; /* Will be overridden by JS */
+    --background: 0 0% 0%; /* Pure black - will be overridden by JS */
     --foreground: 0 0% 100%; /* Will be overridden by JS */
     --text-secondary: 0 0% 69%; /* Will be overridden by JS */
 
-    --card: 168 16% 8%; /* Will be overridden by JS */
+    --card: 0 0% 3%; /* Very dark gray (almost black) - will be overridden by JS */
     --card-foreground: 0 0% 100%; /* Will be overridden by JS */
 
-    --popover: 168 16% 8%; /* Will be overridden by JS */
+    --popover: 0 0% 3%; /* Very dark gray (almost black) - will be overridden by JS */
     --popover-foreground: 0 0% 100%; /* Will be overridden by JS */
 
     --primary-foreground: 0 0% 100%; /* Will be overridden by JS */
     --secondary-foreground: 0 0% 100%; /* Will be overridden by JS */
 
-    --muted: 168 16% 8%; /* Will be overridden by JS */
+    --muted: 0 0% 3%; /* Very dark gray (almost black) - will be overridden by JS */
     --muted-foreground: 0 0% 69%; /* Will be overridden by JS */
 
     --accent-foreground: 0 0% 100%; /* Will be overridden by JS */
@@ -107,18 +107,18 @@
     --destructive: 12 98% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 168 16% 8%; /* Will be overridden by JS */
-    --input: 168 16% 8%; /* Will be overridden by JS */
+    --border: 0 0% 12%; /* Dark gray - will be overridden by JS */
+    --input: 0 0% 12%; /* Dark gray - will be overridden by JS */
 
-    --sidebar-background: 168 16% 8%; /* Will be overridden by JS */
+    --sidebar-background: 0 0% 3%; /* Very dark gray (almost black) - will be overridden by JS */
     --sidebar-foreground: 0 0% 100%; /* Will be overridden by JS */
-    --sidebar-border: 168 16% 8%; /* Will be overridden by JS */
+    --sidebar-border: 0 0% 12%; /* Dark gray - will be overridden by JS */
 
     /* Gradients using CSS variables */
     --gradient-mint: linear-gradient(90deg, hsl(var(--primary-light)) 0%, hsl(var(--primary)) 100%);
     --gradient-nav: linear-gradient(90deg, hsl(var(--primary-light)) 0%, hsl(var(--primary)) 100%);
-    --gradient-bg: linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--primary) / 0.1) 100%);
-    --vignette: radial-gradient(ellipse at center, hsl(var(--primary) / 0.1) 0%, hsl(var(--background)) 100%);
+    --gradient-bg: linear-gradient(180deg, hsl(var(--background)) 0%, rgba(0, 0, 0, 0.1) 100%);
+    --vignette: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.1) 0%, hsl(var(--background)) 100%);
 
     /* Icon colors using semantic colors */
     --icon-orange: hsl(var(--warning));
