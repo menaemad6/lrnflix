@@ -7,6 +7,7 @@ import { useTenantItemValidation } from '@/hooks/useTenantItemValidation';
 import { CourseSidebar } from '@/components/courses/CourseSidebar';
 import { LessonContent } from '@/components/lessons/LessonContent';
 import { StudentQuizTaker } from '@/components/quizzes/StudentQuizTaker';
+import { EnrollmentPrompt } from '@/components/courses/EnrollmentPrompt';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useRandomBackground } from "../../hooks/useRandomBackground";
@@ -157,11 +158,8 @@ export const CourseProgress = () => {
         setIsEnrolled(enrolled);
 
         if (!enrolled) {
-          toast({
-            title: t('courseProgress.accessDenied'),
-            description: t('courseProgress.accessDeniedDescription'),
-            variant: 'destructive',
-          });
+          setIsEnrolled(false);
+          setLoading(false);
           return;
         }
 
@@ -237,7 +235,7 @@ export const CourseProgress = () => {
     return <CourseProgressSkeleton />;
   }
 
-  if (!course || !isEnrolled) {
+  if (!course) {
     return (
       <div className="container mx-auto py-8">
         <div className="text-center">
@@ -246,6 +244,10 @@ export const CourseProgress = () => {
         </div>
       </div>
     );
+  }
+
+  if (!isEnrolled) {
+    return <EnrollmentPrompt courseId={id!} courseTitle={course.title} />;
   }
 
   return (

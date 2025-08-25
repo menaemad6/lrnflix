@@ -92,6 +92,20 @@
     "loadingContentDescription": "Please wait while we load the course content.",
     "courseProgress": "Course Progress"
   },
+  "enrollmentPrompt": {
+    "courseLocked": "Course Locked",
+    "toAccessCourse": "To access the course",
+    "toAccessThisCourse": "To access this course",
+    "whatYouGet": "What you'll get when you enroll:",
+    "accessToLessons": "Access to all course lessons and materials",
+    "quizAccess": "Ability to take quizzes and assessments",
+    "progressTracking": "Track your learning progress",
+    "certificate": "Earn a certificate upon completion",
+    "enrollNow": "Enroll Now",
+    "browseOtherCourses": "Browse Other Courses",
+    "alreadyEnrolled": "Already enrolled?",
+    "goToCoursePage": "Go to course page"
+  },
   "sidebar": {
     "instructor": "Instructor",
     "progress": "Progress",

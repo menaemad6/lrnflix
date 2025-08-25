@@ -92,6 +92,20 @@
     "loadingContentDescription": "يرجى الانتظار بينما نقوم بتحميل محتوى الدورة.",
     "courseProgress": "تقدم الدورة"
   },
+  "enrollmentPrompt": {
+    "courseLocked": "الدورة مقفلة",
+    "toAccessCourse": "للوصول إلى الدورة",
+    "toAccessThisCourse": "للوصول إلى هذه الدورة",
+    "whatYouGet": "ما ستحصل عليه عند التسجيل:",
+    "accessToLessons": "الوصول إلى جميع دروس الدورة والمواد",
+    "quizAccess": "القدرة على أخذ الاختبارات والتقييمات",
+    "progressTracking": "تتبع تقدمك في التعلم",
+    "certificate": "الحصول على شهادة عند الانتهاء",
+    "enrollNow": "سجل الآن",
+    "browseOtherCourses": "تصفح دورات أخرى",
+    "alreadyEnrolled": "مسجل بالفعل؟",
+    "goToCoursePage": "اذهب إلى صفحة الدورة"
+  },
   "sidebar": {
     "instructor": "المدرب",
     "progress": "التقدم",
