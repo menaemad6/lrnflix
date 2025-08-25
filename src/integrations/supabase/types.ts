@@ -65,6 +65,54 @@ export type Database = {
         }
         Relationships: []
       }
+      attachments: {
+        Row: {
+          attachment_url: string | null
+          chapter_id: string | null
+          course_id: string
+          created_at: string
+          description: string | null
+          device_limit: number | null
+          id: string
+          order_index: number
+          size: number | null
+          title: string
+          type: string
+          updated_at: string
+          view_limit: number | null
+        }
+        Insert: {
+          attachment_url?: string | null
+          chapter_id?: string | null
+          course_id: string
+          created_at?: string
+          description?: string | null
+          device_limit?: number | null
+          id?: string
+          order_index?: number
+          size?: number | null
+          title: string
+          type?: string
+          updated_at?: string
+          view_limit?: number | null
+        }
+        Update: {
+          attachment_url?: string | null
+          chapter_id?: string | null
+          course_id?: string
+          created_at?: string
+          description?: string | null
+          device_limit?: number | null
+          id?: string
+          order_index?: number
+          size?: number | null
+          title?: string
+          type?: string
+          updated_at?: string
+          view_limit?: number | null
+        }
+        Relationships: []
+      }
       chapter_enrollments: {
         Row: {
           chapter_id: string
@@ -612,11 +660,13 @@ export type Database = {
       invoices: {
         Row: {
           created_at: string
+          credits_amount: number | null
           id: string
-          instructor_id: string
+          instructor_id: string | null
           invoice_number: string
-          item_id: string
+          item_id: string | null
           item_type: Database["public"]["Enums"]["item_type"]
+          minutes_amount: number | null
           notes: string | null
           paid_at: string | null
           payment_reference: string | null
@@ -628,11 +678,13 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          credits_amount?: number | null
           id?: string
-          instructor_id: string
+          instructor_id?: string | null
           invoice_number: string
-          item_id: string
+          item_id?: string | null
           item_type: Database["public"]["Enums"]["item_type"]
+          minutes_amount?: number | null
           notes?: string | null
           paid_at?: string | null
           payment_reference?: string | null
@@ -644,11 +696,13 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          credits_amount?: number | null
           id?: string
-          instructor_id?: string
+          instructor_id?: string | null
           invoice_number?: string
-          item_id?: string
+          item_id?: string | null
           item_type?: Database["public"]["Enums"]["item_type"]
+          minutes_amount?: number | null
           notes?: string | null
           paid_at?: string | null
           payment_reference?: string | null
@@ -1809,7 +1863,13 @@ export type Database = {
     }
     Enums: {
       invoice_status: "pending" | "paid" | "cancelled" | "refunded"
-      item_type: "course" | "chapter" | "lesson" | "quiz"
+      item_type:
+        | "course"
+        | "chapter"
+        | "lesson"
+        | "quiz"
+        | "credits"
+        | "ai_minutes"
       payment_type: "vodafone_cash" | "credit_card" | "bank_transfer" | "wallet"
       user_role: "admin" | "teacher" | "student"
     }
@@ -1940,7 +2000,14 @@ export const Constants = {
   public: {
     Enums: {
       invoice_status: ["pending", "paid", "cancelled", "refunded"],
-      item_type: ["course", "chapter", "lesson", "quiz"],
+      item_type: [
+        "course",
+        "chapter",
+        "lesson",
+        "quiz",
+        "credits",
+        "ai_minutes",
+      ],
       payment_type: ["vodafone_cash", "credit_card", "bank_transfer", "wallet"],
       user_role: ["admin", "teacher", "student"],
     },
