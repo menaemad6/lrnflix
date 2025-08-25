@@ -1,8 +1,9 @@
 
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate, useLocation, useSearchParams } from 'react-router-dom';
 import type { RootState } from '@/store/store';
+import { buildLoginUrl } from '@/utils/authRedirect';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -15,6 +16,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 }) => {
   const { user, isLoading, isAuthenticated } = useSelector((state: RootState) => state.auth);
   const location = useLocation();
+  const [searchParams] = useSearchParams();
 
   // Show loading spinner while checking auth
   if (isLoading) {
@@ -27,7 +29,11 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   // Redirect to login if not authenticated
   if (!isAuthenticated || !user) {
-    return <Navigate to="/auth/login" state={{ from: location }} replace />;
+    // Get the next parameter from URL or use current location
+    const nextParam = searchParams.get('next');
+    const intendedDestination = nextParam || location.pathname + location.search;
+    
+    return <Navigate to={buildLoginUrl(intendedDestination)} state={{ from: location }} replace />;
   }
 
   // Check role permissions if specified

@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useSelector } from 'react-redux';
 import type { RootState } from '@/store/store';
-import { useLocation, Navigate } from 'react-router-dom';
+import { useLocation, Navigate, useSearchParams } from 'react-router-dom';
+import { buildOAuthCallbackUrl } from '@/utils/authRedirect';
 
 // Login form logic
 export function useLoginForm() {
@@ -13,6 +14,7 @@ export function useLoginForm() {
   const [error, setError] = useState('');
   const { isAuthenticated, user, isLoading } = useSelector((state: RootState) => state.auth);
   const location = useLocation();
+  const [searchParams] = useSearchParams();
 
   const handleLogin = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -33,10 +35,14 @@ export function useLoginForm() {
 
   const handleGoogleLogin = async () => {
     try {
+      // Get the next parameter to preserve it in OAuth flow
+      const nextParam = searchParams.get('next');
+      const redirectTo = buildOAuthCallbackUrl(nextParam);
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`
+          redirectTo
         }
       });
       if (error) throw error;

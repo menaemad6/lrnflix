@@ -1,11 +1,13 @@
 
 import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { SEOHead } from '@/components/seo';
+import { getIntendedDestination } from '@/utils/authRedirect';
 
 export const AuthCallback = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
     const handleAuthCallback = async () => {
@@ -26,9 +28,24 @@ export const AuthCallback = () => {
             .single();
 
           if (profile) {
-            const redirectPath = profile.role === 'teacher' ? '/teacher/dashboard' : 
-                               profile.role === 'admin' ? '/admin/dashboard' : 
-                               '/student/dashboard';
+            // Get the next parameter from URL
+            const nextParam = searchParams.get('next');
+
+            // Create a user object for the utility function
+            const user = {
+              id: data.session.user.id,
+              email: data.session.user.email || '',
+              full_name: data.session.user.user_metadata?.full_name || null,
+              role: profile.role,
+              avatar_url: null,
+              wallet: 0,
+              minutes: 0,
+              daily_free_minutes_used: 0,
+              last_free_minutes_reset: null,
+            };
+
+            // Redirect to intended destination if next parameter exists, otherwise use default role-based redirect
+            const redirectPath = getIntendedDestination(nextParam, user);
             navigate(redirectPath);
           } else {
             navigate('/student/dashboard');
@@ -43,7 +60,7 @@ export const AuthCallback = () => {
     };
 
     handleAuthCallback();
-  }, [navigate]);
+  }, [navigate, searchParams]);
 
   return (
     <>

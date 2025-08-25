@@ -5,8 +5,9 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Eye, EyeOff, Mail, Lock, User, UserPlus, GraduationCap, BookOpen, LogIn, X } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { getIntendedDestination } from '@/utils/authRedirect';
 
 interface AuthFormProps {
   mode: 'login' | 'signup';
@@ -19,26 +20,29 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode, setMode, onClose }) => {
   const signup = useSignupForm();
   const isLogin = mode === 'login';
   const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
   const { t } = useTranslation('other');
+
+  // Get the next parameter from URL
+  const nextParam = searchParams.get('next');
 
   useEffect(() => {
     if (isLogin && login.isAuthenticated && login.user) {
       onClose?.();
-      if (login.user.role === 'teacher' || login.user.role === 'admin') {
-        navigate('/teacher/dashboard');
-      } else {
-        navigate('/student/dashboard');
-      }
+      
+      // Redirect to intended destination if next parameter exists, otherwise use default role-based redirect
+      const redirectPath = getIntendedDestination(nextParam, login.user);
+      navigate(redirectPath);
     }
     if (!isLogin && signup.isAuthenticated && signup.user) {
       onClose?.();
-      if (signup.user.role === 'teacher' || signup.user.role === 'admin') {
-        navigate('/teacher/dashboard');
-      } else {
-        navigate('/student/dashboard');
-      }
+      
+      // Redirect to intended destination if next parameter exists, otherwise use default role-based redirect
+      const redirectPath = getIntendedDestination(nextParam, signup.user);
+      navigate(redirectPath);
     }
-  }, [isLogin, login.isAuthenticated, login.user, signup.isAuthenticated, signup.user, navigate, onClose]);
+  }, [isLogin, login.isAuthenticated, login.user, signup.isAuthenticated, signup.user, navigate, onClose, nextParam]);
 
   // Glassy card style
   return (
