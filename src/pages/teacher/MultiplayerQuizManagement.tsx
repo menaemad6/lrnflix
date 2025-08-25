@@ -47,6 +47,7 @@ import { RootState } from '@/store/store';
 import { Database } from '@/integrations/supabase/types';
 import { useMultiplayerQuizQuestions, useMultiplayerQuizCategories } from '@/lib/queries';
 import { SEOHead } from '@/components/seo';
+import { useTranslation } from 'react-i18next';
 
 interface Question {
   id?: string;
@@ -69,13 +70,12 @@ interface ExtractedQuestion {
 }
 
 export const MultiplayerQuizManagement = () => {
+  const { t } = useTranslation('teacher');
   const { toast } = useToast();
   const user = useSelector((state: RootState) => state.auth.user);
   const { data: questions = [], isLoading: loading, refetch: fetchQuestions } = useMultiplayerQuizQuestions(user?.id || '');
   const { data: categories = [], refetch: fetchCategories } = useMultiplayerQuizCategories(user?.id || '');
   const [filteredQuestions, setFilteredQuestions] = useState<Question[]>([]);
-  const [editingQuestionId, setEditingQuestionId] = useState<string | null>(null);
-  const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
   const [saving, setSaving] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [newCategory, setNewCategory] = useState<string>('');
@@ -86,6 +86,10 @@ export const MultiplayerQuizManagement = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [generatingOptionsFor, setGeneratingOptionsFor] = useState<string | null>(null);
   const [generatingSavedQuestionOptions, setGeneratingSavedQuestionOptions] = useState<string | null>(null);
+  const [isQuestionModalOpen, setIsQuestionModalOpen] = useState(false);
+  const [modalQuestion, setModalQuestion] = useState<Question | null>(null);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [isGeneratingModalOptions, setIsGeneratingModalOptions] = useState(false);
 
   useEffect(() => {
     if (searchTerm.trim() === '') {
@@ -103,8 +107,8 @@ export const MultiplayerQuizManagement = () => {
   const saveQuestion = async (question: Question) => {
     if (!user) {
       toast({
-        title: 'Error',
-        description: 'You must be logged in to save questions.',
+        title: t('multiplayerQuiz.error'),
+        description: t('multiplayerQuiz.mustBeLoggedIn', { action: 'save questions' }),
         variant: 'destructive',
       });
       return;
@@ -137,19 +141,17 @@ export const MultiplayerQuizManagement = () => {
       }
 
       toast({
-        title: 'Success',
-        description: `Question ${question.id ? 'updated' : 'created'} successfully!`,
+        title: t('multiplayerQuiz.success'),
+        description: question.id ? t('multiplayerQuiz.questionUpdatedSuccessfully') : t('multiplayerQuiz.questionCreatedSuccessfully'),
       });
 
-      setEditingQuestion(null);
-      setEditingQuestionId(null);
       fetchQuestions();
       fetchCategories();
     } catch (error: unknown) {
       console.error('Error saving question:', error);
       toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Unknown error',
+        title: t('multiplayerQuiz.error'),
+        description: error instanceof Error ? error.message : t('multiplayerQuiz.unknownError'),
         variant: 'destructive',
       });
     } finally {
@@ -158,7 +160,7 @@ export const MultiplayerQuizManagement = () => {
   };
 
   const deleteQuestion = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this question?')) return;
+    if (!confirm(t('multiplayerQuiz.confirmDeleteQuestion'))) return;
 
     try {
       const { error } = await supabase
@@ -169,8 +171,8 @@ export const MultiplayerQuizManagement = () => {
       if (error) throw error;
 
       toast({
-        title: 'Success',
-        description: 'Question deleted successfully',
+        title: t('multiplayerQuiz.success'),
+        description: t('multiplayerQuiz.questionDeletedSuccessfully'),
       });
 
       fetchQuestions();
@@ -178,8 +180,8 @@ export const MultiplayerQuizManagement = () => {
     } catch (error: unknown) {
       console.error('Error deleting question:', error);
       toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Unknown error',
+        title: t('multiplayerQuiz.error'),
+        description: error instanceof Error ? error.message : t('multiplayerQuiz.unknownError'),
         variant: 'destructive',
       });
     }
@@ -188,13 +190,13 @@ export const MultiplayerQuizManagement = () => {
   const startNewQuestion = () => {
     if (!user) {
       toast({
-        title: 'Error',
-        description: 'You must be logged in to create a question.',
+        title: t('multiplayerQuiz.error'),
+        description: t('multiplayerQuiz.mustBeLoggedIn', { action: 'create a question' }),
         variant: 'destructive',
       });
       return;
     }
-    setEditingQuestion({
+    setModalQuestion({
       question: '',
       options: ['', '', '', ''],
       correct_answer: '',
@@ -203,44 +205,75 @@ export const MultiplayerQuizManagement = () => {
       category: selectedCategory === 'all' ? 'General' : selectedCategory,
       instructor_id: user?.id,
     });
+    setIsEditMode(false);
+    setIsQuestionModalOpen(true);
   };
 
   const startInlineEdit = (question: Question) => {
-    setEditingQuestionId(question.id || '');
-    setEditingQuestion({ ...question });
+    setModalQuestion({ ...question });
+    setIsEditMode(true);
+    setIsQuestionModalOpen(true);
   };
 
-  const cancelInlineEdit = () => {
-    setEditingQuestionId(null);
-    setEditingQuestion(null);
-  };
-
-  const updateInlineQuestion = (field: keyof Question, value: string | number | 'easy' | 'medium' | 'hard') => {
-    if (editingQuestion) {
-      setEditingQuestion({
-        ...editingQuestion,
-        [field]: value
-      });
+  const handleModalSave = async () => {
+    if (modalQuestion) {
+      await saveQuestion(modalQuestion);
+      setIsQuestionModalOpen(false);
+      setModalQuestion(null);
+      setIsEditMode(false);
     }
   };
 
-  const updateInlineOption = (index: number, value: string) => {
-    if (editingQuestion) {
-      const newOptions = [...editingQuestion.options];
-      newOptions[index] = value;
-      setEditingQuestion({
-        ...editingQuestion,
-        options: newOptions
+  const handleModalCancel = () => {
+    setIsQuestionModalOpen(false);
+    setModalQuestion(null);
+    setIsEditMode(false);
+  };
+
+  const handleGenerateModalOptions = async () => {
+    if (!modalQuestion?.question.trim()) {
+      toast({
+        title: t('multiplayerQuiz.error'),
+        description: t('multiplayerQuiz.pleaseEnterQuestionFirst'),
+        variant: 'destructive',
       });
+      return;
+    }
+
+    setIsGeneratingModalOptions(true);
+    try {
+      const { options, correct_answer } = await generateMcqOptions(modalQuestion.question);
+      setModalQuestion({
+        ...modalQuestion,
+        options,
+        correct_answer,
+      });
+      toast({
+        title: t('multiplayerQuiz.success'),
+        description: t('multiplayerQuiz.optionsGeneratedSuccessfully'),
+      });
+    } catch (error) {
+      console.error('Error generating options:', error);
+      toast({
+        title: t('multiplayerQuiz.error'),
+        description: t('multiplayerQuiz.failedToGenerateOptions'),
+        variant: 'destructive',
+      });
+    } finally {
+      setIsGeneratingModalOptions(false);
     }
   };
+
+
+
+
 
   const addNewCategory = async () => {
     if (!newCategory.trim()) return;
     if (!user) {
       toast({
-        title: 'Error',
-        description: 'You must be logged in to add a category.',
+        title: t('multiplayerQuiz.error'),
+        description: t('multiplayerQuiz.mustBeLoggedIn', { action: 'add a category' }),
         variant: 'destructive',
       });
       return;
@@ -251,9 +284,9 @@ export const MultiplayerQuizManagement = () => {
       const { error } = await supabase
         .from('multiplayer_quiz_questions')
         .insert({
-          question: `Sample question for ${newCategory}`,
-          options: JSON.stringify(['Option A', 'Option B', 'Option C', 'Option D']),
-          correct_answer: 'Option A',
+          question: t('multiplayerQuiz.sampleQuestionForCategory', { category: newCategory }),
+          options: JSON.stringify([t('multiplayerQuiz.optionA'), t('multiplayerQuiz.optionB'), t('multiplayerQuiz.optionC'), t('multiplayerQuiz.optionD')]),
+          correct_answer: t('multiplayerQuiz.optionA'),
           difficulty: 'medium',
           time_limit: 15,
           category: newCategory.trim(),
@@ -263,8 +296,8 @@ export const MultiplayerQuizManagement = () => {
       if (error) throw error;
 
       toast({
-        title: 'Success',
-        description: `Category "${newCategory}" created successfully!`,
+        title: t('multiplayerQuiz.success'),
+        description: t('multiplayerQuiz.categoryCreatedSuccessfully', { category: newCategory }),
       });
 
       setNewCategory('');
@@ -273,8 +306,8 @@ export const MultiplayerQuizManagement = () => {
     } catch (error: unknown) {
       console.error('Error creating category:', error);
       toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Unknown error',
+        title: t('multiplayerQuiz.error'),
+        description: error instanceof Error ? error.message : t('multiplayerQuiz.unknownError'),
         variant: 'destructive',
       });
     }
@@ -287,8 +320,8 @@ export const MultiplayerQuizManagement = () => {
 
     setIsProcessing(true);
     toast({
-      title: 'Processing Extracted Questions',
-      description: 'Generating options for any questions that are missing them. Please wait...',
+      title: t('multiplayerQuiz.processingExtractedQuestions'),
+      description: t('multiplayerQuiz.generatingOptionsDescription'),
     });
 
     try {
@@ -308,8 +341,8 @@ export const MultiplayerQuizManagement = () => {
             } catch (error) {
               console.error(`Failed to generate options for: "${q.question_text}"`, error);
               toast({
-                title: 'Option Generation Failed',
-                description: `Could not generate options for: "${q.question_text.substring(0, 30)}..."`,
+                title: t('multiplayerQuiz.optionGenerationFailed'),
+                description: t('multiplayerQuiz.couldNotGenerateOptions', { question: q.question_text.substring(0, 30) }),
                 variant: 'destructive',
               });
               return { ...q, id: Math.random().toString(36).substring(2, 15), options: [] };
@@ -321,14 +354,14 @@ export const MultiplayerQuizManagement = () => {
 
       setExtractedQuestions(processedQuestions);
       toast({
-        title: 'Processing Complete',
-        description: `Successfully processed ${questions.length} questions.`,
+        title: t('multiplayerQuiz.processingComplete'),
+        description: t('multiplayerQuiz.successfullyProcessed', { count: questions.length }),
       });
     } catch (error) {
       console.error('Error processing extracted questions:', error);
       toast({
-        title: 'An Error Occurred',
-        description: 'Could not process all extracted questions.',
+        title: t('multiplayerQuiz.anErrorOccurred'),
+        description: t('multiplayerQuiz.couldNotProcessQuestions'),
         variant: 'destructive',
       });
       setExtractedQuestions(questions.map((q) => ({ ...q, id: Math.random().toString(36).substring(2, 15) })));
@@ -340,8 +373,8 @@ export const MultiplayerQuizManagement = () => {
   const saveExtractedQuestions = async () => {
     if (!user) {
       toast({
-        title: 'Error',
-        description: 'You must be logged in to save questions.',
+        title: t('multiplayerQuiz.error'),
+        description: t('multiplayerQuiz.mustBeLoggedIn', { action: 'save questions' }),
         variant: 'destructive',
       });
       return;
@@ -362,8 +395,8 @@ export const MultiplayerQuizManagement = () => {
       if (error) throw error;
 
       toast({
-        title: 'Success',
-        description: `${newQuestions.length} questions saved successfully.`,
+        title: t('multiplayerQuiz.success'),
+        description: t('multiplayerQuiz.questionsSavedSuccessfully', { count: newQuestions.length }),
       });
 
       setExtractedQuestions([]);
@@ -371,8 +404,8 @@ export const MultiplayerQuizManagement = () => {
     } catch (error: unknown) {
       console.error('Error saving extracted questions:', error);
       toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Unknown error',
+        title: t('multiplayerQuiz.error'),
+        description: error instanceof Error ? error.message : t('multiplayerQuiz.unknownError'),
         variant: 'destructive',
       });
     }
@@ -415,14 +448,14 @@ export const MultiplayerQuizManagement = () => {
       await saveQuestion(updatedQuestionData);
 
       toast({
-        title: 'Success',
-        description: 'Options generated and saved successfully.',
+        title: t('multiplayerQuiz.success'),
+        description: t('multiplayerQuiz.optionsGeneratedAndSaved'),
       });
     } catch (error: unknown) {
       console.error('Error generating options for saved question:', error);
       toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Failed to generate and save options.',
+        title: t('multiplayerQuiz.error'),
+        description: error instanceof Error ? error.message : t('multiplayerQuiz.failedToGenerateAndSave'),
         variant: 'destructive',
       });
     } finally {
@@ -443,14 +476,14 @@ export const MultiplayerQuizManagement = () => {
         ),
       );
       toast({
-        title: 'Success',
-        description: 'Options generated successfully.',
+        title: t('multiplayerQuiz.success'),
+        description: t('multiplayerQuiz.optionsGeneratedSuccessfully'),
       });
     } catch (error) {
       console.error('Error generating options:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to generate options.',
+        title: t('multiplayerQuiz.error'),
+        description: t('multiplayerQuiz.failedToGenerateOptions'),
         variant: 'destructive',
       });
     } finally {
@@ -497,9 +530,9 @@ export const MultiplayerQuizManagement = () => {
         <div className="space-y-8">
           {/* Header */}
           <TeacherPageHeader
-            title="Multiplayer Quiz Management"
-            subtitle="Create and manage engaging multiplayer quiz questions by category"
-            actionLabel="New Question"
+            title={t('multiplayerQuiz.title')}
+            subtitle={t('multiplayerQuiz.subtitle')}
+            actionLabel={t('multiplayerQuiz.newQuestion')}
             onAction={startNewQuestion}
             actionIcon={<Plus className="h-4 w-4 mr-2" />}
             actionButtonProps={{
@@ -507,26 +540,190 @@ export const MultiplayerQuizManagement = () => {
             }}
           />
 
+          {/* Question Modal */}
+          <Dialog open={isQuestionModalOpen} onOpenChange={setIsQuestionModalOpen}>
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle className="text-xl text-primary-600">
+                  {isEditMode ? t('multiplayerQuiz.editQuestion') : t('multiplayerQuiz.createNewQuestion')}
+                </DialogTitle>
+              </DialogHeader>
+              {modalQuestion && (
+                <div className="space-y-6">
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground mb-2 block">{t('multiplayerQuiz.questionTextLabel')}</label>
+                    <div className="space-y-3">
+                      <Textarea
+                        placeholder={t('multiplayerQuiz.questionTextPlaceholder')}
+                        value={modalQuestion.question}
+                        onChange={(e) => setModalQuestion({
+                          ...modalQuestion,
+                          question: e.target.value
+                        })}
+                        className="bg-background/90 border-border min-h-[100px]"
+                      />
+                      <div className="flex justify-end">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={handleGenerateModalOptions}
+                          disabled={isGeneratingModalOptions || !modalQuestion.question.trim()}
+                          className="bg-primary-500/20 border-primary-500/50 hover:bg-primary-500/30 hover:border-primary-500/60 text-primary-700"
+                        >
+                          {isGeneratingModalOptions ? (
+                            <>
+                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                              {t('multiplayerQuiz.generating')}
+                            </>
+                          ) : (
+                            <>
+                              <Brain className="h-4 w-4 mr-2" />
+                              {t('multiplayerQuiz.generateOptionsWithAI')}
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground mb-2 block">{t('multiplayerQuiz.categoryLabel')}</label>
+                      <Select
+                        value={modalQuestion.category}
+                        onValueChange={(value) => 
+                          setModalQuestion({
+                            ...modalQuestion,
+                            category: value
+                          })
+                        }
+                      >
+                        <SelectTrigger className="bg-background/90 border-border">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {categories.map(category => (
+                            <SelectItem key={category} value={category}>{category}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground mb-2 block">{t('multiplayerQuiz.difficultyLabel')}</label>
+                      <Select
+                        value={modalQuestion.difficulty}
+                        onValueChange={(value: 'easy' | 'medium' | 'hard') => 
+                          setModalQuestion({
+                            ...modalQuestion,
+                            difficulty: value
+                          })
+                        }
+                      >
+                        <SelectTrigger className="bg-background/90 border-border">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="easy">{t('multiplayerQuiz.easy')}</SelectItem>
+                          <SelectItem value="medium">{t('multiplayerQuiz.medium')}</SelectItem>
+                          <SelectItem value="hard">{t('multiplayerQuiz.hard')}</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground mb-2 block">{t('multiplayerQuiz.answerOptions')}</label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {modalQuestion.options.map((option, index) => (
+                        <div key={index} className="flex gap-2">
+                          <Input
+                            placeholder={`${t('multiplayerQuiz.option')} ${index + 1}`}
+                            value={option}
+                            onChange={(e) => {
+                              const newOptions = [...modalQuestion.options];
+                              newOptions[index] = e.target.value;
+                              setModalQuestion({
+                                ...modalQuestion,
+                                options: newOptions
+                              });
+                            }}
+                            className="bg-background/90 border-border"
+                          />
+                          <Button
+                            type="button"
+                            variant={modalQuestion.correct_answer === option ? "default" : "outline"}
+                            onClick={() => setModalQuestion({
+                              ...modalQuestion,
+                              correct_answer: option
+                            })}
+                            className={modalQuestion.correct_answer === option 
+                              ? "bg-primary-500 text-black hover:bg-primary-600" 
+                              : "border-border hover:bg-muted"
+                            }
+                          >
+                            {t('multiplayerQuiz.correct')}
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground mb-2 block">{t('multiplayerQuiz.timeLimitSeconds')}</label>
+                    <Input
+                      type="number"
+                      value={modalQuestion.time_limit}
+                      onChange={(e) => setModalQuestion({
+                        ...modalQuestion,
+                        time_limit: parseInt(e.target.value)
+                      })}
+                      className="bg-background/90 border-border w-32"
+                    />
+                  </div>
+
+                  <div className="flex gap-3">
+                    <Button
+                      onClick={handleModalSave}
+                      disabled={saving || !modalQuestion.question.trim() || !modalQuestion.correct_answer}
+                      className="bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 text-black"
+                    >
+                      <Save className="h-4 w-4 mr-2" />
+                      {saving ? t('multiplayerQuiz.saving') : t('multiplayerQuiz.saveQuestion')}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={handleModalCancel}
+                      className="border-border hover:bg-muted"
+                    >
+                      {t('multiplayerQuiz.cancel')}
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </DialogContent>
+          </Dialog>
+
           <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
             <DialogTrigger asChild>
               <Button variant="outline">
                 <FileText className="h-4 w-4 mr-2" />
-                Extract from PDF
+                {t('multiplayerQuiz.extractFromPdf')}
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Extract Questions from PDF</DialogTitle>
+                <DialogTitle>{t('multiplayerQuiz.extractQuestionsFromPdf')}</DialogTitle>
               </DialogHeader>
               <PdfQuestionExtractor onQuestionsExtracted={handleQuestionsExtracted} />
             </DialogContent>
           </Dialog>
 
           {isProcessing && (
-            <Card>
+            <Card className="border border-border bg-card/90 backdrop-blur-sm shadow-sm">
               <CardContent className="p-6 flex items-center justify-center">
-                <Loader2 className="h-6 w-6 mr-2 animate-spin" />
-                <p>Processing questions and generating options with AI...</p>
+                <Loader2 className="h-6 w-6 mr-2 animate-spin text-primary-600" />
+                <p className="text-foreground">{t('multiplayerQuiz.processingQuestions')}</p>
               </CardContent>
             </Card>
           )}
@@ -547,11 +744,11 @@ export const MultiplayerQuizManagement = () => {
             <Dialog open={!!editingExtractedQuestion} onOpenChange={() => setEditingExtractedQuestion(null)}>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Edit Extracted Question</DialogTitle>
+                  <DialogTitle>{t('multiplayerQuiz.editExtractedQuestion')}</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-4">
                   <div>
-                    <label>Question Text</label>
+                    <label>{t('multiplayerQuiz.questionText')}</label>
                     <Textarea
                       value={editingExtractedQuestion.question_text}
                       onChange={(e) =>
@@ -564,7 +761,7 @@ export const MultiplayerQuizManagement = () => {
                   </div>
                   {editingExtractedQuestion.options?.map((option, index) => (
                     <div key={index}>
-                      <label>Option {index + 1}</label>
+                      <label>{t('multiplayerQuiz.option')} {index + 1}</label>
                       <Input
                         value={option}
                         onChange={(e) => {
@@ -579,7 +776,7 @@ export const MultiplayerQuizManagement = () => {
                     </div>
                   ))}
                   <div>
-                    <label>Correct Answer</label>
+                    <label>{t('multiplayerQuiz.correctAnswer')}</label>
                     <Input
                       value={editingExtractedQuestion.correct_answer || ''}
                       onChange={(e) =>
@@ -590,7 +787,7 @@ export const MultiplayerQuizManagement = () => {
                       }
                     />
                   </div>
-                  <Button onClick={handleUpdateExtractedQuestion}>Update Question</Button>
+                  <Button onClick={handleUpdateExtractedQuestion}>{t('multiplayerQuiz.updateQuestion')}</Button>
                 </div>
               </DialogContent>
             </Dialog>
@@ -600,7 +797,7 @@ export const MultiplayerQuizManagement = () => {
           <div className="relative max-w-md">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
             <Input
-              placeholder="Search questions..."
+              placeholder={t('multiplayerQuiz.searchPlaceholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
@@ -609,43 +806,43 @@ export const MultiplayerQuizManagement = () => {
 
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card className="border border-border bg-card/50 backdrop-blur-sm">
+            <Card className="border border-border bg-card/90 backdrop-blur-sm shadow-sm">
               <CardContent className="p-6">
                 <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-primary-500/20 to-secondary-500/20 rounded-xl flex items-center justify-center border border-primary-500/30">
-                    <Trophy className="h-6 w-6 text-primary-400" />
+                  <div className="w-12 h-12 bg-gradient-to-br from-primary-500/30 to-secondary-500/30 rounded-xl flex items-center justify-center border border-primary-500/50">
+                    <Trophy className="h-6 w-6 text-primary-600" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Total Questions</p>
-                    <p className="text-2xl font-bold text-primary-400">{questions.length}</p>
+                    <p className="text-sm font-medium text-muted-foreground">{t('multiplayerQuiz.totalQuestions')}</p>
+                    <p className="text-2xl font-bold text-primary-600">{questions.length}</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="border border-border bg-card/50 backdrop-blur-sm">
+            <Card className="border border-border bg-card/90 backdrop-blur-sm shadow-sm">
               <CardContent className="p-6">
                 <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500/20 to-accent-500/20 rounded-xl flex items-center justify-center border border-blue-500/30">
-                    <FolderOpen className="h-6 w-6 text-blue-400" />
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500/30 to-accent-500/30 rounded-xl flex items-center justify-center border border-blue-500/50">
+                    <FolderOpen className="h-6 w-6 text-blue-600" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Categories</p>
-                    <p className="text-2xl font-bold text-blue-400">{categories.length}</p>
+                    <p className="text-sm font-medium text-muted-foreground">{t('multiplayerQuiz.categories')}</p>
+                    <p className="text-2xl font-bold text-blue-600">{categories.length}</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="border border-border bg-card/50 backdrop-blur-sm">
+            <Card className="border border-border bg-card/90 backdrop-blur-sm shadow-sm">
               <CardContent className="p-6">
                 <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-xl flex items-center justify-center border border-purple-500/30">
-                    <Users className="h-6 w-6 text-purple-400" />
+                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500/30 to-pink-500/30 rounded-xl flex items-center justify-center border border-purple-500/50">
+                    <Users className="h-6 w-6 text-purple-600" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Active Quizzes</p>
-                    <p className="text-2xl font-bold text-purple-400">0</p>
+                    <p className="text-sm font-medium text-muted-foreground">{t('multiplayerQuiz.activeQuizzes')}</p>
+                    <p className="text-2xl font-bold text-purple-600">0</p>
                   </div>
                 </div>
               </CardContent>
@@ -653,22 +850,22 @@ export const MultiplayerQuizManagement = () => {
           </div>
 
           {/* Category Management */}
-          <Card className="border border-border bg-card/50 backdrop-blur-sm">
+          <Card className="border border-border bg-card/90 backdrop-blur-sm shadow-sm">
             <CardHeader>
-              <CardTitle className="text-xl text-primary-300 flex items-center">
-                <Tag className="h-5 w-5 mr-2" />
-                Category Management
-              </CardTitle>
+                              <CardTitle className="text-xl text-primary-600 flex items-center">
+                  <Tag className="h-5 w-5 mr-2" />
+                  {t('multiplayerQuiz.categoryManagement')}
+                </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex gap-4 items-end">
                 <div className="flex-1">
-                  <label className="text-sm font-medium text-muted-foreground mb-2 block">New Category</label>
-                  <Input
-                    placeholder="Enter new category name..."
-                    value={newCategory}
+                  <label className="text-sm font-medium text-muted-foreground mb-2 block">{t('multiplayerQuiz.newCategory')}</label>
+                                      <Input
+                      placeholder={t('multiplayerQuiz.newCategoryPlaceholder')}
+                      value={newCategory}
                     onChange={(e) => setNewCategory(e.target.value)}
-                    className="bg-background/50 border-border"
+                    className="bg-background/90 border-border"
                   />
                 </div>
                 <Button 
@@ -677,23 +874,23 @@ export const MultiplayerQuizManagement = () => {
                  variant='default'
                 >
                   <Plus className="h-4 w-4 mr-2" />
-                  Add Category
+                  {t('multiplayerQuiz.addCategory')}
                 </Button>
               </div>
               
               <div className="flex flex-wrap gap-2">
                 <Badge 
                   variant={selectedCategory === 'all' ? 'default' : 'outline'}
-                  className={`cursor-pointer transition-all duration-200 ${selectedCategory === 'all' ? 'bg-primary-500 text-black' : 'hover:bg-primary-500/20 hover:border-primary-500/50'}`}
+                  className={`cursor-pointer transition-all duration-200 ${selectedCategory === 'all' ? 'bg-primary-500 text-black' : 'hover:bg-primary-500/30 hover:border-primary-500/60'}`}
                   onClick={() => setSelectedCategory('all')}
                 >
-                  All Categories ({questions.length})
+                  {t('multiplayerQuiz.allCategories')} ({questions.length})
                 </Badge>
                 {categories.map(category => (
                   <Badge 
                     key={category}
                     variant={selectedCategory === category ? 'default' : 'outline'}
-                    className={`cursor-pointer transition-all duration-200 ${selectedCategory === category ? 'bg-primary-500 text-black' : 'hover:bg-primary-500/20 hover:border-primary-500/50'}`}
+                    className={`cursor-pointer transition-all duration-200 ${selectedCategory === category ? 'bg-primary-500 text-black' : 'hover:bg-primary-500/30 hover:border-primary-500/60'}`}
                     onClick={() => setSelectedCategory(category)}
                   >
                     {category} ({questions.filter(q => q.category === category).length})
@@ -703,242 +900,57 @@ export const MultiplayerQuizManagement = () => {
             </CardContent>
           </Card>
 
-          {/* Question Editor */}
-          {editingQuestion && !editingQuestionId && (
-            <Card className="border border-border bg-card/50 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="text-xl text-primary-300">
-                  Create New Question
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground mb-2 block">Question Text</label>
-                  <Textarea
-                    placeholder="Enter your question..."
-                    value={editingQuestion.question}
-                    onChange={(e) => setEditingQuestion({
-                      ...editingQuestion,
-                      question: e.target.value
-                    })}
-                    className="bg-background/50 border-border min-h-[100px]"
-                  />
-                </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground mb-2 block">Category</label>
-                    <Select
-                      value={editingQuestion.category}
-                      onValueChange={(value) => 
-                        setEditingQuestion({
-                          ...editingQuestion,
-                          category: value
-                        })
-                      }
-                    >
-                      <SelectTrigger className="bg-background/50 border-border">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categories.map(category => (
-                          <SelectItem key={category} value={category}>{category}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground mb-2 block">Difficulty</label>
-                    <Select
-                      value={editingQuestion.difficulty}
-                      onValueChange={(value: 'easy' | 'medium' | 'hard') => 
-                        setEditingQuestion({
-                          ...editingQuestion,
-                          difficulty: value
-                        })
-                      }
-                    >
-                      <SelectTrigger className="bg-background/50 border-border">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="easy">Easy</SelectItem>
-                        <SelectItem value="medium">Medium</SelectItem>
-                        <SelectItem value="hard">Hard</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground mb-2 block">Answer Options</label>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {editingQuestion.options.map((option, index) => (
-                      <div key={index} className="flex gap-2">
-                        <Input
-                          placeholder={`Option ${index + 1}`}
-                          value={option}
-                          onChange={(e) => {
-                            const newOptions = [...editingQuestion.options];
-                            newOptions[index] = e.target.value;
-                            setEditingQuestion({
-                              ...editingQuestion,
-                              options: newOptions
-                            });
-                          }}
-                          className="bg-background/50 border-border"
-                        />
-                        <Button
-                          type="button"
-                          variant={editingQuestion.correct_answer === option ? "default" : "outline"}
-                          onClick={() => setEditingQuestion({
-                            ...editingQuestion,
-                            correct_answer: option
-                          })}
-                          className={editingQuestion.correct_answer === option 
-                            ? "bg-primary-500 text-black hover:bg-primary-600" 
-                            : "border-border hover:bg-muted"
-                          }
-                        >
-                          Correct
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground mb-2 block">Time Limit (seconds)</label>
-                  <Input
-                    type="number"
-                    value={editingQuestion.time_limit}
-                    onChange={(e) => setEditingQuestion({
-                      ...editingQuestion,
-                      time_limit: parseInt(e.target.value)
-                    })}
-                    className="bg-background/50 border-border w-32"
-                  />
-                </div>
-
-                <div className="flex gap-3">
-                  <Button
-                    onClick={() => saveQuestion(editingQuestion)}
-                    disabled={saving || !editingQuestion.question.trim() || !editingQuestion.correct_answer}
-                    className="bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 text-black"
-                  >
-                    <Save className="h-4 w-4 mr-2" />
-                    {saving ? 'Saving...' : 'Save Question'}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => setEditingQuestion(null)}
-                    className="border-border hover:bg-muted"
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          )}
 
           {/* Questions Display */}
           <Tabs defaultValue="list" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 bg-background/50 border-border">
-              <TabsTrigger value="list" className="data-[state=active]:bg-primary-500 data-[state=active]:text-black">List View</TabsTrigger>
-              <TabsTrigger value="grouped" className="data-[state=active]:bg-primary-500 data-[state=active]:text-black">Grouped by Category</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 bg-background/90 border-border shadow-sm">
+              <TabsTrigger value="list" className="data-[state=active]:bg-primary-500 data-[state=active]:text-black">{t('multiplayerQuiz.listView')}</TabsTrigger>
+              <TabsTrigger value="grouped" className="data-[state=active]:bg-primary-500 data-[state=active]:text-black">{t('multiplayerQuiz.groupedByCategory')}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="list" className="space-y-6 mt-6">
               {/* Questions List */}
               <div className="grid gap-6">
                 {displayQuestions.map((question) => (
-                  <Card key={question.id} className="border border-border bg-card/50 backdrop-blur-sm group hover:border-primary-500/50 transition-all duration-300">
+                  <Card key={question.id} className="border border-border bg-card/90 backdrop-blur-sm shadow-sm group hover:border-primary-500/50 transition-all duration-300">
                     <CardHeader>
                       <div className="flex items-center justify-between">
                         <div className="space-y-3 flex-1">
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-gradient-to-br from-primary-500/20 to-secondary-500/20 rounded-xl flex items-center justify-center group-hover:shadow-lg group-hover:shadow-primary-500/25 transition-all duration-300 border border-primary-500/30">
-                              <Brain className="h-5 w-5 text-primary-400" />
+                            <div className="w-10 h-10 bg-gradient-to-br from-primary-500/30 to-secondary-500/30 rounded-xl flex items-center justify-center group-hover:shadow-lg group-hover:shadow-primary-500/25 transition-all duration-300 border border-primary-500/50">
+                              <Brain className="h-5 w-5 text-primary-600" />
                             </div>
                             <div className="flex-1">
-                              {editingQuestionId === question.id ? (
-                                <Textarea
-                                  value={editingQuestion?.question || ''}
-                                  onChange={(e) => updateInlineQuestion('question', e.target.value)}
-                                  className="bg-background/50 border-border min-h-[80px] text-lg font-medium"
-                                  placeholder="Enter question text..."
-                                />
-                              ) : (
-                                <h4 className="text-lg font-medium text-primary-300 group-hover:text-primary-400 transition-colors duration-300">
-                                  {question.question}
-                                </h4>
-                              )}
+                              <h4 className="text-lg font-medium text-foreground group-hover:text-primary-600 transition-colors duration-300">
+                                {question.question}
+                              </h4>
                               <div className="flex items-center gap-2 mt-2">
-                                <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/40">
+                                <Badge className="bg-blue-500/30 text-blue-700 border-blue-500/50">
                                   <FolderOpen className="h-3 w-3 mr-1" />
-                                  {editingQuestionId === question.id ? (
-                                    <Select
-                                      value={editingQuestion?.category || ''}
-                                      onValueChange={(value) => updateInlineQuestion('category', value)}
-                                    >
-                                      <SelectTrigger className="h-6 bg-transparent border-0 p-0 text-blue-300">
-                                        <SelectValue />
-                                      </SelectTrigger>
-                                      <SelectContent>
-                                        {categories.map(category => (
-                                          <SelectItem key={category} value={category}>{category}</SelectItem>
-                                        ))}
-                                      </SelectContent>
-                                    </Select>
-                                  ) : (
-                                    question.category
-                                  )}
+                                  {question.category}
                                 </Badge>
                               </div>
                             </div>
                           </div>
                         </div>
                         <div className="flex gap-3">
-                          {editingQuestionId === question.id ? (
-                            <>
-                              <Button 
-                                size="sm"
-                                onClick={() => editingQuestion && saveQuestion(editingQuestion)}
-                                disabled={saving}
-                                className="bg-primary-500 hover:bg-primary-600 text-white"
-                              >
-                                <Save className="h-4 w-4" />
-                              </Button>
-                              <Button 
-                                variant="outline" 
-                                size="sm"
-                                onClick={cancelInlineEdit}
-                                className="border-border hover:bg-muted"
-                              >
-                                <X className="h-4 w-4" />
-                              </Button>
-                            </>
-                          ) : (
-                            <>
-                              <Button 
-                                variant="outline" 
-                                size="sm"
-                                onClick={() => startInlineEdit(question)}
-                                className="bg-primary-500/10 border-primary-500/30 hover:bg-primary-500/20 hover:border-primary-500/50 text-primary-300 backdrop-blur-sm transition-all duration-300 hover:shadow-lg hover:shadow-primary-500/20"
-                              >
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                              <Button 
-                                variant="outline" 
-                                size="sm"
-                                onClick={() => question.id && deleteQuestion(question.id)}
-                                className="bg-red-500/10 border-red-500/30 hover:bg-red-500/20 hover:border-red-500/50 text-red-300 backdrop-blur-sm transition-all duration-300 hover:shadow-lg hover:shadow-red-500/20"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </>
-                          )}
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => startInlineEdit(question)}
+                            className="bg-primary-500/20 border-primary-500/50 hover:bg-primary-500/30 hover:border-primary-500/60 text-primary-700 backdrop-blur-sm transition-all duration-300 hover:shadow-lg hover:shadow-primary-500/20"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => question.id && deleteQuestion(question.id)}
+                            className="bg-red-500/20 border-red-500/50 hover:bg-red-500/30 hover:border-red-500/60 text-red-700 backdrop-blur-sm transition-all duration-300 hover:shadow-lg hover:shadow-red-500/20"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </div>
                       </div>
                     </CardHeader>
@@ -951,53 +963,25 @@ export const MultiplayerQuizManagement = () => {
                                 key={index}
                                 className={`p-3 rounded-xl border transition-all duration-300 ${
                                   option === question.correct_answer
-                                    ? 'bg-primary-500/20 border-primary-500/40 text-primary-300'
-                                    : 'bg-muted/30 border-border text-muted-foreground'
+                                    ? 'bg-primary-500/30 border-primary-500/60 text-primary-700'
+                                    : 'bg-muted/60 border-border text-foreground'
                                 }`}
                               >
-                                {editingQuestionId === question.id ? (
-                                  <div className="flex gap-2">
-                                    <Input
-                                      value={editingQuestion?.options[index] || ''}
-                                      onChange={(e) => updateInlineOption(index, e.target.value)}
-                                      className="bg-background/50 border-border text-sm"
-                                      placeholder={`Option ${index + 1}`}
-                                    />
-                                    <Button
-                                      type="button"
-                                      variant={
-                                        editingQuestion?.correct_answer === editingQuestion?.options[index]
-                                          ? 'default'
-                                          : 'outline'
-                                      }
-                                      onClick={() => updateInlineQuestion('correct_answer', editingQuestion?.options[index])}
-                                      size="sm"
-                                      className={
-                                        editingQuestion?.correct_answer === editingQuestion?.options[index]
-                                          ? 'bg-primary-500 text-black hover:bg-primary-600 h-8 px-2'
-                                          : 'border-border hover:bg-muted h-8 px-2'
-                                      }
-                                    >
-                                      ✓
-                                    </Button>
-                                  </div>
-                                ) : (
-                                  <>
-                                    <span className="text-sm font-medium">{String.fromCharCode(65 + index)}.</span>{' '}
-                                    {option}
-                                    {option === question.correct_answer && (
-                                      <Badge className="ml-2 bg-primary-500/30 text-primary-300 border-primary-500/50">
-                                        Correct
-                                      </Badge>
-                                    )}
-                                  </>
-                                )}
+                                <>
+                                  <span className="text-sm font-medium">{String.fromCharCode(65 + index)}.</span>{' '}
+                                  {option}
+                                  {option === question.correct_answer && (
+                                    <Badge className="ml-2 bg-primary-500/40 text-primary-700 border-primary-500/60">
+                                      {t('multiplayerQuiz.correct')}
+                                    </Badge>
+                                  )}
+                                </>
                               </div>
                             ))}
                           </div>
                         ) : (
                           <div className="text-center text-muted-foreground py-4">
-                            <p>This question is missing options.</p>
+                            <p>{t('multiplayerQuiz.thisQuestionMissingOptions')}</p>
                             <Button
                               size="sm"
                               variant="link"
@@ -1007,58 +991,32 @@ export const MultiplayerQuizManagement = () => {
                               {generatingSavedQuestionOptions === question.id ? (
                                 <>
                                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                  Generating...
+                                  {t('multiplayerQuiz.generating')}
                                 </>
                               ) : (
-                                'Generate Options with AI'
+                                t('multiplayerQuiz.generateOptionsWithAI')
                               )}
                             </Button>
                           </div>
                         )}
 
                         <div className="flex gap-3 flex-wrap">
-                          {editingQuestionId === question.id ? (
-                            <>
-                              <Select
-                                value={editingQuestion?.difficulty || 'medium'}
-                                onValueChange={(value: 'easy' | 'medium' | 'hard') => updateInlineQuestion('difficulty', value)}
-                              >
-                                <SelectTrigger className="h-8 bg-background/50 border-border">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="easy">Easy</SelectItem>
-                                  <SelectItem value="medium">Medium</SelectItem>
-                                  <SelectItem value="hard">Hard</SelectItem>
-                                </SelectContent>
-                              </Select>
-                              <Input
-                                type="number"
-                                value={editingQuestion?.time_limit || 15}
-                                onChange={(e) => updateInlineQuestion('time_limit', parseInt(e.target.value))}
-                                className="bg-background/50 border-border w-20 h-8"
-                              />
-                            </>
-                          ) : (
-                            <>
-                              <Badge 
-                                className={
-                                  question.difficulty === 'easy' 
-                                    ? "bg-green-500/20 text-green-300 border-green-500/40" 
-                                    : question.difficulty === 'medium'
-                                    ? "bg-yellow-500/20 text-yellow-300 border-yellow-500/40"
-                                    : "bg-red-500/20 text-red-300 border-red-500/40"
-                                }
-                              >
-                                <Target className="h-3 w-3 mr-1" />
-                                {question.difficulty}
-                              </Badge>
-                              <Badge className="bg-accent-500/20 text-accent-300 border-accent-500/40">
-                                <Clock className="h-3 w-3 mr-1" />
-                                {question.time_limit}s
-                              </Badge>
-                            </>
-                          )}
+                          <Badge 
+                            className={
+                              question.difficulty === 'easy' 
+                                ? "bg-green-500/30 text-green-700 border-green-500/50" 
+                                : question.difficulty === 'medium'
+                                ? "bg-yellow-500/30 text-yellow-700 border-yellow-500/50"
+                                : "bg-red-500/30 text-red-700 border-red-500/50"
+                            }
+                          >
+                            <Target className="h-3 w-3 mr-1" />
+                            {question.difficulty}
+                          </Badge>
+                          <Badge className="bg-accent-500/30 text-accent-700 border-accent-500/50">
+                            <Clock className="h-3 w-3 mr-1" />
+                            {question.time_limit}s
+                          </Badge>
                         </div>
                       </div>
                     </CardContent>
@@ -1068,21 +1026,21 @@ export const MultiplayerQuizManagement = () => {
 
               {/* Empty State */}
               {displayQuestions.length === 0 && (
-                <Card className="border border-border bg-card/50 backdrop-blur-sm">
+                <Card className="border border-border bg-card/90 backdrop-blur-sm shadow-sm">
                   <CardContent className="text-center py-16 space-y-6">
-                    <div className="w-20 h-20 bg-gradient-to-br from-primary-500/20 to-secondary-500/20 rounded-2xl flex items-center justify-center mx-auto border border-primary-500/30">
-                      <Brain className="h-10 w-10 text-primary-400" />
+                    <div className="w-20 h-20 bg-gradient-to-br from-primary-500/30 to-secondary-500/30 rounded-2xl flex items-center justify-center mx-auto border border-primary-500/50">
+                      <Brain className="h-10 w-10 text-primary-600" />
                     </div>
                     <div className="space-y-3">
-                      <h3 className="text-2xl font-semibold bg-gradient-to-r from-primary-400 to-secondary-400 bg-clip-text text-transparent">
-                        {searchTerm ? 'No matching questions found' : selectedCategory === 'all' ? 'No questions yet' : `No questions in ${selectedCategory}`}
+                      <h3 className="text-2xl font-semibold bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent">
+                        {searchTerm ? t('multiplayerQuiz.noMatchingQuestionsFound') : selectedCategory === 'all' ? t('multiplayerQuiz.noQuestionsYet') : t('multiplayerQuiz.noQuestionsInCategory', { category: selectedCategory })}
                       </h3>
-                      <p className="text-muted-foreground text-lg max-w-md mx-auto leading-relaxed">
+                      <p className="text-foreground text-lg max-w-md mx-auto leading-relaxed">
                         {searchTerm 
-                          ? 'Try adjusting your search terms to find the right questions'
+                          ? t('multiplayerQuiz.tryAdjustingSearchTerms')
                           : selectedCategory === 'all' 
-                          ? 'Create your first multiplayer quiz question to get started'
-                          : `Create questions for the ${selectedCategory} category`
+                          ? t('multiplayerQuiz.createFirstQuestion')
+                          : t('multiplayerQuiz.createQuestionsForCategory', { category: selectedCategory })
                         }
                       </p>
                     </div>
@@ -1092,7 +1050,7 @@ export const MultiplayerQuizManagement = () => {
                         className="bg-gradient-to-r from-primary-500 via-secondary-500 to-primary-600 hover:from-primary-600 hover:via-secondary-600 hover:to-primary-700 text-black font-semibold px-8 py-4 rounded-2xl shadow-lg shadow-primary-500/25 border border-primary-400/30 transition-all duration-300 hover:shadow-xl hover:shadow-primary-500/30"
                       >
                         <Plus className="h-5 w-5 mr-2" />
-                        Create Question
+                        {t('multiplayerQuiz.createQuestion')}
                       </Button>
                     )}
                   </CardContent>
@@ -1103,22 +1061,22 @@ export const MultiplayerQuizManagement = () => {
             <TabsContent value="grouped" className="space-y-6 mt-6">
               {/* Questions Grouped by Category */}
               {Object.entries(questionsByCategory).map(([category, categoryQuestions]) => (
-                <Card key={category} className="border border-border bg-card/50 backdrop-blur-sm">
+                <Card key={category} className="border border-border bg-card/90 backdrop-blur-sm shadow-sm">
                   <CardHeader>
-                    <CardTitle className="text-xl text-primary-300 flex items-center justify-between">
+                    <CardTitle className="text-xl text-primary-600 flex items-center justify-between">
                       <div className="flex items-center">
                         <FolderOpen className="h-5 w-5 mr-2" />
                         {category}
                       </div>
-                      <Badge className="bg-primary-500/20 text-primary-300 border-primary-500/40">
-                        {categoryQuestions.length} questions
+                      <Badge className="bg-primary-500/30 text-primary-700 border-primary-500/50">
+                        {categoryQuestions.length} {t('multiplayerQuiz.questions')}
                       </Badge>
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
                       {categoryQuestions.map((question) => (
-                        <div key={question.id} className="p-4 border border-border rounded-lg hover:border-primary-500/50 transition-colors duration-200 bg-background/30">
+                        <div key={question.id} className="p-4 border border-border rounded-lg hover:border-primary-500/50 transition-colors duration-200 bg-background/80">
                           <div className="flex items-center justify-between mb-3">
                             <h4 className="text-lg font-medium text-foreground">{question.question}</h4>
                             <div className="flex gap-2">
@@ -1126,7 +1084,7 @@ export const MultiplayerQuizManagement = () => {
                                 variant="outline" 
                                 size="sm"
                                 onClick={() => startInlineEdit(question)}
-                                className="bg-primary-500/10 border-primary-500/30 hover:bg-primary-500/20 hover:border-primary-500/50 text-primary-300"
+                                className="bg-primary-500/20 border-primary-500/50 hover:bg-primary-500/30 hover:border-primary-500/60 text-primary-700"
                               >
                                 <Edit className="h-4 w-4" />
                               </Button>
@@ -1134,7 +1092,7 @@ export const MultiplayerQuizManagement = () => {
                                 variant="outline" 
                                 size="sm"
                                 onClick={() => question.id && deleteQuestion(question.id)}
-                                className="bg-red-500/10 border-red-500/30 hover:bg-red-500/20 hover:border-red-500/50 text-red-300"
+                                className="bg-red-500/20 border-red-500/50 hover:bg-red-500/30 hover:border-red-500/60 text-red-700"
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
