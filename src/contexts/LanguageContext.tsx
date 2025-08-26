@@ -25,10 +25,10 @@ interface LanguageProviderProps {
 
 export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
   const { i18n } = useTranslation();
-  const [currentLanguage, setCurrentLanguage] = useState<Language>('ar');
+  const [currentLanguage, setCurrentLanguage] = useState<Language>('en');
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // Initialize language from localStorage or default to Arabic
+  // Initialize language from localStorage or default to English
   useEffect(() => {
     const savedLanguage = localStorage.getItem('i18nextLng') as Language;
     
@@ -38,10 +38,10 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
       // Then update our local state
       setCurrentLanguage(savedLanguage);
     } else {
-      // Default to Arabic if no saved language
-      i18n.changeLanguage('ar');
-      setCurrentLanguage('ar');
-      localStorage.setItem('i18nextLng', 'ar');
+      // Default to English if no saved language
+      i18n.changeLanguage('en');
+      setCurrentLanguage('en');
+      localStorage.setItem('i18nextLng', 'en');
     }
     
     setIsInitialized(true);

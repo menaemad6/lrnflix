@@ -57,8 +57,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode, setMode, onClose }) => {
         </button>
       )}
       <div className="flex flex-col items-center mb-6">
-        <div className="w-16 h-16 rounded-2xl flex items-center justify-center bg-primary shadow-xl animate-glow-pulse border border-primary/20 mb-2">
-          {isLogin ? <LogIn className="w-8 h-8 text-primary-foreground" /> : <UserPlus className="w-8 h-8 text-primary-foreground" />}
+        <div className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-xl animate-glow-pulse mb-2">
+          <img src="/assests/logo.png" alt="LRNFLIX Logo" className="w-10 h-10 object-contain" />
         </div>
         <h2 className="text-2xl font-black tracking-wide mb-1 text-foreground">
           {isLogin ? t('authModal.welcomeBack') : t('authModal.createAccount')}

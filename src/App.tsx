@@ -211,7 +211,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <Provider store={store}>
       <HelmetProvider>
-        <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+        <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
           <AuthProvider>
             <ChatbotProvider>
               <LanguageProvider>

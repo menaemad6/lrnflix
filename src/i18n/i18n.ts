@@ -42,7 +42,7 @@ const resources = {
 
 // Get the saved language from localStorage before initializing i18n
 const savedLanguage = localStorage.getItem('i18nextLng');
-const initialLanguage = (savedLanguage === 'en' || savedLanguage === 'ar') ? savedLanguage : 'ar';
+const initialLanguage = (savedLanguage === 'en' || savedLanguage === 'ar') ? savedLanguage : 'en';
 
 i18n
   .use(Backend)
@@ -50,8 +50,8 @@ i18n
   .use(initReactI18next)
   .init({
     resources,
-    fallbackLng: 'ar', // Default to Arabic
-    lng: initialLanguage, // Use saved language or default to Arabic
+    fallbackLng: 'en', // Default to English
+    lng: initialLanguage, // Use saved language or default to English
     debug: process.env.NODE_ENV === 'development',
     
     // Backend configuration for dynamic loading
