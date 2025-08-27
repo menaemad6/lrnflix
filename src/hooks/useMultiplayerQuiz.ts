@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux';
 import type { RootState } from '@/store/store';
 import { useToast } from '@/hooks/use-toast';
 import { useTenant } from '@/contexts/TenantContext';
+import { updateUserXP } from '@/utils/xpUtils';
 
 export type GameState = 'idle' | 'finding' | 'matched' | 'countdown' | 'playing' | 'waiting' | 'results';
 
@@ -1689,6 +1690,22 @@ export const useMultiplayerQuiz = (): {
         .order('score', { ascending: false });
 
       if (!error && finalPlayers) {
+              // Update total_xp in profiles for all players
+      for (const player of finalPlayers) {
+        if (player.xp_earned > 0 && room?.category) {
+          try {
+            const result = await updateUserXP(player.user_id, room.category, player.xp_earned);
+            if (result.error) {
+              console.error(`Error updating XP for user ${player.user_id}:`, result.error);
+            } else {
+              console.log(`Updated XP for user ${player.user_id}: +${player.xp_earned} XP in ${room.category}`);
+            }
+          } catch (xpError) {
+            console.error(`Error updating XP for user ${player.user_id}:`, xpError);
+          }
+        }
+      }
+
         setFinalResults(finalPlayers);
         setShowResults(true);
         setGameState('results');
@@ -1874,11 +1891,7 @@ export const useMultiplayerQuiz = (): {
             // Mark this question as processed to prevent multiple executions
             hasProcessedCurrentQuestionRef.current = true;
             
-            // Show notification that all players have answered
-            toast({
-              title: 'All Players Answered!',
-              description: 'Moving to next question...',
-            });
+            // All players have answered, moving to next question silently
             
             // Move to next question immediately
             moveToNextQuestion();

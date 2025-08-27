@@ -330,6 +330,18 @@
     "playersInGame": "اللاعبون في اللعبة",
     "roomIsFull": "الغرفة ممتلئة!",
     "allPlayersJoined": "انضم جميع اللاعبين. جاهز لبدء الاختبار!"
+    },
+    "leaderboard": {
+      "title": "المتصدرون",
+      "allTime": "كل الوقت",
+      "thisWeek": "هذا الأسبوع",
+      "thisMonth": "هذا الشهر",
+      "noPlayersYet": "لا يوجد لاعبين بعد",
+      "playToEarnXP": "العب اختبارات متعددة اللاعبين لربح نقاط الخبرة والصعود في المراتب!",
+      "anonymousPlayer": "لاعب مجهول",
+      "topPlayer": "أفضل لاعب",
+      "updatedRealTime": "محدث في الوقت الفعلي",
+      "refresh": "تحديث"
     }
   },
   "multiplayerLobby": {

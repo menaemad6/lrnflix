@@ -207,7 +207,7 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
           <div className="space-y-4 sm:space-y-6 md:space-y-8">
             <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
               <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-gradient-to-r from-primary to-primary/80 rounded-lg sm:rounded-xl flex items-center justify-center">
-                <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-white" />
+                <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-primary-foreground" />
               </div>
               <h2 className="text-xl sm:text-2xl md:text-3xl font-bold">{t('quizResults.answerReview')}</h2>
             </div>
@@ -300,7 +300,7 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
                               className="relative bg-background/80 backdrop-blur-sm border-primary/30 hover:bg-primary/5 hover:border-primary/50 transition-all duration-300 h-auto p-3 sm:p-4 flex flex-col gap-1 sm:gap-2 min-w-[120px] sm:min-w-[140px]"
                             >
                               <div className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 bg-gradient-to-r from-primary to-primary/80 rounded-full flex items-center justify-center mb-1">
-                                <Brain className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 text-white" />
+                                <Brain className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 text-primary-foreground" />
                               </div>
                               <span className="font-semibold text-xs sm:text-sm">{t('quizResults.askHossam')}</span>
                               <span className="text-xs opacity-80">{t('quizResults.getAiHelp')}</span>

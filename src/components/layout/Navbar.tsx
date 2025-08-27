@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
-import { Layout, LogOut, Home, Search, Store, Menu, Sidebar, MessageCircleQuestion, Gamepad2, Users, Gift, Bell, PieChart, DollarSign, CircleDollarSign, GraduationCap } from 'lucide-react';
+import { Layout, LogOut, Home, Search, Store, Menu, Sidebar, MessageCircleQuestion, Gamepad2, Users, Gift, Bell, PieChart, DollarSign, CircleDollarSign, GraduationCap, BookOpen } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import type { RootState } from '@/store/store';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -146,7 +146,7 @@ export const Navbar = ({ extraXSpacing = false }: { extraXSpacing?: boolean }) =
           { to: '/teachers', label: t('navbar.teachers'), icon: GraduationCap },
           { to: '/courses', label: t('navbar.courses'), icon: Search },
           { to: '/student/store', label: t('navbar.store'), icon: CircleDollarSign },
-          { to: '/chapters', label: t('navbar.chapters'), icon: Logo },
+          { to: '/chapters', label: t('navbar.chapters'), icon: BookOpen },
           { to: '/student/groups', label: t('navbar.myGroups'), icon: Users },
           { to: '/questions', label: t('navbar.questions'), icon: MessageCircleQuestion },
           { to: '/multiplayer-quiz', label: t('navbar.quizGame'), icon: Gamepad2 },

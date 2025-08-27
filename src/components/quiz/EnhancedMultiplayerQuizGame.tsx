@@ -20,6 +20,7 @@ interface EnhancedMultiplayerQuizGameProps {
   currentQuestionIndex: number;
   totalQuestions: number;
   onLeave: () => void;
+  currentUserId: string;
 }
 
 export const EnhancedMultiplayerQuizGame = ({
@@ -32,6 +33,7 @@ export const EnhancedMultiplayerQuizGame = ({
   currentQuestionIndex,
   totalQuestions,
   onLeave,
+  currentUserId,
 }: EnhancedMultiplayerQuizGameProps) => {
   const { t } = useTranslation('other');
   const [answeredPlayers, setAnsweredPlayers] = useState<Set<string>>(new Set());
@@ -210,7 +212,7 @@ export const EnhancedMultiplayerQuizGame = ({
             <CardContent className="p-8">
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
-                  <Badge className="bg-gradient-to-r from-accent/20 to-primary/20 text-accent border-accent/40 px-4 py-2">
+                  <Badge className=" px-4 py-2" variant='default'>
                     <Target className="h-4 w-4 mr-2" />
                     {question.difficulty}
                   </Badge>
@@ -293,43 +295,69 @@ export const EnhancedMultiplayerQuizGame = ({
             </div>
             
             <div className="space-y-3">
-              {sortedPlayers.slice(0, 5).map((player, index) => (
-                <motion.div
-                  key={player.id}
-                  initial={{ x: -20, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  transition={{ delay: index * 0.1 }}
-                  className={`flex items-center justify-between p-2 sm:p-3 rounded-xl ${
-                    index === 0 
-                      ? 'bg-gradient-to-r from-primary/20 to-accent/20 border border-primary/40'
-                      : 'bg-muted/30 border border-border'
-                  }`}
-                >
-                  <div className="flex items-center space-x-2 sm:space-x-3">
-                    <div
-                      className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center font-bold text-sm sm:text-base ${
-                        index === 0 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
-                      }`}>
-                      {index === 0 ? <Crown className="h-4 w-4" /> : index + 1}
-                    </div>
-                    <span className={`font-medium text-sm sm:text-base ${index === 0 ? 'text-primary' : 'text-foreground'}`}>
-                      {player.username}
-                    </span>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2 sm:space-x-4">
-                    {player.streak > 0 && (
-                      <Badge className="bg-accent/20 text-accent border-accent/40 text-xs sm:text-sm">
-                        <Zap className="h-3 w-3 mr-1" />
-                        {player.streak}
-                      </Badge>
-                    )}
-                    <span className={`font-bold text-base sm:text-lg ${index === 0 ? 'text-primary' : 'text-accent'}`}>
-                      {player.score}
-                    </span>
-                  </div>
-                </motion.div>
-              ))}
+                             {sortedPlayers.slice(0, 5).map((player, index) => {
+                 const isCurrentUser = player.user_id === currentUserId;
+                 return (
+                   <motion.div
+                     key={player.id}
+                     initial={{ x: -20, opacity: 0 }}
+                     animate={{ x: 0, opacity: 1 }}
+                     transition={{ delay: index * 0.1 }}
+                                           className={`flex items-center justify-between p-2 sm:p-3 rounded-xl ${
+                        isCurrentUser
+                          ? 'bg-gradient-to-r from-accent/20 to-primary/20 border border-accent/40'
+                          : index === 0 
+                          ? 'bg-gradient-to-r from-yellow-400/20 to-amber-500/20 border border-yellow-400/60'
+                          : 'bg-muted/30 border border-border'
+                      }`}
+                   >
+                     <div className="flex items-center space-x-2 sm:space-x-3">
+                                               <div
+                          className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center font-bold text-sm sm:text-base ${
+                            isCurrentUser 
+                              ? 'bg-accent text-accent-foreground'
+                              : index === 0 
+                              ? 'bg-yellow-400 text-yellow-900' 
+                              : 'bg-muted text-muted-foreground'
+                          }`}>
+                          {isCurrentUser ? <Star className="h-4 w-4" /> : index === 0 ? <Crown className="h-4 w-4" /> : index + 1}
+                        </div>
+                                               <span className={`font-medium text-sm sm:text-base ${
+                          isCurrentUser 
+                            ? 'text-accent font-bold' 
+                            : index === 0 
+                            ? 'text-yellow-600 font-bold' 
+                            : 'text-foreground'
+                        }`}>
+                          {player.username}
+                          {isCurrentUser && <span className="ml-2 text-xs text-accent/70">(You)</span>}
+                        </span>
+                     </div>
+                     
+                     <div className="flex items-center space-x-2 sm:space-x-4">
+                       {player.streak > 0 && (
+                         <Badge className={`text-xs sm:text-sm ${
+                           isCurrentUser 
+                             ? 'bg-accent/30 text-accent border-accent/50' 
+                             : 'bg-accent/20 text-accent border-accent/40'
+                         }`}>
+                           <Zap className="h-3 w-3 mr-1" />
+                           {player.streak}
+                         </Badge>
+                       )}
+                                               <span className={`font-bold text-base sm:text-lg ${
+                          isCurrentUser 
+                            ? 'text-accent' 
+                            : index === 0 
+                            ? 'text-yellow-600' 
+                            : 'text-accent'
+                        }`}>
+                          {player.score}
+                        </span>
+                     </div>
+                   </motion.div>
+                 );
+               })}
             </div>
           </CardContent>
         </Card>

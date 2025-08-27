@@ -84,6 +84,8 @@ export const MultiplayerQuizContainer = () => {
         onPlayAgain={() => window.location.reload()}
         onLeaveRoom={leaveRoom}
         currentUserId={user?.id || ''}
+        room={room}
+        questions={questions}
       />
     );
   }
@@ -104,6 +106,7 @@ export const MultiplayerQuizContainer = () => {
         currentQuestionIndex={currentQuestionIndex}
         totalQuestions={totalQuestions}
         onLeave={leaveRoom}
+        currentUserId={user?.id || ''}
       />
     );
   }

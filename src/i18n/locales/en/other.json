@@ -332,6 +332,18 @@
       "playersInGame": "Players in the Game",
       "roomIsFull": "Room is Full!",
       "allPlayersJoined": "All players have joined. Ready to start the quiz!"
+    },
+    "leaderboard": {
+      "title": "Leaderboard",
+      "allTime": "All Time",
+      "thisWeek": "This Week",
+      "thisMonth": "This Month",
+      "noPlayersYet": "No players yet",
+      "playToEarnXP": "Play multiplayer quizzes to earn XP and climb the ranks!",
+      "anonymousPlayer": "Anonymous Player",
+      "topPlayer": "Top Player",
+      "updatedRealTime": "Updated in real-time",
+      "refresh": "Refresh"
     }
   },
   "multiplayerLobby": {

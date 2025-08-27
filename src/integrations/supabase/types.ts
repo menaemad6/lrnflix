@@ -1085,6 +1085,7 @@ export type Database = {
           minutes: number
           phone_number: string | null
           role: Database["public"]["Enums"]["user_role"]
+          total_xp: { [key: string]: number }
           updated_at: string
           wallet: number
         }
@@ -1099,12 +1100,14 @@ export type Database = {
           minutes?: number
           phone_number?: string | null
           role?: Database["public"]["Enums"]["user_role"]
+          total_xp?: { [key: string]: number }
           updated_at?: string
           wallet?: number
         }
         Update: {
           avatar_url?: string | null
           created_at?: string
+          daily_free_minutes_reset?: string | null
           daily_free_minutes_used?: number
           email?: string
           full_name?: string | null
@@ -1113,6 +1116,7 @@ export type Database = {
           minutes?: number
           phone_number?: string | null
           role?: Database["public"]["Enums"]["user_role"]
+          total_xp?: { [key: string]: number }
           updated_at?: string
           wallet?: number
         }

@@ -26,6 +26,7 @@ import { GameRoom } from '@/hooks/useMultiplayerQuiz';
 import { supabase } from '@/integrations/supabase/client';
 import { useTranslation } from 'react-i18next';
 import { useTenant } from '@/contexts/TenantContext';
+import { MultiplayerQuizLeaderboard } from './MultiplayerQuizLeaderboard';
 
 interface MatchmakerEntry {
   id: string;
@@ -283,17 +284,17 @@ export const MultiplayerQuizLobby = ({
   };
 
   return (
-    <div className="min-h-screen bg-background particle-bg p-4 pt-28">
+    <div className="min-h-screen bg-background particle-bg p-3 sm:p-4 pt-20 sm:pt-28">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-primary mb-2">{t('multiplayerQuiz.lobby.title')}</h1>
-          <p className="text-muted-foreground text-lg">{t('multiplayerQuiz.lobby.subtitle')}</p>
+        <div className="text-center mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary mb-2">{t('multiplayerQuiz.lobby.title')}</h1>
+          <p className="text-muted-foreground text-sm sm:text-base md:text-lg">{t('multiplayerQuiz.lobby.subtitle')}</p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-7 gap-4 sm:gap-6">
           
           {/* Main Actions - Left Side */}
-          <div className="lg:col-span-1 space-y-6">
+          <div className="lg:col-span-2 space-y-4 sm:space-y-6">
             <Card className="glass-card border-border shadow-2xl">
               <CardHeader className="text-center pb-4">
                 <CardTitle className="text-2xl text-foreground">{t('multiplayerQuiz.lobby.joinBattle')}</CardTitle>
@@ -317,12 +318,13 @@ export const MultiplayerQuizLobby = ({
                     <div className="space-y-4">
                       <div>
                         <Label htmlFor="maxPlayers">{t('multiplayerQuiz.lobby.maxPlayers')}</Label>
-                        <div className="flex space-x-2 mt-2">
+                        <div className="grid grid-cols-3 sm:flex sm:space-x-2 gap-2 sm:gap-0 mt-2">
                           {[2, 3, 4, 5, 6].map((num) => (
                             <Button
                               key={num}
                               variant={maxPlayers === num ? "default" : "outline"}
-                              className="flex-1"
+                              className="flex-1 text-sm sm:text-base"
+                              size="sm"
                               onClick={() => setMaxPlayers(num)}
                             >
                               {num}
@@ -365,10 +367,11 @@ export const MultiplayerQuizLobby = ({
                                 <div className="text-sm text-muted-foreground mb-2">
                                   {t('multiplayerQuiz.lobby.availableQuestions', { count: options.maxQuestions })}
                                 </div>
-                                <div className="grid grid-cols-3 gap-2">
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                                   <Button
                                     variant={questionCount === options.halfQuestions ? "default" : "outline"}
                                     className="text-sm"
+                                    size="sm"
                                     onClick={() => handleQuestionCountChange(options.halfQuestions)}
                                     disabled={options.maxQuestions === 0}
                                   >
@@ -377,6 +380,7 @@ export const MultiplayerQuizLobby = ({
                                   <Button
                                     variant={questionCount === options.randomQuestions ? "default" : "outline"}
                                     className="text-sm"
+                                    size="sm"
                                     onClick={() => handleQuestionCountChange(options.randomQuestions)}
                                     disabled={options.maxQuestions === 0}
                                   >
@@ -385,6 +389,7 @@ export const MultiplayerQuizLobby = ({
                                   <Button
                                     variant={questionCount === options.maxQuestions ? "default" : "outline"}
                                     className="text-sm"
+                                    size="sm"
                                     onClick={() => handleQuestionCountChange(options.maxQuestions)}
                                     disabled={options.maxQuestions === 0}
                                   >
@@ -582,23 +587,23 @@ export const MultiplayerQuizLobby = ({
           </div>
 
           {/* Public Rooms - Right Side */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-5">
             <Card className="glass-card border-border shadow-2xl h-full">
               <CardHeader>
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <CardTitle className="text-foreground flex items-center">
                     <Trophy className="h-5 w-5 mr-2" />
                     {t('multiplayerQuiz.lobby.publicRooms')}
                   </CardTitle>
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
                     {/* Category Filter */}
-                    <div className="flex items-center gap-2">
-                      <Filter className="h-4 w-4 text-muted-foreground" />
+                    <div className="flex items-center gap-2 w-full sm:w-auto">
+                      <Filter className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                       <Select
                         value={selectedCategory}
                         onValueChange={setSelectedCategory}
                       >
-                        <SelectTrigger className="w-32 h-8">
+                        <SelectTrigger className="w-full sm:w-32 h-8">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -611,7 +616,7 @@ export const MultiplayerQuizLobby = ({
                         </SelectContent>
                       </Select>
                     </div>
-                    <Badge className="bg-primary/20 text-primary border-primary/40">
+                    <Badge className="bg-primary/20 text-primary border-primary/40 w-fit">
                       {filteredRooms.length} {t('multiplayerQuiz.lobby.active')}
                     </Badge>
                   </div>
@@ -632,37 +637,37 @@ export const MultiplayerQuizLobby = ({
                     </div>
                   </div>
                 ) : (
-                  <div className="grid gap-4 max-h-96 overflow-y-auto">
+                  <div className="grid gap-3 sm:gap-4 max-h-96 overflow-y-auto">
                     {filteredRooms.map((room) => (
                       <motion.div
                         key={room.id}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="bg-card/50 rounded-xl p-4 border border-border hover:border-primary/50 transition-all duration-200"
+                        className="bg-card/50 rounded-xl p-3 sm:p-4 border border-border hover:border-primary/50 transition-all duration-200"
                       >
-                        <div className="flex items-center justify-between">
-                          <div className="space-y-2">
-                            <div className="flex items-center space-x-3">
-                              <div className="w-10 h-10 bg-gradient-to-r from-primary to-accent rounded-lg flex items-center justify-center">
-                                <span className="text-primary-foreground font-bold">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                              <div className="w-10 h-10 bg-gradient-to-r from-primary to-accent rounded-lg flex items-center justify-center flex-shrink-0">
+                                <span className="text-primary-foreground font-bold text-sm">
                                   {room.room_code}
                                 </span>
                               </div>
-                              <div>
-                                <p className="text-foreground font-medium">{t('multiplayerQuiz.lobby.roomCode', { code: room.room_code })}</p>
-                                <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                              <div className="flex-1 min-w-0">
+                                <p className="text-foreground font-medium text-sm sm:text-base">{t('multiplayerQuiz.lobby.roomCode', { code: room.room_code })}</p>
+                                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground mt-1">
                                   <div className="flex items-center space-x-1">
-                                    <Users className="h-4 w-4" />
+                                    <Users className="h-3 w-3 sm:h-4 sm:w-4" />
                                     <span>{room.current_players}/{room.max_players}</span>
                                   </div>
                                   <div className="flex items-center space-x-1">
-                                    <Timer className="h-4 w-4" />
+                                    <Timer className="h-3 w-3 sm:h-4 sm:w-4" />
                                     <span>{t('multiplayerQuiz.lobby.waiting')}</span>
                                   </div>
                                   {room.category && (
                                     <div className="flex items-center space-x-1">
-                                      <FolderOpen className="h-4 w-4" />
-                                      <span>{room.category}</span>
+                                      <FolderOpen className="h-3 w-3 sm:h-4 sm:w-4" />
+                                      <span className="truncate">{room.category}</span>
                                     </div>
                                   )}
                                 </div>
@@ -673,7 +678,9 @@ export const MultiplayerQuizLobby = ({
                           <Button
                             onClick={() => onJoinPublicRoom(room.id)}
                             disabled={room.current_players >= room.max_players}
+                            size="sm"
                             className={`
+                              w-full sm:w-auto flex-shrink-0
                               ${room.current_players >= room.max_players 
                                 ? 'bg-muted/50 text-muted-foreground cursor-not-allowed' 
                                 : 'bg-primary text-primary-foreground hover:bg-primary/90'
@@ -700,6 +707,12 @@ export const MultiplayerQuizLobby = ({
               </CardContent>
             </Card>
           </div>
+
+        </div>
+        
+        {/* Leaderboard - Below Rooms */}
+        <div className="mt-8">
+          <MultiplayerQuizLeaderboard />
         </div>
       </div>
     </div>
