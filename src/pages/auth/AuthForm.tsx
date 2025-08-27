@@ -2,9 +2,9 @@ import React, { useEffect } from 'react';
 import { useLoginForm, useSignupForm } from '@/hooks/useAuthForms';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Eye, EyeOff, Mail, Lock, User, UserPlus, GraduationCap, BookOpen, LogIn, X } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, User, UserPlus, LogIn, X } from 'lucide-react';
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { getIntendedDestination } from '@/utils/authRedirect';
@@ -129,38 +129,18 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode, setMode, onClose }) => {
             {isLogin ? (login.showPassword ? <EyeOff size={20} /> : <Eye size={20} />) : (signup.showPassword ? <EyeOff size={20} /> : <Eye size={20} />)}
           </button>
         </div>
-        {/* Role select for signup */}
+        {/* Phone number input for signup */}
         {!isLogin && (
-          <div className="space-y-2">
-            <Select
-              value={signup.formData.role}
-              onValueChange={value => signup.setFormData({ ...signup.formData, role: value as 'student' | 'teacher' })}
-            >
-              <SelectTrigger className="h-12 bg-card border-border text-foreground focus:border-primary focus:ring-primary/40 rounded-xl transition-all flex items-center">
-                <div className="flex items-center space-x-2">
-                  {signup.formData.role === 'teacher' ? (
-                    <GraduationCap className="w-5 h-5 text-primary" />
-                  ) : (
-                    <BookOpen className="w-5 h-5 text-primary" />
-                  )}
-                  <SelectValue placeholder={t('authModal.chooseRole')} />
-                </div>
-              </SelectTrigger>
-              <SelectContent >
-                <SelectItem value="student" >
-                  <div className="flex items-center space-x-2">
-                    <BookOpen className="w-4 h-4" />
-                    <span>{t('authModal.student')}</span>
-                  </div>
-                </SelectItem>
-                <SelectItem value="teacher" >
-                  <div className="flex items-center space-x-2">
-                    <GraduationCap className="w-4 h-4" />
-                    <span>{t('authModal.teacher')}</span>
-                  </div>
-                </SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="relative group">
+            <User className="absolute left-3 top-1/2 -translate-y-1/2 text-primary w-5 h-5" />
+            <Input
+              type="tel"
+              placeholder={t('authModal.phoneNumber') || 'Phone Number'}
+              value={signup.formData.phone}
+              onChange={e => signup.setFormData({ ...signup.formData, phone: e.target.value })}
+              required
+              className="pl-12 h-12 bg-card border-border rounded-xl text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-ring transition-all"
+            />
           </div>
         )}
         <Button

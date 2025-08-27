@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Apple, Play, X } from 'lucide-react';
@@ -10,8 +10,11 @@ import { PLATFORM_NAME } from '@/data/constants';
 import { SEOHead } from '@/components/seo';
 import { useTranslation } from 'react-i18next';
 import PoliciesModal from '@/components/landing/PoliciesModal';
+import { useTenant } from '@/contexts/TenantContext';
+import { supabase } from '@/integrations/supabase/client';
 
-const cards = [
+// Fallback dummy data when no real courses are available
+const fallbackCards = [
   {
     title: 'Intro to Biology',
     author: 'Dr. Jane Smith',
@@ -62,7 +65,33 @@ const cards = [
   },
 ];
 
-function useVerticalCarousel(cards, direction = 'down', speed = 1) {
+// Interface for real course data
+interface RealCourse {
+  id: string;
+  title: string;
+  description: string | null;
+  category: string | null;
+  cover_image_url: string | null;
+  price: number;
+  enrollment_code: string | null;
+  created_at: string;
+  instructor_id: string;
+  profiles?: {
+    full_name: string;
+  };
+}
+
+// Interface for processed course data
+interface ProcessedCourse {
+  title: string;
+  author: string;
+  desc: string;
+  category: string;
+  thumbnail: string;
+  tags: string[];
+}
+
+function useVerticalCarousel(cards: ProcessedCourse[], direction = 'down', speed = 1) {
   const [offset, setOffset] = useState(0);
   const ref = useRef(null);
   useEffect(() => {
@@ -86,8 +115,70 @@ const Auth: React.FC = () => {
   const [mode, setMode] = useState<'login' | 'signup'>('login');
   const [showLegalModal, setShowLegalModal] = useState(false);
   const [activeTab, setActiveTab] = useState('terms');
+  const [courses, setCourses] = useState<ProcessedCourse[]>([]);
+  const [loading, setLoading] = useState(true);
   const bgClass = useRandomBackground();
   const { t } = useTranslation('other');
+  const { teacher } = useTenant();
+
+  // Fetch courses based on tenant status
+  const fetchCourses = useCallback(async () => {
+    try {
+      setLoading(true);
+      let coursesQuery = supabase
+        .from('courses')
+        .select(`
+          *,
+          profiles!courses_instructor_id_fkey(full_name)
+        `)
+        .eq('status', 'published')
+        .order('created_at', { ascending: false })
+        .limit(12); // Limit to 12 courses for performance
+
+      // If there's a tenant, fetch only their courses
+      if (teacher?.user_id) {
+        coursesQuery = coursesQuery.eq('instructor_id', teacher.user_id);
+      }
+
+      const { data: coursesData, error: coursesError } = await coursesQuery;
+
+      if (coursesError) {
+        console.error('Error fetching courses:', coursesError);
+        // Fallback to dummy data on error
+        setCourses(fallbackCards);
+        return;
+      }
+
+      if (coursesData && coursesData.length > 0) {
+        // Process real course data to match the expected format
+        const processedCourses: ProcessedCourse[] = coursesData.map((course: RealCourse) => ({
+          title: course.title,
+          author: course.profiles?.full_name || 'Course Instructor',
+          desc: course.description || 'No description available',
+          category: course.category || 'General',
+          thumbnail: course.cover_image_url || 'https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80',
+          tags: [course.price === 0 ? 'Free' : 'Premium', 'Active'],
+        }));
+        
+        // Only use fallback data if there are NO courses at all
+        setCourses(processedCourses);
+      } else {
+        // No courses found, use fallback data
+        setCourses(fallbackCards);
+      }
+    } catch (error) {
+      console.error('Error in fetchCourses:', error);
+      // Fallback to dummy data on error
+      setCourses(fallbackCards);
+    } finally {
+      setLoading(false);
+    }
+  }, [teacher?.user_id]);
+
+  // Fetch courses on component mount and when tenant changes
+  useEffect(() => {
+    fetchCourses();
+  }, [fetchCourses]);
 
   useEffect(() => {
     if (location.pathname.endsWith('/login')) setMode('login');
@@ -99,11 +190,34 @@ const Auth: React.FC = () => {
     setShowLegalModal(true);
   };
 
-  // Split cards for two carousels
-  const leftCards = cards.filter((_, i) => i % 2 === 0);
-  const rightCards = cards.filter((_, i) => i % 2 === 1);
-  const [leftOffset, leftRef] = useVerticalCarousel(leftCards, 'down', 1);
-  const [rightOffset, rightRef] = useVerticalCarousel(rightCards, 'up', 1);
+  // Split cards for two carousels, ensuring both have courses
+  const leftCards = courses.filter((_, i) => i % 2 === 0);
+  const rightCards = courses.filter((_, i) => i % 2 === 1);
+  
+  // Handle course distribution for carousels
+  let finalLeftCards = leftCards;
+  let finalRightCards = rightCards;
+  
+  if (courses.length === 1) {
+    // Single course: show it in both carousels
+    finalLeftCards = [courses[0]];
+    finalRightCards = [courses[0]];
+  } else if (courses.length > 0) {
+    if (leftCards.length === 0 && rightCards.length > 0) {
+      // If left is empty, move half of right to left
+      const half = Math.ceil(rightCards.length / 2);
+      finalLeftCards = rightCards.slice(0, half);
+      finalRightCards = rightCards.slice(half);
+    } else if (rightCards.length === 0 && leftCards.length > 0) {
+      // If right is empty, move half of left to right
+      const half = Math.ceil(leftCards.length / 2);
+      finalRightCards = leftCards.slice(0, half);
+      finalLeftCards = leftCards.slice(half);
+    }
+  }
+  
+  const [leftOffset, leftRef] = useVerticalCarousel(finalLeftCards, 'down', 1);
+  const [rightOffset, rightRef] = useVerticalCarousel(finalRightCards, 'up', 1);
 
   return (
     <>
@@ -169,7 +283,7 @@ const Auth: React.FC = () => {
             className="flex flex-col gap-6 absolute top-0 left-0 w-full"
             style={{ transform: `translateY(-${leftOffset}px)` }}
           >
-            {leftCards.concat(leftCards).map((course, i) => (
+            {finalLeftCards.concat(finalLeftCards).map((course, i) => (
               <PremiumCourseCard
                 key={i}
                 id={String(i)}
@@ -199,7 +313,7 @@ const Auth: React.FC = () => {
             className="flex flex-col gap-6 absolute top-0 left-0 w-full"
             style={{ transform: `translateY(-${rightOffset}px)` }}
           >
-            {rightCards.concat(rightCards).map((course, i) => (
+            {finalRightCards.concat(finalRightCards).map((course, i) => (
               <PremiumCourseCard
                 key={i}
                 id={String(i)}

@@ -26,8 +26,9 @@ export function useLoginForm() {
         password,
       });
       if (error) throw error;
-    } catch (error: any) {
-      setError(error.message);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -46,8 +47,9 @@ export function useLoginForm() {
         }
       });
       if (error) throw error;
-    } catch (error: any) {
-      setError(error.message);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      setError(errorMessage);
     }
   };
 
@@ -67,6 +69,7 @@ export function useSignupForm() {
     email: '',
     password: '',
     fullName: '',
+    phone: '',
     role: 'student' as 'student' | 'teacher',
   });
   const [showPassword, setShowPassword] = useState(false);
@@ -81,20 +84,47 @@ export function useSignupForm() {
     setError('');
     setSuccess('');
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
         options: {
           data: {
             full_name: formData.fullName,
             role: formData.role,
+            phone: formData.phone,
           },
         },
       });
       if (error) throw error;
+      
+      // Manually create profile since database trigger might not be working
+      if (data.user) {
+        try {
+          const { error: profileError } = await supabase
+            .from('profiles')
+            .insert({
+              id: data.user.id,
+              email: formData.email,
+              full_name: formData.fullName,
+              role: formData.role,
+              phone_number: formData.phone,
+            });
+          
+          if (profileError) {
+            console.warn('Profile creation warning:', profileError);
+            // Don't fail the signup if profile creation fails
+          }
+        } catch (profileError: unknown) {
+          const errorMessage = profileError instanceof Error ? profileError.message : 'Profile creation failed';
+          console.warn('Profile creation error:', errorMessage);
+          // Don't fail the signup if profile creation fails
+        }
+      }
+      
       setSuccess('Account created successfully! Please check your email to verify your account.');
-    } catch (error: any) {
-      setError(error.message);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
