@@ -18,16 +18,18 @@ export const TeacherPageHeader: React.FC<TeacherPageHeaderProps> = ({
   actionIcon,
   actionButtonProps,
 }) => (
-  <div className="flex items-center justify-between">
-    <div>
-      <h2 className="text-2xl md:text-3xl font-bold text-primary">{title}</h2>
-      <p className="text-muted-foreground mt-1">{subtitle}</p>
+  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+    <div className="flex-1 min-w-0">
+      <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-primary break-words">{title}</h2>
+      <p className="text-muted-foreground mt-1 text-sm sm:text-base break-words">{subtitle}</p>
     </div>
     {actionLabel && (
-    <Button onClick={onAction} {...actionButtonProps}>
-      {actionIcon}
-      {actionLabel}
-    </Button>
+      <div className="flex-shrink-0">
+        <Button onClick={onAction} {...actionButtonProps} className="w-full sm:w-auto text-sm sm:text-base">
+          {actionIcon}
+          {actionLabel}
+        </Button>
+      </div>
     )}
   </div>
 );

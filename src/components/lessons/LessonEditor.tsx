@@ -317,136 +317,145 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
-      <div className="space-y-6 sm:space-y-8 relative z-10 p-4 sm:p-8">
+      <div className="space-y-4 sm:space-y-6 lg:space-y-8 relative z-10 p-3 sm:p-4 lg:p-8">
         {/* Header */}
-        <div className="card p-4 sm:p-8 border border-border bg-card">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-3 sm:gap-6">
+        <div className="card p-3 sm:p-4 lg:p-8 border border-border bg-card">
+          <div className="flex flex-col gap-3 sm:gap-4 lg:gap-6 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-2 sm:gap-3 lg:gap-6">
               <Button 
                 variant="outline" 
                 onClick={onBack}
-
+                size="sm"
+                className="text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2"
               >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                {t('lessonEditor.header.back')}
+                <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">{t('lessonEditor.header.back')}</span>
+                <span className="sm:hidden">Back</span>
               </Button>
               <div className="space-y-1 sm:space-y-2">
-                <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary">
+                <h3 className="text-lg sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-primary">
                   {t('lessonEditor.header.editLesson')}
                 </h3>
-                <p className="text-muted-foreground text-sm sm:text-base lg:text-lg">{t('lessonEditor.header.customizeLessonContent')}</p>
+                <p className="text-muted-foreground text-xs sm:text-sm lg:text-base xl:text-lg">{t('lessonEditor.header.customizeLessonContent')}</p>
               </div>
             </div>
             <Button 
               onClick={handleSave} 
               disabled={saving}
               variant='default'
+              size="sm"
+              className="text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2"
             >
-              <Save className="h-5 w-5 mr-2" />
-              {saving ? t('lessonEditor.header.saving') : t('lessonEditor.header.saveChanges')}
+              <Save className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">{saving ? t('lessonEditor.header.saving') : t('lessonEditor.header.saveChanges')}</span>
+              <span className="sm:hidden">{saving ? 'Saving...' : 'Save'}</span>
             </Button>
           </div>
         </div>
 
-        <Tabs defaultValue="details" className="space-y-6">
-          <TabsList className="card border border-border bg-card p-2 overflow-x-auto">
+        <Tabs defaultValue="details" className="space-y-4 sm:space-y-6">
+          <TabsList className="card border border-border bg-card p-1 sm:p-2 overflow-x-auto">
             <TabsTrigger 
               value="details"
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary-500/20 data-[state=active]:to-secondary-500/20 data-[state=active]:text-primary-300 data-[state=active]:border data-[state=active]:border-primary-500/30 transition-all duration-300"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary-500/20 data-[state=active]:to-secondary-500/20 data-[state=active]:text-primary-300 data-[state=active]:border data-[state=active]:border-primary-500/30 transition-all duration-300 text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2"
             >
-              <FileText className="h-4 w-4 mr-2" />
-              {t('lessonEditor.tabs.lessonDetails')}
+              <FileText className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">{t('lessonEditor.tabs.lessonDetails')}</span>
+              <span className="sm:hidden">Details</span>
             </TabsTrigger>
             <TabsTrigger 
               value="content"
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-secondary-500/20 data-[state=active]:to-accent-500/20 data-[state=active]:text-secondary-300 data-[state=active]:border data-[state=active]:border-secondary-500/30 transition-all duration-300"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-secondary-500/20 data-[state=active]:to-accent-500/20 data-[state=active]:text-secondary-300 data-[state=active]:border data-[state=active]:border-secondary-500/30 transition-all duration-300 text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2"
             >
-              <Brain className="h-4 w-4 mr-2" />
-              {t('lessonEditor.tabs.aiContent')}
+              <Brain className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">{t('lessonEditor.tabs.aiContent')}</span>
+              <span className="sm:hidden">AI Content</span>
             </TabsTrigger>
             <TabsTrigger 
               value="analytics"
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500/20 data-[state=active]:to-pink-500/20 data-[state=active]:text-purple-300 data-[state=active]:border data-[state=active]:border-purple-500/30 transition-all duration-300"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500/20 data-[state=active]:to-pink-500/20 data-[state=active]:text-purple-300 data-[state=active]:border data-[state=active]:border-purple-500/30 transition-all duration-300 text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2"
             >
-              <BarChart3 className="h-4 w-4 mr-2" />
-              {t('lessonEditor.tabs.analytics')}
+              <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">{t('lessonEditor.tabs.analytics')}</span>
+              <span className="sm:hidden">Analytics</span>
             </TabsTrigger>
             <TabsTrigger 
               value="preview"
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent-500/20 data-[state=active]:to-primary-500/20 data-[state=active]:text-accent-300 data-[state=active]:border data-[state=active]:border-accent-500/30 transition-all duration-300"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent-500/20 data-[state=active]:to-primary-500/20 data-[state=active]:text-accent-300 data-[state=active]:border data-[state=active]:border-accent-500/30 transition-all duration-300 text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2"
             >
-              <Video className="h-4 w-4 mr-2" />
-              {t('lessonEditor.tabs.preview')}
+              <Video className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">{t('lessonEditor.tabs.preview')}</span>
+              <span className="sm:hidden">Preview</span>
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="details" className="space-y-6">
+          <TabsContent value="details" className="space-y-4 sm:space-y-6">
             <Card className="card border border-border bg-card">
-              <CardHeader className="pb-4 p-4 sm:p-6">
-                <CardTitle className="text-xl text-primary-300 flex items-center gap-3">
-                  <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-lg flex items-center justify-center">
-                    <FileText className="h-4 w-4 text-black" />
+              <CardHeader className="pb-3 sm:pb-4 p-3 sm:p-4 lg:p-6">
+                <CardTitle className="text-base sm:text-lg lg:text-xl text-primary-300 flex items-center gap-2 sm:gap-3">
+                  <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-lg flex items-center justify-center">
+                    <FileText className="h-3 w-3 sm:h-4 sm:w-4 text-black" />
                   </div>
                   {t('lessonEditor.lessonDetails.title')}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6 p-4 sm:p-6">
-                <div className="space-y-3">
-                  <label className="text-sm font-medium text-primary-300">{t('lessonEditor.lessonDetails.titleLabel')}</label>
+              <CardContent className="space-y-4 sm:space-y-6 p-3 sm:p-4 lg:p-6">
+                <div className="space-y-2 sm:space-y-3">
+                  <label className="text-xs sm:text-sm font-medium text-primary-300">{t('lessonEditor.lessonDetails.titleLabel')}</label>
                   <Input
                     value={formData.title}
                     onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                    className="bg-background/50 border-primary-500/30 focus:border-primary-500/50 text-primary-100 placeholder:text-primary-300/50"
+                    className="bg-background/50 border-primary-500/30 focus:border-primary-500/50 text-primary-100 placeholder:text-primary-300/50 text-sm sm:text-base"
                     placeholder={t('lessonEditor.lessonDetails.titlePlaceholder')}
                   />
                 </div>
-                <div className="space-y-3">
-                  <label className="text-sm font-medium text-primary-300">{t('lessonEditor.lessonDetails.descriptionLabel')}</label>
+                <div className="space-y-2 sm:space-y-3">
+                  <label className="text-xs sm:text-sm font-medium text-primary-300">{t('lessonEditor.lessonDetails.descriptionLabel')}</label>
                   <Textarea
                     value={formData.description}
                     onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                    className="bg-background/50 border-primary-500/30 focus:border-primary-500/50 text-primary-100 placeholder:text-primary-300/50 min-h-[100px]"
+                    className="bg-background/50 border-primary-500/30 focus:border-primary-500/50 text-primary-100 placeholder:text-primary-300/50 min-h-[100px] text-sm sm:text-base"
                     placeholder={t('lessonEditor.lessonDetails.descriptionPlaceholder')}
                   />
                 </div>
-                <div className="space-y-3">
-                  <label className="text-sm font-medium text-primary-300">{t('lessonEditor.lessonDetails.videoUrlLabel')}</label>
+                <div className="space-y-2 sm:space-y-3">
+                  <label className="text-xs sm:text-sm font-medium text-primary-300">{t('lessonEditor.lessonDetails.videoUrlLabel')}</label>
                   <Input
                     value={formData.video_url}
                     onChange={(e) => setFormData(prev => ({ ...prev, video_url: e.target.value }))}
-                    className="bg-background/50 border-primary-500/30 focus:border-primary-500/50 text-primary-100 placeholder:text-primary-300/50"
+                    className="bg-background/50 border-primary-500/30 focus:border-primary-500/50 text-primary-100 placeholder:text-primary-300/50 text-sm sm:text-base"
                     placeholder={t('lessonEditor.lessonDetails.videoUrlPlaceholder')}
                   />
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="space-y-3">
-                    <label className="text-sm font-medium text-primary-300">{t('lessonEditor.lessonDetails.deviceLimit')}</label>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                  <div className="space-y-2 sm:space-y-3">
+                    <label className="text-xs sm:text-sm font-medium text-primary-300">{t('lessonEditor.lessonDetails.deviceLimit')}</label>
                     <Input
                       value={formData.device_limit}
                       onChange={(e) => setFormData(prev => ({ ...prev, device_limit: e.target.value }))}
-                      className="bg-background/50 border-primary-500/30 focus:border-primary-500/50 text-primary-100 placeholder:text-primary-300/50"
+                      className="bg-background/50 border-primary-500/30 focus:border-primary-500/50 text-primary-100 placeholder:text-primary-300/50 text-sm sm:text-base"
                       placeholder={t('lessonEditor.lessonDetails.enterDeviceLimit')}
                       type="number"
                       min="0"
                     />
                   </div>
-                  <div className="space-y-3">
-                    <label className="text-sm font-medium text-primary-300">{t('lessonEditor.lessonDetails.viewLimitLabel')}</label>
+                  <div className="space-y-2 sm:space-y-3">
+                    <label className="text-xs sm:text-sm font-medium text-primary-300">{t('lessonEditor.lessonDetails.viewLimitLabel')}</label>
                     <Input
                       value={formData.view_limit}
                       onChange={(e) => setFormData(prev => ({ ...prev, view_limit: e.target.value }))}
-                      className="bg-background/50 border-primary-500/30 focus:border-primary-500/50 text-primary-100 placeholder:text-primary-300/50"
+                      className="bg-background/50 border-primary-500/30 focus:border-primary-500/50 text-primary-100 placeholder:text-primary-300/50 text-sm sm:text-base"
                       placeholder={t('lessonEditor.lessonDetails.viewLimitPlaceholder')}
                       type="number"
                       min="0"
                     />
                   </div>
-                  <div className="space-y-3">
-                    <label className="text-sm font-medium text-primary-300">{t('lessonEditor.lessonDetails.durationLabel')}</label>
+                  <div className="space-y-2 sm:space-y-3">
+                    <label className="text-xs sm:text-sm font-medium text-primary-300">{t('lessonEditor.lessonDetails.durationLabel')}</label>
                     <Input
                       value={formData.duration_minutes}
                       onChange={(e) => setFormData(prev => ({ ...prev, duration_minutes: e.target.value.replace(/[^0-9]/g, '') }))}
-                      className="bg-background/50 border-primary-500/30 focus:border-primary-500/50 text-primary-100 placeholder:text-primary-300/50"
+                      className="bg-background/50 border-primary-500/30 focus:border-primary-500/50 text-primary-100 placeholder:text-primary-300/50 text-sm sm:text-base"
                       placeholder={t('lessonEditor.lessonDetails.durationPlaceholder')}
                       type="number"
                       min="1"
@@ -457,12 +466,12 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
             </Card>
           </TabsContent>
 
-          <TabsContent value="content" className="space-y-6">
+          <TabsContent value="content" className="space-y-4 sm:space-y-6">
             <Card className="card border border-border bg-card">
-              <CardHeader className="pb-4 p-4 sm:p-6">
-                <CardTitle className="text-xl text-secondary-300 flex items-center gap-3">
-                  <div className="w-8 h-8 bg-gradient-to-br from-secondary-500 to-accent-500 rounded-lg flex items-center justify-center">
-                    <Brain className="h-4 w-4 text-black" />
+              <CardHeader className="pb-3 sm:pb-4 p-3 sm:p-4 lg:p-6">
+                <CardTitle className="text-base sm:text-lg lg:text-xl text-secondary-300 flex items-center gap-2 sm:gap-3">
+                  <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-secondary-500 to-accent-500 rounded-lg flex items-center justify-center">
+                    <Brain className="h-3 w-3 sm:h-4 sm:w-4 text-black" />
                   </div>
                   {t('lessonEditor.aiContent.title')}
                   <Badge className="bg-gradient-to-r from-secondary-500 to-accent-500 text-black font-medium">
@@ -471,24 +480,25 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
                   </Badge>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6 p-4 sm:p-6">
-                <div className="space-y-4 p-6 rounded-lg border-2 border-dashed border-secondary-500/30 bg-secondary-500/5 text-center">
-                  <div className="w-16 h-16 mx-auto bg-gradient-to-br from-secondary-500/20 to-accent-500/20 rounded-2xl flex items-center justify-center border border-secondary-500/30">
-                    <Brain className="h-8 w-8 text-secondary-300" />
+              <CardContent className="space-y-4 sm:space-y-6 p-3 sm:p-4 lg:p-6">
+                <div className="space-y-3 sm:space-y-4 p-3 sm:p-4 rounded-lg border-2 border-dashed border-secondary-500/30 bg-secondary-500/5 text-center">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto bg-gradient-to-br from-secondary-500/20 to-accent-500/20 rounded-2xl flex items-center justify-center border border-secondary-500/30">
+                    <Brain className="h-7 w-7 sm:h-8 sm:w-8 text-secondary-300" />
                   </div>
-                  <h4 className="text-lg font-semibold text-secondary-300">{t('lessonEditor.aiContent.aiAssistantDataSource')}</h4>
-                  <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                  <h4 className="text-base sm:text-lg font-semibold text-secondary-300">{t('lessonEditor.aiContent.aiAssistantDataSource')}</h4>
+                  <p className="text-xs sm:text-sm text-muted-foreground max-w-md mx-auto">
                     {t('lessonEditor.aiContent.aiAssistantDescription')}
                   </p>
                   <div className="relative inline-flex items-center justify-center">
                     <Button 
                       variant="outline" 
-                      className="cursor-pointer bg-background/50 border-secondary-500/30 hover:bg-secondary-500/10 hover:border-secondary-500/50 text-secondary-300"
+                      className="cursor-pointer bg-background/50 border-secondary-500/30 hover:bg-secondary-500/10 hover:border-secondary-500/50 text-secondary-300 text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2"
                       onClick={() => fileInputRef.current?.click()}
                       disabled={aiLoading}
                     >
-                      <Upload className="h-4 w-4 mr-2" />
-                      {aiLoading ? t('lessonEditor.aiContent.processing') : t('lessonEditor.aiContent.uploadPdf')}
+                      <Upload className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                      <span className="hidden sm:inline">{aiLoading ? t('lessonEditor.aiContent.processing') : t('lessonEditor.aiContent.uploadPdf')}</span>
+                      <span className="sm:hidden">{aiLoading ? 'Processing...' : 'Upload PDF'}</span>
                     </Button>
                     <Input
                       ref={fileInputRef}
@@ -500,21 +510,21 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
                     />
                   </div>
                 </div>
-                <div className="space-y-3">
-                  <label className="text-sm font-medium text-secondary-300">{t('lessonEditor.aiContent.transcriptionLabel')}</label>
+                <div className="space-y-2 sm:space-y-3">
+                  <label className="text-xs sm:text-sm font-medium text-secondary-300">{t('lessonEditor.aiContent.transcriptionLabel')}</label>
                   <Textarea
                     value={contentData.transcription}
                     onChange={(e) => setContentData(prev => ({ ...prev, transcription: e.target.value }))}
-                    className="bg-background/50 border-secondary-500/30 focus:border-secondary-500/50 text-secondary-100 placeholder:text-secondary-300/50 min-h-[200px]"
+                    className="bg-background/50 border-secondary-500/30 focus:border-secondary-500/50 text-secondary-100 placeholder:text-secondary-300/50 min-h-[200px] text-sm sm:text-base"
                     placeholder={t('lessonEditor.aiContent.transcriptionPlaceholder')}
                   />
                 </div>
-                <div className="space-y-3">
-                  <label className="text-sm font-medium text-secondary-300">{t('lessonEditor.aiContent.summaryLabel')}</label>
+                <div className="space-y-2 sm:space-y-3">
+                  <label className="text-xs sm:text-sm font-medium text-secondary-300">{t('lessonEditor.aiContent.summaryLabel')}</label>
                   <Textarea
                     value={contentData.summary}
                     onChange={(e) => setContentData(prev => ({ ...prev, summary: e.target.value }))}
-                    className="bg-background/50 border-secondary-500/30 focus:border-secondary-500/50 text-secondary-100 placeholder:text-secondary-300/50 min-h-[150px]"
+                    className="bg-background/50 border-secondary-500/30 focus:border-secondary-500/50 text-secondary-100 placeholder:text-secondary-300/50 min-h-[150px] text-sm sm:text-base"
                     placeholder={t('lessonEditor.aiContent.summaryPlaceholder')}
                   />
                 </div>
@@ -522,19 +532,19 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
             </Card>
           </TabsContent>
 
-          <TabsContent value="analytics" className="space-y-6">
+          <TabsContent value="analytics" className="space-y-4 sm:space-y-6">
             {/* Analytics Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
               <Card className="card border border-border bg-card">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium text-purple-300">{t('lessonEditor.analytics.totalViews')}</CardTitle>
+                <CardHeader className="pb-2 sm:pb-3">
+                  <CardTitle className="text-xs sm:text-sm font-medium text-purple-300">{t('lessonEditor.analytics.totalViews')}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
-                      <Eye className="h-5 w-5 text-black" />
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+                      <Eye className="h-4 w-4 sm:h-5 sm:w-5 text-black" />
                     </div>
-                    <div className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                    <div className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
                       {lessonViews.length}
                     </div>
                   </div>
@@ -542,15 +552,15 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
               </Card>
 
               <Card className="card border border-border bg-card">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium text-primary-300">{t('lessonEditor.analytics.completed')}</CardTitle>
+                <CardHeader className="pb-2 sm:pb-3">
+                  <CardTitle className="text-xs sm:text-sm font-medium text-primary-300">{t('lessonEditor.analytics.completed')}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-xl flex items-center justify-center">
-                      <Target className="h-5 w-5 text-black" />
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-xl flex items-center justify-center">
+                      <Target className="h-4 w-4 sm:h-5 sm:w-5 text-black" />
                     </div>
-                    <div className="text-3xl font-bold bg-gradient-to-r from-primary-400 to-secondary-400 bg-clip-text text-transparent">
+                    <div className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-primary-400 to-secondary-400 bg-clip-text text-transparent">
                       {lessonViews.filter(v => v.completed).length}
                     </div>
                   </div>
@@ -558,15 +568,15 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
               </Card>
 
               <Card className="card border border-border bg-card">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium text-accent-300">{t('lessonEditor.analytics.avgDuration')}</CardTitle>
+                <CardHeader className="pb-2 sm:pb-3">
+                  <CardTitle className="text-xs sm:text-sm font-medium text-accent-300">{t('lessonEditor.analytics.avgDuration')}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-accent-500 to-primary-500 rounded-xl flex items-center justify-center">
-                      <Clock className="h-5 w-5 text-black" />
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-accent-500 to-primary-500 rounded-xl flex items-center justify-center">
+                      <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-black" />
                     </div>
-                    <div className="text-3xl font-bold bg-gradient-to-r from-accent-400 to-primary-400 bg-clip-text text-transparent">
+                    <div className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-accent-400 to-primary-400 bg-clip-text text-transparent">
                       {Math.round(lessonViews.reduce((acc, v) => acc + v.view_duration, 0) / (lessonViews.length || 1))}m
                     </div>
                   </div>
@@ -575,12 +585,13 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
             </div>
 
             {/* Charts */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
               <Card className="card border border-border bg-card">
                 <CardHeader>
-                  <CardTitle className="text-primary-300 flex items-center gap-2">
-                    <TrendingUp className="h-5 w-5" />
-                    {t('lessonEditor.analytics.viewsOverTime')}
+                  <CardTitle className="text-primary-300 flex items-center gap-1 sm:gap-2">
+                    <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5" />
+                    <span className="hidden sm:inline">{t('lessonEditor.analytics.viewsOverTime')}</span>
+                    <span className="sm:hidden">Views Over Time</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -604,9 +615,10 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
 
               <Card className="card border border-border bg-card">
                 <CardHeader>
-                  <CardTitle className="text-secondary-300 flex items-center gap-2">
-                    <Target className="h-5 w-5" />
-                    {t('lessonEditor.analytics.completionRate')}
+                  <CardTitle className="text-secondary-300 flex items-center gap-1 sm:gap-2">
+                    <Target className="h-4 w-4 sm:h-5 sm:w-5" />
+                    <span className="hidden sm:inline">{t('lessonEditor.analytics.completionRate')}</span>
+                    <span className="sm:hidden">Completion Rate</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -633,13 +645,14 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
 
             {/* Student Views Table */}
             <Card className="card border border-border bg-card">
-              <CardHeader className="p-4 sm:p-6 pb-0">
-                <CardTitle className="text-purple-300 flex items-center gap-2">
-                  <Users className="h-5 w-5" />
-                  {t('lessonEditor.analytics.studentViews')}
+              <CardHeader className="p-3 sm:p-4 pb-0">
+                <CardTitle className="text-purple-300 flex items-center gap-1 sm:gap-2">
+                  <Users className="h-4 w-4 sm:h-5 sm:w-5" />
+                  <span className="hidden sm:inline">{t('lessonEditor.analytics.studentViews')}</span>
+                  <span className="sm:hidden">Student Views</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-4 sm:p-6">
+              <CardContent className="p-3 sm:p-4">
                 <div className="overflow-x-auto">
                   <Table>
                     <TableHeader>
@@ -696,25 +709,26 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
             </Card>
           </TabsContent>
 
-          <TabsContent value="preview" className="space-y-6">
+          <TabsContent value="preview" className="space-y-4 sm:space-y-6">
             <Card className="card border border-border bg-card">
-              <CardHeader className="pb-4 p-4 sm:p-6">
-                <CardTitle className="text-xl text-accent-300 flex items-center gap-3">
-                  <div className="w-8 h-8 bg-gradient-to-br from-accent-500 to-primary-500 rounded-lg flex items-center justify-center">
-                    <Video className="h-4 w-4 text-black" />
+              <CardHeader className="pb-3 sm:pb-4 p-3 sm:p-4 lg:p-6">
+                <CardTitle className="text-base sm:text-lg lg:text-xl text-accent-300 flex items-center gap-2 sm:gap-3">
+                  <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-accent-500 to-primary-500 rounded-lg flex items-center justify-center">
+                    <Video className="h-3 w-3 sm:h-4 sm:w-4 text-black" />
                   </div>
-                  {t('lessonEditor.preview.title')}
+                  <span className="hidden sm:inline">{t('lessonEditor.preview.title')}</span>
+                  <span className="sm:hidden">Preview</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6 p-4 sm:p-6">
-                <div className="space-y-4">
-                  <h2 className="text-2xl font-bold text-accent-300">{formData.title}</h2>
+              <CardContent className="space-y-4 sm:space-y-6 p-3 sm:p-4 lg:p-6">
+                <div className="space-y-3 sm:space-y-4">
+                  <h2 className="text-xl sm:text-2xl font-bold text-accent-300">{formData.title}</h2>
                   {formData.description && (
-                    <p className="text-muted-foreground leading-relaxed">{formData.description}</p>
+                    <p className="text-muted-foreground leading-relaxed text-xs sm:text-sm">{formData.description}</p>
                   )}
                   {formData.view_limit && (
                     <Badge className="bg-accent-500/20 text-accent-300 border-accent-500/40">
-                      <Eye className="h-3 w-3 mr-1" />
+                      <Eye className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                       {t('lessonEditor.preview.viewLimit', { limit: formData.view_limit })}
                     </Badge>
                   )}
@@ -731,13 +745,13 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
                   </div>
                 ) : (
                   <div className="aspect-video w-full bg-gradient-to-br from-accent-500/10 to-primary-500/10 rounded-xl flex items-center justify-center border border-accent-500/20">
-                    <div className="text-center space-y-4">
-                      <div className="w-16 h-16 bg-gradient-to-br from-accent-500/20 to-primary-500/20 rounded-2xl flex items-center justify-center mx-auto">
-                        <Video className="h-8 w-8 text-accent-400" />
+                    <div className="text-center space-y-3 sm:space-y-4">
+                      <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-accent-500/20 to-primary-500/20 rounded-2xl flex items-center justify-center mx-auto">
+                        <Video className="h-7 w-7 sm:h-8 sm:w-8 text-accent-400" />
                       </div>
                       <div>
-                        <p className="text-accent-300 font-medium">{t('lessonEditor.preview.noVideoUrl')}</p>
-                        <p className="text-sm text-muted-foreground">{t('lessonEditor.preview.addVideoUrlToSeePreview')}</p>
+                        <p className="text-accent-300 font-medium text-xs sm:text-sm">{t('lessonEditor.preview.noVideoUrl')}</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground">{t('lessonEditor.preview.addVideoUrlToSeePreview')}</p>
                       </div>
                     </div>
                   </div>

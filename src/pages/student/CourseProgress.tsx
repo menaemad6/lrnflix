@@ -10,7 +10,7 @@ import { StudentQuizTaker } from '@/components/quizzes/StudentQuizTaker';
 import { AttachmentContent } from '@/components/attachments/AttachmentContent';
 import { EnrollmentPrompt } from '@/components/courses/EnrollmentPrompt';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Menu } from 'lucide-react';
 import { useRandomBackground } from "../../hooks/useRandomBackground";
 import { CourseProgressSkeleton, LessonContentSkeleton, QuizTakerSkeleton } from '@/components/student/skeletons';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -92,6 +92,7 @@ export const CourseProgress = () => {
   const [progress, setProgress] = useState<string[]>([]);
   const [attachmentProgress, setAttachmentProgress] = useState<string[]>([]);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
   const bgClass = useRandomBackground();
   const { t } = useTranslation('courses');
@@ -157,6 +158,15 @@ export const CourseProgress = () => {
       }
     }
   }, [lessons, quizzes, attachments, lessonId, quizId, attachmentId]);
+
+  // Auto-close sidebar on mobile when content changes
+  useEffect(() => {
+    if (window.innerWidth < 1024) { // lg breakpoint
+      if (currentLesson || currentQuiz || currentAttachment) {
+        setSidebarOpen(false);
+      }
+    }
+  }, [currentLesson, currentQuiz, currentAttachment]);
 
   const fetchCourseData = async () => {
     try {
@@ -269,6 +279,12 @@ export const CourseProgress = () => {
   const handleQuizSelect = (quiz: Quiz) => {
     setCurrentQuiz(quiz);
     setCurrentLesson(null);
+    setCurrentAttachment(null);
+    navigate(`/courses/${id}/progress/quiz/${quiz.id}`);
+    // Close sidebar on mobile when quiz is selected
+    if (window.innerWidth < 1024) { // lg breakpoint
+      setSidebarOpen(false);
+    }
   };
 
   const handleLessonSelect = (lesson: Lesson) => {
@@ -276,6 +292,10 @@ export const CourseProgress = () => {
     setCurrentQuiz(null);
     setCurrentAttachment(null);
     navigate(`/courses/${id}/progress/lesson/${lesson.id}`);
+    // Close sidebar on mobile when lesson is selected
+    if (window.innerWidth < 1024) { // lg breakpoint
+      setSidebarOpen(false);
+    }
   };
 
   const handleAttachmentSelect = (attachment: Attachment) => {
@@ -283,6 +303,10 @@ export const CourseProgress = () => {
     setCurrentLesson(null);
     setCurrentQuiz(null);
     navigate(`/courses/${id}/progress/attachment/${attachment.id}`);
+    // Close sidebar on mobile when attachment is selected
+    if (window.innerWidth < 1024) { // lg breakpoint
+      setSidebarOpen(false);
+    }
   };
 
   const handleBackToCourse = () => {
@@ -295,10 +319,10 @@ export const CourseProgress = () => {
 
   if (!course) {
     return (
-      <div className="container mx-auto py-8">
+      <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-8">
         <div className="text-center">
-          <h2 className="text-xl font-semibold mb-2">{t('courseProgress.accessDenied')}</h2>
-          <p className="text-muted-foreground">{t('courseProgress.accessDeniedDescription')}</p>
+          <h2 className="text-lg sm:text-xl font-semibold mb-2">{t('courseProgress.accessDenied')}</h2>
+          <p className="text-muted-foreground text-sm sm:text-base">{t('courseProgress.accessDeniedDescription')}</p>
         </div>
       </div>
     );
@@ -316,93 +340,125 @@ export const CourseProgress = () => {
       />
       <div className={bgClass + " min-h-screen"}>
         <div className="min-h-screen bg-background flex pt-20">
-        {/* Main Content Area */}
-        <div className="flex-1 min-w-0">
-          {currentQuiz ? (
-            <StudentQuizTaker
-              quiz={currentQuiz}
-              courseId={id!}
-              onBackToCourse={handleBackToCourse}
-              attemptId={attemptId}
-            />
-          ) : currentAttachment ? (
-            <AttachmentContent
-              attachment={currentAttachment}
-              course={course}
-              isCompleted={attachmentProgress.includes(currentAttachment.id)}
-              onAttachmentComplete={handleAttachmentComplete}
-              onBackToCourse={handleBackToCourse}
-            />
-          ) : currentLesson ? (
-            <LessonContent
-              lesson={currentLesson}
-              course={course}
-              isCompleted={progress.includes(currentLesson.id)}
-              onLessonComplete={handleLessonComplete}
-              onBackToCourse={handleBackToCourse}
-            />
-          ) : lessons.length === 0 && quizzes.length === 0 && attachments.length === 0 ? (
-             <div className="flex items-center justify-center h-full">
-               <div className="text-center space-y-4">
-                 <Skeleton className="h-16 w-16 rounded-full mx-auto" />
-                                   <h2 className="text-xl font-semibold mb-2">{t('courseProgress.noContentAvailable')}</h2>
-                  <p className="text-muted-foreground">{t('courseProgress.noContentDescription')}</p>
-               </div>
-             </div>
-          ) : (
-            <div className="flex items-center justify-center h-full">
-              <div className="text-center space-y-4">
-                <Skeleton className="h-8 w-8 rounded-full mx-auto" />
-                <h2 className="text-xl font-semibold mb-2">{t('courseProgress.loadingContent')}</h2>
-                <p className="text-muted-foreground">{t('courseProgress.loadingContentDescription')}</p>
-              </div>
-            </div>
-          )}
-        </div>
-        
-        {/* Right Sidebar */}
-        <div className={`transition-all duration-300 ease-in-out border-l bg-card/50 backdrop-blur-sm relative ${
-          sidebarCollapsed ? 'w-16' : 'w-80'
-        }`}>
-          {/* Collapse/Expand Button */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className="absolute -left-4 top-8 z-50 h-8 w-8 rounded-full bg-background border border-border shadow-lg hover:shadow-xl transition-all duration-200"
-          >
-            {sidebarCollapsed ? (
-              <ChevronLeft className="h-4 w-4" />
-            ) : (
-              <ChevronRight className="h-4 w-4" />
-            )}
-          </Button>
+          {/* Mobile Sidebar Toggle Button - Only visible on small screens */}
+          <div className="lg:hidden fixed bottom-4 left-4 z-50">
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="h-12 w-12 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-200 border-0"
+            >
+              <Menu className="h-6 w-6" />
+            </Button>
+          </div>
 
-          {!sidebarCollapsed ? (
-            <CourseSidebar
-              course={course}
-              currentLesson={currentLesson}
-              onLessonSelect={handleLessonSelect}
-              lessons={lessons}
-              quizzes={quizzes}
-              attachments={attachments}
-              quizAttempts={quizAttempts}
-              onQuizSelect={handleQuizSelect}
-              onAttachmentSelect={handleAttachmentSelect}
-              currentQuiz={currentQuiz}
-              currentAttachment={currentAttachment}
-            />
-          ) : (
-            <div className="p-4 flex flex-col items-center gap-4">
-              <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-lg flex items-center justify-center">
-                <span className="text-black font-bold text-sm">C</span>
+          {/* Main Content Area */}
+          <div className="flex-1 min-w-0 px-1 sm:px-4">
+            {currentQuiz ? (
+              <StudentQuizTaker
+                quiz={currentQuiz}
+                courseId={id!}
+                onBackToCourse={handleBackToCourse}
+                attemptId={attemptId}
+              />
+            ) : currentAttachment ? (
+              <AttachmentContent
+                attachment={currentAttachment}
+                course={course}
+                isCompleted={attachmentProgress.includes(currentAttachment.id)}
+                onAttachmentComplete={handleAttachmentComplete}
+                onBackToCourse={handleBackToCourse}
+              />
+            ) : currentLesson ? (
+              <LessonContent
+                lesson={currentLesson}
+                course={course}
+                isCompleted={progress.includes(currentLesson.id)}
+                onLessonComplete={handleLessonComplete}
+                onBackToCourse={handleBackToCourse}
+              />
+            ) : lessons.length === 0 && quizzes.length === 0 && attachments.length === 0 ? (
+               <div className="flex items-center justify-center h-full min-h-[60vh]">
+                 <div className="text-center space-y-3 sm:space-y-4 px-4">
+                   <Skeleton className="h-10 w-10 sm:h-12 sm:w-12 md:h-16 md:w-16 rounded-full mx-auto" />
+                   <h2 className="text-base sm:text-lg md:text-xl font-semibold mb-2">{t('courseProgress.noContentAvailable')}</h2>
+                   <p className="text-muted-foreground text-xs sm:text-sm md:text-base">{t('courseProgress.noContentDescription')}</p>
+                 </div>
+               </div>
+            ) : (
+              <div className="flex items-center justify-center h-full min-h-[60vh]">
+                <div className="text-center space-y-3 sm:space-y-4 px-4">
+                  <Skeleton className="h-5 w-5 sm:h-6 sm:w-6 md:h-8 md:w-8 rounded-full mx-auto" />
+                  <h2 className="text-base sm:text-lg md:text-xl font-semibold mb-2">{t('courseProgress.loadingContent')}</h2>
+                  <p className="text-muted-foreground text-xs sm:text-sm md:text-base">{t('courseProgress.loadingContentDescription')}</p>
+                </div>
               </div>
-              <div className="flex flex-col items-center gap-2 text-xs text-muted-foreground">
-                <span className="writing-mode-vertical transform rotate-180">{t('courseProgress.courseProgress')}</span>
-              </div>
+            )}
+          </div>
+          
+          {/* Right Sidebar - Hidden on mobile, collapsible on desktop */}
+          <div className={`transition-all duration-300 ease-in-out border-l bg-card shadow-lg relative ${
+            // Mobile: shown when sidebarOpen is true - full width
+            // Desktop: collapsible with sidebarCollapsed state
+            sidebarOpen ? 'w-full sm:w-80' : sidebarCollapsed ? 'w-16' : 'w-80'
+          } ${sidebarOpen ? 'block' : 'hidden lg:block'}`}>
+            {/* Desktop Collapse/Expand Button - Only visible on large screens */}
+            <div className="hidden lg:block">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+                className="absolute -left-4 top-8 z-50 h-8 w-8 rounded-full bg-background border border-border shadow-lg hover:shadow-xl transition-all duration-200"
+              >
+                {sidebarCollapsed ? (
+                  <ChevronLeft className="h-4 w-4" />
+                ) : (
+                  <ChevronRight className="h-4 w-4" />
+                )}
+              </Button>
             </div>
-          )}
-        </div>
+
+            {/* Mobile Close Button - Only visible on small screens */}
+            <div className="lg:hidden absolute -left-4 top-8 z-50">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSidebarOpen(false)}
+                className="h-8 w-8 rounded-full bg-background border border-border shadow-lg hover:shadow-xl transition-all duration-200"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+            </div>
+
+            {/* Sidebar Content */}
+            {(sidebarOpen || (!sidebarCollapsed && !sidebarOpen)) && (
+              <CourseSidebar
+                course={course}
+                currentLesson={currentLesson}
+                onLessonSelect={handleLessonSelect}
+                lessons={lessons}
+                quizzes={quizzes}
+                attachments={attachments}
+                quizAttempts={quizAttempts}
+                onQuizSelect={handleQuizSelect}
+                onAttachmentSelect={handleAttachmentSelect}
+                currentQuiz={currentQuiz}
+                currentAttachment={currentAttachment}
+              />
+            )}
+            
+            {/* Desktop Collapsed State */}
+            {!sidebarOpen && sidebarCollapsed && (
+              <div className="hidden lg:flex p-4 flex-col items-center gap-4">
+                <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-lg flex items-center justify-center">
+                  <span className="text-black font-bold text-sm">C</span>
+                </div>
+                <div className="flex flex-col items-center gap-2 text-xs text-muted-foreground">
+                  <span className="writing-mode-vertical transform rotate-180">{t('courseProgress.courseProgress')}</span>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </>

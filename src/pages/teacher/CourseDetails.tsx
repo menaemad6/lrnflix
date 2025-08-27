@@ -350,60 +350,60 @@ export const CourseDetails = () => {
     switch (activeTab) {
       case 'overview':
         return (
-          <div className="space-y-6 md:space-y-8">
+          <div className="space-y-4 sm:space-y-6 md:space-y-8">
             {/* Hero Stats */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-6">
               <Card className="glass-card border-white/10 bg-gradient-to-br from-primary-500/10 to-secondary-500/10 border-primary-500/20">
-                <CardContent className="p-6">
+                <CardContent className="p-3 sm:p-4 md:p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-primary-600 dark:text-primary-400">{t('teacherCourseDetails.totalStudents')}</p>
-                      <p className="text-3xl font-bold text-primary-700 dark:text-primary-300">{enrollmentCount}</p>
+                      <p className="text-xs sm:text-sm font-medium text-primary-600 dark:text-primary-400">{t('teacherCourseDetails.totalStudents')}</p>
+                      <p className="text-xl sm:text-2xl md:text-3xl font-bold text-primary-700 dark:text-primary-300">{enrollmentCount}</p>
                     </div>
-                    <div className="p-3 bg-primary-500/20 rounded-xl">
-                      <Users className="h-6 w-6 text-primary-500" />
+                    <div className="p-2 sm:p-3 bg-primary-500/20 rounded-xl">
+                      <Users className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-primary-500" />
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
               <Card className="glass-card border-white/10 bg-gradient-to-br from-blue-500/10 to-accent-500/10 border-blue-500/20">
-                <CardContent className="p-6">
+                <CardContent className="p-3 sm:p-4 md:p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-blue-600 dark:text-blue-400">{t('teacherCourseDetails.revenue')}</p>
-                      <p className="text-3xl font-bold text-blue-700 dark:text-blue-300">{enrollmentCount * course.price}</p>
+                      <p className="text-xs sm:text-sm font-medium text-blue-600 dark:text-blue-400">{t('teacherCourseDetails.revenue')}</p>
+                      <p className="text-xl sm:text-2xl md:text-3xl font-bold text-blue-700 dark:text-blue-300">{enrollmentCount * course.price}</p>
                     </div>
-                    <div className="p-3 bg-blue-500/20 rounded-xl">
-                      <TrendingUp className="h-6 w-6 text-blue-500" />
+                    <div className="p-2 sm:p-3 bg-blue-500/20 rounded-xl">
+                      <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-blue-500" />
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
               <Card className="glass-card border-white/10 bg-gradient-to-br from-purple-500/10 to-pink-500/10 border-purple-500/20">
-                <CardContent className="p-6">
+                <CardContent className="p-3 sm:p-4 md:p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-purple-600 dark:text-purple-400">{t('teacherCourseDetails.completionRate')}</p>
-                      <p className="text-3xl font-bold text-purple-700 dark:text-purple-300">87%</p>
+                      <p className="text-xs sm:text-sm font-medium text-purple-600 dark:text-purple-400">{t('teacherCourseDetails.completionRate')}</p>
+                      <p className="text-xl sm:text-2xl md:text-3xl font-bold text-purple-700 dark:text-purple-300">87%</p>
                     </div>
-                    <div className="p-3 bg-purple-500/20 rounded-xl">
-                      <Trophy className="h-6 w-6 text-purple-500" />
+                    <div className="p-2 sm:p-3 bg-purple-500/20 rounded-xl">
+                      <Trophy className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-purple-500" />
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
               <Card className="glass-card border-white/10 bg-gradient-to-br from-orange-500/10 to-red-500/10 border-orange-500/20">
-                <CardContent className="p-6">
+                <CardContent className="p-3 sm:p-4 md:p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-orange-600 dark:text-orange-400">{t('teacherCourseDetails.rating')}</p>
-                      <p className="text-3xl font-bold text-orange-700 dark:text-orange-300">4.8</p>
+                      <p className="text-xs sm:text-sm font-medium text-orange-600 dark:text-orange-400">{t('teacherCourseDetails.rating')}</p>
+                      <p className="text-xl sm:text-2xl md:text-3xl font-bold text-orange-700 dark:text-orange-300">4.8</p>
                     </div>
-                    <div className="p-3 bg-orange-500/20 rounded-xl">
-                      <Target className="h-6 w-6 text-orange-500" />
+                    <div className="p-2 sm:p-3 bg-orange-500/20 rounded-xl">
+                      <Target className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-orange-500" />
                     </div>
                   </div>
                 </CardContent>
@@ -412,9 +412,9 @@ export const CourseDetails = () => {
             {/* Course header moved above tabs; removed here to avoid duplication */}
             {/* Course Discussions */}
             <Card className="glass-card border-white/10">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <MessageSquare className="h-5 w-5" />
+              <CardHeader className="pb-3 sm:pb-4">
+                <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                  <MessageSquare className="h-4 w-4 sm:h-5 sm:w-5" />
                   {t('teacherCourseDetails.courseDiscussions')}
                 </CardTitle>
               </CardHeader>
@@ -428,11 +428,11 @@ export const CourseDetails = () => {
       case 'students':
         return (
           <Card className="glass-card border-white/10">
-            <CardHeader>
-                              <CardTitle className="flex items-center gap-2">
-                  <Users className="h-5 w-5" />
-                  {t('teacherCourseDetails.studentManagement')}
-                </CardTitle>
+            <CardHeader className="pb-3 sm:pb-4">
+              <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                <Users className="h-4 w-4 sm:h-5 sm:w-5" />
+                {t('teacherCourseDetails.studentManagement')}
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <StudentManager courseId={courseId!} />
@@ -443,11 +443,11 @@ export const CourseDetails = () => {
       case 'codes':
         return (
           <Card className="glass-card border-white/10">
-            <CardHeader>
-                              <CardTitle className="flex items-center gap-2">
-                  <Tag className="h-5 w-5" />
-                  {t('teacherCourseDetails.courseCodesAndDiscounts')}
-                </CardTitle>
+            <CardHeader className="pb-3 sm:pb-4">
+              <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                <Tag className="h-4 w-4 sm:h-5 sm:w-5" />
+                {t('teacherCourseDetails.courseCodesAndDiscounts')}
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <CourseCodesManager courseId={courseId!} />
@@ -457,105 +457,105 @@ export const CourseDetails = () => {
 
       case 'settings':
         return (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Course Settings */}
             <Card className="glass-card border-white/10">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Settings className="h-5 w-5" />
+              <CardHeader className="pb-3 sm:pb-4">
+                <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                  <Settings className="h-4 w-4 sm:h-5 sm:w-5" />
                   {t('teacherCourseDetails.courseSettings')}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className="space-y-4 sm:space-y-6">
 
 
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   <div>
-                    <label className="text-sm font-medium">{t('teacherCourseDetails.courseTitle')}</label>
+                    <label className="text-xs sm:text-sm font-medium">{t('teacherCourseDetails.courseTitle')}</label>
                     <Input
                       value={editForm.title}
                       onChange={(e) => setEditForm(prev => ({ ...prev, title: e.target.value }))}
                       placeholder={t('teacherCourseDetails.enterCourseTitle')}
-                      className="glass-input"
+                      className="glass-input text-sm sm:text-base"
                     />
                   </div>
                   
                   <div>
-                    <label className="text-sm font-medium">{t('teacherCourseDetails.description')}</label>
+                    <label className="text-xs sm:text-sm font-medium">{t('teacherCourseDetails.description')}</label>
                     <Textarea
                       value={editForm.description}
                       onChange={(e) => setEditForm(prev => ({ ...prev, description: e.target.value }))}
                       placeholder={t('teacherCourseDetails.enterCourseDescription')}
                       rows={4}
-                      className="glass-input"
+                      className="glass-input text-sm sm:text-base"
                     />
                   </div>
                   
                   <div>
-                    <label className="text-sm font-medium">{t('teacherCourseDetails.category')}</label>
+                    <label className="text-xs sm:text-sm font-medium">{t('teacherCourseDetails.category')}</label>
                     <Input
                       value={editForm.category}
                       onChange={(e) => setEditForm(prev => ({ ...prev, category: e.target.value }))}
                       placeholder={t('teacherCourseDetails.enterCourseCategory')}
-                      className="glass-input"
+                      className="glass-input text-sm sm:text-base"
                     />
                   </div>
                   
                   <div>
-                    <label className="text-sm font-medium">{t('teacherCourseDetails.priceCredits')}</label>
+                    <label className="text-xs sm:text-sm font-medium">{t('teacherCourseDetails.priceCredits')}</label>
                     <Input
                       type="number"
                       min="0"
                       value={editForm.price}
                       onChange={(e) => setEditForm(prev => ({ ...prev, price: parseInt(e.target.value) || 0 }))}
                       placeholder={t('teacherCourseDetails.enterCoursePrice')}
-                      className="glass-input"
+                      className="glass-input text-sm sm:text-base"
                     />
                   </div>
                   
-                                  {/* Current Thumbnail Display */}
-                <div>
-                  <label className="text-sm font-medium mb-2 block">{t('teacherCourseDetails.currentThumbnail')}</label>
-                  <div className="w-full h-48 overflow-hidden rounded-xl border border-white/10">
-                    {course?.cover_image_url ? (
-                      <img
-                        src={course.cover_image_url}
-                        alt={course.title}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-primary/10 via-secondary/10 to-muted/20 flex items-center justify-center">
-                        <Sparkles className="w-16 h-16 text-primary/60" />
-                      </div>
-                    )}
+                  {/* Current Thumbnail Display */}
+                  <div>
+                    <label className="text-xs sm:text-sm font-medium mb-2 block">{t('teacherCourseDetails.currentThumbnail')}</label>
+                    <div className="w-full h-32 sm:h-40 md:h-48 overflow-hidden rounded-xl border border-white/10">
+                      {course?.cover_image_url ? (
+                        <img
+                          src={course.cover_image_url}
+                          alt={course.title}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-primary/10 via-secondary/10 to-muted/20 flex items-center justify-center">
+                          <Sparkles className="w-8 h-8 sm:w-12 sm:h-12 md:w-16 md:h-16 text-primary/60" />
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
 
-                {/* Thumbnail Uploader */}
-                <div>
-                  <label className="text-sm font-medium mb-2 block">{t('teacherCourseDetails.updateThumbnail')}</label>
-                  <ImageUploader
-                    bucket={IMAGE_UPLOAD_BUCKETS.LECTURES_THUMBNAILS}
-                    folder="courses"
-                    compress={true}
-                    generateThumbnail={true}
-                    onImageUploaded={handleImageUploaded}
-                    onImageDeleted={handleImageDeleted}
-                    onError={(error) => {
-                      toast({
-                        title: t('teacherCourseDetails.error'),
-                        description: error,
-                        variant: 'destructive',
-                      });
-                    }}
-                    variant="compact"
-                    size="sm"
-                    placeholder={t('teacherCourseDetails.uploadCourseThumbnail')}
-                  />
-                </div>
-                
-                  <Button onClick={updateCourseDetails} className="w-full btn-primary">
-                    <Save className="h-4 w-4 mr-2" />
+                  {/* Thumbnail Uploader */}
+                  <div>
+                    <label className="text-xs sm:text-sm font-medium mb-2 block">{t('teacherCourseDetails.updateThumbnail')}</label>
+                    <ImageUploader
+                      bucket={IMAGE_UPLOAD_BUCKETS.LECTURES_THUMBNAILS}
+                      folder="courses"
+                      compress={true}
+                      generateThumbnail={true}
+                      onImageUploaded={handleImageUploaded}
+                      onImageDeleted={handleImageDeleted}
+                      onError={(error) => {
+                        toast({
+                          title: t('teacherCourseDetails.error'),
+                          description: error,
+                          variant: 'destructive',
+                        });
+                      }}
+                      variant="compact"
+                      size="sm"
+                      placeholder={t('teacherCourseDetails.uploadCourseThumbnail')}
+                    />
+                  </div>
+                  
+                  <Button onClick={updateCourseDetails} className="w-full btn-primary text-sm sm:text-base py-2 sm:py-3">
+                    <Save className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
                     {t('teacherCourseDetails.saveChanges')}
                   </Button>
                 </div>
@@ -564,21 +564,21 @@ export const CourseDetails = () => {
 
             {/* Danger Zone */}
             <Card className="glass-card border-red-500/20 bg-red-500/5">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-red-400">
-                  <AlertTriangle className="h-5 w-5" />
+              <CardHeader className="pb-3 sm:pb-4">
+                <CardTitle className="flex items-center gap-2 text-red-400 text-base sm:text-lg">
+                  <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5" />
                   {t('teacherCourseDetails.dangerZone')}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/20">
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 bg-red-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <Trash2 className="h-5 w-5 text-red-400" />
+              <CardContent className="space-y-3 sm:space-y-4">
+                <div className="p-3 sm:p-4 rounded-lg bg-red-500/10 border border-red-500/20">
+                  <div className="flex items-start gap-2 sm:gap-3">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-red-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <Trash2 className="h-4 w-4 sm:h-5 sm:w-5 text-red-400" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-semibold text-red-400 mb-1">{t('teacherCourseDetails.deleteCourse')}</h3>
-                      <p className="text-sm text-muted-foreground mb-3">
+                      <h3 className="font-semibold text-red-400 mb-1 text-sm sm:text-base">{t('teacherCourseDetails.deleteCourse')}</h3>
+                      <p className="text-xs sm:text-sm text-muted-foreground mb-2 sm:mb-3">
                         {t('teacherCourseDetails.deleteCourseDescription')}
                       </p>
                       <div className="text-xs text-muted-foreground space-y-1">
@@ -590,14 +590,14 @@ export const CourseDetails = () => {
                     </div>
                   </div>
                   
-                  <div className="mt-4">
+                  <div className="mt-3 sm:mt-4">
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <Button 
                           variant="destructive" 
-                          className="w-full bg-red-600 hover:bg-red-700 border-red-600 hover:border-red-700"
+                          className="w-full bg-red-600 hover:bg-red-700 border-red-600 hover:border-red-700 text-sm sm:text-base py-2 sm:py-3"
                         >
-                          <Trash2 className="h-4 w-4 mr-2" />
+                          <Trash2 className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
                           {t('teacherCourseDetails.deleteCourse')}
                         </Button>
                       </AlertDialogTrigger>
@@ -704,30 +704,30 @@ export const CourseDetails = () => {
           
           {/* Mobile close button removed since sidebar is hidden on mobile */}
 
-          <div className="p-4 md:p-6 space-y-4 md:space-y-6">
+          <div className="p-3 sm:p-4 md:p-6 space-y-3 sm:space-y-4 md:space-y-6">
             {/* Header */}
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               <Link to="/teacher/dashboard">
-                <Button variant="outline" size="sm" className={`glass-card transition-all duration-200 ${sidebarCollapsed ? 'w-8 h-8 p-0' : ''}`}>
-                  <ArrowLeft className="h-4 w-4" />
-                  {!sidebarCollapsed && <span className="ml-2">{t('teacherCourseDetails.backToDashboard')}</span>}
+                <Button variant="outline" size="sm" className={`glass-card transition-all duration-200 text-xs sm:text-sm ${sidebarCollapsed ? 'w-8 h-8 p-0' : 'px-2 sm:px-3 py-1 sm:py-2'}`}>
+                  <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4" />
+                  {!sidebarCollapsed && <span className="ml-1 sm:ml-2">{t('teacherCourseDetails.backToDashboard')}</span>}
                 </Button>
               </Link>
               
-                                {!sidebarCollapsed && (
-                    <div className="p-4 md:p-6 rounded-2xl bg-gradient-to-br from-primary/10 to-secondary/10 border border-primary/20">
-                      <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2">
-                        {t('teacherCourseDetails.courseManagement')}
-                      </h1>
-                      <p className="text-sm text-muted-foreground">
-                        {t('teacherCourseDetails.manageAllAspects')}
-                      </p>
-                    </div>
-                  )}
+              {!sidebarCollapsed && (
+                <div className="p-3 sm:p-4 md:p-6 rounded-2xl bg-gradient-to-br from-primary/10 to-secondary/10 border border-primary/20">
+                  <h1 className="text-lg sm:text-xl md:text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2">
+                    {t('teacherCourseDetails.courseManagement')}
+                  </h1>
+                  <p className="text-xs sm:text-sm text-muted-foreground">
+                    {t('teacherCourseDetails.manageAllAspects')}
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Navigation */}
-            <nav className="space-y-2">
+            <nav className="space-y-1 sm:space-y-2">
               
 
               {sidebarItems.map((item) => {
@@ -735,17 +735,17 @@ export const CourseDetails = () => {
                   return (
                     <Link key={item.id} to={item.href!} onClick={() => setSidebarCollapsed(true)}>
                       <button
-                        className={`w-full group flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 relative overflow-hidden hover:bg-white/10 hover:text-primary hover-glow hover:shadow-lg hover:shadow-white/10 ${
+                        className={`w-full group flex items-center gap-2 sm:gap-3 px-2 sm:px-3 md:px-4 py-2 sm:py-3 rounded-2xl transition-all duration-300 relative overflow-hidden hover:bg-white/10 hover:text-primary hover-glow hover:shadow-lg hover:shadow-white/10 ${
                           sidebarCollapsed ? 'justify-center' : ''
                         }`}
                         title={sidebarCollapsed ? item.label : ''}
                       >
-                        <div className={`p-2.5 rounded-xl transition-all duration-300 group-hover:bg-primary/10 group-hover:shadow-md`}>
-                          <item.icon className="h-5 w-5" />
+                        <div className={`p-2 sm:p-2.5 rounded-xl transition-all duration-300 group-hover:bg-primary/10 group-hover:shadow-md`}>
+                          <item.icon className="h-4 w-4 sm:h-5 sm:w-5" />
                         </div>
                         {!sidebarCollapsed && (
                           <div className="flex-1 text-left">
-                            <div className="font-semibold text-sm">{item.label}</div>
+                            <div className="font-semibold text-xs sm:text-sm">{item.label}</div>
                             <div className="text-xs text-muted-foreground">{item.description}</div>
                           </div>
                         )}
@@ -761,23 +761,23 @@ export const CourseDetails = () => {
                       setActiveTab(item.id);
                       setSidebarCollapsed(true);
                     }}
-                    className={`w-full group flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 relative overflow-hidden ${
+                    className={`w-full group flex items-center gap-2 sm:gap-3 px-2 sm:px-3 md:px-4 py-2 sm:py-3 rounded-2xl transition-all duration-300 relative overflow-hidden ${
                       activeTab === item.id
                         ? 'bg-gradient-to-r from-primary/20 to-secondary/20 text-primary glow border border-primary/30 shadow-lg shadow-primary/20'
                         : 'hover:bg-white/10 hover:text-primary hover-glow hover:shadow-lg hover:shadow-white/10'
                     } ${sidebarCollapsed ? 'justify-center' : ''}`}
                     title={sidebarCollapsed ? item.label : ''}
                   >
-                    <div className={`p-2.5 rounded-xl transition-all duration-300 ${
+                    <div className={`p-2 sm:p-2.5 rounded-xl transition-all duration-300 ${
                       activeTab === item.id
                         ? 'bg-primary/20 text-primary shadow-lg shadow-primary/25'
                         : 'group-hover:bg-primary/10 group-hover:shadow-md'
                     }`}>
-                      <item.icon className="h-5 w-5" />
+                      <item.icon className="h-4 w-4 sm:h-5 sm:w-5" />
                     </div>
                     {!sidebarCollapsed && (
                       <div className="flex-1 text-left">
-                        <div className="font-semibold text-sm">{item.label}</div>
+                        <div className="font-semibold text-xs sm:text-sm">{item.label}</div>
                         <div className="text-xs text-muted-foreground">{item.description}</div>
                       </div>
                     )}
@@ -792,61 +792,65 @@ export const CourseDetails = () => {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 p-4 md:p-8 min-w-0 min-h-0 overflow-y-auto">
-          <div className="w-full max-w-6xl mx-auto space-y-4">
+        <div className="flex-1 p-2 sm:p-4 md:p-6 lg:p-8 min-w-0 min-h-0 overflow-y-auto">
+          <div className="w-full max-w-6xl mx-auto space-y-3 sm:space-y-4">
             {/* Course Header - persistent on all tabs */}
             <Card className="glass-card border-white/10">
-              <CardHeader className="pb-4">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <CardHeader className="pb-3 sm:pb-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
                   <div>
-                    <CardTitle className="text-xl md:text-2xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+                    <CardTitle className="text-lg sm:text-xl md:text-2xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
                       {course.title}
                     </CardTitle>
-                    <div className="flex flex-wrap items-center gap-2 mt-2">
-                      <Badge variant={course.status === 'published' ? 'default' : 'secondary'} className="px-3 py-1">
+                    <div className="flex flex-wrap items-center gap-1 sm:gap-2 mt-2">
+                      <Badge variant={course.status === 'published' ? 'default' : 'secondary'} className="px-2 sm:px-3 py-1 text-xs sm:text-sm">
                         {course.status || 'draft'}
                       </Badge>
-                      {course.category && <Badge variant="outline">{course.category}</Badge>}
-                      <Badge variant="outline">{course.price} Credits</Badge>
+                      {course.category && <Badge variant="outline" className="px-2 sm:px-3 py-1 text-xs sm:text-sm">{course.category}</Badge>}
+                      <Badge variant="outline" className="px-2 sm:px-3 py-1 text-xs sm:text-sm">{course.price} Credits</Badge>}
                     </div>
                   </div>
-                  <div className="flex flex-wrap gap-2">
-                    <Button asChild variant="default" size="sm">
+                  <div className="flex flex-wrap gap-1 sm:gap-2">
+                    <Button asChild variant="default" size="sm" className="text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2">
                       <Link to={`/teacher/courses/${courseId}/manage`}>
-                        <Cog className="h-4 w-4 mr-2" />
-                        {t('teacherCourseDetails.manage')}
+                        <Cog className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                        <span className="hidden sm:inline">{t('teacherCourseDetails.manage')}</span>
+                        <span className="sm:hidden">Manage</span>
                       </Link>
                     </Button>
-                    <Button asChild variant="outline" size="sm">
+                    <Button asChild variant="outline" size="sm" className="text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2">
                       <Link to={`/courses/${courseId}`}>
-                        <Eye className="h-4 w-4 mr-2" />
-                        {t('teacherCourseDetails.preview')}
+                        <Eye className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                        <span className="hidden sm:inline">{t('teacherCourseDetails.preview')}</span>
+                        <span className="sm:hidden">Preview</span>
                       </Link>
                     </Button>
                     {course.status !== 'published' ? (
-                      <Button onClick={() => updateCourseStatus('published')}>
-                        <Sparkles className="h-4 w-4 mr-2" />
-                        {t('teacherCourseDetails.publishCourse')}
+                      <Button onClick={() => updateCourseStatus('published')} size="sm" className="text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2">
+                        <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                        <span className="hidden sm:inline">{t('teacherCourseDetails.publishCourse')}</span>
+                        <span className="sm:hidden">Publish</span>
                       </Button>
                     ) : (
-                      <Button variant="outline" onClick={() => updateCourseStatus('draft')}>
-                        {t('teacherCourseDetails.unpublish')}
+                      <Button variant="outline" onClick={() => updateCourseStatus('draft')} size="sm" className="text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2">
+                        <span className="hidden sm:inline">{t('teacherCourseDetails.unpublish')}</span>
+                        <span className="sm:hidden">Unpublish</span>
                       </Button>
                     )}
                   </div>
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground leading-relaxed">
+                <p className="text-muted-foreground leading-relaxed text-sm sm:text-base">
                   {course.description || t('teacherCourseDetails.noDescriptionAvailable')}
                 </p>
-                <div className="flex flex-wrap items-center gap-4 md:gap-6 mt-4 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4" />
+                <div className="flex flex-wrap items-center gap-2 sm:gap-4 md:gap-6 mt-3 sm:mt-4 text-xs sm:text-sm text-muted-foreground">
+                  <div className="flex items-center gap-1 sm:gap-2">
+                    <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
                     <span>{t('teacherCourseDetails.created')} {new Date(course.created_at).toLocaleDateString()}</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Globe className="h-4 w-4" />
+                  <div className="flex items-center gap-1 sm:gap-2">
+                    <Globe className="h-3 w-3 sm:h-4 sm:w-4" />
                     <span>{t('teacherCourseDetails.code')}: {course.enrollment_code || t('teacherCourseDetails.none')}</span>
                   </div>
                 </div>
@@ -864,10 +868,10 @@ export const CourseDetails = () => {
               }}>
                 <div className="w-full overflow-x-auto">
                   <TabsList className="flex p-1 gap-1 whitespace-nowrap">
-                    <TabsTrigger className="shrink-0" value="overview">{t('teacherCourseDetails.overview')}</TabsTrigger>
-                    <TabsTrigger className="shrink-0" value="students">{t('teacherCourseDetails.students')}</TabsTrigger>
-                    <TabsTrigger className="shrink-0" value="codes">{t('teacherCourseDetails.courseCodes')}</TabsTrigger>
-                    <TabsTrigger className="shrink-0" value="settings">{t('teacherCourseDetails.settings')}</TabsTrigger>
+                    <TabsTrigger className="shrink-0 text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2" value="overview">{t('teacherCourseDetails.overview')}</TabsTrigger>
+                    <TabsTrigger className="shrink-0 text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2" value="students">{t('teacherCourseDetails.students')}</TabsTrigger>
+                    <TabsTrigger className="shrink-0 text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2" value="codes">{t('teacherCourseDetails.courseCodes')}</TabsTrigger>
+                    <TabsTrigger className="shrink-0 text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2" value="settings">{t('teacherCourseDetails.settings')}</TabsTrigger>
                     
                   </TabsList>
                 </div>

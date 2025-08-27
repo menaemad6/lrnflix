@@ -343,27 +343,31 @@ export const AiAdviceCard = () => {
 
   return (
     <Card className="glass-card border-0">
-      <CardHeader>
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center">
-            <Brain className="h-6 w-6 text-black" />
+      <CardHeader className="px-4 sm:px-6 py-4 sm:py-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center flex-shrink-0">
+            <Brain className="h-5 w-5 sm:h-6 sm:w-6 text-black" />
           </div>
-          <div>
-            <div className="gradient-text text-xl font-bold">{t('aiAdvice.title')}</div>
-            <span className="text-muted-foreground/80 text-sm">{t('aiAdvice.subtitle')}</span>
+          <div className="flex-1 min-w-0">
+            <div className="gradient-text text-lg sm:text-xl font-bold">{t('aiAdvice.title')}</div>
+            <span className="text-muted-foreground/80 text-xs sm:text-sm">{t('aiAdvice.subtitle')}</span>
           </div>
           <Button 
             onClick={generateAdvice} 
             disabled={loading}
-            className="btn-primary ml-auto"
-            size="sm"
+            className="btn-primary w-full sm:w-auto text-xs sm:text-sm"
           >
             {loading ? (
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+              <>
+                <div className="animate-spin rounded-full h-3 w-3 sm:h-4 sm:w-4 border-b-2 border-white mr-1 sm:mr-2" />
+                {t('aiAdvice.generating')}
+              </>
             ) : (
-              <Sparkles className="h-4 w-4 mr-2" />
+              <>
+                <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                {t('aiAdvice.getSmartInsights')}
+              </>
             )}
-            {loading ? t('aiAdvice.analyzing') : t('aiAdvice.getSmartInsights')}
           </Button>
         </div>
         {lastGenerated && (
@@ -372,7 +376,7 @@ export const AiAdviceCard = () => {
           </p>
         )}
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6">
         {advice.length > 0 ? (
           <div className="space-y-4">
             {advice.map((item, index) => (

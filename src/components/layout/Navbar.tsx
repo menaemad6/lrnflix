@@ -176,8 +176,8 @@ export const Navbar = ({ extraXSpacing = false }: { extraXSpacing?: boolean }) =
   // UNAUTHENTICATED NAVBAR
   if (!isAuthenticated) {
     return (
-      <nav className={`glass-card border border-border/20 fixed top-4 left-4 right-4 z-50 rounded-2xl shadow-xl ${extraXSpacing ? 'md:left-8 md:right-8 lg:left-16 lg:right-16' : ''} bg-white/60 dark:bg-transparent backdrop-blur-xl text-card-foreground transition-all duration-500 ease-in-out ${hidden ? '-translate-y-24 opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'} max-w-full md:max-w-3xl lg:max-w-6xl mx-auto`}>
-        <div className="px-6 py-4">
+      <nav className={`glass-card border border-border/20 fixed top-2 md:top-4 left-4 right-4 z-50 rounded-2xl shadow-xl ${extraXSpacing ? 'md:left-8 md:right-8 lg:left-16 lg:right-16' : ''} bg-background dark:bg-background text-card-foreground transition-all duration-500 ease-in-out ${hidden ? '-translate-y-24 opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'} max-w-full md:max-w-3xl lg:max-w-6xl mx-auto`}>
+        <div className="px-6 py-2 md:py-4">
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center space-x-2">
               <Logo className="h-8 w-auto" />
@@ -186,9 +186,10 @@ export const Navbar = ({ extraXSpacing = false }: { extraXSpacing?: boolean }) =
             {isMobile ? (
               <Sheet>
                 <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon" className="glass hover-glow">
-                  <Sidebar className="h-[1.2rem] w-[1.2rem]" />
-                  </Button>
+                                  <Button variant="outline" size="icon" className="relative overflow-hidden bg-gradient-to-r from-primary/10 via-primary/5 to-secondary/10 border border-primary/20 hover:border-primary/40 hover:bg-gradient-to-r hover:from-primary/20 hover:via-primary/10 hover:to-secondary/20 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-primary/25 active:scale-95 group">
+                  <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-transparent to-secondary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <Sidebar className="h-[1.2rem] w-[1.2rem] relative z-10 text-primary group-hover:text-primary-600 transition-colors duration-300" />
+                </Button>
                 </SheetTrigger>
                 <SheetContent side="right" className="pt-0 w-72 rounded-l-2xl shadow-2xl bg-card text-foreground flex flex-col h-full justify-between">
                   <div className="flex flex-col h-full">
@@ -248,8 +249,8 @@ export const Navbar = ({ extraXSpacing = false }: { extraXSpacing?: boolean }) =
 
   // AUTHENTICATED NAVBAR
   return (
-    <nav className={`glass-card border border-border/20 fixed top-4 left-4 right-4 z-50 rounded-2xl shadow-xl ${extraXSpacing ? 'md:left-8 md:right-8 lg:left-16 lg:right-16' : ''} bg-white/60 dark:bg-transparent backdrop-blur-xl text-card-foreground transition-all duration-500 ease-in-out ${hidden ? '-translate-y-24 opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'} max-w-full md:max-w-3xl lg:max-w-6xl mx-auto`}>
-      <div className="px-6 py-4">
+    <nav className={`glass-card border border-border/20 fixed top-2 md:top-4 left-4 right-4 z-50 rounded-2xl shadow-xl ${extraXSpacing ? 'md:left-8 md:right-8 lg:left-16 lg:right-16' : ''} bg-background dark:bg-background text-card-foreground transition-all duration-500 ease-in-out ${hidden ? '-translate-y-24 opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'} max-w-full md:max-w-6xl mx-auto`}>
+      <div className="px-6 py-2 md:py-4">
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center space-x-2">
             <Logo className="h-8 w-auto" />
@@ -259,8 +260,9 @@ export const Navbar = ({ extraXSpacing = false }: { extraXSpacing?: boolean }) =
           {isMobile ? (
             <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
               <SheetTrigger asChild>
-                <Button variant="outline" size="icon" className="glass hover-glow ml-4" aria-label={t('navbar.openSidebar')}>
-                  <Sidebar className="h-[1.2rem] w-[1.2rem]" />
+                <Button variant="outline" size="icon" className="relative overflow-hidden bg-gradient-to-r from-primary/10 via-primary/5 to-secondary/10 border border-primary/20 hover:border-primary/40 hover:bg-gradient-to-r hover:from-primary/20 hover:via-primary/10 hover:to-secondary/20 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-primary/25 active:scale-95 group ml-4" aria-label={t('navbar.openSidebar')}>
+                  <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-transparent to-secondary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <Sidebar className="h-[1.2rem] w-[1.2rem] relative z-10 text-primary group-hover:text-primary-600 transition-colors duration-300" />
                 </Button>
               </SheetTrigger>
               <SheetContent side="right" className="pt-0 w-72 rounded-l-2xl shadow-2xl bg-card text-foreground flex flex-col h-full justify-between">

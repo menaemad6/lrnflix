@@ -224,8 +224,8 @@ export const LessonContent = ({ lesson, course, isCompleted, onLessonComplete, o
   }
 
   return (
-    <div className="flex-1 overflow-auto">
-      <div className="container mx-auto py-6 space-y-8">
+    <div className="flex-1 overflow-auto mt-4 sm:mt-0">
+      <div className="container mx-auto py-2 sm:py-4 md:py-6 space-y-4 sm:space-y-6 md:space-y-8 px-2 sm:px-4 md:px-6 lg:px-8">
         {/* Premium Lesson Header */}
         <Card className="relative overflow-hidden border bg-gradient-to-br from-background via-background to-muted/20 shadow-xl">
           {/* Animated Background Elements */}
@@ -236,29 +236,29 @@ export const LessonContent = ({ lesson, course, isCompleted, onLessonComplete, o
           </div>
 
           {/* Content */}
-          <div className="relative z-10 p-8">
+          <div className="relative z-10 p-3 sm:p-4 md:p-6 lg:p-8">
             {/* Header Row */}
-            <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-8 mb-8">
+            <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 sm:gap-6 md:gap-8 mb-4 sm:mb-6 md:mb-8">
               {/* Left Side - Lesson Info */}
-              <div className="flex-1 space-y-6">
+              <div className="flex-1 space-y-3 sm:space-y-4 md:space-y-6">
                 {/* Lesson Title */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-4">
-                    <div className="relative">
-                      <div className="w-16 h-16 bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center shadow-lg border border-border/50">
-                        <Play className="h-8 w-8 text-primary-foreground" />
+                <div className="space-y-2 sm:space-y-3 md:space-y-4">
+                                                       <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
+                    <div className="relative flex-shrink-0">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 bg-gradient-to-br from-primary to-primary/80 rounded-lg sm:rounded-xl md:rounded-2xl flex items-center justify-center shadow-lg border border-border/50">
+                        <Play className="h-5 w-5 sm:h-6 sm:w-6 md:h-8 md:w-8 text-primary-foreground" />
                       </div>
-                      <div className="absolute -top-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                        <CheckCircle className="h-3 w-3 text-white" />
+                      <div className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 md:w-6 md:h-6 bg-green-500 rounded-full flex items-center justify-center">
+                        <CheckCircle className="h-1.5 w-1.5 sm:h-2 sm:w-2 md:h-3 md:w-3 text-white" />
                       </div>
                     </div>
-                    <div className="flex-1">
-                      <h1 className="text-4xl lg:text-5xl font-bold text-foreground leading-tight">
+                    <div className="min-w-0">
+                      <h1 className="text-xl  sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-foreground leading-tight">
                         {lesson.title}
                       </h1>
-                      <div className="flex items-center gap-3 mt-3">
-                        <span className="text-sm text-muted-foreground">{t('lessonContent.from')}</span>
-                        <Badge variant="default" className="px-4 py-2 bg-gradient-to-r from-primary/20 to-primary/30 border-primary/30">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3  sm:mt-3">
+                        <span className="text-xs sm:text-sm text-muted-foreground">{t('lessonContent.from')}</span>
+                        <Badge variant="default" className="px-2 py-1 sm:px-3 sm:py-1 md:px-4 md:py-2 bg-gradient-to-r from-primary/20 to-primary/30 border-primary/30 text-xs sm:text-sm">
                           {course.title}
                         </Badge>
                       </div>
@@ -268,37 +268,37 @@ export const LessonContent = ({ lesson, course, isCompleted, onLessonComplete, o
 
                 {/* Lesson Description */}
                 {lesson.description && (
-                  <div className="p-6 bg-card/50 backdrop-blur-sm border-border/50 rounded-xl">
-                    <p className="text-foreground leading-relaxed text-lg">{lesson.description}</p>
+                  <div className="p-3 sm:p-4 md:p-6 bg-card/50 backdrop-blur-sm border-border/50 rounded-lg sm:rounded-xl">
+                    <p className="text-foreground leading-relaxed text-sm sm:text-base md:text-lg">{lesson.description}</p>
                   </div>
                 )}
               </div>
 
               {/* Right Side - Status & Actions */}
-              <div className="flex flex-col gap-6 lg:items-end">
+              <div className="flex flex-col gap-3 sm:gap-4 md:gap-6 lg:items-end">
                 {/* Status Badges */}
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap gap-2 sm:gap-3">
                   {lesson.view_limit && (
-                    <Badge variant="default" className="px-4 py-2">
-                      <div className="flex items-center gap-2">
-                        <Eye className="h-4 w-4" />
-                        <span className="font-medium">Views: {viewCount}/{lesson.view_limit}</span>
+                    <Badge variant="default" className="px-2 py-1 sm:px-3 sm:py-1 md:px-4 md:py-2 text-xs sm:text-sm">
+                      <div className="flex items-center gap-1 sm:gap-2">
+                        <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
+                        <span className="font-medium text-xs sm:text-sm">Views: {viewCount}/{lesson.view_limit}</span>
                       </div>
                     </Badge>
                   )}
                   {lesson.device_limit && (
-                    <Badge variant="default" className="px-4 py-2">
-                      <div className="flex items-center gap-2">
-                        <Smartphone className="h-4 w-4" />
-                        <span className="font-medium">Devices: {deviceCount}/{lesson.device_limit}</span>
+                    <Badge variant="default" className="px-2 py-1 sm:px-3 sm:py-1 md:px-4 md:py-2 text-xs sm:text-sm">
+                      <div className="flex items-center gap-1 sm:gap-2">
+                        <Smartphone className="h-3 w-3 sm:h-4 sm:w-4" />
+                        <span className="font-medium text-xs sm:text-sm">Devices: {deviceCount}/{lesson.device_limit}</span>
                       </div>
                     </Badge>
                   )}
                   {isCompleted && (
-                    <Badge variant="default" className="px-4 py-2">
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4" />
-                        <span>{t('lessonContent.completed')}</span>
+                    <Badge variant="default" className="px-2 py-1 sm:px-3 sm:py-1 md:px-4 md:py-2 text-xs sm:text-sm">
+                      <div className="flex items-center gap-1 sm:gap-2">
+                        <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4" />
+                        <span className="text-xs sm:text-sm">{t('lessonContent.completed')}</span>
                       </div>
                     </Badge>
                   )}
@@ -309,61 +309,61 @@ export const LessonContent = ({ lesson, course, isCompleted, onLessonComplete, o
                   <Button 
                     onClick={markAsCompleted} 
                     size="lg"
-                    className="px-8 py-3 bg-gradient-to-br from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 text-primary-foreground border-0 shadow-xl hover:shadow-2xl transition-all duration-300 rounded-xl font-semibold text-lg hover:scale-105"
+                    className="px-4 py-2 sm:px-6 sm:py-2 md:px-8 md:py-3 bg-gradient-to-br from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 text-primary-foreground border-0 shadow-xl hover:shadow-2xl transition-all duration-300 rounded-lg sm:rounded-xl font-semibold text-sm sm:text-base md:text-lg hover:scale-105"
                   >
-                    <CheckCircle className="h-5 w-5 mr-3" />
-                    {t('lessonContent.markAsCompleted')}
+                    <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 mr-1 sm:mr-2 md:mr-3" />
+                    <span className="text-xs sm:text-sm md:text-base">{t('lessonContent.markAsCompleted')}</span>
                   </Button>
                 )}
               </div>
             </div>
 
             {/* Lesson Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-8 border-t border-border/50">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6 pt-4 sm:pt-6 md:pt-8 border-t border-border/50">
               {/* Estimated Time */}
               <Card className="bg-card/50 backdrop-blur-sm border-border/50 hover:shadow-lg transition-all duration-300">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-primary/30 rounded-xl flex items-center justify-center shadow-lg border border-primary/30">
-                      <Clock className="h-6 w-6 text-primary" />
+                <CardContent className="p-3 sm:p-4 md:p-6">
+                  <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-gradient-to-br from-primary/20 to-primary/30 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg border border-primary/30 flex-shrink-0">
+                      <Clock className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-primary" />
                     </div>
-                    <div>
-                      <div className="font-bold text-foreground text-lg">
+                    <div className="min-w-0">
+                      <div className="font-bold text-foreground text-sm sm:text-base md:text-lg">
                         {lesson.duration_minutes ? `~${lesson.duration_minutes} ${t('lessonContent.minutes')}` : `~15 ${t('lessonContent.minutes')}`}
                       </div>
-                      <div className="text-sm text-muted-foreground">{t('lessonContent.estimatedTime')}</div>
+                      <div className="text-xs sm:text-sm text-muted-foreground">{t('lessonContent.estimatedTime')}</div>
                     </div>
                   </div>
                 </CardContent>
               </Card>
               {/* View Status */}
               <Card className="bg-card/50 backdrop-blur-sm border-border/50 hover:shadow-lg transition-all duration-300">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-primary/30 rounded-xl flex items-center justify-center shadow-lg border border-primary/30">
-                      <Eye className="h-6 w-6 text-primary" />
+                <CardContent className="p-3 sm:p-4 md:p-6">
+                  <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-gradient-to-br from-primary/20 to-primary/30 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg border border-primary/30 flex-shrink-0">
+                      <Eye className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-primary" />
                     </div>
-                    <div>
-                      <div className="font-bold text-foreground text-lg">
+                    <div className="min-w-0">
+                      <div className="font-bold text-foreground text-sm sm:text-base md:text-lg">
                         {lesson.view_limit ? `${viewCount}/${lesson.view_limit}` : t('lessonContent.unlimited')}
                       </div>
-                      <div className="text-sm text-muted-foreground">{t('lessonContent.viewLimit')}</div>
+                      <div className="text-xs sm:text-sm text-muted-foreground">{t('lessonContent.viewLimit')}</div>
                     </div>
                   </div>
                 </CardContent>
               </Card>
               {/* Device Status */}
-              <Card className="bg-card/50 backdrop-blur-sm border-border/50 hover:shadow-lg transition-all duration-300">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-primary/30 rounded-xl flex items-center justify-center shadow-lg border border-primary/30">
-                      <Smartphone className="h-6 w-6 text-primary" />
+              <Card className="bg-card/50 backdrop-blur-sm border-border/50 hover:shadow-lg transition-all duration-300 sm:col-span-2 lg:col-span-1">
+                <CardContent className="p-3 sm:p-4 md:p-6">
+                  <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-gradient-to-br from-primary/20 to-primary/30 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg border border-primary/30 flex-shrink-0">
+                      <Smartphone className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-primary" />
                     </div>
-                    <div>
-                      <div className="font-bold text-foreground text-lg">
+                    <div className="min-w-0">
+                      <div className="font-bold text-foreground text-sm sm:text-base md:text-lg">
                         {lesson.device_limit ? `${deviceCount}/${lesson.device_limit}` : t('lessonContent.unlimited')}
                       </div>
-                      <div className="text-sm text-muted-foreground">{t('lessonContent.deviceLimit')}</div>
+                      <div className="text-xs sm:text-sm text-muted-foreground">{t('lessonContent.deviceLimit')}</div>
                     </div>
                   </div>
                 </CardContent>
@@ -382,20 +382,20 @@ export const LessonContent = ({ lesson, course, isCompleted, onLessonComplete, o
             </div>
 
             {/* Content */}
-            <div className="relative z-10 p-8">
+            <div className="relative z-10 p-3 sm:p-4 md:p-6 lg:p-8">
               {/* Video Header */}
-              <div className="flex items-center gap-3 mb-6">
-                <div className="relative">
-                  <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center shadow-lg border border-border/50">
-                    <Play className="h-6 w-6 text-primary-foreground" />
+              <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4 md:mb-6">
+                <div className="relative flex-shrink-0">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-gradient-to-br from-primary to-primary/80 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg border border-border/50">
+                    <Play className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-primary-foreground" />
                   </div>
-                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
-                    <div className="w-2 h-2 bg-white rounded-full"></div>
+                  <div className="absolute -top-1 -right-1 w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4 bg-red-500 rounded-full flex items-center justify-center">
+                    <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 md:w-2 md:h-2 bg-white rounded-full"></div>
                   </div>
                 </div>
-                <div>
-                  <h2 className="text-2xl font-bold text-foreground">{t('lessonContent.lessonVideo')}</h2>
-                  <p className="text-muted-foreground">{t('lessonContent.watchInstructional')}</p>
+                <div className="min-w-0">
+                  <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground">{t('lessonContent.lessonVideo')}</h2>
+                  <p className="text-muted-foreground text-xs sm:text-sm md:text-base">{t('lessonContent.watchInstructional')}</p>
                 </div>
               </div>
 
@@ -403,12 +403,12 @@ export const LessonContent = ({ lesson, course, isCompleted, onLessonComplete, o
               <div className="relative">
                 <SecureVideoPlayer 
                   lessonId={lesson.id}
-                  className="w-full aspect-video shadow-2xl rounded-2xl overflow-hidden"
+                  className="w-full aspect-video shadow-2xl rounded-lg sm:rounded-xl md:rounded-2xl overflow-hidden"
                 />
                 
                 {/* Subtle Video Overlay Effects */}
                 <div className="absolute inset-0 pointer-events-none">
-                  <div className="absolute bottom-0 right-0 w-20 h-20 bg-gradient-to-br from-primary/10 to-transparent rounded-full blur-xl"></div>
+                  <div className="absolute bottom-0 right-0 w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 bg-gradient-to-br from-primary/10 to-transparent rounded-full blur-xl"></div>
                 </div>
               </div>
             </div>

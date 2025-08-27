@@ -402,6 +402,7 @@
       "manualEntry": "Manual Entry",
       "jsonImport": "JSON Import",
       "pdfExtraction": "PDF Extraction",
+      "imageExtraction": "Image Extraction",
       "addQuestionsManually": "Add questions manually",
       "answerAllWithAI": "Answer All with AI",
       "answeringAll": "Answering All...",
@@ -425,6 +426,7 @@
       "options": "Options:",
       "optionNumber": "Option {{number}}",
       "correct": "Correct",
+      "addOption": "Add Option",
       "expectedAnswerKeywords": "Expected answer/keywords",
       "noQuestionsYet": "No questions added yet. Use the tabs above to add questions."
     },
@@ -478,7 +480,29 @@
       "studentAnswer": "Student Answer:",
       "uploadQuestionImage": "Upload Question Image",
       "uploadQuestionImageDesc": "Upload an image for question {{questionNumber}}",
-      "dragDropImage": "Drag & drop an image here, or click to select"
+      "dragDropImage": "Drag & drop an image here, or click to select",
+      "addNewQuestion": "Add New Question",
+      "addNewQuestionDesc": "Create a new question for your quiz",
+      "imageUploadNote": "Image upload functionality will be available in the question editor"
+    },
+    "imageExtraction": {
+      "title": "Extract Questions from Image",
+      "description": "Upload an image containing quiz questions. The AI will analyze the image and extract structured questions.",
+      "invalidFileType": "Please select an image file (JPEG, PNG, GIF, etc.)",
+      "selectImageFirst": "Please select an image first",
+      "noQuestionsFound": "No Questions Found",
+      "tryClearerImage": "AI could not extract questions from the image. Try a clearer image.",
+      "extractedSuccessfully": "Extracted {{count}} questions from image",
+      "extractionFailed": "Failed to extract questions from image. Please try a different image.",
+      "apiKeyNotFound": "Gemini API key not found. Please set VITE_GEMINI_API_KEY in your environment variables.",
+      "systemPrompt": "You are an expert educational content parser. Extract well-structured quiz questions from the provided image.\n\nRules:\n- Detect MCQ and written questions\n- For MCQ, include options[] and prefer 3-6 options\n- Provide concise, unambiguous question_text\n- If a correct answer is present in the image, include it as correct_answer (exact text for MCQ)\n- Return ONLY JSON with the specified schema\n- Analyze the image carefully to identify all questions and their components",
+      "userPrompt": "Analyze this image and extract quiz questions. Return JSON only with shape: {{schema}}",
+      "apiError": "Gemini API error: {{status}} {{statusText}}",
+      "emptyResponse": "Empty response from Gemini",
+      "parseFailed": "Failed to parse AI response as JSON",
+      "processing": "Processing...",
+      "extractQuestions": "Extract Questions",
+      "selected": "Selected"
     },
     "toasts": {
       "quizCreated": "Quiz created successfully!",

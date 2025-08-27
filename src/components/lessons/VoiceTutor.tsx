@@ -244,9 +244,9 @@ export const VoiceTutor: React.FC<VoiceTutorProps> = ({
   if (limitationsLoading) {
     return (
       <Card className="relative overflow-hidden border bg-gradient-to-br from-background via-background to-muted/20 shadow-xl">
-        <CardContent className="p-8 text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">{t('aiVoiceTutor.loadingCallLimitations')}</p>
+        <CardContent className="p-4 sm:p-6 lg:p-8 text-center">
+          <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-primary mx-auto mb-3 sm:mb-4"></div>
+          <p className="text-muted-foreground text-sm sm:text-base">{t('aiVoiceTutor.loadingCallLimitations')}</p>
         </CardContent>
       </Card>
     );
@@ -268,64 +268,64 @@ export const VoiceTutor: React.FC<VoiceTutorProps> = ({
         </div>
 
         {/* Content */}
-        <div className="relative z-10 p-8">
+        <div className="relative z-10 p-4 sm:p-6 lg:p-8">
           {/* Header */}
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0 mb-6 sm:mb-8">
+            <div className="flex items-center gap-3 sm:gap-4">
               <div className="relative">
-                <div className="w-14 h-14 bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center shadow-lg border border-border/50">
-                  <Brain className="h-7 w-7 text-primary-foreground" />
+                <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-primary to-primary/80 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg border border-border/50">
+                  <Brain className="h-6 w-6 sm:h-7 sm:w-7 text-primary-foreground" />
                 </div>
-                <div className="absolute -top-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                  <Sparkles className="h-3 w-3 text-white" />
+                <div className="absolute -top-1 -right-1 w-5 h-5 sm:w-6 sm:h-6 bg-green-500 rounded-full flex items-center justify-center">
+                  <Sparkles className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-white" />
                 </div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-foreground mb-1">
+                <div className="text-xl sm:text-2xl font-bold text-foreground mb-1">
                   {t('aiVoiceTutor.title')}
                 </div>
-                <div className="text-muted-foreground text-sm font-medium">
+                <div className="text-muted-foreground text-xs sm:text-sm font-medium">
                   {t('aiVoiceTutor.poweredByAdvancedAi')}
                 </div>
               </div>
             </div>
             
             {/* Premium Badge */}
-            <Badge variant="primary" className="px-4 py-2 bg-gradient-to-r from-primary-500/20 to-primary-400/20 border-primary-500/30">
-              <Zap className="h-4 w-4 text-primary-500 mr-2" />
+            <Badge variant="primary" className="px-3 py-1.5 sm:px-4 sm:py-2 bg-gradient-to-r from-primary-500/20 to-primary-400/20 border-primary-500/30 text-xs sm:text-sm">
+              <Zap className="h-3 w-3 sm:h-4 sm:w-4 text-primary-500 mr-1.5 sm:mr-2" />
               <span className="text-primary-600 dark:text-primary-400 font-semibold">{t('aiVoiceTutor.premiumFeature')}</span>
             </Badge>
           </div>
 
           {/* Daily Usage Status */}
-          <div className="mb-6 p-4 bg-card/50 backdrop-blur-sm border-border/50 rounded-xl">
-            <div className="flex items-center justify-between mb-3">
+          <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-card/50 backdrop-blur-sm border-border/50 rounded-lg sm:rounded-xl">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-3">
               <div className="flex items-center gap-2">
-                <Clock className="h-5 w-5 text-primary" />
-                <span className="font-semibold text-foreground">{t('aiVoiceTutor.dailyUsage')}</span>
+                <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                <span className="font-semibold text-foreground text-sm sm:text-base">{t('aiVoiceTutor.dailyUsage')}</span>
               </div>
               {!canStartCall && (
-                <Badge variant="destructive">
+                <Badge variant="destructive" className="text-xs">
                   {t('aiVoiceTutor.limitReached')}
                 </Badge>
               )}
             </div>
-            <div className="grid grid-cols-3 gap-4 text-sm">
+            <div className="grid grid-cols-3 gap-2 sm:gap-4 text-xs sm:text-sm">
               <div>
                 <div className="text-muted-foreground">{t('aiVoiceTutor.usedToday')}</div>
-                <div className="font-bold text-lg text-orange-600">{minutesUsedToday} min</div>
+                <div className="font-bold text-base sm:text-lg text-orange-600">{minutesUsedToday} min</div>
               </div>
               <div>
                 <div className="text-muted-foreground">{t('aiVoiceTutor.remaining')}</div>
-                <div className="font-bold text-lg text-primary">{remainingMinutes} min</div>
+                <div className="font-bold text-base sm:text-lg text-primary">{remainingMinutes} min</div>
               </div>
               <div>
                 <div className="text-muted-foreground">{t('aiVoiceTutor.dailyLimit')}</div>
-                <div className="font-bold text-lg text-secondary-foreground">{dailyMinutesLimit} min</div>
+                <div className="font-bold text-base sm:text-lg text-secondary-foreground">{dailyMinutesLimit} min</div>
               </div>
             </div>
             {remainingMinutes > 0 && (
-              <div className="mt-3">
+              <div className="mt-2 sm:mt-3">
                 <div className="w-full bg-muted rounded-full h-2">
                   <div 
                     className="h-2 rounded-full bg-primary transition-all duration-300"
@@ -338,35 +338,35 @@ export const VoiceTutor: React.FC<VoiceTutorProps> = ({
 
           {/* Purchased Minutes Display */}
           {purchasedMinutes > 0 && (
-            <div className="mb-6 p-4 bg-card/50 backdrop-blur-sm border-border/50 rounded-xl">
-              <div className="flex items-center justify-between mb-3">
+            <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-card/50 backdrop-blur-sm border-border/50 rounded-lg sm:rounded-xl">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-3">
                 <div className="flex items-center gap-2">
-                  <CreditCard className="h-5 w-5 text-primary-500" />
-                  <span className="font-semibold text-foreground">{t('aiVoiceTutor.purchasedMinutes')}</span>
+                  <CreditCard className="h-4 w-4 sm:h-5 sm:w-5 text-primary-500" />
+                  <span className="font-semibold text-foreground text-sm sm:text-base">{t('aiVoiceTutor.purchasedMinutes')}</span>
                 </div>
                 {hasPurchasedMinutesOnly && (
-                  <Badge className="bg-primary-500/20 text-primary-600 dark:text-primary-400 border-primary-500/30">
+                  <Badge className="bg-primary-500/20 text-primary-600 dark:text-primary-400 border-primary-500/30 text-xs">
                     <Sparkles className="h-3 w-3 mr-1" />
                     {t('aiVoiceTutor.status')}
                   </Badge>
                 )}
               </div>
-              <div className="grid grid-cols-3 gap-4 text-sm">
+              <div className="grid grid-cols-3 gap-2 sm:gap-4 text-xs sm:text-sm">
                 <div>
                   <div className="text-muted-foreground">{t('aiVoiceTutor.available')}</div>
-                  <div className="font-bold text-lg text-primary-600">{purchasedMinutes} min</div>
+                  <div className="font-bold text-base sm:text-lg text-primary-600">{purchasedMinutes} min</div>
                 </div>
                 <div>
                   <div className="text-muted-foreground">{t('aiVoiceTutor.type')}</div>
-                  <div className="font-bold text-lg text-primary-600">{t('aiVoiceTutor.premium')}</div>
+                  <div className="font-bold text-base sm:text-lg text-primary-600">{t('aiVoiceTutor.premium')}</div>
                 </div>
                 <div>
                   <div className="text-muted-foreground">{t('aiVoiceTutor.status')}</div>
-                  <div className="font-bold text-lg text-primary-600">{t('aiVoiceTutor.unlimited')}</div>
+                  <div className="font-bold text-base sm:text-lg text-primary-600">{t('aiVoiceTutor.unlimited')}</div>
                 </div>
               </div>
               {hasPurchasedMinutesOnly && (
-                <div className="mt-3">
+                <div className="mt-2 sm:mt-3">
                   <div className="w-full bg-muted rounded-full h-2">
                     <div 
                       className="h-2 rounded-full bg-primary-500 transition-all duration-300"
@@ -384,41 +384,41 @@ export const VoiceTutor: React.FC<VoiceTutorProps> = ({
 
           {/* No Minutes Available - Purchase CTA */}
           {hasNoMinutesAvailable && (
-            <div className="mb-6 p-4 bg-card/50 backdrop-blur-sm border-border/50 rounded-xl">
-              <div className="flex items-center justify-between mb-3">
+            <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-card/50 backdrop-blur-sm border-border/50 rounded-lg sm:rounded-xl">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-3">
                 <div className="flex items-center gap-2">
-                  <ShoppingCart className="h-5 w-5 text-destructive" />
-                  <span className="font-semibold text-foreground">{t('aiVoiceTutor.outOfMinutes')}</span>
+                  <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5 text-destructive" />
+                  <span className="font-semibold text-foreground text-sm sm:text-base">{t('aiVoiceTutor.outOfMinutes')}</span>
                 </div>
-                <Badge variant="destructive">
+                <Badge variant="destructive" className="text-xs">
                   <ShoppingCart className="h-3 w-3 mr-1" />
                   {t('aiVoiceTutor.purchaseRequired')}
                 </Badge>
               </div>
-              <div className="grid grid-cols-3 gap-4 text-sm mb-4">
+              <div className="grid grid-cols-3 gap-2 sm:gap-4 text-xs sm:text-sm mb-3 sm:mb-4">
                 <div>
                   <div className="text-muted-foreground">{t('aiVoiceTutor.freeMinutes')}</div>
-                  <div className="font-bold text-lg text-destructive">0 min</div>
+                  <div className="font-bold text-base sm:text-lg text-destructive">0 min</div>
                 </div>
                 <div>
                   <div className="text-muted-foreground">{t('aiVoiceTutor.purchased')}</div>
-                  <div className="font-bold text-lg text-destructive">0 min</div>
+                  <div className="font-bold text-base sm:text-lg text-destructive">0 min</div>
                 </div>
                 <div>
                   <div className="text-muted-foreground">{t('aiVoiceTutor.status')}</div>
-                  <div className="font-bold text-lg text-destructive">{t('aiVoiceTutor.exhausted')}</div>
+                  <div className="font-bold text-base sm:text-lg text-destructive">{t('aiVoiceTutor.exhausted')}</div>
                 </div>
               </div>
               <div className="text-center">
-                <p className="text-muted-foreground mb-4">
+                <p className="text-muted-foreground mb-3 sm:mb-4 text-sm">
                   {t('aiVoiceTutor.outOfMinutesDescription')}
                 </p>
                 <Button 
                   onClick={() => setShowPurchaseModal(true)}
                   size="lg"
-                  className="bg-destructive hover:bg-destructive/90 text-destructive-foreground px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                  className="bg-destructive hover:bg-destructive/90 text-destructive-foreground px-6 sm:px-8 py-2 sm:py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 text-sm sm:text-base"
                 >
-                  <ShoppingCart className="h-5 w-5 mr-2" />
+                  <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                   {t('aiVoiceTutor.purchaseMinutes')}
                 </Button>
               </div>
@@ -426,10 +426,10 @@ export const VoiceTutor: React.FC<VoiceTutorProps> = ({
           )}
 
           {/* Call Length Selection */}
-          <div className="mb-6">
-            <div className="flex items-center gap-3 mb-3">
-              <Clock className="h-5 w-5 text-primary" />
-              <label className="text-foreground font-semibold">{t('aiVoiceTutor.sessionDuration')}</label>
+          <div className="mb-4 sm:mb-6">
+            <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+              <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+              <label className="text-foreground font-semibold text-sm sm:text-base">{t('aiVoiceTutor.sessionDuration')}</label>
             </div>
             <Select value={callLength} onValueChange={setCallLength} disabled={isCallActive || hasNoMinutesAvailable}>
               <SelectTrigger className="w-full">
@@ -445,38 +445,38 @@ export const VoiceTutor: React.FC<VoiceTutorProps> = ({
               </SelectContent>
             </Select>
             {parseInt(callLength) > remainingMinutes && remainingMinutes > 0 && (
-              <div className="mt-2 flex items-center gap-2 text-amber-600 text-sm">
-                <AlertTriangle className="h-4 w-4" />
+              <div className="mt-2 flex items-center gap-2 text-amber-600 text-xs sm:text-sm">
+                <AlertTriangle className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span>{t('aiVoiceTutor.callLimitedWarning', { remaining: remainingMinutes })}</span>
               </div>
             )}
             {hasNoMinutesAvailable && (
-              <div className="mt-2 flex items-center gap-2 text-red-600 text-sm">
-                <AlertTriangle className="h-4 w-4" />
+              <div className="mt-2 flex items-center gap-2 text-red-600 text-xs sm:text-sm">
+                <AlertTriangle className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span>{t('aiVoiceTutor.needPurchaseWarning')}</span>
               </div>
             )}
           </div>
 
           {/* Status Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
             {/* Lesson Content Status */}
             <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3 mb-3">
-                  <MessageSquare className="h-5 w-5 text-primary" />
-                  <div className="text-foreground font-semibold">{t('aiVoiceTutor.lessonContent')}</div>
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                  <MessageSquare className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                  <div className="text-foreground font-semibold text-sm sm:text-base">{t('aiVoiceTutor.lessonContent')}</div>
                 </div>
                 <div className="flex items-center justify-between">
-                  <div className="text-muted-foreground text-sm">
+                  <div className="text-muted-foreground text-xs sm:text-sm">
                     {t('aiVoiceTutor.requiredForVoiceSession')}
                   </div>
                   {lessonSummary ? (
-                    <Badge variant='default'>
+                    <Badge variant='default' className="text-xs">
                       ✓ {t('aiVoiceTutor.available')}
                     </Badge>
                   ) : (
-                    <Badge variant="destructive">
+                    <Badge variant="destructive" className="text-xs">
                       {t('aiVoiceTutor.missingSummary')}
                     </Badge>
                   )}
@@ -486,16 +486,16 @@ export const VoiceTutor: React.FC<VoiceTutorProps> = ({
 
             {/* AI Status */}
             <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3 mb-3">
-                  <User className="h-5 w-5 text-primary" />
-                  <div className="text-foreground font-semibold">{t('aiVoiceTutor.hossamAiTutor')}</div>
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                  <User className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                  <div className="text-foreground font-semibold text-sm sm:text-base">{t('aiVoiceTutor.hossamAiTutor')}</div>
                 </div>
                 <div className="flex items-center justify-between">
-                  <div className="text-muted-foreground text-sm">
+                  <div className="text-muted-foreground text-xs sm:text-sm">
                     {t('aiVoiceTutor.readyForConversation')}
                   </div>
-                  <Badge className="bg-primary/20 text-primary border-primary/30">
+                  <Badge className="bg-primary/20 text-primary border-primary/30 text-xs">
                     {t('aiVoiceTutor.online')}
                   </Badge>
                 </div>
@@ -504,10 +504,10 @@ export const VoiceTutor: React.FC<VoiceTutorProps> = ({
           </div>
 
           {/* Student Notes */}
-          <div className="mb-8">
-            <div className="flex items-center gap-3 mb-4">
+          <div className="mb-6 sm:mb-8">
+            <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
               <div className="w-2 h-2 bg-primary-500 rounded-full animate-pulse"></div>
-              <label className="text-foreground font-semibold">
+              <label className="text-foreground font-semibold text-sm sm:text-base">
                 {t('aiVoiceTutor.focusAreas')}
               </label>
             </div>
@@ -517,7 +517,7 @@ export const VoiceTutor: React.FC<VoiceTutorProps> = ({
               onChange={(e) => setStudentNotes(e.target.value)}
               rows={3}
               disabled={isCallActive || hasNoMinutesAvailable}
-              className="bg-background border-border text-foreground placeholder:text-muted-foreground rounded-xl resize-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
+              className="bg-background border-border text-foreground placeholder:text-muted-foreground rounded-lg sm:rounded-xl resize-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 text-sm"
             />
             <p className="text-muted-foreground text-xs mt-2">
               {t('aiVoiceTutor.focusAreasHelp')}
@@ -527,26 +527,26 @@ export const VoiceTutor: React.FC<VoiceTutorProps> = ({
           {/* Call Status & Main Action */}
           <div className="text-center">
             {/* Status Display */}
-            <div className="mb-8">
+            <div className="mb-6 sm:mb-8">
               {isCallActive ? (
-                <div className="flex items-center justify-center gap-3 text-primary-500 mb-4">
+                <div className="flex items-center justify-center gap-2 sm:gap-3 text-primary-500 mb-3 sm:mb-4 text-sm sm:text-base">
                   <div className="flex gap-1">
                     <div className="w-2 h-2 bg-primary-500 rounded-full animate-pulse"></div>
                     <div className="w-2 h-2 bg-primary-500 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
                     <div className="w-2 h-2 bg-primary-500 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
                   </div>
                   <span className="font-semibold">{t('aiVoiceTutor.connectedWithHossam')}</span>
-                  <span className="text-sm">({t('aiVoiceTutor.remaining')} {formatTime(remainingTime)})</span>
+                  <span className="text-xs sm:text-sm">({t('aiVoiceTutor.remaining')} {formatTime(remainingTime)})</span>
                 </div>
               ) : isConnecting ? (
-                <div className="flex items-center justify-center gap-3 text-yellow-500 mb-4">
+                <div className="flex items-center justify-center gap-2 sm:gap-3 text-yellow-500 mb-3 sm:mb-4 text-sm sm:text-base">
                   <div className="w-4 h-4 border-2 border-yellow-500 border-t-transparent rounded-full animate-spin"></div>
                   <span className="font-semibold">{t('aiVoiceTutor.connectingToHossam')}</span>
                 </div>
               ) : (
-                <div className="mb-6">
-                  <div className="text-foreground text-xl font-semibold mb-2">{t('aiVoiceTutor.readyToStartLearning')}</div>
-                  <div className="text-muted-foreground">{t('aiVoiceTutor.readyToStartDescription')}</div>
+                <div className="mb-4 sm:mb-6">
+                  <div className="text-foreground text-lg sm:text-xl font-semibold mb-2">{t('aiVoiceTutor.readyToStartLearning')}</div>
+                  <div className="text-muted-foreground text-sm sm:text-base">{t('aiVoiceTutor.readyToStartDescription')}</div>
                 </div>
               )}
             </div>
@@ -566,20 +566,20 @@ export const VoiceTutor: React.FC<VoiceTutorProps> = ({
                   onClick={hasNoMinutesAvailable ? () => setShowPurchaseModal(true) : handleStartCall}
                   disabled={!lessonSummary || (hasNoMinutesAvailable ? false : !canStartCall)}
                   size="lg"
-                  className={`relative w-40 h-40 rounded-full text-white border-0 shadow-2xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 z-10 cursor-pointer ${
+                  className={`relative w-32 h-32 sm:w-40 sm:h-40 rounded-full text-white border-0 shadow-2xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 z-10 cursor-pointer ${
                     hasNoMinutesAvailable
                       ? 'bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 hover:shadow-red-500/25'
                       : 'bg-gradient-to-br from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 hover:shadow-primary/25'
                   }`}
                   type="button"
                 >
-                  <div className="flex flex-col items-center gap-2 pointer-events-none px-2">
+                  <div className="flex flex-col items-center gap-1 sm:gap-2 pointer-events-none px-2">
                     {hasNoMinutesAvailable ? (
-                      <ShoppingCart className="h-10 w-10" />
+                      <ShoppingCart className="h-8 w-8 sm:h-10 sm:w-10" />
                     ) : (
-                      <Mic className="h-12 w-12" />
+                      <Mic className="h-10 w-10 sm:h-12 sm:w-12" />
                     )}
-                    <span className="text-sm font-semibold text-center leading-tight">
+                    <span className="text-xs sm:text-sm font-semibold text-center leading-tight">
                       {hasNoMinutesAvailable ? `${t('aiVoiceTutor.purchaseMinutes')}\n` : t('aiVoiceTutor.startSession')}
                     </span>
                   </div>
@@ -598,38 +598,38 @@ export const VoiceTutor: React.FC<VoiceTutorProps> = ({
                 onClick={handleEndCall}
                 variant="destructive"
                 size="lg"
-                className="w-32 h-32 rounded-full shadow-2xl transition-all duration-300 hover:scale-105 cursor-pointer z-10"
+                className="w-24 h-24 sm:w-32 sm:h-32 rounded-full shadow-2xl transition-all duration-300 hover:scale-105 cursor-pointer z-10"
                 type="button"
               >
-                <div className="flex flex-col items-center gap-2 pointer-events-none">
-                  <Phone className="h-10 w-10 transform rotate-[135deg]" />
-                  <span className="text-sm font-semibold">{t('aiVoiceTutor.endCall')}</span>
+                <div className="flex flex-col items-center gap-1 sm:gap-2 pointer-events-none">
+                  <Phone className="h-8 w-8 sm:h-10 sm:w-10 transform rotate-[135deg]" />
+                  <span className="text-xs sm:text-sm font-semibold">{t('aiVoiceTutor.endCall')}</span>
                 </div>
               </Button>
             )}
           </div>
 
           {/* Feature Highlights */}
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-            <div className="flex flex-col items-center gap-2 p-4">
-              <div className="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center">
-                <MessageSquare className="h-5 w-5 text-primary" />
+          <div className="mt-6 sm:mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 text-center">
+            <div className="flex flex-col items-center gap-2 p-3 sm:p-4">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary/20 rounded-full flex items-center justify-center">
+                <MessageSquare className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
               </div>
-              <div className="text-foreground text-sm font-medium">{t('aiVoiceTutor.naturalConversation')}</div>
+              <div className="text-foreground text-xs sm:text-sm font-medium">{t('aiVoiceTutor.naturalConversation')}</div>
               <div className="text-muted-foreground text-xs">{t('aiVoiceTutor.naturalConversationDescription')}</div>
             </div>
-            <div className="flex flex-col items-center gap-2 p-4">
-              <div className="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center">
-                <Brain className="h-5 w-5 text-primary" />
+            <div className="flex flex-col items-center gap-2 p-3 sm:p-4">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary/20 rounded-full flex items-center justify-center">
+                <Brain className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
               </div>
-              <div className="text-foreground text-sm font-medium">{t('aiVoiceTutor.personalizedLearning')}</div>
+              <div className="text-foreground text-xs sm:text-sm font-medium">{t('aiVoiceTutor.personalizedLearning')}</div>
               <div className="text-muted-foreground text-xs">{t('aiVoiceTutor.personalizedLearningDescription')}</div>
             </div>
-            <div className="flex flex-col items-center gap-2 p-4">
-              <div className="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center">
-                <Zap className="h-5 w-5 text-primary" />
+            <div className="flex flex-col items-center gap-2 p-3 sm:p-4 sm:col-span-2 lg:col-span-1">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary/20 rounded-full flex items-center justify-center">
+                <Zap className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
               </div>
-              <div className="text-foreground text-sm font-medium">{t('aiVoiceTutor.instantFeedback')}</div>
+              <div className="text-foreground text-xs sm:text-sm font-medium">{t('aiVoiceTutor.instantFeedback')}</div>
               <div className="text-muted-foreground text-xs">{t('aiVoiceTutor.instantFeedbackDescription')}</div>
             </div>
           </div>

@@ -116,23 +116,18 @@ export const StudentAchievements = ({ stats }: StudentAchievementsProps) => {
 
   return (
     <Card className="glass-card border-0">
-      <CardHeader>
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-gradient-to-br from-yellow-400 to-orange-400 rounded-2xl flex items-center justify-center">
-            <Award className="h-6 w-6 text-black" />
+      <CardHeader className="px-4 sm:px-6 py-4 sm:py-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-2xl flex items-center justify-center flex-shrink-0">
+            <Trophy className="h-5 w-5 sm:h-6 sm:w-6 text-black" />
           </div>
-          <div>
-            <div className="gradient-text text-xl font-bold">{t('studentAchievements.title')}</div>
-            <CardDescription className="text-muted-foreground/80">{t('studentAchievements.subtitle')}</CardDescription>
-          </div>
-          <div className="ml-auto">
-            <Badge variant="default" className="bg-primary/20 text-primary border-primary/30">
-              {t('studentAchievements.unlocked', { unlocked: unlockedCount, total: totalCount })}
-            </Badge>
+          <div className="flex-1 min-w-0">
+            <div className="gradient-text text-lg sm:text-xl font-bold">{t('studentAchievements.title')}</div>
+            <CardDescription className="text-muted-foreground/80 text-xs sm:text-sm">{t('studentAchievements.subtitle')}</CardDescription>
           </div>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {achievements.map((achievement) => (
             <div

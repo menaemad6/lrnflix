@@ -511,6 +511,7 @@
       "manualEntry": "إدخال يدوي",
       "jsonImport": "استيراد JSON",
       "pdfExtraction": "استخراج PDF",
+      "imageExtraction": "استخراج الصورة",
       "addQuestionsManually": "إضافة أسئلة يدوياً",
       "answerAllWithAI": "الإجابة على الكل بالذكاء الاصطناعي",
       "answeringAll": "جاري الإجابة على الكل...",
@@ -588,6 +589,25 @@
       "uploadQuestionImage": "رفع صورة السؤال",
       "uploadQuestionImageDesc": "رفع صورة للسؤال {{questionNumber}}",
       "dragDropImage": "اسحب وأفلت صورة هنا، أو انقر للاختيار"
+    },
+    "imageExtraction": {
+      "title": "استخراج الأسئلة من الصورة",
+      "description": "ارفع صورة تحتوي على أسئلة اختبار. سيقوم الذكاء الاصطناعي بتحليل الصورة واستخراج الأسئلة المنظمة.",
+      "invalidFileType": "يرجى اختيار ملف صورة (JPEG، PNG، GIF، إلخ)",
+      "selectImageFirst": "يرجى اختيار صورة أولاً",
+      "noQuestionsFound": "لم يتم العثور على أسئلة",
+      "tryClearerImage": "لم يتمكن الذكاء الاصطناعي من استخراج أسئلة من الصورة. جرب صورة أوضح.",
+      "extractedSuccessfully": "تم استخراج {{count}} سؤال من الصورة",
+      "extractionFailed": "فشل في استخراج الأسئلة من الصورة. يرجى تجربة صورة مختلفة.",
+      "apiKeyNotFound": "مفتاح API الخاص بـ Gemini غير موجود. يرجى تعيين VITE_GEMINI_API_KEY في متغيرات البيئة.",
+      "systemPrompt": "أنت محلل محتوى تعليمي خبير. استخرج أسئلة اختبار منظمة جيداً من الصورة المقدمة.\n\nالقواعد:\n- اكتشف أسئلة الاختيار المتعدد والأسئلة المكتوبة\n- للاختيار المتعدد، قم بتضمين options[] ويفضل 3-6 خيارات\n- قدم question_text موجز وغير غامض\n- إذا كانت الإجابة الصحيحة موجودة في الصورة، قم بتضمينها كـ correct_answer (النص الدقيق للاختيار المتعدد)\n- أعد JSON فقط بالمخطط المحدد\n- حلل الصورة بعناية لتحديد جميع الأسئلة ومكوناتها",
+      "userPrompt": "حلل هذه الصورة واستخرج أسئلة الاختبار. أعد JSON فقط بالشكل: {{schema}}",
+      "apiError": "خطأ في API الخاص بـ Gemini: {{status}} {{statusText}}",
+      "emptyResponse": "استجابة فارغة من Gemini",
+      "parseFailed": "فشل في تحليل استجابة الذكاء الاصطناعي كـ JSON",
+      "processing": "جاري المعالجة...",
+      "extractQuestions": "استخراج الأسئلة",
+      "selected": "تم الاختيار"
     },
     "toasts": {
       "quizCreated": "تم إنشاء الاختبار بنجاح!",

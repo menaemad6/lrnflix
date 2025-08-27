@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { useToast } from '@/hooks/use-toast';
-import { BookOpen, Trophy, Play, Sparkles } from 'lucide-react';
+import { BookOpen, Trophy, Play, Sparkles, Search } from 'lucide-react';
 import type { RootState } from '@/store/store';
 import { useTenant } from '@/contexts/TenantContext';
 import DashboardModernHeader from '@/components/ui/DashboardModernHeader';
@@ -140,29 +140,29 @@ export const StudentCoursesPage = () => {
         {/* Search and Filters as a row with dropdown */}
         <Card className="glass-card w-full max-w-full">
           <CardContent className="p-4 sm:p-6">
-            <div className="flex flex-row gap-4 w-full items-center">
+            <div className="flex flex-col sm:flex-row gap-4 w-full">
               {/* Search input */}
-              <div className="flex-1 min-w-0 w-full">
+              <div className="w-full sm:flex-1">
                 <div className="relative">
-                  <BookOpen className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-black" />
                   <Input
                     type="text"
                     placeholder={t('studentCourses.searchByCourseNameOrDescription')}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 glass"
+                    className="pl-10 glass w-full"
                     onFocus={() => setSearchFocused(true)}
                     onBlur={() => setSearchFocused(false)}
                   />
                 </div>
               </div>
               {/* Dropdown for categories */}
-              <div className={`${searchFocused ? 'hidden sm:block' : ''}`}>
+              <div className={`w-full sm:w-auto ${searchFocused ? 'hidden sm:block' : ''}`}>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="outline"
-                      className="flex items-center gap-2 min-w-[140px] justify-between"
+                      className="flex items-center gap-2 w-full sm:min-w-[140px] justify-between"
                     >
                       <span>{selectedCategory}</span>
                       <ChevronDown className="h-4 w-4 opacity-60" />

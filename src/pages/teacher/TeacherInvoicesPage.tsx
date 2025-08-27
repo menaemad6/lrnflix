@@ -317,7 +317,7 @@ export const TeacherInvoicesPage = () => {
   return (
     <>
       <DashboardLayout>
-        <div className="space-y-6">
+        <div className="space-y-4">
           <TeacherPageHeader
             title="Invoice Management"
             subtitle="Manage and track all your course invoices"
@@ -328,91 +328,91 @@ export const TeacherInvoicesPage = () => {
           />
 
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="h-5 w-5" />
+            <CardHeader className="p-3 sm:p-6">
+              <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                <FileText className="h-4 w-4 sm:h-5 sm:w-5" />
                 Invoices ({sortedInvoices.length})
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-3 sm:p-6">
               {sortedInvoices.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>No invoices found</p>
-                  <p className="text-sm">Create your first invoice to get started</p>
+                <div className="text-center py-6 sm:py-8 text-muted-foreground">
+                  <FileText className="h-10 w-10 sm:h-12 sm:w-12 mx-auto mb-3 sm:mb-4 opacity-50" />
+                  <p className="text-sm sm:text-base">No invoices found</p>
+                  <p className="text-xs sm:text-sm">Create your first invoice to get started</p>
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   {sortedInvoices.map((invoice) => {
                     const item = invoiceItems?.[`${invoice.item_id}-${invoice.item_type}`];
                     const userProfile = userProfiles?.[invoice.user_id];
                     
                     return (
-                      <div key={invoice.id} className="border rounded-lg p-4 space-y-3">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-2">
-                              <Badge variant="outline" className={getStatusColor(invoice.status)}>
+                      <div key={invoice.id} className="border rounded-lg p-3 sm:p-4 space-y-3">
+                        <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-3">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
+                              <Badge variant="outline" className={`${getStatusColor(invoice.status)} text-xs sm:text-sm`}>
                                 {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
                               </Badge>
-                              <span className="text-sm text-muted-foreground">
+                              <span className="text-xs sm:text-sm text-muted-foreground">
                                 #{invoice.invoice_number}
                               </span>
                             </div>
                             
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                               <div className="flex items-center gap-2">
-                                <User className="h-4 w-4 text-muted-foreground" />
-                                <span className="text-sm">
+                                <User className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
+                                <span className="text-xs sm:text-sm truncate">
                                   {userProfile?.full_name || userProfile?.email || 'Unknown User'}
                                 </span>
                               </div>
                               
                               <div className="flex items-center gap-2">
-                                <FileText className="h-4 w-4 text-muted-foreground" />
-                                <span className="text-sm">
+                                <FileText className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
+                                <span className="text-xs sm:text-sm truncate">
                                   {item?.title || 'Unknown Item'} ({invoice.item_type})
                                 </span>
                               </div>
                               
                               <div className="flex items-center gap-2">
-                                <DollarSign className="h-4 w-4 text-muted-foreground" />
-                                <span className="text-sm font-medium">
+                                <DollarSign className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
+                                <span className="text-xs sm:text-sm font-medium">
                                   ${invoice.total_price.toFixed(2)}
                                 </span>
                               </div>
                               
                               <div className="flex items-center gap-2">
-                                <Calendar className="h-4 w-4 text-muted-foreground" />
-                                <span className="text-sm">
+                                <Calendar className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
+                                <span className="text-xs sm:text-sm">
                                   {format(new Date(invoice.created_at), 'MMM dd, yyyy')}
                                 </span>
                               </div>
                             </div>
                             
                             <div className="flex items-center gap-2 mt-2">
-                              <span className="text-sm text-muted-foreground">Payment:</span>
-                              <span className="text-sm">
+                              <span className="text-xs sm:text-sm text-muted-foreground">Payment:</span>
+                              <span className="text-xs sm:text-sm">
                                 {getPaymentTypeIcon(invoice.payment_type)} {invoice.payment_type.replace('_', ' ')}
                               </span>
                             </div>
                             
                             {invoice.notes && (
                               <div className="mt-2">
-                                <span className="text-sm text-muted-foreground">Notes: </span>
-                                <span className="text-sm">{invoice.notes}</span>
+                                <span className="text-xs sm:text-sm text-muted-foreground">Notes: </span>
+                                <span className="text-xs sm:text-sm break-words">{invoice.notes}</span>
                               </div>
                             )}
                           </div>
                           
-                          <div className="flex flex-col gap-2">
+                          <div className="flex flex-col gap-2 flex-shrink-0">
                             <Select
                               value={invoice.status}
                               onValueChange={(value: Invoice['status']) => 
                                 handleStatusChange(invoice.id, value)
                               }
                             >
-                              <SelectTrigger className="w-32">
+                              <SelectTrigger className="w-full sm:w-32 text-xs sm:text-sm">
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
@@ -429,6 +429,7 @@ export const TeacherInvoicesPage = () => {
                                   size="sm"
                                   variant="default"
                                   onClick={() => handleStatusChange(invoice.id, 'paid')}
+                                  className="text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2"
                                 >
                                   <Check className="h-3 w-3 mr-1" />
                                   Confirm
@@ -436,8 +437,8 @@ export const TeacherInvoicesPage = () => {
                                 <Button
                                   size="sm"
                                   variant="destructive"
-                                  
                                   onClick={() => handleStatusChange(invoice.id, 'cancelled')}
+                                  className="text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2"
                                 >
                                   <X className="h-3 w-3 mr-1" />
                                   Decline

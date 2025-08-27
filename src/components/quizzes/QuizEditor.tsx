@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Plus, Trash2, Save, Sparkles, Zap, FileJson, ArrowDown, ArrowUp, Image as ImageIcon } from 'lucide-react';
 import { PdfQuestionExtractor } from './PdfQuestionExtractor';
+import { ImageQuestionExtractor } from './ImageQuestionExtractor';
 import { ContentManagementSkeleton } from '@/components/ui/skeletons';
 import { answerSingleQuestion, answerAllQuestions } from '@/utils/geminiApi';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -20,6 +21,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { ImageUploader } from '@/components/ui/ImageUploader';
 import { IMAGE_UPLOAD_BUCKETS } from '@/data/constants';
 import { normalizeAnswers, setAnswerCorrectness, calculateScore as calculateScoreUtil } from '@/utils/quizAnswerUtils';
+import { AddQuestionModal } from './AddQuestionModal';
 
 interface Quiz {
   id: string;
@@ -96,6 +98,7 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
     isOpen: false,
     questionIndex: null
   });
+  const [addQuestionModal, setAddQuestionModal] = useState(false);
 
   const isNewQuiz = quizId === 'new';
 
@@ -222,6 +225,86 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
     }
   };
 
+  const handleAnswerSingleQuestion = async (questionIndex: number) => {
+    const question = questions[questionIndex];
+    if (!question.question_text.trim()) {
+      toast({
+        title: 'Error',
+        description: 'Please enter a question text first',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setAnsweringQuestion(questionIndex);
+    try {
+      const answer = await answerSingleQuestion(question.question_text);
+      updateQuestion(questionIndex, 'correct_answer', answer);
+      toast({
+        title: 'Success',
+        description: 'AI answer generated successfully',
+      });
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to generate AI answer',
+        variant: 'destructive',
+      });
+    } finally {
+      setAnsweringQuestion(null);
+    }
+  };
+
+  const handleAnswerAllQuestions = async () => {
+    if (questions.length === 0) {
+      toast({
+        title: 'Error',
+        description: 'No questions to answer',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setAnsweringAll(true);
+    try {
+      const answers = await answerAllQuestions(questions.map(q => q.question_text));
+      questions.forEach((question, index) => {
+        if (answers[index]) {
+          updateQuestion(index, 'correct_answer', answers[index]);
+        }
+      });
+      toast({
+        title: 'Success',
+        description: 'AI answers generated for all questions',
+      });
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to generate AI answers',
+        variant: 'destructive',
+      });
+    } finally {
+      setAnsweringAll(false);
+    }
+  };
+
+  const handleImageUpload = (questionIndex: number, imageUrl: string) => {
+    updateQuestion(questionIndex, 'question_image', imageUrl);
+    setImageUploadModal({ isOpen: false, questionIndex: null });
+    toast({
+      title: 'Success',
+      description: 'Question image uploaded successfully',
+    });
+  };
+
+  const handleRemoveImage = (questionIndex: number) => {
+    updateQuestion(questionIndex, 'question_image', null);
+    toast({
+      title: 'Success',
+      description: 'Question image removed successfully',
+    });
+  };
+
   const handleJsonImport = () => {
     try {
       const parsedData = JSON.parse(jsonInput);
@@ -247,7 +330,7 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
           options: choices.length > 0 ? choices : ['', '', '', ''],
           correct_answer: item.correctAnswer,
           points: item.points || 1,
-          order_index: questions.length + index
+          order_index: questions.length + index,
         };
       });
 
@@ -266,114 +349,16 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
     }
   };
 
-  const handleAnswerSingleQuestion = async (questionIndex: number) => {
-    const question = questions[questionIndex];
-    if (!question.question_text.trim()) {
-      toast({
-        title: 'Error',
-        description: t('quizEditor.toasts.addQuestionTextFirst'),
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    setAnsweringQuestion(questionIndex);
-    try {
-      const response = await answerSingleQuestion({
-        question_text: question.question_text,
-        options: question.options,
-        question_type: question.question_type
-      });
-
-      updateQuestion(questionIndex, 'correct_answer', response.answer);
-      
-      toast({
-        title: 'Success',
-        description: t('quizEditor.toasts.answerGenerated'),
-      });
-    } catch (error: any) {
-      console.error('Error answering question:', error);
-      toast({
-        title: 'Error',
-        description: error.message,
-        variant: 'destructive',
-      });
-    } finally {
-      setAnsweringQuestion(null);
-    }
-  };
-
-  const handleImageUpload = (questionIndex: number, imageUrl: string) => {
-    updateQuestion(questionIndex, 'question_image', imageUrl);
-    setImageUploadModal({ isOpen: false, questionIndex: null });
-          toast({
-        title: 'Success',
-        description: t('quizEditor.toasts.questionImageUploaded'),
-      });
-  };
-
-  const handleRemoveImage = (questionIndex: number) => {
-    updateQuestion(questionIndex, 'question_image', null);
-          toast({
-        title: 'Success',
-        description: t('quizEditor.toasts.questionImageRemoved'),
-      });
-  };
-
-  const handleAnswerAllQuestions = async () => {
-    const validQuestions = questions.filter(q => q.question_text.trim());
-    if (validQuestions.length === 0) {
-      toast({
-        title: 'Error',
-        description: t('quizEditor.toasts.noValidQuestions'),
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    setAnsweringAll(true);
-    try {
-      const questionData = questions.map(q => ({
-        question_text: q.question_text,
-        options: q.options,
-        question_type: q.question_type
-      }));
-
-      const response = await answerAllQuestions(questionData);
-      
-      response.answers.forEach(answer => {
-        if (answer.question_index < questions.length) {
-          updateQuestion(answer.question_index, 'correct_answer', answer.answer);
-        }
-      });
-
-      toast({
-        title: 'Success',
-        description: t('quizEditor.toasts.answersGenerated', { count: response.answers.length }),
-      });
-    } catch (error: any) {
-      console.error('Error answering all questions:', error);
-      toast({
-        title: 'Error',
-        description: error.message,
-        variant: 'destructive',
-      });
-    } finally {
-      setAnsweringAll(false);
-    }
-  };
-
   const addQuestion = () => {
-    const newQuestion: Question = {
-      question_text: '',
-      question_type: 'mcq',
-      options: ['', '', '', ''],
-      correct_answer: '',
-      points: 1,
-      order_index: questions.length,
-      question_image: null
+    setAddQuestionModal(true);
+  };
+
+  const handleAddQuestion = (newQuestion: Question) => {
+    const questionWithIndex = {
+      ...newQuestion,
+      order_index: questions.length
     };
-    setQuestions([...questions, newQuestion]);
+    setQuestions([...questions, questionWithIndex]);
   };
 
   const handleExtractedQuestions = (extractedQuestions: any[]) => {
@@ -635,19 +620,19 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
   };
 
   return (
-    <div className="container mx-auto p-4 sm:p-6 space-y-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+    <div className="container mx-auto p-2 sm:p-4 md:p-6 space-y-4 sm:space-y-6">
+      <div className="flex flex-col gap-2 sm:gap-3 md:flex-row md:items-center md:gap-4">
         {onBack && (
-          <Button variant="outline" onClick={onBack}>
+          <Button variant="outline" onClick={onBack} className="w-full sm:w-auto">
             <ArrowLeft className="h-4 w-4 mr-2" />
             {t('quizEditor.header.back')}
           </Button>
         )}
-        <h1 className="text-2xl sm:text-3xl font-bold">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-center sm:text-left">
           {isNewQuiz ? t('quizEditor.header.createQuiz') : t('quizEditor.header.editQuiz')}
         </h1>
-        <div className="sm:ml-auto">
-          <Button onClick={saveQuiz} disabled={saving} variant='default'>
+        <div className="sm:ml-auto w-full sm:w-auto">
+          <Button onClick={saveQuiz} disabled={saving} variant='default' className="w-full sm:w-auto">
             <Save className="h-4 w-4 mr-2" />
             {saving ? t('quizEditor.header.saving') : t('quizEditor.header.saveQuiz')}
           </Button>
@@ -655,11 +640,11 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
       </div>
 
       <Card>
-        <CardHeader className="p-4 sm:p-6 pb-0">
-          <CardTitle>{t('quizEditor.quizDetails.title')}</CardTitle>
+        <CardHeader className="p-3 sm:p-4 md:p-6 pb-0">
+          <CardTitle className="text-lg sm:text-xl">{t('quizEditor.quizDetails.title')}</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4 p-4 sm:p-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <CardContent className="space-y-3 sm:space-y-4 p-3 sm:p-4 md:p-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <Input
               placeholder={t('quizEditor.quizDetails.quizTitle')}
               value={quizForm.title}
@@ -680,10 +665,11 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
             placeholder={t('quizEditor.quizDetails.quizDescription')}
             value={quizForm.description}
             onChange={(e) => setQuizForm({ ...quizForm, description: e.target.value })}
+            rows={3}
           />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            <div className="space-y-1">
               <label className="text-sm font-medium">{t('quizEditor.quizDetails.timeLimit')}</label>
               <Input
                 type="number"
@@ -691,7 +677,7 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
                 onChange={(e) => setQuizForm({ ...quizForm, time_limit: parseInt(e.target.value) })}
               />
             </div>
-            <div>
+            <div className="space-y-1">
               <label className="text-sm font-medium">{t('quizEditor.quizDetails.maxAttempts')}</label>
               <Input
                 type="number"
@@ -701,16 +687,16 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
             </div>
           </div>
 
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">{t('quizEditor.quizDetails.quizOptions')}</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="space-y-3 sm:space-y-4">
+            <h3 className="text-base sm:text-lg font-semibold">{t('quizEditor.quizDetails.quizOptions')}</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div className="flex items-center space-x-2">
                 <Switch
                   id="shuffle-questions"
                   checked={quizForm.shuffle_questions}
                   onCheckedChange={(checked) => setQuizForm({ ...quizForm, shuffle_questions: checked })}
                 />
-                <Label htmlFor="shuffle-questions">{t('quizEditor.quizDetails.shuffleQuestions')}</Label>
+                <Label htmlFor="shuffle-questions" className="text-sm">{t('quizEditor.quizDetails.shuffleQuestions')}</Label>
               </div>
 
               <div className="flex items-center space-x-2">
@@ -719,7 +705,7 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
                   checked={quizForm.question_navigation}
                   onCheckedChange={(checked) => setQuizForm({ ...quizForm, question_navigation: checked })}
                 />
-                <Label htmlFor="question-navigation">{t('quizEditor.quizDetails.allowQuestionNavigation')}</Label>
+                <Label htmlFor="question-navigation" className="text-sm">{t('quizEditor.quizDetails.allowQuestionNavigation')}</Label>
               </div>
 
               <div className="flex items-center space-x-2">
@@ -728,7 +714,7 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
                   checked={quizForm.show_results}
                   onCheckedChange={(checked) => setQuizForm({ ...quizForm, show_results: checked })}
                 />
-                <Label htmlFor="show-results">{t('quizEditor.quizDetails.showResultsToStudents')}</Label>
+                <Label htmlFor="show-results" className="text-sm">{t('quizEditor.quizDetails.showResultsToStudents')}</Label>
               </div>
 
               <div className="flex items-center space-x-2">
@@ -737,7 +723,7 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
                   checked={quizForm.show_correct_answers}
                   onCheckedChange={(checked) => setQuizForm({ ...quizForm, show_correct_answers: checked })}
                 />
-                <Label htmlFor="show-correct-answers">{t('quizEditor.quizDetails.showCorrectAnswers')}</Label>
+                <Label htmlFor="show-correct-answers" className="text-sm">{t('quizEditor.quizDetails.showCorrectAnswers')}</Label>
               </div>
 
               <div className="flex items-center space-x-2">
@@ -746,49 +732,50 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
                   checked={quizForm.allow_review}
                   onCheckedChange={(checked) => setQuizForm({ ...quizForm, allow_review: checked })}
                 />
-                <Label htmlFor="allow-review">{t('quizEditor.quizDetails.allowAnswerReview')}</Label>
+                <Label htmlFor="allow-review" className="text-sm">{t('quizEditor.quizDetails.allowAnswerReview')}</Label>
               </div>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      <Tabs defaultValue="questions" className="space-y-6 mt-6 sm:mt-8">
-        <TabsList className="card border border-border bg-card p-2 overflow-x-auto">
-          <TabsTrigger value="questions" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary-500/20 data-[state=active]:to-secondary-500/20 data-[state=active]:text-primary-300 data-[state=active]:border data-[state=active]:border-primary-500/30 transition-all duration-300">
+      <Tabs defaultValue="questions" className="space-y-4 sm:space-y-6 mt-4 sm:mt-6 md:mt-8">
+        <TabsList className="card border border-border bg-card p-1 sm:p-2 overflow-x-auto w-full">
+          <TabsTrigger value="questions" className="flex-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary-500/20 data-[state=active]:to-secondary-500/20 data-[state=active]:text-primary-300 data-[state=active]:border data-[state=active]:border-primary-500/30 transition-all duration-300 text-sm sm:text-base">
             {t('quizEditor.questions.title')}
           </TabsTrigger>
-          <TabsTrigger value="attempts" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary-500/20 data-[state=active]:to-secondary-500/20 data-[state=active]:text-primary-300 data-[state=active]:border data-[state=active]:border-primary-500/20 data-[state=active]:border-primary-500/30 transition-all duration-300">
+          <TabsTrigger value="attempts" className="flex-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary-500/20 data-[state=active]:to-secondary-500/20 data-[state=active]:text-primary-300 data-[state=active]:border data-[state=active]:border-primary-500/20 data-[state=active]:border-primary-500/30 transition-all duration-300 text-sm sm:text-base">
             {t('quizEditor.attempts.title')}
           </TabsTrigger>
         </TabsList>
-        <TabsContent value="questions" className="space-y-6">
+        <TabsContent value="questions" className="space-y-4 sm:space-y-6">
           <Card>
-            <CardHeader className="p-4 sm:p-6 pb-0">
-              <CardTitle>{t('quizEditor.questions.addQuestions')}</CardTitle>
+            <CardHeader className="p-3 sm:p-4 md:p-6 pb-0">
+              <CardTitle className="text-lg sm:text-xl">{t('quizEditor.questions.addQuestions')}</CardTitle>
             </CardHeader>
-            <CardContent className="p-4 sm:p-6">
-              <Tabs defaultValue="manual" className="space-y-4">
-                <TabsList className="grid w-full grid-cols-3">
+            <CardContent className="p-3 sm:p-4 md:p-6">
+              <Tabs defaultValue="manual" className="space-y-3 sm:space-y-4">
+                <TabsList className="w-full">
                   <TabsTrigger value="manual">{t('quizEditor.questions.manualEntry')}</TabsTrigger>
-                  <TabsTrigger value="json">{t('quizEditor.questions.jsonImport')}</TabsTrigger>
+                  <TabsTrigger value="image">{t('quizEditor.questions.imageExtraction')}</TabsTrigger>
                   <TabsTrigger value="pdf">{t('quizEditor.questions.pdfExtraction')}</TabsTrigger>
+                  <TabsTrigger value="json">{t('quizEditor.questions.jsonImport')}</TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="manual" className="space-y-4">
+                <TabsContent value="manual" className="space-y-3 sm:space-y-4">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <p className="text-muted-foreground">{t('quizEditor.questions.addQuestionsManually')}</p>
-                    <div className="flex gap-2">
+                    <p className="text-muted-foreground text-sm sm:text-base">{t('quizEditor.questions.addQuestionsManually')}</p>
+                    <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                       <Button
                         onClick={handleAnswerAllQuestions}
                         disabled={answeringAll || questions.length === 0}
                         variant="outline"
-                        className="bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0 hover:from-purple-600 hover:to-pink-600"
+                        className="bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0 hover:from-purple-600 hover:to-pink-600 w-full sm:w-auto"
                       >
                         <Zap className="h-4 w-4 mr-2" />
                         {answeringAll ? t('quizEditor.questions.answeringAll') : t('quizEditor.questions.answerAllWithAI')}
                       </Button>
-                      <Button onClick={addQuestion}>
+                      <Button onClick={addQuestion} className="w-full sm:w-auto">
                         <Plus className="h-4 w-4 mr-2" />
                         {t('quizEditor.questions.addQuestion')}
                       </Button>
@@ -815,27 +802,31 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
                 <TabsContent value="pdf" className="space-y-4">
                   <PdfQuestionExtractor onQuestionsExtracted={handleExtractedQuestions} />
                 </TabsContent>
+
+                <TabsContent value="image" className="space-y-4">
+                  <ImageQuestionExtractor onQuestionsExtracted={handleExtractedQuestions} />
+                </TabsContent>
               </Tabs>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader className="p-4 sm:p-6 pb-0">
-              <CardTitle>{t('quizEditor.questions.questionsCount', { count: questions.length })}</CardTitle>
+            <CardHeader className="p-3 sm:p-4 md:p-6 pb-0">
+              <CardTitle className="text-lg sm:text-xl">{t('quizEditor.questions.questionsCount', { count: questions.length })}</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4 p-4 sm:p-6">
+            <CardContent className="space-y-3 sm:space-y-4 p-3 sm:p-4 md:p-6">
               {questions.map((question, index) => (
                 <Card key={index}>
-                  <CardContent className="p-4 space-y-4">
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                      <h4 className="font-medium">{t('quizEditor.questions.questionNumber', { number: index + 1 })}</h4>
-                      <div className="flex gap-2">
+                  <CardContent className="p-3 sm:p-4 space-y-3 sm:space-y-4">
+                    <div className="flex flex-col gap-2 sm:gap-3 md:flex-row md:items-center md:justify-between">
+                      <h4 className="font-medium text-base sm:text-lg">{t('quizEditor.questions.questionNumber', { number: index + 1 })}</h4>
+                      <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => handleAnswerSingleQuestion(index)}
                           disabled={answeringQuestion === index || !question.question_text.trim()}
-                          className="bg-gradient-to-r from-blue-500 to-accent-500 text-white border-0 hover:from-blue-600 hover:to-accent-600"
+                          className="bg-gradient-to-r from-blue-500 to-accent-500 text-white border-0 hover:from-blue-600 hover:to-accent-600 w-full sm:w-auto"
                         >
                           <Sparkles className="h-4 w-4 mr-1" />
                           {answeringQuestion === index ? t('quizEditor.questions.aiAnswering') : t('quizEditor.questions.aiAnswer')}
@@ -844,6 +835,7 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
                           variant="destructive"
                           size="sm"
                           onClick={() => removeQuestion(index)}
+                          className="w-full sm:w-auto"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -858,14 +850,15 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
 
                     {/* Question Image Section */}
                     <div className="space-y-3">
-                      <div className="flex items-center justify-between">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
                         <label className="text-sm font-medium">{t('quizEditor.questions.questionImage')}</label>
-                        <div className="flex gap-2">
+                        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                           <Button
                             type="button"
                             variant="outline"
                             size="sm"
                             onClick={() => setImageUploadModal({ isOpen: true, questionIndex: index })}
+                            className="w-full sm:w-auto"
                           >
                             <ImageIcon className="h-4 w-4 mr-2" />
                             {question.question_image ? t('quizEditor.questions.changeImage') : t('quizEditor.questions.addImage')}
@@ -876,6 +869,7 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
                               variant="destructive"
                               size="sm"
                               onClick={() => handleRemoveImage(index)}
+                              className="w-full sm:w-auto"
                             >
                               <Trash2 className="h-4 w-4 mr-2" />
                               {t('quizEditor.questions.remove')}
@@ -895,7 +889,7 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
                       )}
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                       <Select
                         value={question.question_type}
                         onValueChange={(value) => updateQuestion(index, 'question_type', value)}
@@ -921,16 +915,18 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
                       <div className="space-y-2">
                         <label className="text-sm font-medium">{t('quizEditor.questions.options')}</label>
                         {question.options?.map((option, optIndex) => (
-                          <div key={optIndex} className="flex gap-2">
+                          <div key={optIndex} className="flex flex-col sm:flex-row gap-2">
                             <Input
                               placeholder={t('quizEditor.questions.optionNumber', { number: optIndex + 1 })}
                               value={option}
                               onChange={(e) => updateOption(index, optIndex, e.target.value)}
+                              className="flex-1"
                             />
                             <Button
                               type="button"
                               variant={question.correct_answer === option ? "default" : "outline"}
                               onClick={() => updateQuestion(index, 'correct_answer', option)}
+                              className="w-full sm:w-auto"
                             >
                               {t('quizEditor.questions.correct')}
                             </Button>
@@ -958,15 +954,15 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
             </CardContent>
           </Card>
         </TabsContent>
-        <TabsContent value="attempts" className="space-y-6">
+        <TabsContent value="attempts" className="space-y-4 sm:space-y-6">
           <Card className="card border border-border bg-card">
-            <CardHeader className="p-4 sm:p-6 pb-0">
-              <CardTitle className="text-xl text-primary-400">{t('quizEditor.attempts.studentAttempts')}</CardTitle>
+            <CardHeader className="p-3 sm:p-4 md:p-6 pb-0">
+              <CardTitle className="text-lg sm:text-xl text-primary-400">{t('quizEditor.attempts.studentAttempts')}</CardTitle>
             </CardHeader>
-            <CardContent className="p-4 sm:p-6 space-y-4">
-              <div className="mb-4 flex items-center gap-2">
+            <CardContent className="p-3 sm:p-4 md:p-6 space-y-3 sm:space-y-4">
+              <div className="mb-3 sm:mb-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                 <Select value={searchField} onValueChange={v => setSearchField(v as 'name' | 'email' | 'score')}>
-                  <SelectTrigger className="w-36 text-primary-200 focus:ring-primary-400">
+                  <SelectTrigger className="w-full sm:w-36 text-primary-200 focus:ring-primary-400">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -977,14 +973,14 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
                 </Select>
                 <Input
                   type="text"
-                  className="w-full  text-primary-200 placeholder:text-primary-300/60 focus:ring-primary-400"
+                  className="w-full text-primary-200 placeholder:text-primary-300/60 focus:ring-primary-400"
                   placeholder={t('quizEditor.attempts.searchByField', { field: searchField === 'name' ? t('quizEditor.attempts.student') : searchField === 'email' ? t('quizEditor.attempts.email') : t('quizEditor.attempts.score') })}
                   value={attemptsSearch}
                   onChange={e => setAttemptsSearch(e.target.value)}
                 />
               </div>
               {/* Filters and sorting row */}
-              <div className="mb-4 flex flex-col md:flex-row flex-wrap items-stretch gap-2 w-full">
+              <div className="mb-3 sm:mb-4 flex flex-col md:flex-row flex-wrap items-stretch gap-2 w-full">
                 <Select value={statusFilter} onValueChange={v => setStatusFilter(v as 'all' | 'submitted' | 'not_submitted')}>
                   <SelectTrigger className="w-full md:w-36 text-primary-200 focus:ring-primary-400 flex-1">
                     <SelectValue />
@@ -998,7 +994,7 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
                 <Input
                   type="number"
                   min=""
-                  className="w-full md:w-24  text-primary-200 placeholder:text-primary-300/60 focus:ring-primary-400 flex-1"
+                  className="w-full md:w-24 text-primary-200 placeholder:text-primary-300/60 focus:ring-primary-400 flex-1"
                   placeholder={t('quizEditor.attempts.minScore')}
                   value={scoreMin}
                   onChange={e => setScoreMin(e.target.value)}
@@ -1006,7 +1002,7 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
                 <Input
                   type="number"
                   min=""
-                  className="w-full md:w-24  text-primary-200 placeholder:text-primary-300/60 focus:ring-primary-400 flex-1"
+                  className="w-full md:w-24 text-primary-200 placeholder:text-primary-300/60 focus:ring-primary-400 flex-1"
                   placeholder={t('quizEditor.attempts.maxScore')}
                   value={scoreMax}
                   onChange={e => setScoreMax(e.target.value)}
@@ -1026,7 +1022,7 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
                 <Button
                   type="button"
                   variant="outline"
-                  className=" text-primary-400 px-2 py-2 h-10 w-full md:w-auto flex-1"
+                  className="text-primary-400 px-2 py-2 h-10 w-full md:w-auto flex-1"
                   onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
                   title={sortOrder === 'asc' ? t('quizEditor.attempts.ascending') : t('quizEditor.attempts.descending')}
                 >
@@ -1102,10 +1098,10 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
               {!attemptsLoading && filteredAttempts.length > 0 && (
                 <div className="space-y-3 sm:hidden">
                   {filteredAttempts.map((a) => (
-                    <div key={a.id} className="rounded-xl border border-primary-500/20 p-4 bg-card/50">
-                      <div className="flex items-center justify-between gap-3">
+                    <div key={a.id} className="rounded-xl border border-primary-500/20 p-3 sm:p-4 bg-card/50">
+                      <div className="flex items-center justify-between gap-2 sm:gap-3">
                         <div className="min-w-0">
-                          <div className="font-semibold text-primary-300 truncate">{a.student_name}</div>
+                          <div className="font-semibold text-primary-300 truncate text-sm sm:text-base">{a.student_name}</div>
                           <div className="text-xs text-muted-foreground break-all">{a.student_email}</div>
                         </div>
                         {a.answers && Object.keys(a.answers || {}).length > 0 ? (
@@ -1125,7 +1121,7 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
                           <span className="text-destructive text-xs shrink-0">{t('quizEditor.attempts.noAnswers')}</span>
                         )}
                       </div>
-                      <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
+                      <div className="mt-2 sm:mt-3 grid grid-cols-2 gap-2 text-xs">
                         <div className="text-muted-foreground">{t('quizEditor.attempts.score')}</div>
                         <div>
                           {a.submitted_at && typeof a.score === 'number' ? a.score : <span className="text-destructive">{t('quizEditor.attempts.notSubmitted')}</span>}
@@ -1145,9 +1141,9 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
         </TabsContent>
       </Tabs>
       <Dialog open={openAnswersModal} onOpenChange={setOpenAnswersModal}>
-        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto scrollbar-thin scrollbar-thumb-primary-500 scrollbar-track-background">
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto scrollbar-thin scrollbar-thumb-primary-500 scrollbar-track-background p-4 sm:p-6">
           <DialogHeader>
-            <DialogTitle>{t('quizEditor.modals.studentAnswers')}</DialogTitle>
+            <DialogTitle className="text-lg sm:text-xl">{t('quizEditor.modals.studentAnswers')}</DialogTitle>
             <DialogDescription>
               {modalAttempt && (
                 <div className="mb-2 text-sm text-muted-foreground">
@@ -1155,12 +1151,12 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
                 </div>
               )}
               {modalScore !== null && (
-                <div className="mb-2 text-lg font-semibold text-primary-400">{t('quizEditor.modals.score', { score: modalScore, maxScore: modalAttempt?.max_score ?? '-' })}</div>
+                <div className="mb-2 text-base sm:text-lg font-semibold text-primary-400">{t('quizEditor.modals.score', { score: modalScore, maxScore: modalAttempt?.max_score ?? '-' })}</div>
               )}
             </DialogDescription>
           </DialogHeader>
           {/* Sorting dropdown */}
-          <div className="mb-4">
+          <div className="mb-3 sm:mb-4">
             <Select value={modalSort} onValueChange={v => setModalSort(v as 'none' | 'correct' | 'incorrect')}>
               <SelectTrigger className="w-full text-primary-200 focus:ring-primary-400">
                 <SelectValue placeholder={t('quizEditor.modals.sortBy')} />
@@ -1238,14 +1234,14 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
 
       {/* Image Upload Modal */}
       <Dialog open={imageUploadModal.isOpen} onOpenChange={(open) => setImageUploadModal({ isOpen: open, questionIndex: null })}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl p-4 sm:p-6">
           <DialogHeader>
-            <DialogTitle>{t('quizEditor.modals.uploadQuestionImage')}</DialogTitle>
+            <DialogTitle className="text-lg sm:text-xl">{t('quizEditor.modals.uploadQuestionImage')}</DialogTitle>
             <DialogDescription>
               {t('quizEditor.modals.uploadQuestionImageDesc', { questionNumber: imageUploadModal.questionIndex !== null ? imageUploadModal.questionIndex + 1 : '' })}
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             <ImageUploader
               bucket={IMAGE_UPLOAD_BUCKETS.QUIZ_QUESTIONS}
               folder={`quiz_${quizId}`}
@@ -1270,6 +1266,14 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Add Question Modal */}
+      <AddQuestionModal
+        isOpen={addQuestionModal}
+        onClose={() => setAddQuestionModal(false)}
+        onAddQuestion={handleAddQuestion}
+        questionIndex={questions.length}
+      />
     </div>
   );
 };

@@ -459,7 +459,7 @@ export const TeacherCourseManagement = () => {
       </div>
 
       {/* Main content area */}
-      <div className="flex-1 p-3 sm:p-6 min-w-0 overflow-x-hidden">
+      <div className="flex-1 p-2 sm:p-3 lg:p-6 min-w-0 overflow-x-hidden">
         <div className="max-w-full">
           {renderMainContent()}
         </div>
@@ -476,7 +476,7 @@ export const TeacherCourseManagement = () => {
 
       {/* Mobile sidebar sheet */}
       <Sheet open={mobileSidebarOpen} onOpenChange={setMobileSidebarOpen}>
-        <SheetContent side="left" className="p-0 w-[80vw] max-w-sm">
+        <SheetContent side="left" className="p-0 w-[85vw] max-w-xs sm:max-w-sm">
           <TeacherCourseSidebar
             course={course}
             lessons={lessons}

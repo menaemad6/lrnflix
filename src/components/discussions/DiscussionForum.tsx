@@ -265,51 +265,51 @@ export const DiscussionForum = ({ courseId }: DiscussionForumProps) => {
 
     return (
       <Card>
-        <CardHeader>
+        <CardHeader className="pb-3 sm:pb-6">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <CardTitle className="text-base sm:text-lg md:text-xl break-words">{discussion.title}</CardTitle>
-            <Button variant="outline" size="sm" onClick={() => setSelectedDiscussion(null)}>
+            <Button variant="outline" size="sm" onClick={() => setSelectedDiscussion(null)} className="text-xs sm:text-sm">
               Back to Discussions
             </Button>
           </div>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="border-b pb-4">
-            <div className="flex items-start gap-3">
-              <Avatar>
-                <AvatarFallback>
+        <CardContent className="pt-0 space-y-4 sm:space-y-6">
+          <div className="border-b pb-3 sm:pb-4">
+            <div className="flex items-start gap-2 sm:gap-3">
+              <Avatar className="h-8 w-8 sm:h-10 sm:w-10 flex-shrink-0">
+                <AvatarFallback className="text-xs sm:text-sm">
                   {discussion.author_name.charAt(0)}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
                 <div className="flex flex-wrap items-center gap-2 mb-2">
-                  <span className="font-medium">{discussion.author_name}</span>
-                  <span className="text-sm text-muted-foreground">
+                  <span className="font-medium text-sm sm:text-base">{discussion.author_name}</span>
+                  <span className="text-xs sm:text-sm text-muted-foreground">
                     {new Date(discussion.created_at).toLocaleDateString()}
                   </span>
                 </div>
-                <p className="text-gray-700 break-words whitespace-pre-wrap">{discussion.content}</p>
+                <p className="text-gray-700 break-words whitespace-pre-wrap text-sm sm:text-base">{discussion.content}</p>
               </div>
             </div>
           </div>
 
-          <div className="space-y-4">
-            <h4 className="font-medium">Replies ({replies.length})</h4>
+          <div className="space-y-3 sm:space-y-4">
+            <h4 className="font-medium text-sm sm:text-base">Replies ({replies.length})</h4>
             {replies.map((reply) => (
-              <div key={reply.id} className="flex items-start gap-3 pl-4 border-l-2 border-gray-200">
-                <Avatar className="h-8 w-8">
-                  <AvatarFallback>
+              <div key={reply.id} className="flex items-start gap-2 sm:gap-3 pl-3 sm:pl-4 border-l-2 border-gray-200">
+                <Avatar className="h-6 w-6 sm:h-8 sm:w-8 flex-shrink-0">
+                  <AvatarFallback className="text-xs">
                     {reply.author_name.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
                   <div className="flex flex-wrap items-center gap-2 mb-1">
-                    <span className="font-medium text-sm">{reply.author_name}</span>
+                    <span className="font-medium text-xs sm:text-sm">{reply.author_name}</span>
                     <span className="text-xs text-muted-foreground">
                       {new Date(reply.created_at).toLocaleDateString()}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-700 break-words whitespace-pre-wrap">{reply.content}</p>
+                  <p className="text-xs sm:text-sm text-gray-700 break-words whitespace-pre-wrap">{reply.content}</p>
                 </div>
               </div>
             ))}
@@ -321,9 +321,10 @@ export const DiscussionForum = ({ courseId }: DiscussionForumProps) => {
               value={newReply}
               onChange={(e) => setNewReply(e.target.value)}
               required
+              className="text-sm sm:text-base"
             />
-            <Button type="submit" disabled={!newReply.trim()}>
-              <Send className="h-4 w-4 mr-2" />
+            <Button type="submit" disabled={!newReply.trim()} className="text-xs sm:text-sm">
+              <Send className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
               Post Reply
             </Button>
           </form>
@@ -334,38 +335,40 @@ export const DiscussionForum = ({ courseId }: DiscussionForumProps) => {
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="pb-3 sm:pb-6">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <CardTitle className="text-lg sm:text-xl">Course Discussions</CardTitle>
-          <Button onClick={() => setShowNewDiscussion(true)} size="sm">
-            <Plus className="h-4 w-4 mr-2" />
+          <CardTitle className="text-base sm:text-lg sm:text-xl">Course Discussions</CardTitle>
+          <Button onClick={() => setShowNewDiscussion(true)} size="sm" className="text-xs sm:text-sm">
+            <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
             New Discussion
           </Button>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-0">
         {showNewDiscussion && (
-          <Card className="mb-6">
-            <CardHeader>
-              <CardTitle>Create New Discussion</CardTitle>
+          <Card className="mb-4 sm:mb-6">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base sm:text-lg">Create New Discussion</CardTitle>
             </CardHeader>
-            <CardContent>
-              <form onSubmit={createDiscussion} className="space-y-4">
+            <CardContent className="pt-0">
+              <form onSubmit={createDiscussion} className="space-y-3 sm:space-y-4">
                 <Input
                   placeholder="Discussion title"
                   value={newDiscussion.title}
                   onChange={(e) => setNewDiscussion({ ...newDiscussion, title: e.target.value })}
                   required
+                  className="text-sm sm:text-base"
                 />
                 <Textarea
                   placeholder="What would you like to discuss?"
                   value={newDiscussion.content}
                   onChange={(e) => setNewDiscussion({ ...newDiscussion, content: e.target.value })}
                   required
+                  className="text-sm sm:text-base"
                 />
                 <div className="flex gap-2 flex-wrap">
-                  <Button type="submit" size="sm">Create Discussion</Button>
-                  <Button type="button" variant="outline" size="sm" onClick={() => setShowNewDiscussion(false)}>
+                  <Button type="submit" size="sm" className="text-xs sm:text-sm">Create Discussion</Button>
+                  <Button type="button" variant="outline" size="sm" onClick={() => setShowNewDiscussion(false)} className="text-xs sm:text-sm">
                     Cancel
                   </Button>
                 </div>
@@ -375,11 +378,11 @@ export const DiscussionForum = ({ courseId }: DiscussionForumProps) => {
         )}
 
         {discussions.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
-            No discussions yet. Start the conversation!
+          <div className="text-center py-6 sm:py-8 text-muted-foreground">
+            <p className="text-sm sm:text-base">No discussions yet. Start the conversation!</p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {discussions.map((discussion) => (
               <Card 
                 key={discussion.id} 
@@ -389,19 +392,19 @@ export const DiscussionForum = ({ courseId }: DiscussionForumProps) => {
                   fetchReplies(discussion.id);
                 }}
               >
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-3">
-                    <Avatar>
-                      <AvatarFallback>
+                <CardContent className="p-3 sm:p-4">
+                  <div className="flex items-start gap-2 sm:gap-3">
+                    <Avatar className="h-8 w-8 sm:h-10 sm:w-10 flex-shrink-0">
+                      <AvatarFallback className="text-xs sm:text-sm">
                         {discussion.author_name.charAt(0)}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-medium mb-1 break-words">{discussion.title}</h4>
-                      <p className="text-sm text-muted-foreground mb-2 line-clamp-2 break-words">
+                      <h4 className="font-medium mb-1 break-words text-sm sm:text-base">{discussion.title}</h4>
+                      <p className="text-xs sm:text-sm text-muted-foreground mb-2 line-clamp-2 break-words">
                         {discussion.content}
                       </p>
-                      <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs text-muted-foreground">
                         <span>By {discussion.author_name}</span>
                         <span>{new Date(discussion.created_at).toLocaleDateString()}</span>
                         <div className="flex items-center gap-1">

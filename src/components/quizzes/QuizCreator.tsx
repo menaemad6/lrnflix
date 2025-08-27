@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Plus, Trash2, Image as ImageIcon } from 'lucide-react';
 import { PdfQuestionExtractor } from './PdfQuestionExtractor';
+import { ImageQuestionExtractor } from './ImageQuestionExtractor';
 import { ImageUploader } from '@/components/ui/ImageUploader';
 import { IMAGE_UPLOAD_BUCKETS } from '@/data/constants';
 
@@ -229,7 +230,10 @@ export const QuizCreator = ({ courseId, onQuizCreated, onCancel }: QuizCreatorPr
               </Button>
             </div>
 
-            <PdfQuestionExtractor onQuestionsExtracted={handleExtractedQuestions} />
+            <div className="space-y-4">
+              <PdfQuestionExtractor onQuestionsExtracted={handleExtractedQuestions} />
+              <ImageQuestionExtractor onQuestionsExtracted={handleExtractedQuestions} />
+            </div>
 
             {questions.map((question, index) => (
               <Card key={question.id} className="p-4">

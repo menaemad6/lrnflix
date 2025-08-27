@@ -145,29 +145,29 @@ export const CourseSidebar = ({
   ].sort((a, b) => a.order_index - b.order_index);
 
   return (
-    <div className="h-full overflow-y-auto p-6 space-y-6">
+    <div className="h-full overflow-y-auto w-full p-3 sm:p-4 lg:p-6 space-y-4 sm:space-y-6">
       {/* Course Header */}
       <Card className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground border-0">
-        <CardHeader className="pb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
-              <BookOpen className="h-5 w-5" />
+        <CardHeader className="pb-3 sm:pb-4">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white/20 rounded-lg flex items-center justify-center">
+              <BookOpen className="h-4 w-4 sm:h-5 sm:w-5" />
             </div>
             <div className="flex-1 min-w-0">
-              <CardTitle className="text-lg font-bold leading-tight">
+              <CardTitle className="text-base sm:text-lg font-bold leading-tight">
                 <Link to={`/courses/${course.id}`} className="hover:underline text-primary-foreground">
                   {course.title}
                 </Link>
               </CardTitle>
-              <p className="text-primary-foreground/80 text-sm">
+              <p className="text-primary-foreground/80 text-xs sm:text-sm">
                 by {course.profiles?.full_name || t('sidebar.instructor')}
               </p>
             </div>
           </div>
         </CardHeader>
         <CardContent className="pt-0">
-          <div className="space-y-3">
-            <div className="flex justify-between text-sm">
+          <div className="space-y-2 sm:space-y-3">
+            <div className="flex justify-between text-xs sm:text-sm">
               <span>{t('sidebar.progress')}</span>
               <span>{Math.round(((progress.completedLessons + progress.completedQuizzes) / (progress.totalLessons + progress.totalQuizzes + attachments.length)) * 100)}%</span>
             </div>
@@ -179,7 +179,7 @@ export const CourseSidebar = ({
               <span>{progress.completedLessons + progress.completedQuizzes} {t('sidebar.completed')}</span>
               <span>{progress.totalLessons + progress.totalQuizzes + attachments.length - (progress.completedLessons + progress.completedQuizzes)} {t('sidebar.remaining')}</span>
             </div>
-            <div className="flex justify-between text-xs text-primary-foreground/80 mt-1">
+            <div className="flex flex-col sm:flex-row sm:justify-between text-xs text-primary-foreground/80 mt-1 gap-1 sm:gap-0">
               <span>{t('sidebar.lessons')}: {progress.completedLessons}/{progress.totalLessons}</span>
               <span>{t('sidebar.quizzes')}: {progress.completedQuizzes}/{progress.totalQuizzes}</span>
               <span>{t('attachments.attachmentsLabel')}: 0/{attachments.length}</span>
@@ -189,13 +189,13 @@ export const CourseSidebar = ({
       </Card>
 
       {/* Course Content */}
-      <div className="space-y-4">
-        <h3 className="font-semibold text-lg flex items-center gap-2">
-          <BookOpen className="h-5 w-5" />
+      <div className="space-y-3 sm:space-y-4">
+        <h3 className="font-semibold text-base sm:text-lg flex items-center gap-2">
+          <BookOpen className="h-4 w-4 sm:h-5 sm:w-5" />
           {t('sidebar.courseContent')}
         </h3>
 
-        <div className="space-y-3">
+        <div className="space-y-2 sm:space-y-3">
           {allContent.length > 0 ? (
             allContent.map((item) => {
               if (item.type === 'lesson') {
@@ -213,16 +213,16 @@ export const CourseSidebar = ({
                     }`}
                     onClick={() => onLessonSelect(item)}
                   >
-                    <CardContent className="p-4">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                    <CardContent className="p-3 sm:p-4">
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center ${
                           isCurrent
                             ? 'bg-primary text-primary-foreground'
                             : isCompleted
                             ? 'bg-primary-500 text-white'
                             : 'bg-muted'
                         }`}>
-                          <BookOpen className="h-5 w-5" />
+                          <BookOpen className="h-4 w-4 sm:h-5 sm:w-5" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="font-medium text-sm">{item.title}</div>
@@ -232,9 +232,9 @@ export const CourseSidebar = ({
                             </div>
                           )}
                         </div>
-                        <div className="flex items-center gap-2">
-                          {isCompleted && <CheckCircle className="h-4 w-4 text-primary-500" />}
-                          <Badge variant="outline" className="text-xs">{t('sidebar.lesson')}</Badge>
+                        <div className="flex items-center gap-1 sm:gap-2">
+                          {isCompleted && <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-primary-500" />}
+                          <Badge variant="outline" className="text-xs px-2 py-1">{t('sidebar.lesson')}</Badge>
                         </div>
                       </div>
                     </CardContent>
@@ -258,21 +258,21 @@ export const CourseSidebar = ({
                     }`}
                     onClick={() => navigate(`/courses/${course.id}/progress/quiz/${item.id}`)}
                   >
-                    <CardContent className="p-4">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                    <CardContent className="p-3 sm:p-4">
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center ${
                           isCurrent || hasAttempts
                             ? 'bg-primary text-primary-foreground'
                             : 'bg-muted'
                         }`}>
-                          <Target className="h-5 w-5" />
+                          <Target className="h-4 w-4 sm:h-5 sm:w-5" />
                         </div>
                         
                         <div className="flex-1 min-w-0">
                           <div className="font-medium text-sm">{item.title}</div>
                           <div className="flex items-center gap-2 mt-1">
                             {item.time_limit && (
-                              <Badge variant="outline" className="text-xs">
+                              <Badge variant="outline" className="text-xs px-2 py-1">
                                 <Clock className="h-3 w-3 mr-1" />
                                 {item.time_limit}{t('lessonContent.minutes')}
                               </Badge>
@@ -286,11 +286,11 @@ export const CourseSidebar = ({
                           )}
                         </div>
                         
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1 sm:gap-2">
                           {hasAttempts && (
-                            <CheckCircle className="h-4 w-4 text-primary" />
+                            <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-primary" />
                           )}
-                          <Badge variant="outline" className="text-xs">
+                          <Badge variant="outline" className="text-xs px-2 py-1">
                             {t('sidebar.quiz')}
                           </Badge>
                         </div>
@@ -314,9 +314,9 @@ export const CourseSidebar = ({
                     }`}
                     onClick={() => onAttachmentSelect?.(item)}
                   >
-                    <CardContent className="p-4">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                    <CardContent className="p-3 sm:p-4">
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center ${
                           isCurrent
                             ? 'bg-primary text-primary-foreground'
                             : isCompleted
@@ -324,9 +324,9 @@ export const CourseSidebar = ({
                             : 'bg-muted'
                         }`}>
                           {(item as Attachment).type === 'pdf' ? (
-                            <FileText className="h-5 w-5" />
+                            <FileText className="h-4 w-4 sm:h-5 sm:w-5" />
                           ) : (
-                            <LinkIcon className="h-5 w-5" />
+                            <LinkIcon className="h-4 w-4 sm:h-5 sm:w-5" />
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
@@ -335,9 +335,9 @@ export const CourseSidebar = ({
                             {(item as Attachment).type === 'pdf' ? t('attachments.pdfDocument') : t('attachments.externalLink')}
                           </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          {isCompleted && <CheckCircle className="h-4 w-4 text-primary-500" />}
-                          <Badge variant="outline" className="text-xs">
+                        <div className="flex items-center gap-1 sm:gap-2">
+                          {isCompleted && <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-primary-500" />}
+                          <Badge variant="outline" className="text-xs px-2 py-1">
                             {(item as Attachment).type === 'pdf' ? t('attachments.pdfFile') : t('attachments.externalLink')}
                           </Badge>
                         </div>
@@ -350,8 +350,8 @@ export const CourseSidebar = ({
             })
           ) : (
             <Card className="border-border">
-              <CardContent className="p-4 text-center">
-                <BookOpen className="h-8 w-8 mx-auto mb-2 text-muted-foreground opacity-50" />
+              <CardContent className="p-3 sm:p-4 text-center">
+                <BookOpen className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2 text-muted-foreground opacity-50" />
                 <p className="text-sm text-muted-foreground">{t('sidebar.noCourseContent')}</p>
               </CardContent>
             </Card>
@@ -360,22 +360,22 @@ export const CourseSidebar = ({
       </div>
 
       {/* Live Lectures Section */}
-      <div className="space-y-4">
-        <h3 className="font-semibold text-lg flex items-center gap-2">
-          <Video className="h-5 w-5" />
+      <div className="space-y-3 sm:space-y-4">
+        <h3 className="font-semibold text-base sm:text-lg flex items-center gap-2">
+          <Video className="h-4 w-4 sm:h-5 sm:w-5" />
           {t('sidebar.liveLectures')}
         </h3>
 
         {lecturesLoading ? (
-          <div className="space-y-3">
+          <div className="space-y-2 sm:space-y-3">
             {[1, 2, 3].map((i) => (
               <Card key={i} className="border-border">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-muted rounded-lg animate-pulse" />
-                    <div className="flex-1 space-y-2">
-                      <div className="h-4 bg-muted rounded animate-pulse" />
-                      <div className="h-3 bg-muted rounded w-2/3 animate-pulse" />
+                <CardContent className="p-2 sm:p-3 md:p-4">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 bg-muted rounded-lg animate-pulse" />
+                    <div className="flex-1 space-y-1 sm:space-y-2">
+                      <div className="h-3 sm:h-4 bg-muted rounded animate-pulse" />
+                      <div className="h-2 sm:h-3 bg-muted rounded w-2/3 animate-pulse" />
                     </div>
                   </div>
                 </CardContent>
@@ -384,13 +384,13 @@ export const CourseSidebar = ({
           </div>
         ) : lectures.length === 0 ? (
           <Card className="border-border">
-            <CardContent className="p-4 text-center">
-              <Video className="h-8 w-8 mx-auto mb-2 text-muted-foreground opacity-50" />
+            <CardContent className="p-3 sm:p-4 text-center">
+              <Video className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2 text-muted-foreground opacity-50" />
               <p className="text-sm text-muted-foreground">{t('sidebar.noLiveLectures')}</p>
             </CardContent>
           </Card>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-2 sm:space-y-3">
             {lectures.map((lecture) => {
               const statusInfo = getLectureStatusInfo(lecture);
               const timeInfo = formatLectureTime(lecture.start_time, lecture.duration_minutes);
@@ -404,24 +404,24 @@ export const CourseSidebar = ({
                       : "border-border hover:border-primary/30"
                   }`}
                 >
-                  <CardContent className="p-4">
-                    <div className="flex items-start gap-3">
-                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                  <CardContent className="p-3 sm:p-4">
+                    <div className="flex items-start gap-2 sm:gap-3">
+                      <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center ${
                         statusInfo.status === 'live'
                           ? 'bg-red-500 text-white'
                           : statusInfo.status === 'upcoming'
                           ? 'bg-blue-500 text-white'
                           : 'bg-muted'
                       }`}>
-                        <Video className="h-5 w-5" />
+                        <Video className="h-4 w-4 sm:h-5 sm:w-5" />
                       </div>
                       
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-1">
                           <div className="font-medium text-sm">{lecture.title}</div>
                           <Badge 
                             variant={statusInfo.badgeVariant} 
-                            className={statusInfo.badgeColor}
+                            className={`text-xs px-2 py-1 ${statusInfo.badgeColor}`}
                           >
                             {statusInfo.badgeText}
                           </Badge>
@@ -433,7 +433,7 @@ export const CourseSidebar = ({
                           </div>
                         )}
                         
-                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 text-xs text-muted-foreground">
                           <div className="flex items-center gap-1">
                             <Calendar className="h-3 w-3" />
                             {timeInfo.date}
@@ -457,7 +457,7 @@ export const CourseSidebar = ({
                         <Button
                           size="sm"
                           onClick={() => window.open(lecture.meet_link, '_blank')}
-                          className="btn-primary"
+                          className="btn-primary text-xs px-2 py-1 sm:px-3 sm:py-2"
                         >
                           <ExternalLink className="h-3 w-3 mr-1" />
                           {t('sidebar.join')}

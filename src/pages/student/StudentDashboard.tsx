@@ -79,8 +79,8 @@ export const StudentDashboard = () => {
         <div className="space-y-8">
         <StudentProfileStats stats={stats} user={user!} />
         <AiAdviceCard />
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+          <div className="lg:col-span-2 space-y-4 sm:space-y-6 lg:space-y-8">
             <ContinueLearningSection
               enrolledCourses={enrolledCourses}
               onContinue={(courseId) => navigate(`/courses/${courseId}`)}
@@ -89,14 +89,14 @@ export const StudentDashboard = () => {
               <WalletCard />
             </div>
             <StudentGoals stats={stats} />
-            <div className="grid grid-cols-1 gap-6">
+            <div className="grid grid-cols-1 gap-4 sm:gap-6">
               <div className="block lg:hidden">
                 <StudentActivity stats={stats} />
               </div>
               <StudentAchievements stats={stats} />
             </div>
           </div>
-          <div className="space-y-6 hidden lg:block">
+          <div className="space-y-4 sm:space-y-6 hidden lg:block">
             <WalletCard />
             <Card className="glass-card border-0">
               <CardHeader>

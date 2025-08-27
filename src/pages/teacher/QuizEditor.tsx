@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Plus, Trash2, Save, Sparkles, Zap, Upload, FileJson } from 'lucide-react';
 import { PdfQuestionExtractor } from '@/components/quizzes/PdfQuestionExtractor';
+import { ImageQuestionExtractor } from '@/components/quizzes/ImageQuestionExtractor';
 import { answerSingleQuestion, answerAllQuestions } from '@/utils/geminiApi';
 
 interface Quiz {
@@ -530,10 +531,11 @@ export const QuizEditor = () => {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="manual" className="space-y-4">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="manual">{t('quizEditor.manualEntry')}</TabsTrigger>
               <TabsTrigger value="json">{t('quizEditor.jsonImport')}</TabsTrigger>
               <TabsTrigger value="pdf">{t('quizEditor.pdfExtraction')}</TabsTrigger>
+              <TabsTrigger value="image">Image Extraction</TabsTrigger>
             </TabsList>
 
             <TabsContent value="manual" className="space-y-4">
@@ -575,6 +577,10 @@ export const QuizEditor = () => {
 
             <TabsContent value="pdf" className="space-y-4">
               <PdfQuestionExtractor onQuestionsExtracted={handleExtractedQuestions} />
+            </TabsContent>
+
+            <TabsContent value="image" className="space-y-4">
+              <ImageQuestionExtractor onQuestionsExtracted={handleExtractedQuestions} />
             </TabsContent>
           </Tabs>
         </CardContent>

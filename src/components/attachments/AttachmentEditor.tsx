@@ -16,7 +16,8 @@ import {
   BarChart3,
   Save,
   Eye,
-  Link as LinkIcon
+  Link as LinkIcon,
+  Upload
 } from 'lucide-react';
 import { ContentManagementSkeleton } from '@/components/ui/skeletons';
 
@@ -237,160 +238,194 @@ export const AttachmentEditor = ({ attachmentId, onBack }: AttachmentEditorProps
   const completionRate = totalViews > 0 ? Math.round((completedViews / totalViews) * 100) : 0;
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="outline" onClick={onBack} className="gap-2">
-            <ArrowLeft className="h-4 w-4" />
-            Back to Attachments
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--secondary))] bg-clip-text text-transparent">
-              {t('attachments.editAttachment')}
-            </h1>
-            <p className="text-muted-foreground mt-1">
-              {t('attachments.updateAttachmentDetails')}
-            </p>
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      <div className="space-y-4 sm:space-y-6 lg:space-y-8 relative z-10 p-3 sm:p-4 lg:p-8">
+        {/* Header */}
+        <div className="card p-3 sm:p-4 lg:p-8 border border-border bg-card">
+          <div className="flex flex-col gap-3 sm:gap-4 lg:gap-6 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-2 sm:gap-3 lg:gap-6">
+              <Button 
+                variant="outline" 
+                onClick={onBack} 
+                size="sm"
+                className="text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2"
+              >
+                <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Back to Attachments</span>
+                <span className="sm:hidden">Back</span>
+              </Button>
+              <div>
+                <h1 className="text-lg sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--secondary))] bg-clip-text text-transparent">
+                  {t('attachments.editAttachment')}
+                </h1>
+                <p className="text-muted-foreground mt-1 text-xs sm:text-sm lg:text-base">
+                  {t('attachments.updateAttachmentDetails')}
+                </p>
+              </div>
+            </div>
+            <Button 
+              onClick={handleSubmit} 
+              disabled={saving} 
+              size="sm"
+              className="gap-2 text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2"
+            >
+              <Save className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">{saving ? t('attachments.saving') : t('attachments.saveChanges')}</span>
+              <span className="sm:hidden">{saving ? 'Saving...' : 'Save'}</span>
+            </Button>
           </div>
         </div>
-        <Button onClick={handleSubmit} disabled={saving} className="gap-2">
-          <Save className="h-4 w-4" />
-          {saving ? t('attachments.saving') : t('attachments.saveChanges')}
-        </Button>
-      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Content */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Basic Information */}
-          <Card>
-            <CardHeader>
-                              <CardTitle className="flex items-center gap-2">
-                  <Paperclip className="h-5 w-5 text-[hsl(var(--primary))]" />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+          {/* Main Content */}
+          <div className="lg:col-span-2 space-y-4 sm:space-y-6">
+            {/* Basic Information */}
+            <Card className="card border border-border bg-card">
+              <CardHeader className="pb-3 sm:pb-4 p-3 sm:p-4 lg:p-6">
+                <CardTitle className="flex items-center gap-2 text-base sm:text-lg lg:text-xl">
+                  <Paperclip className="h-4 w-4 sm:h-5 sm:w-5 text-[hsl(var(--primary))]" />
                   {t('attachments.basicInformation')}
                 </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">{t('attachments.titleLabel')}</label>
-                  <Input
-                    value={formData.title}
-                    onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                    placeholder="Enter attachment title"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">{t('attachments.typeLabel')}</label>
-                  <select
-                    value={formData.type}
-                    onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value }))}
-                    className="w-full px-3 py-2 border border-input rounded-md bg-background"
-                  >
-                    <option value="pdf">{t('attachments.pdfFile')}</option>
-                    <option value="link">{t('attachments.externalLink')}</option>
-                  </select>
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t('attachments.descriptionLabel')}</label>
-                <Textarea
-                  value={formData.description}
-                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="Enter attachment description"
-                  rows={3}
-                />
-              </div>
-
-              {formData.type === 'link' ? (
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">{t('attachments.urlLabel')}</label>
-                  <Input
-                    value={formData.attachment_url}
-                    onChange={(e) => setFormData(prev => ({ ...prev, attachment_url: e.target.value }))}
-                    placeholder="https://example.com"
-                    type="url"
-                  />
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">{t('attachments.pdfFile')}</label>
-                  <div className="flex items-center gap-4">
+              </CardHeader>
+              <CardContent className="space-y-4 p-3 sm:p-4 lg:p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                  <div className="space-y-2">
+                    <label className="text-xs sm:text-sm font-medium">{t('attachments.titleLabel')}</label>
                     <Input
-                      ref={fileInputRef}
-                      type="file"
-                      accept=".pdf"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) handleFileUpload(file);
-                      }}
+                      value={formData.title}
+                      onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                      placeholder="Enter attachment title"
+                      className="text-sm sm:text-base"
                     />
-                    {formData.attachment_url && (
-                      <Button
-                        variant="outline"
-                        onClick={() => window.open(formData.attachment_url, '_blank')}
-                        className="gap-2"
-                      >
-                        <Eye className="h-4 w-4" />
-                        {t('attachments.viewCurrentFile')}
-                      </Button>
-                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs sm:text-sm font-medium">{t('attachments.typeLabel')}</label>
+                    <select
+                      value={formData.type}
+                      onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value }))}
+                      className="w-full px-2 sm:px-3 py-1 sm:py-2 border border-input rounded-md bg-background text-sm sm:text-base"
+                    >
+                      <option value="pdf">{t('attachments.pdfFile')}</option>
+                      <option value="link">{t('attachments.externalLink')}</option>
+                    </select>
                   </div>
                 </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+                
+                <div className="space-y-2">
+                  <label className="text-xs sm:text-sm font-medium">{t('attachments.descriptionLabel')}</label>
+                  <Textarea
+                    value={formData.description}
+                    onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                    placeholder="Enter attachment description"
+                    className="text-sm sm:text-base"
+                  />
+                </div>
 
-        {/* Sidebar */}
-        <div className="space-y-6">
-          {/* Attachment Info */}
-          <Card>
-            <CardHeader>
-                              <CardTitle className="flex items-center gap-2">
-                  <BarChart3 className="h-5 w-5 text-[hsl(var(--primary))]" />
+                {formData.type === 'link' ? (
+                  <div className="space-y-2">
+                    <label className="text-xs sm:text-sm font-medium">{t('attachments.urlLabel')}</label>
+                    <Input
+                      value={formData.attachment_url}
+                      onChange={(e) => setFormData(prev => ({ ...prev, attachment_url: e.target.value }))}
+                      placeholder="Enter external URL"
+                      className="text-sm sm:text-base"
+                    />
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <label className="text-xs sm:text-sm font-medium">{t('attachments.fileLabel')}</label>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        value={formData.attachment_url}
+                        onChange={(e) => setFormData(prev => ({ ...prev, attachment_url: e.target.value }))}
+                        placeholder="File URL or upload new file"
+                        className="text-sm sm:text-base"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => document.getElementById('file-upload')?.click()}
+                        className="text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2"
+                      >
+                        <Upload className="h-3 w-3 sm:h-4 sm:w-4" />
+                        <span className="hidden sm:inline">Upload</span>
+                        <span className="sm:hidden">Upload</span>
+                      </Button>
+                    </div>
+                    <input
+                      id="file-upload"
+                      type="file"
+                      accept=".pdf"
+                      onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0])}
+                      className="hidden"
+                    />
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-4 sm:space-y-6">
+            {/* Attachment Info */}
+            <Card className="card border border-border bg-card">
+              <CardHeader className="pb-3 sm:pb-4 p-3 sm:p-4 lg:p-6">
+                <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                  <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-lg flex items-center justify-center">
+                    {getAttachmentIcon(attachment.type)}
+                  </div>
                   {t('attachments.attachmentInfo')}
                 </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-[hsl(var(--primary)/0.2)] to-[hsl(var(--secondary)/0.2)] border border-[hsl(var(--primary)/0.3)]">
-                  {getAttachmentIcon(attachment.type)}
-                </div>
-                <div>
-                  <h3 className="font-semibold">{attachment.title}</h3>
+              </CardHeader>
+              <CardContent className="space-y-3 sm:space-y-4 p-3 sm:p-4 lg:p-6">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs sm:text-sm text-muted-foreground">{t('attachments.type')}</span>
                   <Badge className={getAttachmentColor(attachment.type)}>
                     {attachment.type.toUpperCase()}
                   </Badge>
                 </div>
-              </div>
-              
-              <div className="space-y-3">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">{t('attachments.created')}</span>
-                  <span>{new Date(attachment.created_at).toLocaleDateString()}</span>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs sm:text-sm text-muted-foreground">{t('attachments.order')}</span>
+                  <span className="text-xs sm:text-sm font-medium">{attachment.order_index}</span>
                 </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">{t('attachments.order')}</span>
-                  <span>#{attachment.order_index}</span>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs sm:text-sm text-muted-foreground">{t('attachments.created')}</span>
+                  <span className="text-xs sm:text-sm font-medium">
+                    {new Date(attachment.created_at).toLocaleDateString()}
+                  </span>
                 </div>
-                {attachment.size && (
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">{t('attachments.fileSize')}</span>
-                    <span>{Math.round(attachment.size / 1024)} KB</span>
+              </CardContent>
+            </Card>
+
+            {/* Analytics */}
+            <Card className="card border border-border bg-card">
+              <CardHeader className="pb-3 sm:pb-4 p-3 sm:p-4 lg:p-6">
+                <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                  <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-accent-500 to-primary-500 rounded-lg flex items-center justify-center">
+                    <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4 text-black" />
                   </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-
+                  {t('attachments.analytics')}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 sm:space-y-4 p-3 sm:p-4 lg:p-6">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs sm:text-sm text-muted-foreground">{t('attachments.totalViews')}</span>
+                  <span className="text-xs sm:text-sm font-medium">{totalViews}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs sm:text-sm text-muted-foreground">{t('attachments.completed')}</span>
+                  <span className="text-xs sm:text-sm font-medium">{completedViews}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs sm:text-sm text-muted-foreground">{t('attachments.completionRate')}</span>
+                  <span className="text-xs sm:text-sm font-medium">{completionRate}%</span>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
-
-
     </div>
   );
 };

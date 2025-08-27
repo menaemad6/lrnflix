@@ -109,15 +109,15 @@ export const TeacherDashboard = () => {
   if (isLoading) {
     return (
       <DashboardLayout>
-        <div className="space-y-8">
+        <div className="space-y-4 sm:space-y-6 lg:space-y-8 p-3 sm:p-6">
           <HeroSectionSkeleton />
           <StatsGridSkeleton />
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
             <RecentCoursesSkeleton />
             <QuickActionsSkeleton />
           </div>
           <PerformanceMetricsSkeleton />
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
             <RecentActivitySkeleton />
             <UpcomingTasksSkeleton />
           </div>
@@ -150,7 +150,7 @@ export const TeacherDashboard = () => {
     <>
       <SEOHead />
       <DashboardLayout>
-        <div className="space-y-8">
+        <div className="space-y-6">
         {/* Hero Welcome Section */}
         <Suspense fallback={<HeroSectionSkeleton />}>
           <TeacherHeroSection user={user} />
@@ -162,7 +162,7 @@ export const TeacherDashboard = () => {
         </Suspense>
 
         {/* Main Dashboard Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
           {/* Recent Courses */}
           <Suspense fallback={<RecentCoursesSkeleton />}>
             <TeacherRecentCourses courses={courses} />
@@ -180,7 +180,7 @@ export const TeacherDashboard = () => {
         </Suspense>
 
         {/* Activity and Tasks Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
           <Suspense fallback={<RecentActivitySkeleton />}>
             <TeacherRecentActivity activities={activities} />
           </Suspense>

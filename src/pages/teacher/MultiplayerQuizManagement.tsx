@@ -27,12 +27,14 @@ import {
   X,
   FileText,
   Loader2,
+  Image as ImageIcon,
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { TeacherPageHeader } from '@/components/teacher/TeacherPageHeader';
 import { PdfQuestionExtractor } from '@/components/quizzes/PdfQuestionExtractor';
+import { ImageQuestionExtractor } from '@/components/quizzes/ImageQuestionExtractor';
 import { QuestionsList } from '@/components/quizzes/QuestionsList';
 import { generateMcqOptions } from '@/utils/geminiApi';
 import {
@@ -704,20 +706,37 @@ export const MultiplayerQuizManagement = () => {
             </DialogContent>
           </Dialog>
 
-          <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline">
-                <FileText className="h-4 w-4 mr-2" />
-                {t('multiplayerQuiz.extractFromPdf')}
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>{t('multiplayerQuiz.extractQuestionsFromPdf')}</DialogTitle>
-              </DialogHeader>
-              <PdfQuestionExtractor onQuestionsExtracted={handleQuestionsExtracted} />
-            </DialogContent>
-          </Dialog>
+          <div className="flex gap-2">
+            <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline">
+                  <FileText className="h-4 w-4 mr-2" />
+                  {t('multiplayerQuiz.extractFromPdf')}
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>{t('multiplayerQuiz.extractQuestionsFromPdf')}</DialogTitle>
+                </DialogHeader>
+                <PdfQuestionExtractor onQuestionsExtracted={handleQuestionsExtracted} />
+              </DialogContent>
+            </Dialog>
+
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline">
+                  <ImageIcon className="h-4 w-4 mr-2" />
+                  Extract from Image
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Extract Questions from Image</DialogTitle>
+                </DialogHeader>
+                <ImageQuestionExtractor onQuestionsExtracted={handleQuestionsExtracted} />
+              </DialogContent>
+            </Dialog>
+          </div>
 
           {isProcessing && (
             <Card className="border border-border bg-card/90 backdrop-blur-sm shadow-sm">
