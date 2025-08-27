@@ -807,7 +807,7 @@ export const CourseDetails = () => {
                         {course.status || 'draft'}
                       </Badge>
                       {course.category && <Badge variant="outline" className="px-2 sm:px-3 py-1 text-xs sm:text-sm">{course.category}</Badge>}
-                      <Badge variant="outline" className="px-2 sm:px-3 py-1 text-xs sm:text-sm">{course.price} Credits</Badge>}
+                      <Badge variant="outline" className="px-2 sm:px-3 py-1 text-xs sm:text-sm">{course.price} Credits</Badge>
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-1 sm:gap-2">
