@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { getTopCourses, getFeaturedInstructors } from '@/lib/queries';
 import { PLATFORM_NAME } from '@/data/constants';
@@ -14,7 +14,8 @@ import {
   FaBars,
   FaStar,
   FaUsers,
-  FaPlay
+  FaPlay,
+  FaRegistered
 } from 'react-icons/fa';
 import { 
   GoBell, 
@@ -38,6 +39,7 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import type { RootState } from '@/store/store';
 import IphoneShowcaseSection from '../home/IphoneShowcaseSection';
+import { LogInIcon, LogOut } from 'lucide-react';
 
 
 // Type definitions
@@ -298,18 +300,16 @@ const Header: React.FC = () => {
       </nav>
 
       {/* Mobile Navigation Overlay */}
-      <AnimatePresence>
-        {isMobileNavOpen && (
-          <MobileNavigation 
-            isOpen={isMobileNavOpen}
-            onClose={closeMobileNav}
-            isAuthenticated={isAuthenticated}
-            userRole={userRole}
-            user={user}
-            onLogout={handleLogout}
-          />
-        )}
-      </AnimatePresence>
+      {isMobileNavOpen && (
+        <MobileNavigation 
+          isOpen={isMobileNavOpen}
+          onClose={closeMobileNav}
+          isAuthenticated={isAuthenticated}
+          userRole={userRole}
+          user={user}
+          onLogout={handleLogout}
+        />
+      )}
     </header>
   );
 };
@@ -324,65 +324,15 @@ const MobileNavigation: React.FC<{
   onLogout: () => void;
 }> = ({ isOpen, onClose, isAuthenticated, userRole, user, onLogout }) => {
   const navigate = useNavigate();
-  const containerVariants = {
-    closed: {
-      opacity: 0,
-      scale: 0.95,
-      transition: {
-        duration: 0.3
-      }
-    },
-    open: {
-      opacity: 1,
-      scale: 1,
-      transition: {
-        duration: 0.4,
-        staggerChildren: 0.1,
-        delayChildren: 0.2
-      }
-    }
-  };
-
-  const itemVariants = {
-    closed: {
-      opacity: 0,
-      y: 20,
-      transition: {
-        duration: 0.2
-      }
-    },
-    open: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.3
-      }
-    }
-  };
-
-  const backdropVariants = {
-    closed: {
-      opacity: 0,
-      transition: {
-        duration: 0.3
-      }
-    },
-    open: {
-      opacity: 1,
-      transition: {
-        duration: 0.4
-      }
-    }
-  };
 
   const getMobileNavLinks = () => {
-          if (!isAuthenticated) {
-        return [
-          { label: 'Browse Courses', action: () => { navigate('/courses'); onClose(); } },
-          { label: 'Chapters', action: () => { navigate('/chapters'); onClose(); } },
-          { label: 'Instructors', action: () => { navigate('/teachers'); onClose(); } },
-        ];
-      }
+    if (!isAuthenticated) {
+      return [
+        { label: 'Browse Courses', action: () => { navigate('/courses'); onClose(); } },
+        { label: 'Chapters', action: () => { navigate('/chapters'); onClose(); } },
+        { label: 'Instructors', action: () => { navigate('/teachers'); onClose(); } },
+      ];
+    }
 
     if (userRole === 'student') {
       return [
@@ -409,155 +359,102 @@ const MobileNavigation: React.FC<{
     return [];
   };
 
-  const getMobileAuthSection = () => {
-    if (isAuthenticated) {
-      return (
-        <motion.div 
-          variants={itemVariants}
-          className="flex flex-col items-center space-y-4 p-6 bg-gradient-to-br from-white/80 to-white/40 rounded-2xl backdrop-blur-xl border border-white/20"
-        >
-          <div className="flex items-center space-x-3">
-            <Avatar className="h-16 w-16 ring-4 ring-white/30">
-              <AvatarImage src={user?.avatar_url || undefined} />
-              <AvatarFallback className="text-xl font-semibold bg-gradient-to-br from-blue-500 to-purple-600 text-white">
-                {user?.full_name?.charAt(0) || user?.email?.charAt(0) || 'U'}
-              </AvatarFallback>
-            </Avatar>
-            <div className="text-left">
-              <p className="text-lg font-semibold text-gray-900">
-                {user?.full_name || 'User'}
-              </p>
-              <p className="text-sm text-gray-600">
-                {user?.email}
-              </p>
-              <p className="text-xs font-medium text-blue-600 capitalize bg-blue-50 px-2 py-1 rounded-full">
-                {userRole}
-              </p>
-            </div>
-          </div>
-          
-          <div className="w-full space-y-2">
-            <button
-              onClick={() => { navigate('/dashboard/settings'); onClose(); }}
-              className="w-full py-3 px-4 bg-white/80 hover:bg-white text-gray-700 rounded-xl transition-all duration-200 hover:shadow-lg border border-gray-200"
-            >
-              Settings
-            </button>
-            <button
-              onClick={onLogout}
-              className="w-full py-3 px-4 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl transition-all duration-200 hover:shadow-lg border border-red-200"
-            >
-              Logout
-            </button>
-          </div>
-        </motion.div>
-      );
-    }
-
-    return (
-      <motion.div 
-        variants={itemVariants}
-        className="flex flex-col space-y-3 p-6 bg-gradient-to-br from-white/80 to-white/40 rounded-2xl backdrop-blur-xl border border-white/20"
-      >
-        <Button
-          onClick={() => navigate('/auth/login')}
-          variant='outline'
-          className="w-full py-4 px-6 rounded-xl transition-all duration-200 hover:shadow-lg border border-gray-200 font-medium"
-        >
-          Sign In
-        </Button>
-        <Button
-          onClick={() => navigate('/auth/signup')}
-          className="w-full py-4 px-6 bg-gradient-to-r from-primary-500 to-secondary-600 hover:from-primary-700 hover:to-secondary-700 text-white rounded-xl transition-all duration-200 hover:shadow-xl font-medium"
-        >
-          Start Learning
-        </Button>
-      </motion.div>
-    );
-  };
-
   return (
     <>
       {/* Backdrop */}
-      <motion.div
-        variants={backdropVariants}
-        initial="closed"
-        animate="open"
-        exit="closed"
+      <div
         onClick={onClose}
-        className="fixed inset-0 bg-black/80 backdrop-blur-md z-[9999]"
+        className="fixed inset-0 bg-black/80 z-[9999]"
       />
       
       {/* Navigation Panel */}
-      <motion.div
-        variants={containerVariants}
-        initial="closed"
-        animate="open"
-        exit="closed"
-        className="fixed top-0 left-0 right-0 bottom-0 w-screen h-screen z-[9999] flex flex-col bg-white"
+      <div
+        className="fixed top-0 left-0 right-0 bottom-0 w-screen h-screen z-[9999] flex flex-col bg-black"
         style={{ 
           height: '100vh', 
           width: '100vw'
         }}
       >
         {/* Header */}
-        <motion.div 
-          variants={itemVariants}
-          className="flex justify-between items-center p-6 bg-gradient-to-br from-white/95 to-white/80 backdrop-blur-xl border-b border-white/20 flex-shrink-0"
-        >
+        <div className="flex justify-between items-center p-6 flex-shrink-0">
           <Link to="/" onClick={onClose} className="cursor-pointer flex items-center space-x-2">
             <img src="/assests/logo.png" alt="Logo" className="h-8 w-auto"/>
-            <span className="text-black font-semibold text-xl">{PLATFORM_NAME}</span>
+            <span className="text-white font-semibold text-xl">{PLATFORM_NAME}</span>
           </Link>
           
           <button
             onClick={onClose}
-            className="p-2 hover:bg-black/5 rounded-xl transition-colors"
+            className="p-2 text-white"
             aria-label="Close mobile menu"
           >
-            <motion.div
-              animate={{ rotate: isOpen ? 180 : 0 }}
-              transition={{ duration: 0.3 }}
-              className="w-6 h-6 flex items-center justify-center"
-            >
-              <div className="w-5 h-5 relative">
-                <span className="absolute inset-0 w-0.5 h-5 bg-gray-600 transform rotate-45 origin-center"></span>
-                <span className="absolute inset-0 w-0.5 h-5 bg-gray-600 transform -rotate-45 origin-center"></span>
-              </div>
-            </motion.div>
+            <div className="w-6 h-6 flex items-center justify-center">
+              <span className="text-2xl font-bold">×</span>
+            </div>
           </button>
-        </motion.div>
+        </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto bg-gradient-to-br from-blue-50/80 via-white/90 to-purple-50/80 min-h-0">
-          <div className="p-6 space-y-6">
+        <div className="flex-1 overflow-y-auto min-h-0">
+          <div className="px-6 space-y-6">
             {/* Navigation Links */}
-            <motion.div variants={itemVariants} className="space-y-2">
-              <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">
-                {isAuthenticated ? 'Navigation' : 'Menu'}
-              </h3>
+            <div className="">
               {getMobileNavLinks().map((link, index) => (
-                <motion.div
+                <button
                   key={index}
-                  variants={itemVariants}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                  onClick={link.action}
+                  className="w-full text-left py-2 text-white text-3xl font-semibold hover:text-gray-300 transition-colors"
                 >
-                  <button
-                    onClick={link.action}
-                    className="w-full text-left py-4 px-4 bg-white/70 hover:bg-white text-gray-800 rounded-xl transition-all duration-200 hover:shadow-lg border border-white/30 font-medium"
-                  >
-                    {link.label}
-                  </button>
-                </motion.div>
+                  {link.label}
+                </button>
               ))}
-            </motion.div>
-
-            {/* Auth Section */}
-            {getMobileAuthSection()}
+            </div>
           </div>
         </div>
-      </motion.div>
+
+        {/* User Section - Fixed at bottom */}
+        <div className="px-6 pb-6 mb-12">
+          {isAuthenticated ? (
+            <div className="bg-neutral-900 border border-neutral-600 p-6 space-y-4">
+              <div className="space-y-2">
+                <p className="text-white font-bold text-lg">
+                  {user?.full_name || 'User'}
+                </p>
+                <p className="text-gray-300 text-sm">
+                  {user?.email}
+                </p>
+              </div>
+              
+              <div className="border-t border-gray-700 pt-4 space-y-3">
+
+                <button
+                  onClick={onLogout}
+                  className="w-full text-left text-white hover:text-gray-300 transition-colors flex items-center justify-between"
+                >
+                  Log Out
+                  <LogOut className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-neutral-900 border border-neutral-600 p-6 space-y-4">
+                <button
+                  onClick={() => { navigate('/auth/login'); onClose(); }}
+                  className="w-full text-left text-white hover:text-gray-300 transition-colors flex items-center justify-between"
+                >
+                  Login
+                  <LogOut className="h-5 w-5" />
+                </button>
+                <button
+                  onClick={() => { navigate('/auth/signup'); onClose(); }}
+                  className="w-full text-left text-white hover:text-gray-300 transition-colors flex items-center justify-between"
+                >
+                  Create New Account
+                  <LogInIcon className="h-5 w-5" />
+                </button>
+            </div>
+          )}
+        </div>
+      </div>
     </>
   );
 };
@@ -711,7 +608,7 @@ const Hero: React.FC = () => {
     >
               <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 w-full max-w-7xl mx-auto">
         <div className="w-full md:w-[478px] text-center md:text-left">
-          <div className="text-black border-2 w-fit py-0.5 px-1.5 lg:text-lg rounded-sm border-slate-400/80">
+          <div className="text-black border-2 w-fit py-0.5 px-1.5 lg:text-lg rounded-sm border-slate-400/80 mx-auto md:mx-0">
             First in Egypt
           </div>
           <div className="text-5xl md:text-7xl font-black my-7 bg-gradient-to-b from-black to-[#002499] text-transparent bg-clip-text tracking-tighter">

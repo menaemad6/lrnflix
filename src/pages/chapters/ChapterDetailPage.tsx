@@ -11,22 +11,22 @@ import {
   CheckCircle,
   Users,
   Star,
-  ArrowRight,
   Trophy,
   Globe,
   User,
-  Calendar
+  Calendar,
+  Gift
 } from 'lucide-react';
 import { useRandomBackground } from "../../hooks/useRandomBackground";
 import { PremiumCourseCard } from '@/components/courses/PremiumCourseCard';
 import { CourseViewSkeleton } from '@/components/student/skeletons/CourseViewSkeleton';
 import { useTranslation } from 'react-i18next';
 import { SEOHead } from '@/components/seo';
-import { getDynamicSEOMetadata } from '@/data/seo';
+
 import { PurchaseChoicesModal } from '@/components/courses/PurchaseChoicesModal';
 import { PurchaseModal } from '@/components/courses/PurchaseModal';
-import AuthModal from '@/components/ui/AuthModal';
-import AuthForm from '@/pages/auth/AuthForm';
+
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface Chapter {
   id: string;
@@ -36,18 +36,6 @@ interface Chapter {
   price: number;
   created_at: string;
   cover_image_url?: string;
-}
-
-interface Course {
-  id: string;
-  title: string;
-  description: string;
-  category: string;
-  price: number;
-  instructor_id: string;
-  profiles?: {
-    full_name: string;
-  };
 }
 
 // Add a type for chapterCourses
@@ -73,6 +61,14 @@ interface ChapterCourse {
   description?: string;
 }
 
+interface TeacherProfile {
+  display_name: string;
+  profile_image_url?: string;
+  bio?: string;
+  specialization?: string;
+  experience_years?: number;
+}
+
 export const ChapterDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const { toast } = useToast();
@@ -81,14 +77,13 @@ export const ChapterDetailPage = () => {
     redirectTo: '/chapters',
   });
   const [chapter, setChapter] = useState<Chapter | null>(null);
-  const [courses, setCourses] = useState<Course[]>([]);
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [loading, setLoading] = useState(true);
   const [userWallet, setUserWallet] = useState(0);
   const navigate = useNavigate();
   const bgClass = useRandomBackground();
   const [chapterCourses, setChapterCourses] = useState<ChapterCourse[]>([]);
-  const [instructorAvatars, setInstructorAvatars] = useState<Record<string, string | undefined>>({});
+  const [teacherProfile, setTeacherProfile] = useState<TeacherProfile | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showPurchaseChoicesModal, setShowPurchaseChoicesModal] = useState(false);
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
@@ -191,6 +186,17 @@ export const ChapterDetailPage = () => {
         } : obj)
       );
 
+      // Fetch teacher profile from teachers table if we have courses with instructor_id
+      if (chapterCoursesData.length > 0 && chapterCoursesData[0]?.course?.instructor_id) {
+        const { data: teacherData } = await supabase
+          .from('teachers')
+          .select('display_name,profile_image_url,bio,specialization,experience_years')
+          .eq('user_id', chapterCoursesData[0].course.instructor_id)
+          .eq('is_active', true)
+          .single();
+        if (teacherData) setTeacherProfile(teacherData);
+      }
+
     } catch (error: unknown) {
       console.error('Error fetching chapter:', error);
       toast({
@@ -248,7 +254,11 @@ export const ChapterDetailPage = () => {
     if (!userId) {
       setShowAuthModal(true);
     } else {
-      setShowPurchaseChoicesModal(true);
+      if (chapter?.price === 0) {
+        setShowPurchaseModal(true)
+      } else {
+        setShowPurchaseChoicesModal(true);
+      }
     }
   };
 
@@ -387,6 +397,55 @@ export const ChapterDetailPage = () => {
                   ))}
                 </div>
               </div>
+
+              {/* Instructor Section */}
+              <Card className="glass-card border-white/10">
+                <CardHeader className="pb-3 sm:pb-6">
+                  <CardTitle className="flex items-center gap-2 sm:gap-3 text-lg sm:text-xl">
+                    <User className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+                    {t('studentChapterDetail.instructor')}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
+                                         {teacherProfile?.profile_image_url ? (
+                       <img
+                         src={teacherProfile.profile_image_url}
+                         alt={teacherProfile.display_name}
+                         className="h-16 w-16 sm:h-20 sm:w-20 rounded-full object-cover border border-primary/30 shadow flex-shrink-0"
+                       />
+                     ) : chapterCourses[0]?.course?.profiles?.avatar_url ? (
+                       <img
+                         src={chapterCourses[0].course.profiles.avatar_url}
+                         alt={chapterCourses[0].course.instructor_name}
+                         className="h-16 w-16 sm:h-20 sm:w-20 rounded-full object-cover border border-primary/30 shadow flex-shrink-0"
+                       />
+                     ) : (
+                       <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-xl sm:text-2xl font-bold text-primary-foreground flex-shrink-0">
+                         {(teacherProfile?.display_name || chapterCourses[0]?.course?.instructor_name || t('studentChapterDetail.instructor'))?.charAt(0)}
+                       </div>
+                     )}
+                                                              <div className="flex-1 space-y-3 text-center sm:text-left min-w-0">
+                       <div>
+                         <h3 className="text-lg sm:text-xl font-semibold break-words">{teacherProfile?.display_name || chapterCourses[0]?.course?.instructor_name || t('studentChapterDetail.unknownInstructor')}</h3>
+                         {teacherProfile?.specialization && (
+                           <p className="text-sm sm:text-base text-muted-foreground break-words">{teacherProfile.specialization}</p>
+                         )}
+                         {teacherProfile?.bio && (
+                           <p className="text-xs sm:text-sm text-muted-foreground mt-1 break-words">{teacherProfile.bio}</p>
+                         )}
+                       </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 text-xs sm:text-sm">
+
+                        <div className="flex items-center justify-center sm:justify-start gap-2">
+                          <Star className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-400 flex-shrink-0" />
+                          <span className="break-words">4.8</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
 
             {/* Sidebar */}
@@ -422,10 +481,6 @@ export const ChapterDetailPage = () => {
                       <CheckCircle className="h-4 w-4 text-primary" />
                       <span className="text-sm">{t('studentChapterDetail.lifetimeAccess')}</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-primary" />
-                      <span className="text-sm">{t('studentChapterDetail.certificateOfCompletion')}</span>
-                    </div>
                   </div>
 
                   {isEnrolled ? (
@@ -435,20 +490,29 @@ export const ChapterDetailPage = () => {
                     </Button>
                   ) : (
                     <div className="space-y-3">
-                      <Button 
-                        onClick={handleEnrollClick}
-                        className="w-full btn-primary"
-                        disabled={userWallet < chapter.price}
-                      >
-                        {userWallet < chapter.price ? t('studentChapterDetail.insufficientCredits') : t('studentChapterDetail.enrollInChapter')}
-                      </Button>
-                      <p className="text-xs text-center text-muted-foreground">
-                        {t('studentChapterDetail.yourBalance')} {userWallet}
-                      </p>
+                      {chapter.price === 0 ? (
+                        <Button 
+                          onClick={handleEnrollClick}
+                          className="w-full h-12 sm:h-14 text-base sm:text-lg rounded-xl bg-success"
+                        >
+                          {t('studentChapterDetail.freeChapter')}
+                          <Gift className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
+                        </Button>
+                      ) : (
+                        <Button 
+                          onClick={handleEnrollClick}
+                          className="w-full btn-primary"
+                          disabled={userWallet < chapter.price}
+                        >
+                          {userWallet < chapter.price ? t('studentChapterDetail.insufficientCredits') : t('studentChapterDetail.enrollInChapter')}
+                        </Button>
+                      )}
                     </div>
                   )}
                 </CardContent>
               </Card>
+
+
             </div>
           </div>
         </div>
@@ -456,16 +520,30 @@ export const ChapterDetailPage = () => {
       </div>
 
       {/* Modals */}
-      <AuthModal
-        open={showAuthModal}
-        onOpenChange={setShowAuthModal}
-      >
-        <AuthForm 
-          mode="login" 
-          setMode={() => {}} 
-          onClose={() => setShowAuthModal(false)}
-        />
-      </AuthModal>
+
+    
+      {/* Auth Modal */}
+      <Dialog open={showAuthModal} onOpenChange={setShowAuthModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('studentCourseView.authenticationRequired')}</DialogTitle>
+            <DialogDescription>
+              {t('studentCourseView.authDescription')}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-2 mt-4">
+            <Button variant="outline" onClick={() => setShowAuthModal(false)}>
+              {t('studentCourseView.cancel')}
+            </Button>
+            <Button onClick={() => navigate(`/auth/login?next=${encodeURIComponent(window.location.pathname)}`)}>
+              {t('studentCourseView.signIn')}
+            </Button>
+            <Button onClick={() => navigate(`/auth/signup?next=${encodeURIComponent(window.location.pathname)}`)}>
+              {t('studentCourseView.createAccount')}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <PurchaseChoicesModal
         isOpen={showPurchaseChoicesModal}

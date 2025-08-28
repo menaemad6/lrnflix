@@ -222,7 +222,7 @@ const Auth: React.FC = () => {
   return (
     <>
       <SEOHead />
-      <div className={bgClass + " h-screen min-h-screen flex flex-col md:flex-row bg-gradient-to-br from-white to-[#fdeef7] overflow-hidden"}>
+      <div className={bgClass + " h-screen min-h-screen flex flex-col md:flex-row  overflow-hidden"}>
       {/* Left Column */}
       <div className="w-full h-screen md:w-1/2 bg-transparent flex flex-col min-h-0 relative">
         <div className="flex-1 w-full max-w-lg mx-auto flex flex-col items-start pt-16 px-2 gap-8 min-h-0">

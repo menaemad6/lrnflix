@@ -5,7 +5,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
-import { Layout, LogOut, Home, Search, Store, Menu, Sidebar, MessageCircleQuestion, Gamepad2, Users, Gift, Bell, PieChart, DollarSign, CircleDollarSign, GraduationCap, BookOpen } from 'lucide-react';
+import { SidebarLanguageSelector } from '@/components/ui/SidebarLanguageSelector';
+import { Layout, LogOut, Home, Search, Store, Menu, Sidebar, MessageCircleQuestion, Gamepad2, Users, Gift, Bell, PieChart, DollarSign, CircleDollarSign, GraduationCap, BookOpen, X, Sun, Moon, Laptop, ChevronRight, User as UserIcon } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import type { RootState } from '@/store/store';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -26,6 +27,7 @@ import type { User } from '@/store/slices/authSlice';
 import WalletCardDesign from '@/components/student/WalletCardDesign'
 import { PLATFORM_NAME } from '@/data/constants';
 import { useTranslation } from 'react-i18next';
+import { cn } from '@/lib/utils';
 
 // Logo component to replace BookOpen icons
 const Logo = ({ className = "" }: { className?: string }) => (
@@ -57,6 +59,7 @@ export const Navbar = ({ extraXSpacing = false }: { extraXSpacing?: boolean }) =
   const { teacher } = useTenant();
   const [sheetOpen, setSheetOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
     if (isMobile) {
@@ -143,26 +146,27 @@ export const Navbar = ({ extraXSpacing = false }: { extraXSpacing?: boolean }) =
       ...(userRole === 'student'
         ? [
           { to: '/student/dashboard', label: t('navbar.dashboard'), icon: Layout },
-          { to: '/teachers', label: t('navbar.teachers'), icon: GraduationCap },
           { to: '/courses', label: t('navbar.courses'), icon: Search },
-          { to: '/student/store', label: t('navbar.store'), icon: CircleDollarSign },
           { to: '/chapters', label: t('navbar.chapters'), icon: BookOpen },
-          { to: '/student/groups', label: t('navbar.myGroups'), icon: Users },
-          { to: '/questions', label: t('navbar.questions'), icon: MessageCircleQuestion },
           { to: '/multiplayer-quiz', label: t('navbar.quizGame'), icon: Gamepad2 },
-          { to: '/student/notifications', label: t('navbar.myNotifications'), icon: Bell },
+          { to: '/student/groups', label: t('navbar.myGroups'), icon: Users },
+          { to: '/teachers', label: t('navbar.teachers'), icon: GraduationCap },
+          { to: '/student/store', label: t('navbar.store'), icon: CircleDollarSign },
+          { to: '/questions', label: t('navbar.questions'), icon: MessageCircleQuestion },
+          // { to: '/student/notifications', label: t('navbar.myNotifications'), icon: Bell },
   
           ]
         : []),
       ...((userRole === 'teacher' || userRole === 'admin')
         ? [
             { to: '/teacher/dashboard', label: t('navbar.dashboard'), icon: Layout },
+            { to: '/teacher/courses', label: t('navbar.myCourses'), icon: BookOpen },
             { to: '/teacher/chapters', label: t('navbar.myChapters'), icon: BookOpen },
-            { to: '/questions', label: t('navbar.questions'), icon: MessageCircleQuestion },
-            { to: '/teacher/multiplayer-quiz', label: t('navbar.quizGame'), icon: Gamepad2 },
             { to: '/teacher/groups', label: t('navbar.myGroups'), icon: Users },
+            { to: '/teacher/multiplayer-quiz', label: t('navbar.quizGame'), icon: Gamepad2 },
+            { to: '/questions', label: t('navbar.questions'), icon: MessageCircleQuestion },
             { to: '/teacher/codes', label: t('navbar.walletCodes'), icon: Gift },
-            { to: '/teacher/notifications', label: t('navbar.notifications'), icon: Bell },
+            // { to: '/teacher/notifications', label: t('navbar.notifications'), icon: Bell },
             { to: '/teacher/analytics', label: t('navbar.analytics'), icon: PieChart },
           ]
         : []),
@@ -176,7 +180,7 @@ export const Navbar = ({ extraXSpacing = false }: { extraXSpacing?: boolean }) =
   // UNAUTHENTICATED NAVBAR
   if (!isAuthenticated) {
     return (
-      <nav className={`glass-card border border-border/20 fixed top-2 md:top-4 left-4 right-4 z-50 rounded-2xl shadow-xl ${extraXSpacing ? 'md:left-8 md:right-8 lg:left-16 lg:right-16' : ''} bg-background dark:bg-background text-card-foreground transition-all duration-500 ease-in-out ${hidden ? '-translate-y-24 opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'} max-w-full md:max-w-3xl lg:max-w-6xl mx-auto`}>
+      <nav className={`bg-card border border-border/20 fixed top-2 md:top-4 left-4 right-4 z-50 rounded-2xl shadow-xl backdrop-blur-xl ${extraXSpacing ? 'md:left-8 md:right-8 lg:left-16 lg:right-16' : ''} text-card-foreground transition-all duration-500 ease-in-out ${hidden ? '-translate-y-24 opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'} max-w-full md:max-w-3xl lg:max-w-6xl mx-auto`}>
         <div className="px-6 py-2 md:py-4">
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center space-x-2">
@@ -184,46 +188,103 @@ export const Navbar = ({ extraXSpacing = false }: { extraXSpacing?: boolean }) =
               <span className="text-2xl font-bold gradient-text">{teacher?.display_name || PLATFORM_NAME}</span>
             </Link>
             {isMobile ? (
-              <Sheet>
+              <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
                 <SheetTrigger asChild>
                                   <Button variant="outline" size="icon" className="relative overflow-hidden bg-gradient-to-r from-primary/10 via-primary/5 to-secondary/10 border border-primary/20 hover:border-primary/40 hover:bg-gradient-to-r hover:from-primary/20 hover:via-primary/10 hover:to-secondary/20 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-primary/25 active:scale-95 group">
                   <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-transparent to-secondary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   <Sidebar className="h-[1.2rem] w-[1.2rem] relative z-10 text-primary group-hover:text-primary-600 transition-colors duration-300" />
                 </Button>
                 </SheetTrigger>
-                <SheetContent side="right" className="pt-0 w-72 rounded-l-2xl shadow-2xl bg-card text-foreground flex flex-col h-full justify-between">
-                  <div className="flex flex-col h-full">
-                    {/* Top: Logo and Theme Toggle (not scrollable) */}
-                    <div className="flex flex-col gap-2 pt-8 pb-2 px-6 border-b border-border/10">
-                      <div className="flex flex-col items-center justify-center w-full">
-                        <Logo className="h-8 w-auto mb-1" />
-                        <span className="text-2xl font-bold gradient-text text-center w-full">{teacher?.display_name || PLATFORM_NAME}</span>
-                      </div>
-                      <div className="mt-4">
-                        <ThemeSegmentedToggle />
-                      </div>
-                    </div>
-                    {/* Login/Signup Buttons (directly below theme toggler) */}
-                    <div className="px-1 pb-4 pt-8 flex flex-col gap-3">
-                      <div>
-                        <Link to="/auth/login">
-                          <Button className="hover-glow w-full">{t('auth.login')}</Button>
-                        </Link>
-                        <div className="text-xs text-muted-foreground mt-1 text-center">
-                          {t('auth.loginDescription')}
+                                 <SheetContent side="right" className="w-full max-w-sm p-0 bg-background/95 backdrop-blur-xl border-l border-border/40">
+                   <div className="flex flex-col h-full">
+                     {/* Modernized Header */}
+                     <div className="p-3 flex items-center justify-between">
+                       <h2 className="text-base font-semibold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70">More Options</h2>
+                       <Button 
+                         variant="ghost" 
+                         size="icon" 
+                         className="h-7 w-7 rounded-full bg-muted/50" 
+                         onClick={() => setSheetOpen(false)}
+                       >
+                         <X className="h-3.5 w-3.5" />
+                       </Button>
+                     </div>
+                     
+                                           {/* Stylish Theme Selector */}
+                      <div className="mx-3 p-2.5 rounded-lg bg-muted/50 backdrop-blur-sm border border-border/40">
+                        <div className="font-medium text-xs mb-2 text-muted-foreground">Choose Theme</div>
+                        <div className="grid grid-cols-3 gap-1.5">
+                          <Button
+                            variant={theme === 'light' ? 'default' : 'outline'}
+                            size="sm"
+                            onClick={() => setTheme('light')}
+                            className="h-8 rounded-md text-xs px-2"
+                          >
+                            <Sun className="h-3.5 w-3.5 mr-1" />
+                            Light
+                          </Button>
+                          <Button
+                            variant={theme === 'dark' ? 'default' : 'outline'}
+                            size="sm"
+                            onClick={() => setTheme('dark')}
+                            className="h-8 rounded-md text-xs px-2"
+                          >
+                            <Moon className="h-3.5 w-3.5 mr-1" />
+                            Dark
+                          </Button>
+                          <Button
+                            variant={theme === 'system' ? 'default' : 'outline'}
+                            size="sm"
+                            onClick={() => setTheme('system')}
+                            className="h-8 rounded-md text-xs px-2"
+                          >
+                            <Laptop className="h-3.5 w-3.5 mr-1" />
+                            Auto
+                          </Button>
                         </div>
                       </div>
-                      <div>
-                        <Link to="/auth/signup">
-                          <Button variant="outline" className="glass hover-glow w-full">{t('auth.signup')}</Button>
-                        </Link>
-                        <div className="text-xs text-muted-foreground mt-1 text-center">
-                          {t('auth.signupDescription')}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </SheetContent>
+                      
+                                             {/* Stylish Language Selector */}
+                       <SidebarLanguageSelector variant="compact" className="mt-3" />
+                     
+                     {/* Profile Card - for non-authenticated users */}
+                     <div className="p-3 mt-auto">
+                       <div className="p-2.5 bg-muted/60 rounded-lg border border-border/40">
+                         <div className="flex items-center mb-2.5">
+                           <Avatar className="h-9 w-9 mr-2.5 border border-border/40">
+                             <AvatarFallback className="bg-muted/80">
+                               <UserIcon className="h-4 w-4 text-muted-foreground" />
+                             </AvatarFallback>
+                           </Avatar>
+                           <div>
+                             <p className="font-medium text-sm">Not signed in</p>
+                             <p className="text-xs text-muted-foreground">Sign in to view your profile</p>
+                           </div>
+                         </div>
+                         <div className="grid grid-cols-2 gap-1.5">
+                           <Button
+                             variant="default"
+                             size="sm"
+                             asChild
+                             className="w-full h-8 text-xs"
+                             onClick={() => setSheetOpen(false)}
+                           >
+                             <Link to="/auth/login">Sign In</Link>
+                           </Button>
+                           <Button
+                             variant="outline"
+                             size="sm"
+                             asChild
+                             className="w-full h-8 text-xs"
+                             onClick={() => setSheetOpen(false)}
+                           >
+                             <Link to="/auth/signup">Sign Up</Link>
+                           </Button>
+                         </div>
+                       </div>
+                     </div>
+                   </div>
+                 </SheetContent>
               </Sheet>
             ) : (
               <div className="flex items-center space-x-4">
@@ -249,7 +310,7 @@ export const Navbar = ({ extraXSpacing = false }: { extraXSpacing?: boolean }) =
 
   // AUTHENTICATED NAVBAR
   return (
-    <nav className={`glass-card border border-border/20 fixed top-2 md:top-4 left-4 right-4 z-50 rounded-2xl shadow-xl ${extraXSpacing ? 'md:left-8 md:right-8 lg:left-16 lg:right-16' : ''} bg-background dark:bg-background text-card-foreground transition-all duration-500 ease-in-out ${hidden ? '-translate-y-24 opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'} max-w-full md:max-w-6xl mx-auto`}>
+    <nav className={`bg-card border border-border/20 fixed top-2 md:top-4 left-4 right-4 z-50 rounded-2xl shadow-xl backdrop-blur-xl ${extraXSpacing ? 'md:left-8 md:right-8 lg:left-16 lg:right-16' : ''} text-card-foreground transition-all duration-500 ease-in-out ${hidden ? '-translate-y-24 opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'} max-w-full md:max-w-6xl mx-auto`}>
       <div className="px-6 py-2 md:py-4">
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center space-x-2">
@@ -265,9 +326,9 @@ export const Navbar = ({ extraXSpacing = false }: { extraXSpacing?: boolean }) =
                   <Sidebar className="h-[1.2rem] w-[1.2rem] relative z-10 text-primary group-hover:text-primary-600 transition-colors duration-300" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="pt-0 w-72 rounded-l-2xl shadow-2xl bg-card text-foreground flex flex-col h-full justify-between">
-                <NavbarSidebarContent user={user} navLinks={sideNavLinks} handleLogout={handleLogout} setSheetOpen={setSheetOpen} isActive={isActive} />
-              </SheetContent>
+                             <SheetContent side="right" className="w-full max-w-sm p-0 bg-background/95 backdrop-blur-xl border-l border-border/40">
+                 <NavbarSidebarContent user={user} navLinks={sideNavLinks} handleLogout={handleLogout} setSheetOpen={setSheetOpen} isActive={isActive} />
+               </SheetContent>
             </Sheet>
           ) : (
             <div className="flex items-center space-x-4">
@@ -359,9 +420,9 @@ export const Navbar = ({ extraXSpacing = false }: { extraXSpacing?: boolean }) =
                   <Sidebar className="h-[1.2rem] w-[1.2rem] transition-colors group-hover:text-primary-500" />
                 </Button>
                 </SheetTrigger>
-                <SheetContent side="right" className="pt-0 w-72 lg:w-96 rounded-l-2xl shadow-2xl bg-card text-foreground flex flex-col h-full">
-                  <NavbarSidebarContent user={user} navLinks={sideNavLinks} handleLogout={handleLogout} setSheetOpen={setSheetOpen} isActive={isActive} />
-                </SheetContent>
+                                 <SheetContent side="right" className="w-full max-w-sm p-0 bg-background/95 backdrop-blur-xl border-l border-border/40">
+                   <NavbarSidebarContent user={user} navLinks={sideNavLinks} handleLogout={handleLogout} setSheetOpen={setSheetOpen} isActive={isActive} />
+                 </SheetContent>
               </Sheet>
             </div>
           )}
@@ -405,59 +466,187 @@ interface NavLinkItem {
   to: string;
   label: string;
   icon: React.ComponentType<{ className?: string }>;
+  iconBg?: string;
+  iconColor?: string;
 }
 
 function NavbarSidebarContent({ user, navLinks, handleLogout, setSheetOpen, isActive }: { user: User | null, navLinks: NavLinkItem[], handleLogout: () => void, setSheetOpen?: (open: boolean) => void, isActive: (path: string) => boolean }) {
   const { t } = useTranslation('navigation');
   const { teacher } = useTenant();
+  const { theme, setTheme } = useTheme();
+  
+  // Helper functions
+  const getInitials = (name: string) => {
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+  };
+  
+  const stripTenantFromEmail = (email: string) => {
+    if (!email) return '';
+    return email.split('@')[0];
+  };
+  
+  const closeMoreMenu = () => {
+    if (setSheetOpen) setSheetOpen(false);
+  };
+  
+  // Sidebar items with styling
+  const sidebarItems = navLinks.map((link) => ({
+    ...link,
+    iconBg: "bg-primary/10",
+    iconColor: "text-primary"
+  }));
+  
   return (
     <div className="flex flex-col h-full">
-      {/* Top: Logo and Theme Toggle (not scrollable) */}
-      <div className="flex flex-col gap-2 pt-8 pb-2 px-6 border-b border-border/10">
-        <div className="flex flex-col items-center justify-center w-full">
-          <Logo className="h-8 w-auto mb-1" />
-          <span className="text-2xl font-bold gradient-text text-center w-full">{teacher?.display_name || PLATFORM_NAME}</span>
-        </div>
-        <div className="mt-4">
-          <ThemeSegmentedToggle />
-        </div>
-        <div className="mt-4 flex justify-center">
-          <LanguageSwitcher />
-        </div>
-      </div>
-      {/* Middle: Scrollable Links */}
-      <HiddenScrollbar maxHeight="calc(100vh - 270px)">
-        <div className="flex flex-col gap-2 px-1 mt-2">
-          {navLinks.map((link) => (
-            <NavLink key={link.to} to={link.to} icon={link.icon} onClick={setSheetOpen ? () => setSheetOpen(false) : undefined} isActive={isActive}>
-              {link.label}
-            </NavLink>
-          ))}
-        </div>
-      </HiddenScrollbar>
-      {/* Bottom: Profile Card and Logout (not scrollable) */}
-      <div className="px-1 pb-4 pt-2 flex flex-col gap-2 mt-auto">
-        <Card className="p-2 rounded-xl bg-gradient-to-r from-primary-500/10 to-secondary-500/10 border border-primary-500/20">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-full flex items-center justify-center text-black font-bold text-base">
-              {user?.full_name?.charAt(0) || user?.email?.charAt(0) || 'U'}
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-xs font-semibold truncate">{user?.full_name || 'User'}</div>
-              <div className="text-[10px] text-muted-foreground truncate">{user?.email}</div>
-            </div>
-          </div>
-        </Card>
+      {/* Modernized Header */}
+      <div className="p-4 flex items-center justify-between">
+        <h2 className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70">More Options</h2>
         <Button 
-          variant="destructive"
-          size="sm"
-          onClick={handleLogout}
-          className="w-full text-sm font-bold rounded-lg shadow flex items-center justify-center gap-2 py-2"
+          variant="ghost" 
+          size="icon" 
+          className="h-8 w-8 rounded-full bg-muted/50" 
+          onClick={closeMoreMenu}
         >
-          <LogOut className="h-5 w-5" />
-          {t('navbar.logout')}
+          <X className="h-4 w-4" />
         </Button>
       </div>
+      
+             {/* Stylish Theme Selector */}
+       <div className="mx-4 p-3 rounded-xl bg-muted/50 backdrop-blur-sm border border-border/40">
+         <div className="font-medium text-sm mb-2 text-muted-foreground">Choose Theme</div>
+         <div className="grid grid-cols-3 gap-2">
+           <Button
+             variant={theme === 'light' ? 'default' : 'outline'}
+             size="sm"
+             onClick={() => setTheme('light')}
+             className="h-9 rounded-lg"
+           >
+             <Sun className="h-4 w-4 mr-1.5" />
+             Light
+           </Button>
+           <Button
+             variant={theme === 'dark' ? 'default' : 'outline'}
+             size="sm"
+             onClick={() => setTheme('dark')}
+             className="h-9 rounded-lg"
+           >
+             <Moon className="h-4 w-4 mr-1.5" />
+             Dark
+           </Button>
+           <Button
+             variant={theme === 'system' ? 'default' : 'outline'}
+             size="sm"
+             onClick={() => setTheme('system')}
+             className="h-9 rounded-lg"
+           >
+             <Laptop className="h-4 w-4 mr-1.5" />
+             Auto
+           </Button>
+         </div>
+       </div>
+       
+               {/* Stylish Language Selector */}
+        <SidebarLanguageSelector className="mt-3" />
+      
+      {/* Menu Items */}
+      <div className="flex-1 overflow-y-auto px-2">
+        <div className="py-4 space-y-1">
+          {sidebarItems.map((item) => (
+            <Link 
+              key={item.to}
+              to={item.to} 
+              className="flex items-center justify-between p-3 hover:bg-primary/10 dark:hover:bg-primary/20 rounded-lg transition-colors"
+              onClick={closeMoreMenu}
+            >
+              <div className="flex items-center">
+                <span className={cn("p-2 rounded-lg mr-3", item.iconBg)}>
+                  <item.icon className={cn("h-5 w-5", item.iconColor)} />
+                </span>
+                <span className="font-medium">{item.label}</span>
+              </div>
+              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            </Link>
+          ))}
+        </div>
+      </div>
+      
+      <Separator className="my-2" />
+      
+             {/* Profile Card - for both authenticated and non-authenticated users */}
+       <div className="p-3">
+         {user ? (
+           <Link 
+             to="/" 
+             className="flex items-center space-x-3 p-2.5 bg-muted/60 hover:bg-primary/10 dark:hover:bg-primary/20 rounded-xl transition-colors border border-border/40"
+             onClick={closeMoreMenu}
+           >
+             <Avatar className="h-10 w-10 border-2 border-primary/20">
+               <AvatarImage src={user.avatar_url} alt={user.full_name || "User"} />
+               <AvatarFallback className="bg-primary/10 text-primary">
+                 {getInitials(user.full_name || "")}
+               </AvatarFallback>
+             </Avatar>
+             <div className="flex-1 min-w-0">
+               <p className="font-medium truncate text-sm">{user.full_name || "User"}</p>
+               <p className="text-xs text-muted-foreground truncate">{stripTenantFromEmail(user.email) || "user@example.com"}</p>
+               {/* <p className="text-xs text-primary mt-0.5">View Profile</p> */}
+             </div>
+             <ChevronRight className="h-4 w-4 text-muted-foreground" />
+           </Link>
+         ) : (
+           <div className="p-2.5 bg-muted/60 rounded-xl border border-border/40">
+             <div className="flex items-center mb-2.5">
+                               <Avatar className="h-9 w-9 mr-2.5 border border-border/40">
+                   <AvatarFallback className="bg-muted/80">
+                     <UserIcon className="h-4 w-4 text-muted-foreground" />
+                   </AvatarFallback>
+                 </Avatar>
+               <div>
+                 <p className="font-medium text-sm">Not signed in</p>
+                 <p className="text-xs text-muted-foreground">Sign in to view your profile</p>
+               </div>
+             </div>
+             <div className="grid grid-cols-2 gap-1.5">
+               <Button
+                 variant="default"
+                 size="sm"
+                 asChild
+                 className="w-full h-8 text-xs"
+                 onClick={closeMoreMenu}
+               >
+                 <Link to="/auth/login">Sign In</Link>
+               </Button>
+               <Button
+                 variant="outline"
+                 size="sm"
+                 asChild
+                 className="w-full h-8 text-xs"
+                 onClick={closeMoreMenu}
+               >
+                 <Link to="/auth/signup">Sign Up</Link>
+               </Button>
+             </div>
+           </div>
+         )}
+       </div>
+      
+             {/* Sign Out Button - show only if authenticated */}
+       {user && (
+         <div className="p-3 pt-0">
+           <Button
+             variant="outline"
+             size="sm"
+             onClick={() => {
+               handleLogout();
+               closeMoreMenu();
+             }}
+             className="w-full flex items-center justify-center h-9 rounded-lg border-dashed"
+           >
+             <LogOut className="h-4 w-4 mr-2 text-destructive" />
+             <span className="text-destructive">Sign Out</span>
+           </Button>
+         </div>
+       )}
     </div>
   );
 }

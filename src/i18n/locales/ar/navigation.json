@@ -19,7 +19,8 @@
     "profile": "الملف الشخصي",
     "logout": "تسجيل الخروج",
     "themeToggle": "تبديل المظهر",
-    "languageToggle": "تبديل اللغة"
+    "languageToggle": "تبديل اللغة",
+    "myCourses": "دوراتي"
   },
   "sidebar": {
     "dashboard": "لوحة التحكم",

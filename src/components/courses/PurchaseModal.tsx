@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from 'react-i18next';
-import { Wallet, CreditCard, Percent, AlertCircle } from 'lucide-react';
+import { Wallet, CreditCard, Percent, AlertCircle, Gift, CheckCircle } from 'lucide-react';
 
 interface PurchaseModalProps {
   isOpen: boolean;
@@ -158,11 +158,17 @@ export const PurchaseModal = ({ isOpen, onClose, item, userWallet, onPurchaseSuc
 
       // Create notification for the instructor
       const itemType = item.type === 'chapter' ? 'chapter' : 'course';
+      const notificationMessage = item.price === 0 
+        ? `A student has enrolled in your free ${itemType} "${item.title}".`
+        : `A student has purchased your ${itemType} "${item.title}" for ${result.amount_paid || item.price} credits.`;
+      
       await createNotification(
         item.instructor_id,
-        `New ${itemType.charAt(0).toUpperCase() + itemType.slice(1)} Purchase!`,
-        `A student has purchased your ${itemType} "${item.title}" for ${result.amount_paid || item.price} credits.`,
-        `${itemType}_purchase`
+        item.price === 0 
+          ? `New Free ${itemType.charAt(0).toUpperCase() + itemType.slice(1)} Enrollment!`
+          : `New ${itemType.charAt(0).toUpperCase() + itemType.slice(1)} Purchase!`,
+        notificationMessage,
+        `${itemType}_${item.price === 0 ? 'enrollment' : 'purchase'}`
       );
 
       toast({
@@ -199,6 +205,54 @@ export const PurchaseModal = ({ isOpen, onClose, item, userWallet, onPurchaseSuc
     setDiscountApplied(null);
     setFinalPrice(item?.price || 0);
   };
+
+  // If the item is free (price === 0), show the free enrollment screen
+  if (item?.price === 0) {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Gift className="h-5 w-5 text-green-600" />
+              {item.type === 'chapter' ? t('purchaseModal.freeChapterTitle', 'Free Chapter Enrollment') : t('purchaseModal.freeCourseTitle', 'Free Course Enrollment')}
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-6">
+            <div className="text-center">
+              <div className="w-16 h-16 mx-auto bg-green-100 rounded-full flex items-center justify-center mb-4">
+                <Gift className="h-8 w-8 text-green-600" />
+              </div>
+              <h3 className="font-semibold text-lg mb-2">{item?.title}</h3>
+              <div className="flex items-center justify-center gap-2">
+                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                  {t('studentCourseView.free')}
+                </Badge>
+              </div>
+              <p className="text-sm text-muted-foreground mt-2">
+                {t('purchaseModal.freeCourseDescription', 'This course is completely free! Enroll now and start learning.')}
+              </p>
+            </div>
+
+
+
+            <div className="flex gap-3">
+              <Button variant="outline" onClick={onClose} className="flex-1 hover:bg-destructive">
+                {t('purchaseModal.cancel')}
+              </Button>
+              <Button
+                onClick={handlePurchase}
+                disabled={loading}
+                className="flex-1 bg-green-600 hover:bg-green-700"
+              >
+                {loading ? t('purchaseModal.processing') : t('purchaseModal.enrollForFree', 'Enroll for Free')}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

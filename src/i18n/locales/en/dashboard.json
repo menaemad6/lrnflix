@@ -693,6 +693,14 @@
   },
   "purchaseModal": {
     "title": "Purchase Course",
+    "freeCourseTitle": "Free Course Enrollment",
+    "freeCourseDescription": "This course is completely free! Enroll now and start learning.",
+    "freeCourseBenefits": "What you get:",
+    "fullCourseAccess": "Full course access",
+    "allLessons": "All lessons and materials",
+    "certificate": "Certificate upon completion",
+    "lifetimeAccess": "Lifetime access",
+    "enrollForFree": "Enroll for Free",
     "originalPrice": "Original Price: {{price}} EGP",
     "yourWallet": "Your Wallet: {{amount}} EGP",
     "discountCode": "Discount Code (Optional)",
@@ -719,8 +727,10 @@
     "discountAppliedDesc": "You saved {{amount}} EGP!",
     "error": "Error",
     "failedToApply": "Failed to apply discount code",
+    "discountNotAvailableForChapters": "Discount codes are not available for chapters",
     "purchaseFailed": "Purchase Failed",
-    "purchaseSuccessful": "Purchase Successful!"
+    "purchaseSuccessful": "Purchase Successful!",
+    "freeChapterTitle": "Free Chapter"
   },
   "unauthorized": {
     "title": "Unauthorized Access",
@@ -863,7 +873,8 @@
     "hours": "Hours",
     "minutes": "Minutes",
     "lifetime": "Lifetime",
-    "egp" : "EGP"
+    "egp" : "EGP",
+    "freeCourse": "Free Course"
   },
   "chapters": {
     "title": "Explore Chapters",
@@ -918,7 +929,12 @@
     "insufficientCredits": "Insufficient Credits",
     "yourBalance": "Your balance: credits",
     "courseInstructor": "Course Instructor",
-    "egp" : "EGP"
+    "unknownInstructor": "Unknown Instructor",
+    "chapterInstructor": "Chapter Instructor",
+    "rating": "Rating",
+    "egp" : "EGP",
+    "freeChapter": "Free Chapter",
+    "instructor": "Instructor"
   },
   "courseProgress": {
     "accessDenied": "Access Denied",

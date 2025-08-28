@@ -585,7 +585,11 @@
     "error": "خطأ",
     "failedToApply": "فشل في تطبيق رمز الخصم",
     "purchaseFailed": "فشل الشراء",
-    "purchaseSuccessful": "تم الشراء بنجاح!"
+    "purchaseSuccessful": "تم الشراء بنجاح!",
+    "enrollForFree": "سجل مجانا",
+    "freeCourseDescription": "هذه الدورة مجانية! سجل الآن وابدأ التعلم.",
+    "freeCourseTitle": "محاضرة مجانية",
+    "freeChapterTitle": "شابتر مجاني"
   },
   "unauthorized": {
     "title": "وصول غير مصرح",
@@ -728,7 +732,8 @@
     "hours": "ساعات",
     "minutes": "دقائق",
     "lifetime": "مدى الحياة",
-    "egp" : "ج.م"
+    "egp" : "ج.م",
+    "freeCourse": "محاضرة مجانية"
   },
   "chapters": {
     "title": "استكشف الفصول",
@@ -783,7 +788,9 @@
     "insufficientCredits": "رصيد غير كافي",
     "yourBalance": "رصيدك: ج.م",
     "courseInstructor": "مدرب الدورة",
-    "egp" : "ج.م"
+    "egp" : "ج.م",
+    "freeChapter": "شابتر مجاني",
+    "instructor": "المدرب"
   },
   "courseProgress": {
     "accessDenied": "تم رفض الوصول",

@@ -283,16 +283,7 @@ export const PurchaseChoicesModal = ({
                 ))}
               </div>
 
-              {/* Info Box */}
-              <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl">
-                <div className="flex items-start gap-3">
-                  <CheckCircle className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
-                  <div className="text-sm text-blue-800 dark:text-blue-200">
-                    <p className="font-medium mb-1">{t('invoices.securePaymentProcessing')}</p>
-                    <p>{t('invoices.securePaymentDescription')}</p>
-                  </div>
-                </div>
-              </div>
+
             </div>
 
             {/* Right Column - Item Details */}

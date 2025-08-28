@@ -6,7 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
-import { Search, Calendar, BookOpen } from 'lucide-react';
+import { Search, Calendar, BookOpen, ImageDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { useRandomBackground } from '@/hooks/useRandomBackground';
 import WavesHeroHeader from '@/components/ui/WavesHeroHeader';
@@ -210,7 +210,7 @@ export const TeachersPage = () => {
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-primary/40 bg-muted">
-                          <BookOpen className="w-10 h-10" />
+                          <ImageDown className="w-10 h-10" />
                         </div>
                       )}
                       <div className="absolute inset-0 bg-black/10" />
@@ -238,10 +238,7 @@ export const TeachersPage = () => {
                             {t('teachersPage.years_experience', { years: teacher.experience_years })}
                           </div>
                         )}
-                        <div className="flex items-center gap-1">
-                          <BookOpen className="w-3 h-3" />
-                          {t('teachersPage.courses_count', { count: teacher.course_count || 0 })}
-                        </div>
+
                       </div>
                     </div>
                     {/* Bio */}

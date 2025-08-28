@@ -16,7 +16,6 @@ import {
   Play, 
   CheckCircle,
   Clock,
-  Users,
   MessageSquare,
   ArrowRight,
   Star,
@@ -24,21 +23,18 @@ import {
   Target,
   Globe,
   Award,
-  TrendingUp,
   User,
-  Calendar,
   PlayCircle,
   FileText,
-  Heart,
   Share2,
-  Download,
   Smartphone,
-  Monitor,
   Infinity,
   AlertTriangle,
   Search,
   Home,
-  HelpCircle
+  HelpCircle,
+  Gift,
+  Calendar
 } from 'lucide-react';
 import { useCourseProgress } from '@/hooks/useCourseProgress';
 import { useTenantItemValidation } from '@/hooks/useTenantItemValidation';
@@ -48,7 +44,7 @@ import { useRandomBackground } from "../../hooks/useRandomBackground";
 import { CourseViewSkeleton } from '@/components/student/skeletons/CourseViewSkeleton';
 import { useTranslation } from 'react-i18next';
 import { SEOHead } from '@/components/seo';
-import { getDynamicSEOMetadata } from '@/data/seo';
+
 
 interface Course {
   id: string;
@@ -236,7 +232,11 @@ export const CourseView = () => {
     if (!userId) {
       setShowAuthModal(true);
     } else {
-      setShowPurchaseChoicesModal(true);
+      if (course?.price === 0) {
+        setShowPurchaseModal(true);
+      } else {
+        setShowPurchaseChoicesModal(true);
+      }
     }
   };
 
@@ -528,7 +528,18 @@ export const CourseView = () => {
                     </div>
                     
                     {/* Action Button */}
-                    {!isEnrolled ? (
+                    {!isEnrolled ? 
+                     course.price === 0 ? (
+                      <Button 
+                        onClick={handleEnrollClick}
+                        variant='default'
+                        className="w-full h-12 sm:h-14 text-base sm:text-lg rounded-xl bg-success"
+                      >
+                        {t('studentCourseView.freeCourse')}
+                        <Gift className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
+                      </Button>
+                    ) : 
+                    (
                       <Button 
                         onClick={handleEnrollClick}
                         variant='default'
@@ -537,7 +548,8 @@ export const CourseView = () => {
                         {t('studentCourseView.enrollNow')}
                         <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
                       </Button>
-                    ) : (
+                    )
+                    : (
                       <div className="space-y-3 sm:space-y-4">
                         <div className="flex items-center justify-center gap-2 text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/20 p-3 sm:p-4 rounded-xl">
                           <Trophy className="h-5 w-5 sm:h-6 sm:w-6" />
@@ -760,16 +772,9 @@ export const CourseView = () => {
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 text-xs sm:text-sm">
                         <div className="flex items-center justify-center sm:justify-start gap-2">
                           <Star className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-400 flex-shrink-0" />
-                          <span className="break-words">4.8 {t('studentCourseView.instructorRating')}</span>
+                          <span className="break-words">4.8</span>
                         </div>
-                        <div className="flex items-center justify-center sm:justify-start gap-2">
-                          <Award className="h-3 w-3 sm:h-4 sm:w-4 text-blue-500 flex-shrink-0" />
-                          <span className="break-words">15,234 {t('studentCourseView.students')}</span>
-                        </div>
-                        <div className="flex items-center justify-center sm:justify-start gap-2">
-                          <PlayCircle className="h-3 w-3 sm:h-4 sm:w-4 text-primary-500 flex-shrink-0" />
-                          <span className="break-words">12 {t('studentCourseView.courses')}</span>
-                        </div>
+
                       </div>
                     </div>
                   </div>
@@ -817,7 +822,18 @@ export const CourseView = () => {
                     </div>
                     
                     {/* Action Button */}
-                    {!isEnrolled ? (
+                    {!isEnrolled ? 
+                    course.price === 0 ? (
+                      <Button 
+                        onClick={handleEnrollClick}
+                        variant='default'
+                        className="w-full h-12 sm:h-14 text-base sm:text-lg rounded-xl bg-success"
+                      >
+                        {t('studentCourseView.freeCourse')}
+                        <Gift className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
+                      </Button>
+                    ) : 
+                    (
                       <Button 
                         onClick={handleEnrollClick}
                         variant='default'
@@ -826,7 +842,9 @@ export const CourseView = () => {
                         {t('studentCourseView.enrollNow')}
                         <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
                       </Button>
-                    ) : (
+                    )
+                    
+                    : (
                       <div className="space-y-3 sm:space-y-4">
                         <div className="flex items-center justify-center gap-2 text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/20 p-3 sm:p-4 rounded-xl">
                           <Trophy className="h-5 w-5 sm:h-6 sm:w-6" />
@@ -850,7 +868,6 @@ export const CourseView = () => {
                           { icon: FileText, text: t('studentCourseView.downloadableResources') },
                           { icon: Infinity, text: t('studentCourseView.fullLifetimeAccess') },
                           { icon: Smartphone, text: t('studentCourseView.accessOnMobileAndTv') },
-                          { icon: Award, text: t('studentCourseView.certificateOfCompletion') }
                         ].map((feature, index) => (
                           <div key={index} className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm">
                             <feature.icon className="h-3 w-3 sm:h-4 sm:w-4 text-primary flex-shrink-0" />
@@ -943,15 +960,17 @@ export const CourseView = () => {
             <Button variant="outline" onClick={() => setShowAuthModal(false)}>
               {t('studentCourseView.cancel')}
             </Button>
-            <Button onClick={() => navigate('/auth/login')}>
+            <Button onClick={() => navigate(`/auth/login?next=${encodeURIComponent(window.location.pathname)}`)}>
               {t('studentCourseView.signIn')}
             </Button>
-            <Button onClick={() => navigate('/auth/signup')}>
+            <Button onClick={() => navigate(`/auth/signup?next=${encodeURIComponent(window.location.pathname)}`)}>
               {t('studentCourseView.createAccount')}
             </Button>
           </div>
         </DialogContent>
       </Dialog>
+
+
       </div>
     </>
   );

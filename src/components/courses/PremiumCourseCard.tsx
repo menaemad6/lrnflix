@@ -89,7 +89,7 @@ export const PremiumCourseCard: React.FC<PremiumCourseCardProps> = ({
         )}
         {/* Title and Badges Overlay */}
         <div className="absolute bottom-0 left-0 w-full px-4 pb-8 z-10 flex flex-col gap-2 pointer-events-none">
-          <h2 className="text-2xl font-extrabold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent drop-shadow-lg flex items-center gap-2">
+          <h2 className="text-2xl font-extrabold dark:text-white bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent drop-shadow-lg flex items-center gap-2">
             {title}
           </h2>
         </div>

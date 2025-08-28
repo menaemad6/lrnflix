@@ -201,7 +201,7 @@ export const Courses = () => {
       <div className={bgClass + " min-h-screen bg-gradient-to-br from-background via-background to-primary/5 "}>
         {/* Header - full width, top of page */}
         <WavesHeroHeader
-          title={<span className='text-primary'>{t('courses.title')}</span>}
+          title={<span className='text-primary dark:text-white'>{t('courses.title')}</span>}
           description={t('courses.subtitle')}
         />
       <div className="container mx-auto px-2 sm:px-4 space-y-8">

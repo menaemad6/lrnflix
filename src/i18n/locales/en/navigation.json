@@ -19,7 +19,8 @@
     "profile": "Profile",
     "logout": "Logout",
     "themeToggle": "Toggle theme",
-    "languageToggle": "Toggle language"
+    "languageToggle": "Toggle language",
+    "myCourses": "My Courses"
   },
   "sidebar": {
     "dashboard": "Dashboard",

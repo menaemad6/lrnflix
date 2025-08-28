@@ -2,14 +2,19 @@ import { useMemo } from "react";
 
 const backgrounds = [
   "premium-bg-aurora",
-  "premium-bg-lines",
   "premium-bg-mesh",
   "premium-bg-vignette",
   "premium-bg-glass",
   "premium-bg-plain",
-  "premium-bg-vertical-lines",
   "premium-bg-spotlight",
-  "premium-bg-gradient"
+  "premium-bg-gradient",
+  "premium-bg-cosmic",
+  "premium-bg-ripple",
+  "premium-bg-geometric",
+  "premium-bg-fluid",
+  "premium-bg-crystal",
+  "premium-bg-neon",
+  "premium-bg-organic"
 ];
 
 export function useRandomBackground() {

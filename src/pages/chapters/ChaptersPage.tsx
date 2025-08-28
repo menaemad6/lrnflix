@@ -154,7 +154,7 @@ export const ChaptersPage = () => {
       <div className={bgClass + " min-h-screen bg-gradient-to-br from-background via-background to-primary/5 "}>
         {/* Modern Premium Header - full width */}
         <WavesHeroHeader
-        title={<span>{t('chapters.title')} <span className="text-primary">Chapters</span></span>}
+        title={<span className='text-primary dark:text-white'>{t('chapters.title')}</span>}
         description={t('chapters.subtitle')}
       />
       <div className="container mx-auto px-2 sm:px-4 space-y-8">
