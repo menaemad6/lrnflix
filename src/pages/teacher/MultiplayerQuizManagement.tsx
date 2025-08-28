@@ -28,6 +28,9 @@ import {
   FileText,
   Loader2,
   Image as ImageIcon,
+  FileJson,
+  Download,
+  Upload,
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -92,6 +95,8 @@ export const MultiplayerQuizManagement = () => {
   const [modalQuestion, setModalQuestion] = useState<Question | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [isGeneratingModalOptions, setIsGeneratingModalOptions] = useState(false);
+  const [jsonInput, setJsonInput] = useState('');
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
   useEffect(() => {
     if (searchTerm.trim() === '') {
@@ -525,6 +530,103 @@ export const MultiplayerQuizManagement = () => {
   const displayQuestions = getFilteredQuestions();
   const questionsByCategory = getQuestionsByCategory();
 
+  // JSON Export Functions
+  const exportQuestionsAsJson = (questionsToExport: Question[] = filteredQuestions) => {
+    const exportData = questionsToExport.map(q => ({
+      question: q.question,
+      options: q.options,
+      correct_answer: q.correct_answer,
+      difficulty: q.difficulty,
+      time_limit: q.time_limit,
+      category: q.category
+    }));
+
+    const dataStr = JSON.stringify(exportData, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `multiplayer_quiz_questions_${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    toast({
+      title: t('multiplayerQuiz.exportSuccess'),
+      description: t('multiplayerQuiz.questionsExportedSuccessfully', { count: questionsToExport.length }),
+    });
+  };
+
+            const exportQuestionsByCategory = (category: string) => {
+            const categoryQuestions = questions.filter(q => q.category === category);
+            if (categoryQuestions.length === 0) {
+              toast({
+                title: t('multiplayerQuiz.noQuestionsInCategory'),
+                description: t('multiplayerQuiz.cannotExportEmptyCategory'),
+                variant: 'destructive',
+              });
+              return;
+            }
+            exportQuestionsAsJson(categoryQuestions);
+          };
+
+          // JSON Import Function
+          const handleJsonImport = () => {
+            try {
+              const parsedData = JSON.parse(jsonInput);
+              if (!Array.isArray(parsedData)) {
+                throw new Error('JSON must be an array of questions');
+              }
+
+              const newQuestions: Question[] = parsedData.map((item, index) => {
+                if (!item.question || !item.correct_answer) {
+                  throw new Error(`Question ${index + 1} is missing required fields`);
+                }
+
+                return {
+                  question: item.question,
+                  options: Array.isArray(item.options) ? item.options : ['', '', '', ''],
+                  correct_answer: item.correct_answer,
+                  difficulty: item.difficulty || 'medium',
+                  time_limit: item.time_limit || 15,
+                  category: item.category || 'General',
+                  instructor_id: user?.id
+                };
+              });
+
+              // Add questions to the database
+              const addQuestionsPromises = newQuestions.map(async (question) => {
+                const { error } = await supabase
+                  .from('multiplayer_quiz_questions')
+                  .insert([question]);
+                
+                if (error) throw error;
+              });
+
+              Promise.all(addQuestionsPromises).then(() => {
+                setJsonInput('');
+                setIsImportModalOpen(false);
+                fetchQuestions();
+                fetchCategories();
+                toast({
+                  title: t('multiplayerQuiz.importSuccess'),
+                  description: t('multiplayerQuiz.questionsImportedSuccessfully', { count: newQuestions.length }),
+                });
+              }).catch((error) => {
+                throw error;
+              });
+
+            } catch (error: unknown) {
+              const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+              toast({
+                title: t('multiplayerQuiz.importError'),
+                description: errorMessage,
+                variant: 'destructive',
+              });
+            }
+          };
+
   return (
     <>
       <SEOHead />
@@ -736,6 +838,118 @@ export const MultiplayerQuizManagement = () => {
                 <ImageQuestionExtractor onQuestionsExtracted={handleQuestionsExtracted} />
               </DialogContent>
             </Dialog>
+
+            <Button 
+              variant="outline" 
+              onClick={() => setIsImportModalOpen(true)}
+            >
+              <FileText className="h-4 w-4 mr-2" />
+              Import from JSON
+            </Button>
+
+            <Dialog open={isImportModalOpen} onOpenChange={setIsImportModalOpen}>
+              <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle className="text-xl text-primary-600">
+                    {t('multiplayerQuiz.importQuestionsFromJson')}
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="space-y-6">
+                                      <div className="space-y-4">
+                      <div>
+                        <label className="text-sm font-medium text-muted-foreground mb-2 block">
+                          {t('multiplayerQuiz.jsonFormat')}
+                        </label>
+                        <Textarea
+                          placeholder={t('multiplayerQuiz.jsonPlaceholder')}
+                          value={jsonInput}
+                          onChange={(e) => setJsonInput(e.target.value)}
+                          rows={12}
+                          className="bg-background/90 border-border font-mono text-sm"
+                        />
+                      </div>
+                      
+                      {/* Import Format Info */}
+                      <div className="p-4 border border-border rounded-lg bg-muted/30">
+                        <h4 className="text-sm font-medium text-foreground mb-2">
+                          {t('multiplayerQuiz.importFormat')}
+                        </h4>
+                        <p className="text-sm text-muted-foreground mb-3">
+                          {t('multiplayerQuiz.importFormatDescription')}
+                        </p>
+                        <div className="p-3 bg-background/80 rounded border text-xs font-mono text-muted-foreground">
+                          {`[
+  {
+    "question": "What is 2+2?",
+    "options": ["3", "4", "5", "6"],
+    "correct_answer": "4",
+    "difficulty": "easy",
+    "time_limit": 15,
+    "category": "Math"
+  }
+]`}
+                        </div>
+                        <div className="mt-3 flex justify-end">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              const sampleData = [
+                                {
+                                  question: "What is 2+2?",
+                                  options: ["3", "4", "5", "6"],
+                                  correct_answer: "4",
+                                  difficulty: "easy",
+                                  time_limit: 15,
+                                  category: "Math"
+                                },
+                                {
+                                  question: "What is the capital of France?",
+                                  options: ["London", "Berlin", "Paris", "Madrid"],
+                                  correct_answer: "Paris",
+                                  difficulty: "medium",
+                                  time_limit: 20,
+                                  category: "Geography"
+                                }
+                              ];
+                              const dataStr = JSON.stringify(sampleData, null, 2);
+                              const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                              const url = URL.createObjectURL(dataBlob);
+                              const link = document.createElement('a');
+                              link.href = url;
+                              link.download = 'sample_questions.json';
+                              document.body.appendChild(link);
+                              link.click();
+                              document.body.removeChild(link);
+                              URL.revokeObjectURL(url);
+                            }}
+                            className="text-xs"
+                          >
+                            <Download className="h-3 w-3 mr-1" />
+                            {t('multiplayerQuiz.downloadSample')}
+                          </Button>
+                        </div>
+                      </div>
+                    <div className="flex justify-end gap-3">
+                      <Button
+                        variant="outline"
+                        onClick={() => setIsImportModalOpen(false)}
+                      >
+                        {t('multiplayerQuiz.cancel')}
+                      </Button>
+                      <Button
+                        onClick={handleJsonImport}
+                        disabled={!jsonInput.trim()}
+                        className="bg-primary-500 hover:bg-primary-600 text-white"
+                      >
+                        <Upload className="h-4 w-4 mr-2" />
+                        {t('multiplayerQuiz.importQuestions')}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
 
           {isProcessing && (
@@ -923,9 +1137,10 @@ export const MultiplayerQuizManagement = () => {
 
           {/* Questions Display */}
           <Tabs defaultValue="list" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 bg-background/90 border-border shadow-sm">
+            <TabsList className="grid w-full grid-cols-3 bg-background/90 border-border shadow-sm">
               <TabsTrigger value="list" className="data-[state=active]:bg-primary-500 data-[state=active]:text-black">{t('multiplayerQuiz.listView')}</TabsTrigger>
               <TabsTrigger value="grouped" className="data-[state=active]:bg-primary-500 data-[state=active]:text-black">{t('multiplayerQuiz.groupedByCategory')}</TabsTrigger>
+              <TabsTrigger value="export" className="data-[state=active]:bg-primary-500 data-[state=active]:text-black">{t('multiplayerQuiz.export')}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="list" className="space-y-6 mt-6">
@@ -1157,6 +1372,91 @@ export const MultiplayerQuizManagement = () => {
                   </CardContent>
                 </Card>
               ))}
+            </TabsContent>
+
+            <TabsContent value="export" className="space-y-6 mt-6">
+              {/* JSON Export Section */}
+              <Card className="border border-border bg-card/90 backdrop-blur-sm shadow-sm">
+                <CardHeader>
+                  <CardTitle className="text-xl text-primary-600 flex items-center gap-2">
+                    <FileJson className="h-5 w-5" />
+                    {t('multiplayerQuiz.exportQuestions')}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {/* Export All Questions */}
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-4 border border-border rounded-lg bg-background/80">
+                      <div className="space-y-2">
+                        <h4 className="text-lg font-medium text-foreground">
+                          {t('multiplayerQuiz.exportAllQuestions')}
+                        </h4>
+                        <p className="text-sm text-muted-foreground">
+                          {t('multiplayerQuiz.exportAllQuestionsDescription', { count: filteredQuestions.length })}
+                        </p>
+                      </div>
+                      <Button
+                        onClick={() => exportQuestionsAsJson()}
+                        disabled={filteredQuestions.length === 0}
+                        className="bg-primary-500 hover:bg-primary-600 text-white px-6 py-2"
+                      >
+                        <Download className="h-4 w-4 mr-2" />
+                        {t('multiplayerQuiz.exportAll')}
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Export by Category */}
+                  <div className="space-y-4">
+                    <h4 className="text-lg font-medium text-foreground">
+                      {t('multiplayerQuiz.exportByCategory')}
+                    </h4>
+                    <div className="grid gap-3">
+                      {Object.entries(questionsByCategory).map(([category, categoryQuestions]) => (
+                        <div key={category} className="flex items-center justify-between p-4 border border-border rounded-lg bg-background/80">
+                          <div className="space-y-2">
+                            <h5 className="font-medium text-foreground">{category}</h5>
+                            <p className="text-sm text-muted-foreground">
+                              {t('multiplayerQuiz.questionsInCategory', { count: categoryQuestions.length })}
+                            </p>
+                          </div>
+                          <Button
+                            onClick={() => exportQuestionsByCategory(category)}
+                            disabled={categoryQuestions.length === 0}
+                            variant="outline"
+                            className="border-primary-500 text-primary-700 hover:bg-primary-500 hover:text-white"
+                          >
+                            <FileJson className="h-4 w-4 mr-2" />
+                            {t('multiplayerQuiz.exportCategory')}
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Export Format Info */}
+                  <div className="p-4 border border-border rounded-lg bg-muted/30">
+                    <h4 className="text-sm font-medium text-foreground mb-2">
+                      {t('multiplayerQuiz.exportFormat')}
+                    </h4>
+                    <p className="text-sm text-muted-foreground">
+                      {t('multiplayerQuiz.exportFormatDescription')}
+                    </p>
+                    <div className="mt-3 p-3 bg-background/80 rounded border text-xs font-mono text-muted-foreground">
+                      {`[
+  {
+    "question": "What is 2+2?",
+    "options": ["3", "4", "5", "6"],
+    "correct_answer": "4",
+    "difficulty": "easy",
+    "time_limit": 15,
+    "category": "Math"
+  }
+]`}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </TabsContent>
           </Tabs>
         </div>

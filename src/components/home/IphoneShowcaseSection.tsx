@@ -12,7 +12,7 @@ interface IphoneShowcaseSectionProps {
 export const IphoneShowcaseSection: React.FC<IphoneShowcaseSectionProps> = ({
   leftTextTop = "Powerful",
   leftTextBottom = "Account.",
-  imageUrl = "/telda-iphone.png",
+  imageUrl = "/lrnflix-iphone.jpg",
   imagePosition = "right",
 }) => {
   const controls = useAnimation();
@@ -58,10 +58,10 @@ export const IphoneShowcaseSection: React.FC<IphoneShowcaseSectionProps> = ({
       <div
         className={`flex-1 flex flex-col justify-center z-10 ml-auto ${isRight ? 'items-start text-left' : 'items-end text-right'}`}
       >
-        <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-extrabold text-black leading-tight mb-2">
+        <h1 className="text-2xl md:text-5xl lg:text-6xl xl:text-7xl font-extrabold text-black leading-tight mb-2">
           {leftTextTop}
         </h1>
-        <h2 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-extrabold text-black leading-tight">
+        <h2 className="text-2xl md:text-5xl lg:text-6xl xl:text-7xl font-extrabold text-black leading-tight">
           {leftTextBottom}
         </h2>
       </div>

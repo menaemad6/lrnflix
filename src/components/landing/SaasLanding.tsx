@@ -866,7 +866,7 @@ const ProductShowcase: React.FC = () => {
   return (
     <div
       ref={sectionRef}
-      className="bg-gradient-to-t from-[#acbae8] to-white flex flex-col items-center overflow-x-hidden pb-24 relative"
+      className="bg-gradient-to-t from-[#acbae8] to-white flex flex-col items-center pb-24 relative"
     >
       <div className="flex flex-col items-center font-medium mt-24 px-8 mx-auto md:w-[550px] lg:w-[630px]">
         <div className="text-black border-2 w-fit p-0.5 px-3 text-sm rounded-xl border-slate-300/80">
@@ -897,7 +897,7 @@ const ProductShowcase: React.FC = () => {
             damping: 20,
           }}
         />
-        <img src="/assests/Product Image.png" alt="Product Image" className="px-1 relative z-10" />
+        <img src="/assests/Product Image.png" alt="Product Image" className="px-1 relative z-10 w-full max-w-6xl mx-auto" />
         <motion.img
           src="/assests/tube.png"
           alt="Tube Image"
@@ -1536,13 +1536,13 @@ const TopCourses: React.FC = () => {
   const coursesRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: coursesRef,
-    offset: ["start end", "end start"],
+    offset: ["start start", "end end"],
   });
 
   // Horizontal scroll effect - courses move left as user scrolls down (faster movement)
-  const translateX = useTransform(scrollYProgress, [0, 1], [0, -600]);
+  const translateX = useTransform(scrollYProgress, [0, 1], [0, -300]);
   const opacity = useTransform(scrollYProgress, [0, 0.5, 1], [0, 1, 0]);
-  const translateXRight = useTransform(scrollYProgress, [0, 1], [0, 600]);
+  const translateXRight = useTransform(scrollYProgress, [0, 1], [0, 300]);
 
   if (isLoading) {
     return (
@@ -1743,6 +1743,7 @@ const TopCourses: React.FC = () => {
 // Top Instructors Component
 const TopInstructors: React.FC = () => {
   const navigate = useNavigate();
+  const instructorsRef = useRef<HTMLDivElement>(null);
   const { data: instructors, isLoading, isError } = useQuery({
     queryKey: ['featuredInstructors'],
     queryFn: getFeaturedInstructors,
@@ -1750,13 +1751,13 @@ const TopInstructors: React.FC = () => {
 
   // Horizontal scroll effect - instructors move right as user scrolls down (same speed as courses, opposite direction)
   const { scrollYProgress } = useScroll({
-    target: useRef<HTMLDivElement>(null),
-    offset: ["start end", "end start"]
+    target: instructorsRef,
+    offset: ["start start", "end end"]
   });
   
-  const translateX = useTransform(scrollYProgress, [0, 1], [0, 1200]);
+  const translateX = useTransform(scrollYProgress, [0, 1], [0, 100]);
   const opacity = useTransform(scrollYProgress, [0, 0.5, 1], [0, 1, 0]);
-  const translateXRight = useTransform(scrollYProgress, [0, 1], [0, -1200]);
+  const translateXRight = useTransform(scrollYProgress, [0, 1], [0, -100]);
 
   if (isLoading) {
     return (
@@ -1795,7 +1796,7 @@ const TopInstructors: React.FC = () => {
   }
 
   return (
-    <div className="pt-20 bg-white relative overflow-hidden">
+    <div ref={instructorsRef} className="pt-20 bg-white relative overflow-hidden">
       {/* Premium Background Patterns */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {/* Geometric Pattern Grid */}
@@ -2055,10 +2056,10 @@ const LandingPage: React.FC = () => {
       <TopCourses />
       <TopInstructors />
       <ProductCard />
-      <IphoneShowcaseSection leftTextTop="Reimagined" leftTextBottom="HOW TO." />
+      {/* <IphoneShowcaseSection leftTextTop="Transform" leftTextBottom="Education." /> */}
       <Testimonials />
 
-      <Pricing />
+      {/* <Pricing /> */}
       <CTA />
       <Footer />
     </div>

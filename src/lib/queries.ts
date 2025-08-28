@@ -1049,7 +1049,7 @@ export const getFeaturedInstructors = async () => {
     .from('teachers')
     .select('user_id, display_name, profile_image_url, specialization, social_links, bio, slug')
     .eq('is_active', true)
-    .limit(4);
+    .limit(50);
 
   if (error) {
     console.error('Error fetching featured instructors:', error);
@@ -1076,7 +1076,7 @@ export const getTopCourses = async () => {
         )
       `)
       .order('created_at', { ascending: false })
-      .limit(3);
+      .limit(5);
   
     if (error) throw error;
     return data || [];

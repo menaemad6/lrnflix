@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Plus, Sparkles } from 'lucide-react';
+import { Plus, Sparkles, Clock, Brain } from 'lucide-react';
 
 interface CreateLessonModalProps {
   open: boolean;
@@ -28,7 +28,9 @@ export const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    video_url: ''
+    video_url: '',
+    duration_minutes: '',
+    ai_summary: ''
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -46,23 +48,40 @@ export const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
     try {
       setLoading(true);
 
-      const { error } = await supabase
+      // Create the lesson first
+      const { data: lessonData, error: lessonError } = await supabase
         .from('lessons')
         .insert({
           course_id: courseId,
           title: formData.title,
           description: formData.description || null,
           video_url: formData.video_url || null,
-        });
+          duration_minutes: formData.duration_minutes ? parseInt(formData.duration_minutes) : null,
+        })
+        .select()
+        .single();
 
-      if (error) throw error;
+      if (lessonError) throw lessonError;
+
+      // If there's an AI summary, create lesson content
+      if (formData.ai_summary.trim()) {
+        const { error: contentError } = await supabase
+          .from('lesson_content')
+          .insert({
+            lesson_id: lessonData.id,
+            summary: formData.ai_summary.trim(),
+            is_transcribed: false,
+          });
+
+        if (contentError) throw contentError;
+      }
 
       toast({
         title: t('teacherCourseDetails.success'),
         description: t('createLessonModal.lessonCreatedSuccess'),
       });
 
-      setFormData({ title: '', description: '', video_url: '' });
+      setFormData({ title: '', description: '', video_url: '', duration_minutes: '', ai_summary: '' });
       onOpenChange(false);
       onLessonCreated();
     } catch (error: any) {
@@ -111,6 +130,31 @@ export const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
               placeholder={t('createLessonModal.videoUrlPlaceholder')}
               value={formData.video_url}
               onChange={(e) => setFormData(prev => ({ ...prev, video_url: e.target.value }))}
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium flex items-center gap-2">
+              <Clock className="h-4 w-4" />
+              Duration (minutes)
+            </label>
+            <Input
+              type="number"
+              placeholder="Enter lesson duration in minutes"
+              value={formData.duration_minutes}
+              onChange={(e) => setFormData(prev => ({ ...prev, duration_minutes: e.target.value }))}
+              min="1"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium flex items-center gap-2">
+              <Brain className="h-4 w-4" />
+              AI Summary (Optional)
+            </label>
+            <Textarea
+              placeholder="Enter an AI-generated summary of the lesson content"
+              value={formData.ai_summary}
+              onChange={(e) => setFormData(prev => ({ ...prev, ai_summary: e.target.value }))}
+              rows={3}
             />
           </div>
           <div className="flex gap-3 pt-2">

@@ -19,8 +19,8 @@ interface VoiceTutorProps {
 }
 
 const VAPI_CONFIG = {
-  agentId: 'e136d4c4-87d9-4de4-be87-57ff736908e6',
-  publicKey: '671e1651-92fb-4bd5-952a-75ea7b42eb8a',
+  agentId: import.meta.env.VITE_VAPI_TUTOR_AGENT_ID,
+  publicKey: import.meta.env.VITE_VAPI_ACCOUNT_PUBLIC_KEY,
 
 //   systemPrompt: `You are Hossam, an AI-powered voice tutor helping students understand lessons through friendly, supportive voice conversations.
 

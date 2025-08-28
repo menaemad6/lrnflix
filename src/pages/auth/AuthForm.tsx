@@ -109,6 +109,20 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode, setMode, onClose }) => {
             className="pl-12 h-12 bg-card border-border rounded-xl text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/30 transition-all"
           />
         </div>
+                {/* Phone number input for signup */}
+                {!isLogin && (
+          <div className="relative group">
+            <User className="absolute left-3 top-1/2 -translate-y-1/2 text-primary w-5 h-5" />
+            <Input
+              type="tel"
+              placeholder={t('authModal.phoneNumber') || 'Phone Number'}
+              value={signup.formData.phone}
+              onChange={e => signup.setFormData({ ...signup.formData, phone: e.target.value })}
+              required
+              className="pl-12 h-12 bg-card border-border rounded-xl text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-ring transition-all"
+            />
+          </div>
+        )}
         <div className="relative group">
           <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-primary w-5 h-5" />
           <Input
@@ -129,20 +143,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode, setMode, onClose }) => {
             {isLogin ? (login.showPassword ? <EyeOff size={20} /> : <Eye size={20} />) : (signup.showPassword ? <EyeOff size={20} /> : <Eye size={20} />)}
           </button>
         </div>
-        {/* Phone number input for signup */}
-        {!isLogin && (
-          <div className="relative group">
-            <User className="absolute left-3 top-1/2 -translate-y-1/2 text-primary w-5 h-5" />
-            <Input
-              type="tel"
-              placeholder={t('authModal.phoneNumber') || 'Phone Number'}
-              value={signup.formData.phone}
-              onChange={e => signup.setFormData({ ...signup.formData, phone: e.target.value })}
-              required
-              className="pl-12 h-12 bg-card border-border rounded-xl text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-ring transition-all"
-            />
-          </div>
-        )}
+
         <Button
           type="submit"
           className="w-full h-12 bg-primary shadow-xl hover:bg-primary/80 font-bold rounded-xl text-lg tracking-wide animate-glow-pulse transition-all text-primary-foreground"

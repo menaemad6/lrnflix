@@ -105,13 +105,13 @@ export const DashboardSidebar = () => {
       icon: CreditCard,
       description: t('sidebar.viewWalletHistory')
     },
-    { 
-      title: t('sidebar.aiTutor'), 
-      url: "/student/ai-tutor", 
-      icon: Brain,
-      description: t('sidebar.personalAssistant'),
-      badge: "New"
-    },
+    // { 
+    //   title: t('sidebar.aiTutor'), 
+    //   url: "/student/ai-tutor", 
+    //   icon: Brain,
+    //   description: t('sidebar.personalAssistant'),
+    //   badge: "New"
+    // },
     // { 
     //   title: t('sidebar.notifications'), 
     //   url: "/student/notifications", 

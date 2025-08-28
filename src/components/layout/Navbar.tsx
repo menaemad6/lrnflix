@@ -157,7 +157,7 @@ export const Navbar = ({ extraXSpacing = false }: { extraXSpacing?: boolean }) =
       ...((userRole === 'teacher' || userRole === 'admin')
         ? [
             { to: '/teacher/dashboard', label: t('navbar.dashboard'), icon: Layout },
-            { to: '/teacher/chapters', label: t('navbar.myChapters'), icon: Logo },
+            { to: '/teacher/chapters', label: t('navbar.myChapters'), icon: BookOpen },
             { to: '/questions', label: t('navbar.questions'), icon: MessageCircleQuestion },
             { to: '/teacher/multiplayer-quiz', label: t('navbar.quizGame'), icon: Gamepad2 },
             { to: '/teacher/groups', label: t('navbar.myGroups'), icon: Users },
@@ -324,7 +324,7 @@ export const Navbar = ({ extraXSpacing = false }: { extraXSpacing?: boolean }) =
                         className="w-full flex items-center gap-2 justify-start px-2 py-1.5 rounded hover:bg-accent transition text-sm"
                         onClick={() => { setDropdownOpen(false); navigate('/student/courses'); }}
                       >
-                        <Logo className="h-4 w-auto" />
+                        <BookOpen className="h-4 w-auto" />
                         {t('sidebar.myCourses')}
                       </button>
                     </DropdownMenuItem>

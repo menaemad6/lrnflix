@@ -112,8 +112,8 @@ export const QuizChoiceModal: React.FC<QuizChoiceModalProps> = ({
       setCurrentCallId(callId);
       setCallStartTime(new Date());
       startCall({
-        agentId: '0c9bf22f-c4bb-4365-93a1-1a2e62016686',
-        publicKey: '671e1651-92fb-4bd5-952a-75ea7b42eb8a',
+        agentId: import.meta.env.VITE_VAPI_QUESTIONS_AGENT_ID,
+        publicKey: import.meta.env.VITE_VAPI_ACCOUNT_PUBLIC_KEY,
         question: question?.question_text || 'No question available',
         studentAnswer: userAnswer || 'Not answered',
         correctAnswer: question?.correct_answer || 'No correct answer',
