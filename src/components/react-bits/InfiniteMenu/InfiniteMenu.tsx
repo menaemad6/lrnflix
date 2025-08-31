@@ -928,30 +928,23 @@ class InfiniteGridMenu {
     canvas.width = this.atlasSize * cellSize;
     canvas.height = this.atlasSize * cellSize;
 
-    console.log('InfiniteMenu: Initializing texture with', {
-      itemCount,
-      atlasSize: this.atlasSize,
-      cellSize,
-      canvasSize: `${canvas.width}x${canvas.height}`,
-      items: this.items.map(item => ({ title: item.title, image: item.image }))
-    });
 
     Promise.all(
       this.items.map(
         (item, index) =>
           new Promise<HTMLImageElement>((resolve, reject) => {
-            console.log(`Loading image ${index}:`, item.image, 'for item:', item.title);
+           
             
             // Check if it's an external URL that might cause WebGL security issues
             const isExternalUrl = item.image && (item.image.startsWith('http://') || item.image.startsWith('https://'));
             
             if (isExternalUrl) {
-              console.log(`External URL detected for ${item.title}, using avatar fallback to avoid WebGL security issues`);
+             
               // Use the avatar image as fallback for external URLs
               if (item.fallbackAvatar) {
                 const fallbackImg = new Image();
                 fallbackImg.onload = () => {
-                  console.log(`Successfully loaded avatar fallback for ${item.title}:`, item.fallbackAvatar);
+                 
                   resolve(fallbackImg);
                 };
                 fallbackImg.onerror = (error) => {
@@ -996,7 +989,7 @@ class InfiniteGridMenu {
               // Try to load local image
               const img = new Image();
               img.onload = () => {
-                console.log(`Successfully loaded local image ${index}:`, item.image, 'for item:', item.title);
+              
                 resolve(img);
               };
               img.onerror = (error) => {
@@ -1005,7 +998,7 @@ class InfiniteGridMenu {
                 if (item.fallbackAvatar) {
                   const fallbackImg = new Image();
                   fallbackImg.onload = () => {
-                    console.log(`Successfully loaded avatar fallback for ${item.title}:`, item.fallbackAvatar);
+                   
                     resolve(fallbackImg);
                   };
                   fallbackImg.onerror = (error) => {
@@ -1052,7 +1045,6 @@ class InfiniteGridMenu {
           }),
       ),
     ).then((images) => {
-      console.log('All images loaded successfully:', images.length);
       images.forEach((img, i) => {
         const x = (i % this.atlasSize) * cellSize;
         const y = Math.floor(i / this.atlasSize) * cellSize;
