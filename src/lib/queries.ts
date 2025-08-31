@@ -1,6 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { User } from "@supabase/supabase-js";
+import { getStudyStreak } from "@/utils/streakCalculator";
 
 interface Teacher {
     user_id: string;
@@ -1031,12 +1032,15 @@ export const fetchStudentDashboardData = async (user, teacher) => {
         ) / quizAttempts.length * 100)
         : 0;
 
+    // Calculate study streak
+    const studyStreak = await getStudyStreak(user.id);
+
     const stats = {
         totalCourses: coursesWithProgress.length,
         completedCourses,
         inProgressCourses,
         totalCreditsSpent,
-        studyStreak: Math.floor(Math.random() * 15) + 1,
+        studyStreak,
         avgQuizScore: avgQuizScore / 100,
         totalStudyTime: Math.floor(Math.random() * 50) + 10
     };

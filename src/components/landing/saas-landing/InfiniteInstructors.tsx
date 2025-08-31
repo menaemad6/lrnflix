@@ -125,7 +125,7 @@ const InfiniteInstructors: React.FC = () => {
         </div>
 
         {/* Infinite Menu Container - Responsive Height */}
-        <div className="relative w-full h-[600px] md:h-screen">
+        <div className="relative w-full h-[400px] md:h-screen">
           <InfiniteMenu items={fallbackItems} />
         </div>
 
@@ -160,7 +160,7 @@ const InfiniteInstructors: React.FC = () => {
       </div>
 
       {/* Infinite Menu Container - Responsive Height */}
-      <div className="relative w-full h-[600px] md:h-screen">
+      <div className="relative w-full h-[400px] md:h-screen">
         <InfiniteMenu items={menuItems} />
       </div>
 

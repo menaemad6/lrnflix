@@ -43,6 +43,7 @@ export const QuizChoiceModal: React.FC<QuizChoiceModalProps> = ({
   const [remainingTime, setRemainingTime] = useState(0);
   const [currentCallId, setCurrentCallId] = useState<string | null>(null);
   const [callStartTime, setCallStartTime] = useState<Date | null>(null);
+  const [currentCallDuration, setCurrentCallDuration] = useState(0);
   const { startCall, endCall, isCallActive, isConnecting, isUserSpeaking, isAssistantSpeaking } = useVapiCall();
   const lessonId = question ? (question as any).id || '' : '';
   const {
@@ -68,6 +69,7 @@ export const QuizChoiceModal: React.FC<QuizChoiceModalProps> = ({
       if (callDurationInterval) {
         clearInterval(callDurationInterval);
       }
+      setCurrentCallDuration(0);
     };
   }, [callTimer, callDurationInterval]);
 
@@ -111,6 +113,11 @@ export const QuizChoiceModal: React.FC<QuizChoiceModalProps> = ({
       }
       setCurrentCallId(callId);
       setCallStartTime(new Date());
+      
+      // Start with 1 minute duration in database
+      await updateCallDuration(callId, 1);
+      setCurrentCallDuration(1);
+      
       startCall({
         agentId: import.meta.env.VITE_VAPI_QUESTIONS_AGENT_ID,
         publicKey: import.meta.env.VITE_VAPI_ACCOUNT_PUBLIC_KEY,
@@ -120,13 +127,17 @@ export const QuizChoiceModal: React.FC<QuizChoiceModalProps> = ({
         callLength: `${maxDuration} minutes`
       });
       setRemainingTime(maxDuration * 60); // Convert to seconds
-      // Add a separate interval for DB update
+      
+      // Update duration every minute starting from 1 minute
       const durationInterval = setInterval(() => {
-        if (callId) {
-          const elapsedMinutes = Math.ceil((maxDuration * 60 - remainingTime) / 60);
-          updateCallDuration(callId, elapsedMinutes);
+        if (callId && isCallActive) {
+          setCurrentCallDuration(prev => {
+            const newDuration = prev + 1;
+            updateCallDuration(callId, newDuration);
+            return newDuration;
+          });
         }
-      }, 60000);
+      }, 60000); // Every minute
       setCallDurationInterval(durationInterval);
     } catch (error) {
       console.error('Failed to start call:', error);
@@ -154,6 +165,7 @@ export const QuizChoiceModal: React.FC<QuizChoiceModalProps> = ({
     endCall();
     setRemainingTime(0);
     setCallStartTime(null);
+    setCurrentCallDuration(0);
   };
 
   const handleVoiceCallSelect = () => {

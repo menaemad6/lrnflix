@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, Users, Star, Sparkles } from 'lucide-react';
+import { CheckCircle, Users, Star, Sparkles, CreditCard } from 'lucide-react';
 
 /**
  * Props for ChapterCard
@@ -10,7 +10,6 @@ import { CheckCircle, Users, Star, Sparkles } from 'lucide-react';
  * @property title - Chapter title
  * @property description - Chapter description
  * @property price - Chapter price in credits
- * @property courseCount - Number of courses in the chapter
  * @property isEnrolled - Whether the user is enrolled in this chapter
  * @property coverImageUrl - Optional cover image URL
  * @property onPreview - Preview button handler
@@ -22,9 +21,10 @@ export interface ChapterCardProps {
   title: string;
   description?: string;
   price: number;
-  courseCount: number;
   isEnrolled: boolean;
   coverImageUrl?: string;
+  instructorName?: string;
+  instructorAvatar?: string;
   onPreview?: () => void;
   onEnroll?: () => void;
   onContinue?: () => void;
@@ -34,15 +34,16 @@ const ChapterCard: React.FC<ChapterCardProps> = ({
   title,
   description,
   price,
-  courseCount,
   isEnrolled,
   coverImageUrl,
+  instructorName,
+  instructorAvatar,
   onPreview,
   onEnroll,
   onContinue,
 }) => {
   return (
-    <Card className="relative overflow-hidden border-0 rounded-3xl shadow-xl bg-background/80 group min-w-0 flex flex-col h-full">
+    <Card className="relative overflow-hidden border-0 rounded-3xl shadow-xl bg-background/80 group min-w-0">
       {/* Unique vertical accent bar */}
       <div className="absolute left-0 top-0 h-full w-2 bg-gradient-to-b from-primary to-secondary rounded-l-3xl" />
       {/* Image or Icon */}
@@ -70,26 +71,49 @@ const ChapterCard: React.FC<ChapterCardProps> = ({
         )}
       </div>
       {/* Details Panel */}
-      <CardContent className="flex-1 flex flex-col gap-3 p-6">
+      <CardContent className="p-6">
         <div className="flex items-center gap-2 mb-1">
           <h2 className="text-2xl font-extrabold leading-tight flex-1 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
             {title}
           </h2>
+          
+          {/* Price positioned on the right */}
+          {!isEnrolled && (
+            <div className="flex items-center justify-center flex-shrink-0">
+              <span className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-card/70 dark:bg-card/60 backdrop-blur-md border border-primary/20">
+                <CreditCard className="h-5 w-5 text-primary/80" />
+                <span className="text-2xl font-extrabold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                  {price}
+                </span>
+                <span className="text-xs font-semibold text-primary/80 uppercase tracking-wide">EGP</span>
+              </span>
+            </div>
+          )}
         </div>
-        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-          <Users className="h-4 w-4" />
-          <span>{courseCount} Courses</span>
-        </div>
-        <p className="text-muted-foreground text-sm line-clamp-3 mb-2">
+        
+        {/* Instructor Row */}
+        {instructorName && (
+          <div className="flex items-center gap-3 text-sm text-muted-foreground mb-2">
+            {instructorAvatar ? (
+              <img
+                src={instructorAvatar}
+                alt={instructorName}
+                className="h-8 w-8 rounded-full object-cover border border-primary/30 shadow"
+              />
+            ) : (
+              <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-base font-bold text-primary-foreground border border-primary/30 shadow">
+                {instructorName.charAt(0) || '?'}
+              </div>
+            )}
+            <span className="text-foreground font-semibold">{instructorName}</span>
+          </div>
+        )}
+        
+        <p className="text-muted-foreground text-sm line-clamp-3 mb-4">
           {description}
         </p>
-        <div className="flex items-center gap-2 mt-auto">
-          <span className="inline-flex items-center gap-1 px-4 py-1 rounded-full bg-card/70 border border-primary/20 text-primary font-bold text-lg shadow-sm">
-            <Star className="h-5 w-5 text-primary/80" />
-            {price} <span className="text-xs font-semibold uppercase tracking-wide">credits</span>
-          </span>
-        </div>
-        <div className="flex flex-col sm:flex-row gap-2 w-full mt-4">
+        
+        <div className="flex flex-col sm:flex-row gap-2 w-full">
           {isEnrolled ? (
             <Button className="flex-1 bg-gradient-to-r from-primary to-secondary text-white font-bold min-w-0" onClick={onContinue}>
               <Sparkles className="h-4 w-4 mr-2" />

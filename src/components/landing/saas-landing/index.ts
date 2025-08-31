@@ -11,6 +11,7 @@ export { default as Testimonials } from './Testimonials';
 export { default as Pricing } from './Pricing';
 export { default as CTA } from './CTA';
 export { default as TopCourses } from './TopCourses';
+export { default as TopCoursesCardSwap } from './TopCoursesCardSwap';
 export { default as InfiniteInstructors } from './InfiniteInstructors';
 export { default as Footer } from './Footer';
 

@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import { 
   FaTwitter, 
   FaPinterest, 
@@ -10,11 +12,15 @@ import { AiFillInstagram } from 'react-icons/ai';
 import { MdOutlineArrowOutward } from 'react-icons/md';
 import { PLATFORM_NAME } from '@/data/constants';
 import PoliciesModal from '../PoliciesModal';
+import type { RootState } from '@/store/store';
 
 // Footer Component
 const Footer: React.FC = () => {
   const [isPoliciesModalOpen, setIsPoliciesModalOpen] = useState(false);
   const [activeLegalTab, setActiveLegalTab] = useState('privacy');
+  const navigate = useNavigate();
+  const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
+  const userRole = user?.role || 'student';
 
   const handleLegalLinkClick = (tab: string) => {
     setActiveLegalTab(tab);
@@ -24,6 +30,44 @@ const Footer: React.FC = () => {
   const handleClosePoliciesModal = () => {
     setIsPoliciesModalOpen(false);
   };
+
+  // Function to get appropriate navigation links based on user role
+  const getPlatformLinks = () => {
+    if (!isAuthenticated) {
+      return [
+        { label: 'Gamified Learning', path: '/auth/login?next=/multiplayer-quiz' },
+        { label: 'Instructors', path: '/teachers' },
+        { label: 'Browse Courses', path: '/courses' },
+        { label: 'Chapters', path: '/chapters' },
+        { label: 'Analytics', path: '/auth/signup?next=/student/dashboard' },
+
+
+      ];
+    }
+
+    if (userRole === 'teacher') {
+      return [
+        { label: 'Dashboard', path: '/teacher/dashboard' },
+        { label: 'My Courses', path: '/teacher/courses' },
+        { label: 'My Chapters', path: '/teacher/chapters' },
+        { label: 'Learning Groups', path: '/teacher/groups' },
+        { label: 'Gamified Learning', path: '/teacher/multiplayer-quiz' },
+        { label: 'Analytics', path: '/teacher/analytics' },
+      ];
+    }
+
+    // Student role
+    return [
+      { label: 'Dashboard', path: '/student/dashboard' },
+      { label: 'My Courses', path: '/student/courses' },
+      { label: 'My Chapters', path: '/student/chapters' },
+      { label: 'Gamified Learning', path: '/multiplayer-quiz' },
+      { label: 'Learning Groups', path: '/student/groups' },
+      { label: 'Wallet', path: '/student/transactions' },
+    ];
+  };
+
+  const platformLinks = getPlatformLinks();
 
   return (
     <>
@@ -52,20 +96,36 @@ const Footer: React.FC = () => {
         </div>
         <div className="flex flex-col gap-4">
           <div className="font-bold text-lg">Platform</div>
-          <div className="cursor-pointer text-gray-300/85">AI Tutor</div>
-          <div className="cursor-pointer text-gray-300/85">Gamified Learning</div>
-          <div className="cursor-pointer text-gray-300/85">Course Management</div>
-          <div className="cursor-pointer text-gray-300/85">Analytics</div>
-          <div className="cursor-pointer text-gray-300/85">Pricing</div>
+          {platformLinks.map((link) => (
+            <Link
+              key={link.label}
+              to={link.path}
+              className="text-gray-300/85 hover:text-white transition-colors cursor-pointer"
+            >
+              {link.label}
+            </Link>
+          ))}
         </div>
         <div className="flex flex-col gap-4">
           <div className="font-bold text-lg">Company</div>
-          <div className="cursor-pointer text-gray-300/85">About</div>
-          <div className="cursor-pointer text-gray-300/85">Blog</div>
-          <div className="cursor-pointer text-gray-300/85">Careers</div>
-          <div className="cursor-pointer text-gray-300/85">Mission</div>
-          <div className="cursor-pointer text-gray-300/85">Press</div>
-          <div className="cursor-pointer text-gray-300/85">Contact</div>
+          <Link 
+            to="/#about" 
+            className="text-gray-300/85 hover:text-white transition-colors cursor-pointer"
+          >
+            About
+          </Link>
+          <Link 
+            to="/#mission" 
+            className="text-gray-300/85 hover:text-white transition-colors cursor-pointer"
+          >
+            Mission
+          </Link>
+          <Link 
+            to="/#contact" 
+            className="text-gray-300/85 hover:text-white transition-colors cursor-pointer"
+          >
+            Contact
+          </Link>
         </div>
         <div className="flex flex-col gap-4">
           <div className="font-bold text-lg">Legal</div>

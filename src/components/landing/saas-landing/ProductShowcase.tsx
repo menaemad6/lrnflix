@@ -54,9 +54,9 @@ const ProductShowcase: React.FC = () => {
   return (
     <div
       ref={sectionRef}
-      className="bg-gradient-to-t from-[#acbae8] to-white flex flex-col items-center pb-24 relative"
+      className="bg-gradient-to-t from-[#acbae8] to-white flex flex-col items-center pb-24 relative overflow-hidden"
     >
-      <div className="flex flex-col items-center font-medium mt-24 px-8 mx-auto md:w-[550px] lg:w-[630px]">
+      <div className="flex flex-col items-center font-medium mt-24 px-8 mx-auto md:w-[550px] lg:w-[630px] xl:w-[700px] 2xl:w-[800px]">
         <div className="text-black border-2 w-fit p-0.5 px-3 text-sm rounded-xl border-slate-300/80">
            AI-Powered Learning
         </div>
@@ -69,38 +69,55 @@ const ProductShowcase: React.FC = () => {
           and intelligent content recommendations. The first platform of its kind in Egypt.
         </div>
       </div>
-      <div className="relative">
-        <motion.img
-          src="/assests/pyramid.png"
-          alt="Pyramid Image"
-          className="absolute -right-24 -top-20 w-72 h-72 hidden md:block z-20"
-          style={{
-            translateY: pyramidTranslateY,
-            rotate: pyramidRotate,
-            scale: pyramidScale,
-          }}
-          transition={{
-            type: "spring",
-            stiffness: 100,
-            damping: 20,
-          }}
-        />
-        <img src="/assests/Product Image.png" alt="Product Image" className="px-1 relative z-10 w-full max-w-6xl mx-auto" />
-        <motion.img
-          src="/assests/tube.png"
-          alt="Tube Image"
-          className="absolute w-72 h-72 top-64 -left-28 hidden md:block z-20"
-          style={{
-            translateY: tubeTranslateY,
-            rotate: tubeRotate,
-            scale: tubeScale,
-          }}
-          transition={{
-            type: "spring",
-            stiffness: 100,
-            damping: 20,
-          }}
-        />
+      
+      {/* Container with proper constraints to prevent overflow */}
+      <div className="relative w-full max-w-7xl mx-auto px-4 lg:px-8">
+        <div className="relative">
+          {/* Pyramid - positioned responsively */}
+          <motion.img
+            src="/assests/pyramid.png"
+            alt="Pyramid Image"
+            className="absolute hidden md:block z-20 w-48 h-48 lg:w-56 lg:h-56 xl:w-64 xl:h-64 2xl:w-72 2xl:h-72
+                     md:-right-8 lg:-right-12 xl:-right-16 2xl:-right-20
+                     md:-top-12 lg:-top-16 xl:-top-20 2xl:-top-24"
+            style={{
+              translateY: pyramidTranslateY,
+              rotate: pyramidRotate,
+              scale: pyramidScale,
+            }}
+            transition={{
+              type: "spring",
+              stiffness: 100,
+              damping: 20,
+            }}
+          />
+          
+          {/* Main Product Image */}
+          <img 
+            src="/assests/Product Image.png" 
+            alt="Product Image" 
+            className="px-1 relative z-10 w-full max-w-6xl mx-auto" 
+          />
+          
+          {/* Tube - positioned responsively */}
+          <motion.img
+            src="/assests/tube.png"
+            alt="Tube Image"
+            className="absolute hidden md:block z-20 w-48 h-48 lg:w-56 lg:h-56 xl:w-64 xl:h-64 2xl:w-72 2xl:h-72
+                     md:-left-8 lg:-left-12 xl:-left-16 2xl:-left-20
+                     md:top-48 lg:top-56 xl:top-64 2xl:top-72"
+            style={{
+              translateY: tubeTranslateY,
+              rotate: tubeRotate,
+              scale: tubeScale,
+            }}
+            transition={{
+              type: "spring",
+              stiffness: 100,
+              damping: 20,
+            }}
+          />
+        </div>
       </div>
     </div>
   );

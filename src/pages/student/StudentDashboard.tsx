@@ -13,6 +13,7 @@ import { WalletCard } from '@/components/wallet/WalletCard';
 import { StudentGoals } from '@/components/student/StudentGoals';
 import { StudentActivity } from '@/components/student/StudentActivity';
 import { StudentAchievements } from '@/components/student/StudentAchievements';
+import { StreakProgress } from '@/components/student/StreakProgress';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Link } from 'react-router-dom';
 import { Zap, Users } from 'lucide-react';
@@ -95,6 +96,7 @@ export const StudentDashboard = () => {
               </div>
               <StudentAchievements stats={stats} />
             </div>
+            <StreakProgress userId={user!.id} showMotivation={true} />
           </div>
           <div className="space-y-4 sm:space-y-6 hidden lg:block">
             <WalletCard />

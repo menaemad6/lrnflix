@@ -1,6 +1,6 @@
 import React from 'react';
 import IphoneShowcaseSection from '../home/IphoneShowcaseSection';
-import PrismHero from './PrismHero';
+import SaasHero from './SaasHero';
 import PoliciesModal from './PoliciesModal';
 import {
   Header,
@@ -8,7 +8,7 @@ import {
   BrandSlide,
   ProductShowcase,
   InfiniteInstructors,
-  TopCourses,
+  TopCoursesCardSwap,
   ProductCard,
   Testimonials,
   Pricing,
@@ -22,11 +22,11 @@ const LandingPage: React.FC = () => {
     <div className="min-h-screen bg-white gap-0">
       <Header />
       {/* <Hero /> */}
-      <PrismHero />
+      <SaasHero />
       <BrandSlide />
       <ProductShowcase />
-      <InfiniteInstructors />
-      <TopCourses />
+      <InfiniteInstructors />/
+      <TopCoursesCardSwap />
       <ProductCard />
       {/* <IphoneShowcaseSection leftTextTop="Transform" leftTextBottom="Education." /> */}
       <Testimonials />

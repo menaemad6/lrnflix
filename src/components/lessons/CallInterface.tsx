@@ -24,6 +24,25 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
   const { t } = useTranslation('courses');
   const [callDuration, setCallDuration] = useState(0);
 
+  // Prevent body scrolling when modal is active
+  useEffect(() => {
+    if (isCallActive || isConnecting) {
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
+    } else {
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+    }
+
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+    };
+  }, [isCallActive, isConnecting]);
+
   // Call duration timer
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -48,13 +67,39 @@ export const CallInterface: React.FC<CallInterfaceProps> = ({
   }
 
   return (
-    <div className="fixed inset-0 bg-gradient-to-br from-gray-900 via-black to-gray-800 backdrop-blur-sm z-[9999] pointer-events-auto flex flex-col h-screen">
+    <div 
+      className="fixed inset-0 bg-gradient-to-br from-gray-900 via-black to-gray-800 backdrop-blur-sm z-[9999] pointer-events-auto flex flex-col min-h-screen h-full w-full"
+      style={{
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        height: '100dvh',
+        width: '100vw',
+        minHeight: '100dvh',
+        minWidth: '100vw',
+        position: 'fixed',
+        overflow: 'hidden'
+      }}
+    >
       {/* Animated background particles */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary-500/10 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-secondary-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-accent-500/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
       </div>
+      
+      {/* Full coverage background to prevent any transparent areas */}
+      <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-black to-gray-800"></div>
+      
+      {/* Additional coverage to ensure no gaps */}
+      <div className="absolute -top-10 -left-10 -right-10 -bottom-10 bg-gradient-to-br from-gray-900 via-black to-gray-800"></div>
+      
+      {/* Mobile viewport height fix */}
+      <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-black to-gray-800" style={{ height: '100dvh' }}></div>
+      
+      {/* iOS Safari viewport height fix */}
+      <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-black to-gray-800" style={{ height: '100vh' }}></div>
 
       {/* Enhanced Header */}
       <div className="flex justify-between items-center p-8 text-white relative z-10 flex-shrink-0">

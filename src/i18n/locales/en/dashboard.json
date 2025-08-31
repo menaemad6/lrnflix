@@ -76,7 +76,15 @@
     "aiMinutes": "AI Minutes",
     "availableForAiTutor": "Available for AI tutor",
     "studyLevel": "Study Level",
-    "nextLevel": "Next level: {{count}} courses"
+    "nextLevel": "Next level: {{count}} courses",
+    "studyStreak": "Study Streak",
+    "consecutiveDays": "consecutive days",
+    "startYourStreak": "Start your streak today!",
+    "bestStreak": "Best: {{count}} days",
+    "progressToNextMilestone": "Progress to next milestone",
+    "maxed": "Maxed!",
+    "greatJobToday": "🎉 Great job! You've already studied today!",
+    "dontBreakStreak": "⚡ Don't break your streak! Study something today!"
   },
   "aiAdvice": {
     "title": "AI Learning Intelligence",

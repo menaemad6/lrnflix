@@ -7,65 +7,65 @@ const Testimonials: React.FC = () => {
   const testimonials: TestimonialData[] = [
     {
       id: 1,
-      text: "Lrnflix has completely transformed how I teach. The AI-powered question generation saves me hours, and my students love the gamified learning experience.",
-      name: "Dr. Ahmed Hassan",
-      handle: "Computer Science Professor",
+      text: "Lrnflix has transformed how I teach physics. The AI explanations help me break down complex concepts for my students, and the practice questions are perfect for testing their understanding.",
+      name: "Dr. Aisha Hassan",
+      handle: "Physics Teacher",
       avatar: "/assests/avatar-1.png"
     },
     {
       id: 2,
-      text: "As Egypt's first AI-powered learning platform, Lrnflix has set a new standard for educational technology. The multiplayer quizzes make learning fun and competitive.",
+      text: "My students love the competitive quizzes! They're actually excited to study math now. The platform makes complex topics like calculus and trigonometry much easier to grasp.",
       name: "Sarah Mahmoud",
-      handle: "High School Teacher",
+      handle: "Mathematics Teacher",
       avatar: "/assests/avatar-6.png"
     },
     {
       id: 3,
-      text: "The AI tutor Hossam is incredible! It's like having a personal tutor available 24/7. This platform is exactly what Egypt's education system needed.",
+      text: "I was failing chemistry until I found Lrnflix. The AI tutor breaks down reactions step by step, and the visual explanations make everything click. My grades improved from 60% to 95%!",
       name: "Omar El-Sayed",
-      handle: "University Student",
+      handle: "Chemistry Student",
       avatar: "/assests/avatar-3.png"
     },
     {
       id: 4,
-      text: "I've tried many learning platforms, but Lrnflix's gamification features and AI insights are unmatched. It's revolutionizing education in Egypt.",
-      name: "Fatima Ali",
-      handle: "Educational Consultant",
+      text: "As an Arabic teacher, I appreciate how the platform adapts to different learning styles. The AI generates questions that actually challenge my students' critical thinking skills.",
+      name: "Ahmed Ali",
+      handle: "Arabic Language Teacher",
       avatar: "/assests/avatar-7.png"
     },
     {
       id: 5,
-      text: "The personalized learning paths and AI recommendations have helped my students improve dramatically. This is the future of education.",
+      text: "The biology section is incredible! Complex topics like genetics and human anatomy become simple with the interactive diagrams and AI explanations. Perfect for my students.",
       name: "Dr. Karim Mostafa",
-      handle: "Engineering Professor",
+      handle: "Biology Teacher",
       avatar: "/assests/avatar-2.png"
     },
     {
       id: 6,
-      text: "Finally, an Egyptian platform that competes with international standards! The AI-powered features and gamified learning make studying enjoyable.",
+      text: "English was my weakest subject, but Lrnflix's AI tutor helped me understand grammar rules and improve my vocabulary. I went from barely passing to scoring 90% in my final exams.",
       name: "Layla Ahmed",
-      handle: "Medical Student",
+      handle: "English Student",
       avatar: "/assests/avatar-5.png"
     },
     {
       id: 7,
-      text: "Lrnflix's multiplayer quiz system has created a competitive learning environment that motivates my students to study harder and perform better.",
-      name: "Prof. Hana Ibrahim",
-      handle: "Mathematics Department",
+      text: "The logic and reasoning questions in the philosophy section are exactly what my students need. It teaches critical thinking that helps in all subjects, not just philosophy.",
+      name: "Prof. Hassan Ibrahim",
+      handle: "Philosophy & Logic Teacher",
       avatar: "/assests/avatar-4.png"
     },
     {
       id: 8,
-      text: "The platform's ability to generate questions from PDFs using AI is groundbreaking. It saves me countless hours while maintaining quality.",
-      name: "Dr. Youssef Khalil",
-      handle: "Physics Professor",
+      text: "History lessons become engaging with Lrnflix! The AI creates scenarios that make my students think about cause and effect, not just memorize dates. Perfect for developing analytical skills.",
+      name: "Dr. Yasmin Khalil",
+      handle: "History Teacher",
       avatar: "/assests/avatar-8.png"
     },
     {
       id: 9,
-      text: "As a student, I love how Lrnflix adapts to my learning style. The AI tutor and personalized recommendations have made studying much more effective.",
-      name: "Mariam Hassan",
-      handle: "Business Student",
+      text: "I struggled with geography maps and climate patterns, but the interactive lessons and AI-generated questions helped me understand spatial relationships and environmental factors.",
+      name: "Mohammed Hassan",
+      handle: "Geography Student",
       avatar: "/assests/avatar-9.png"
     }
   ];

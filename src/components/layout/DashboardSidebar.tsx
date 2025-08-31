@@ -227,8 +227,12 @@ export const DashboardSidebar = () => {
       <Sidebar className="glass-card border-r border-white/10 bg-gradient-to-b from-background/95 to-background/80 backdrop-blur-xl">
         <SidebarHeader className="p-6 border-b border-white/5 relative">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-2xl flex items-center justify-center animate-glow-pulse shadow-lg shadow-primary-500/25">
-              <BookOpen className="h-7 w-7 text-black" />
+            <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-2xl flex items-center justify-center animate-glow-pulse shadow-lg shadow-primary-500/25 overflow-hidden">
+              <img 
+                src="/assests/logo.png" 
+                alt="Logo" 
+                className="h-8 w-8 object-contain"
+              />
             </div>
             {!isCollapsed && (
               <div className="flex flex-col">

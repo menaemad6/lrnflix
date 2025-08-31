@@ -102,7 +102,7 @@ const MobileNavigation: React.FC<{
         </div>
 
         {/* User Section - Fixed at bottom */}
-        <div className="px-6 pb-6 flex-shrink-0">
+        <div className="px-6 pb-6 mb-20 flex-shrink-0">
           {isAuthenticated ? (
             <div className="bg-neutral-900 border border-neutral-600 p-6 space-y-4">
               <div className="space-y-2">

@@ -21,9 +21,11 @@ interface Chapter {
   description: string;
   status: string;
   price: number;
-  course_count: number;
   is_enrolled: boolean;
   cover_image_url?: string;
+  instructor_id?: string;
+  instructor_name?: string;
+  instructor_avatar?: string;
 }
 
 export const ChaptersPage = () => {
@@ -43,16 +45,20 @@ export const ChaptersPage = () => {
   const fetchChapters = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      // Get published chapters
+      // Get published chapters with instructor info
       let chaptersQuery = supabase
         .from('chapters')
-        .select('*')
+        .select(`
+          *,
+          profiles!chapters_instructor_id_fkey(full_name, avatar_url)
+        `)
         .eq('status', 'published');
       if (teacher) {
         chaptersQuery = chaptersQuery.eq('instructor_id', teacher.user_id);
       }
       const { data: chaptersData, error: chaptersError } = await chaptersQuery;
       if (chaptersError) throw chaptersError;
+      
       // Get user's chapter enrollments
       let enrolledChapterIds: string[] = [];
       if (user) {
@@ -63,27 +69,33 @@ export const ChaptersPage = () => {
         if (enrollmentError) throw enrollmentError;
         enrolledChapterIds = enrollments?.map((e) => e.chapter_id) || [];
       }
-      // Get course counts for each chapter using chapter_objects
+      
+      // Process chapters with teacher info
       const chaptersWithDetails = await Promise.all(
         (chaptersData || []).map(async (chapter) => {
-          // Count published courses linked via chapter_objects
-          const { count: objectsCount, error: objectsError } = await supabase
-            .from('chapter_objects')
-            .select('object_id', { count: 'exact', head: true })
-            .eq('chapter_id', chapter.id)
-            .eq('object_type', 'course')
-            .not('object_id', 'is', null);
-          if (objectsError) throw objectsError;
-          // Optionally, also count direct courses with chapter_id (legacy)
-          // const { count: directCount } = await supabase
-          //   .from('courses')
-          //   .select('*', { count: 'exact', head: true })
-          //   .eq('chapter_id', chapter.id)
-          //   .eq('status', 'published');
+          // Get teacher info from teachers table if available
+          let instructorName = chapter.profiles?.full_name;
+          let instructorAvatar = chapter.profiles?.avatar_url;
+          
+          if (chapter.instructor_id) {
+            const { data: teacherData } = await supabase
+              .from('teachers')
+              .select('display_name, profile_image_url')
+              .eq('user_id', chapter.instructor_id)
+              .eq('is_active', true)
+              .single();
+            
+            if (teacherData) {
+              instructorName = teacherData.display_name || instructorName;
+              instructorAvatar = teacherData.profile_image_url || instructorAvatar;
+            }
+          }
+          
           return {
             ...chapter,
-            course_count: objectsCount || 0,
-            is_enrolled: enrolledChapterIds.includes(chapter.id)
+            is_enrolled: enrolledChapterIds.includes(chapter.id),
+            instructor_name: instructorName,
+            instructor_avatar: instructorAvatar
           };
         })
       );
@@ -189,9 +201,10 @@ export const ChaptersPage = () => {
                   title={chapter.title}
                   description={chapter.description}
                   price={chapter.price}
-                  courseCount={chapter.course_count}
                   isEnrolled={chapter.is_enrolled}
                   coverImageUrl={chapter.cover_image_url}
+                  instructorName={chapter.instructor_name}
+                  instructorAvatar={chapter.instructor_avatar}
                   onPreview={() => navigate(`/chapters/${chapter.id}`)}
                   onEnroll={() => enrollInChapter(chapter.id)}
                   onContinue={() => navigate(`/chapters/${chapter.id}`)}
