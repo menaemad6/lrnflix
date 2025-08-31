@@ -41,6 +41,7 @@ import type { RootState } from '@/store/store';
 import IphoneShowcaseSection from '../home/IphoneShowcaseSection';
 import { LogInIcon, LogOut } from 'lucide-react';
 import InfiniteMenu from '../react-bits/InfiniteMenu/InfiniteMenu';
+import PrismHero from './PrismHero';
 
 
 // Type definitions
@@ -106,6 +107,28 @@ const Header: React.FC = () => {
   const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
   const userRole = user?.role || 'student';
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+  
+  // Add scroll effect for navbar background
+  const [isScrolled, setIsScrolled] = useState(false);
+  
+  // Debug logging
+  console.log('Header render - isScrolled:', isScrolled);
+  
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY;
+      const heroHeight = window.innerHeight - 112; // 7rem = 112px
+      const shouldBeScrolled = scrollPosition > heroHeight;
+      console.log('Scroll handler:', { scrollPosition, heroHeight, shouldBeScrolled });
+      setIsScrolled(shouldBeScrolled);
+    };
+
+    // Check initial scroll position
+    handleScroll();
+    
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -146,7 +169,9 @@ const Header: React.FC = () => {
                   {user?.full_name?.charAt(0) || user?.email?.charAt(0) || 'U'}
                 </AvatarFallback>
               </Avatar>
-              <span className="hidden sm:inline text-sm font-medium text-black">
+              <span className={`hidden sm:inline text-sm font-medium transition-colors duration-300 ${
+                isScrolled ? 'text-black' : 'text-white'
+              }`}>
                 {user?.full_name || user?.email}
               </span>
             </Button>
@@ -223,7 +248,9 @@ const Header: React.FC = () => {
       <div className="flex items-center space-x-3">
         <Button 
           variant="ghost" 
-          className='text-black'
+          className={`transition-colors duration-300 ${
+            isScrolled ? 'text-black' : 'text-white'
+          }`}
           onClick={() => navigate('/auth/login')}
         >
           Sign In
@@ -239,12 +266,18 @@ const Header: React.FC = () => {
   };
 
   const getNavLinks = () => {
+    const linkClass = `transition-colors duration-300 ${
+      isScrolled 
+        ? 'text-black hover:text-gray-700' 
+        : 'text-white hover:text-gray-200'
+    }`;
+    
     if (!isAuthenticated) {
       return (
         <>
-          <li><Link to="/courses" className='text-black hover:text-gray-700 transition-colors'>Courses</Link></li>
-          <li><Link to="/chapters" className='text-black hover:text-gray-700 transition-colors'>Chapters</Link></li>
-          <li><Link to="/teachers" className='text-black hover:text-gray-700 transition-colors'>Instructors</Link></li>
+          <li><Link to="/courses" className={linkClass}>Courses</Link></li>
+          <li><Link to="/chapters" className={linkClass}>Chapters</Link></li>
+          <li><Link to="/teachers" className={linkClass}>Instructors</Link></li>
 
         </>
       );
@@ -254,11 +287,11 @@ const Header: React.FC = () => {
     if (userRole === 'student') {
       return (
         <>
-          <li><Link to="/student/dashboard" className='text-black hover:text-gray-700 transition-colors'>Dashboard</Link></li>
-          <li><Link to="/student/courses" className='text-black hover:text-gray-700 transition-colors'>My Courses</Link></li>
-          <li><Link to="/student/chapters" className='text-black hover:text-gray-700 transition-colors'>Chapters</Link></li>
-          <li><Link to="/student/groups" className='text-black hover:text-gray-700 transition-colors'>Groups</Link></li>
-          <li><Link to="/courses" className='text-black hover:text-gray-700 transition-colors'>Browse Courses</Link></li>
+          <li><Link to="/student/dashboard" className={linkClass}>Dashboard</Link></li>
+          <li><Link to="/student/courses" className={linkClass}>My Courses</Link></li>
+          <li><Link to="/student/chapters" className={linkClass}>Chapters</Link></li>
+          <li><Link to="/student/groups" className={linkClass}>Groups</Link></li>
+          <li><Link to="/courses" className={linkClass}>Browse Courses</Link></li>
         </>
       );
     }
@@ -266,11 +299,11 @@ const Header: React.FC = () => {
     if (userRole === 'teacher') {
       return (
         <>
-          <li><Link to="/teacher/dashboard" className='text-black hover:text-gray-700 transition-colors'>Dashboard</Link></li>
-          <li><Link to="/teacher/courses" className='text-black hover:text-gray-700 transition-colors'>My Courses</Link></li>
-          <li><Link to="/teacher/chapters" className='text-black hover:text-gray-700 transition-colors'>Chapters</Link></li>
-          <li><Link to="/teacher/groups" className='text-black hover:text-gray-700 transition-colors'>Groups</Link></li>
-          <li><Link to="/teacher/analytics" className='text-black hover:text-gray-700 transition-colors'>Analytics</Link></li>
+          <li><Link to="/teacher/dashboard" className={linkClass}>Dashboard</Link></li>
+          <li><Link to="/teacher/courses" className={linkClass}>My Courses</Link></li>
+          <li><Link to="/teacher/chapters" className={linkClass}>Chapters</Link></li>
+          <li><Link to="/teacher/groups" className={linkClass}>Groups</Link></li>
+          <li><Link to="/teacher/analytics" className={linkClass}>Analytics</Link></li>
         </>
       );
     }
@@ -279,10 +312,22 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="flex justify-between items-center px-6 py-4 backdrop-blur-md sticky top-0 z-30 bg-gradient-to-r from-[#E0E7FD] to-[#FDFEFF] shadow-md h-16">
+    <header 
+      className={`flex justify-between items-center px-6 py-4 fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out h-16 ${
+        isScrolled 
+          ? 'bg-gradient-to-r from-[#E0E7FD] to-[#FDFEFF] shadow-md backdrop-blur-md' 
+          : 'bg-transparent'
+      }`}
+      style={{
+        backgroundColor: isScrolled ? undefined : 'transparent',
+        backdropFilter: isScrolled ? undefined : 'none'
+      }}
+    >
       <Link to="/" className="cursor-pointer flex items-center space-x-2">
         <img src="/assests/logo.png" alt="Logo" className="h-8 w-auto"/>
-        <span className="text-black font-semibold text-xl">{PLATFORM_NAME}</span>
+        <span className={`font-semibold text-xl transition-colors duration-300 ${
+          isScrolled ? 'text-black' : 'text-white'
+        }`}>{PLATFORM_NAME}</span>
       </Link>
       
       <button 
@@ -290,7 +335,9 @@ const Header: React.FC = () => {
         className="block md:hidden p-2 hover:bg-black/5 rounded-lg transition-colors"
         aria-label="Open mobile menu"
       >
-        <FaBars className="h-6 w-6 text-black" />
+        <FaBars className={`h-6 w-6 transition-colors duration-300 ${
+          isScrolled ? 'text-black' : 'text-white'
+        }`} />
       </button>
       
       <nav className="hidden md:block">
@@ -1815,7 +1862,7 @@ const InfiniteInstructors: React.FC = () => {
 // Footer Component
 const Footer: React.FC = () => {
   return (
-    <div className="flex flex-col md:flex-row bg-black text-white p-16 gap-8 justify-between md:px-20 xl:px-44">
+    <div className="flex flex-col md:flex-row bg-black text-white p-8 md:p-16 gap-8 justify-between px-6 md:px-20 xl:px-44">
       <div className="flex flex-col gap-8 text-gray-300/85 max-w-[300px]">
         <div className="flex items-center space-x-3">
           <img src="/assests/logo.png" alt="Logo" className="cursor-pointer h-12 w-12" />
@@ -1876,9 +1923,10 @@ const Footer: React.FC = () => {
 const LandingPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-white gap-0">
-      <TopLine />
+
       <Header />
-      <Hero />
+      {/* <Hero /> */}
+      <PrismHero />
       <BrandSlide />
 
       <ProductShowcase />

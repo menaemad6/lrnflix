@@ -1411,9 +1411,9 @@ const InfiniteMenu: FC<InfiniteMenuProps> = ({ items = [] }) => {
           absolute
           font-black
           text-black
-          text-2xl md:text-3xl lg:text-4xl xl:[font-size:4rem]
+          text-2xl md:text-3xl lg:text-4xl xl:[font-size:3.5rem]
           left-1/2 md:left-4 lg:left-8 xl:left-[-0.5em]
-          top-1/4 md:top-1/3 lg:top-1/2
+          top-[15%] md:top-1/3 lg:top-1/2
           transform
           -translate-x-1/2 md:translate-x-4 lg:translate-x-8 xl:translate-x-[20%]
           -translate-y-1/2
