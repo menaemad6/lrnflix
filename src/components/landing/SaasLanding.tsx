@@ -40,6 +40,7 @@ import { supabase } from '@/integrations/supabase/client';
 import type { RootState } from '@/store/store';
 import IphoneShowcaseSection from '../home/IphoneShowcaseSection';
 import { LogInIcon, LogOut } from 'lucide-react';
+import InfiniteMenu from '../react-bits/InfiniteMenu/InfiniteMenu';
 
 
 // Type definitions
@@ -1637,34 +1638,23 @@ const TopCourses: React.FC = () => {
   );
 };
 
-// Top Instructors Component
-const TopInstructors: React.FC = () => {
+// Infinite Instructors Component
+const InfiniteInstructors: React.FC = () => {
   const navigate = useNavigate();
-  const instructorsRef = useRef<HTMLDivElement>(null);
   const { data: instructors, isLoading, isError } = useQuery({
     queryKey: ['featuredInstructors'],
     queryFn: getFeaturedInstructors,
   });
-
-  // Horizontal scroll effect - instructors move right as user scrolls down (same speed as courses, opposite direction)
-  const { scrollYProgress } = useScroll({
-    target: instructorsRef,
-    offset: ["start start", "end end"]
-  });
-  
-  const translateX = useTransform(scrollYProgress, [0, 1], [0, 100]);
-  const opacity = useTransform(scrollYProgress, [0, 0.5, 1], [0, 1, 0]);
-  const translateXRight = useTransform(scrollYProgress, [0, 1], [0, -100]);
 
   if (isLoading) {
     return (
       <div className="pt-20 bg-white">
         <div className="flex flex-col items-center font-medium px-8 mx-auto md:w-[550px] lg:w-[630px]">
           <div className="text-black border-2 w-fit p-0.5 px-3 text-sm rounded-xl border-slate-300/80">
-            Top Instructors
+            Interactive Instructors
           </div>
           <div className="text-3xl md:text-4xl lg:text-5xl py-6 font-bold tracking-tighter text-center bg-gradient-to-b from-black to-[#002499] text-transparent bg-clip-text">
-            Learn from Expert Instructors
+            Explore Our Instructors in 3D
           </div>
           <div className="text-center text-lg mb-8 md:text-xl text-black">
             Loading amazing instructors...
@@ -1674,15 +1664,15 @@ const TopInstructors: React.FC = () => {
     );
   }
 
-  if (isError) {
+  if (isError || !instructors) {
     return (
       <div className="pt-20 bg-white">
         <div className="flex flex-col items-center font-medium px-8 mx-auto md:w-[550px] lg:w-[630px]">
           <div className="text-black border-2 w-fit p-0.5 px-3 text-sm rounded-xl border-slate-300/80">
-            Top Instructors
+            Interactive Instructors
           </div>
           <div className="text-3xl md:text-4xl lg:text-5xl py-6 font-bold tracking-tighter text-center bg-gradient-to-b from-black to-[#002499] text-transparent bg-clip-text">
-            Learn from Expert Instructors
+            Explore Our Instructors in 3D
           </div>
           <div className="text-center text-lg mb-8 md:text-xl text-red-600">
             Error loading instructors. Please try again later.
@@ -1692,192 +1682,135 @@ const TopInstructors: React.FC = () => {
     );
   }
 
-  return (
-    <div ref={instructorsRef} className="pt-20 bg-white relative overflow-hidden">
-      {/* Premium Background Patterns */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {/* Geometric Pattern Grid */}
-        <div className="absolute inset-0 opacity-[0.03]">
-          <div className="absolute inset-0" style={{
-            backgroundImage: `
-              linear-gradient(90deg, #002499 1px, transparent 1px),
-              linear-gradient(180deg, #002499 1px, transparent 1px)
-            `,
-            backgroundSize: '40px 40px'
-          }}></div>
+  // Transform instructors data to match InfiniteMenu format - EXACTLY like TopInstructors
+  const menuItems = instructors.map((instructor, index) => {
+    // Use the EXACT same image handling as TopInstructors component
+    let imageUrl = instructor.profile_image_url;
+    
+    // If no profile image, use fallback avatar (same as TopInstructors)
+    if (!imageUrl) {
+      const avatarIndex = (index % 9) + 1;
+      imageUrl = `/assests/avatar-${avatarIndex}.png`;
+    }
+    
+    // Ensure the image URL is absolute (fix for InfiniteMenu)
+    if (imageUrl && !imageUrl.startsWith('http') && !imageUrl.startsWith('/')) {
+      imageUrl = `/${imageUrl}`;
+    }
+    
+    // Debug logging
+    console.log(`Instructor ${index}:`, {
+      name: instructor.display_name,
+      profileImage: instructor.profile_image_url,
+      finalImage: imageUrl,
+      hasImage: !!instructor.profile_image_url,
+      isAbsolute: imageUrl?.startsWith('/') || imageUrl?.startsWith('http')
+    });
+    
+    return {
+      image: imageUrl,
+      link: `/teachers/${instructor.slug}`,
+      title: instructor.display_name || 'Instructor',
+      description: instructor.specialization || 'Expert Educator',
+      fallbackAvatar: `/assests/avatar-${(index % 9) + 1}.png` // Add fallback avatar path
+    };
+  });
+
+  console.log('Final menuItems with images:', menuItems.map(item => ({ title: item.title, image: item.image })));
+
+  console.log('Final menuItems:', menuItems);
+
+  // Fallback items if no instructors
+  if (menuItems.length === 0) {
+    const fallbackItems = [
+      {
+        image: '/assests/avatar-1.png',
+        link: '/teachers',
+        title: 'Expert Instructors',
+        description: 'Discover our amazing teachers'
+      },
+      {
+        image: '/assests/avatar-2.png',
+        link: '/teachers',
+        title: 'Professional Educators',
+        description: 'Learn from the best in their fields'
+      },
+      {
+        image: '/assests/avatar-3.png',
+        link: '/teachers',
+        title: 'Certified Teachers',
+        description: 'Quality education guaranteed'
+      }
+    ];
+    return (
+      <div className="pt-20 bg-white relative overflow-hidden">
+        <div className="flex flex-col items-center font-medium px-8 mx-auto md:w-[550px] lg:w-[630px] relative z-10">
+          <div className="text-black border-2 w-fit p-0.5 px-3 text-sm rounded-xl border-slate-300/80">
+            Interactive Instructors
+          </div>
+          <div className="text-3xl md:text-4xl lg:text-5xl py-6 font-bold tracking-tighter text-center bg-gradient-to-b from-black to-[#002499] text-transparent bg-clip-text">
+            Explore Our Instructors in 3D
+          </div>
+          <div className="text-center text-lg mb-8 md:text-xl text-black">
+            Interact with our expert instructors in an immersive 3D experience. 
+            Click and drag to explore, and discover the perfect teacher for your learning journey.
+          </div>
         </div>
-        
-        {/* Floating Geometric Shapes */}
-        <div className="absolute top-32 left-20 w-24 h-24 border border-blue-200/20 rotate-45 opacity-30"></div>
-        <div className="absolute top-48 right-32 w-16 h-16 bg-blue-100/20 rounded-full opacity-40"></div>
-        <div className="absolute bottom-32 left-1/4 w-20 h-20 border-2 border-indigo-200/15 rotate-12 opacity-25"></div>
-        <div className="absolute bottom-48 right-1/4 w-28 h-28 bg-purple-100/15 transform rotate-45 opacity-30"></div>
-        
-        {/* Large Pattern Orbs */}
-        <div className="absolute top-0 left-0 w-96 h-96 bg-blue-100/10 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 right-0 w-80 h-80 bg-indigo-100/15 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-50/8 rounded-full blur-3xl"></div>
-        
-        {/* Animated Floating Elements */}
-        <motion.div
-          className="absolute top-20 left-10 w-32 h-32 bg-blue-200/20 rounded-full blur-2xl"
-          animate={{
-            y: [-10, 10, -10],
-            opacity: [0.3, 0.6, 0.3],
-          }}
-          transition={{
-            duration: 8,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        />
-        <motion.div
-          className="absolute bottom-20 right-10 w-40 h-40 bg-indigo-200/15 rounded-full blur-2xl"
-          animate={{
-            y: [10, -10, 10],
-            opacity: [0.4, 0.7, 0.4],
-          }}
-          transition={{
-            duration: 10,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        />
+
+        {/* Infinite Menu Container - Responsive Height */}
+        <div className="relative w-full h-[600px] md:h-screen">
+          <InfiniteMenu items={fallbackItems} />
+        </div>
+
+        {/* View All Instructors CTA */}
+        <div className="flex justify-center pb-16 relative z-10 mt-4">
+          <Button 
+            className="text-white bg-black py-2 px-4 rounded-sm cursor-pointer"
+            onClick={() => navigate('/teachers')}
+          >
+            View All Instructors
+          </Button>
+        </div>
       </div>
+    );
+  }
+
+  return (
+    <div className="pt-20 bg-white relative overflow-hidden">
+      {/* Clean white background - patterns removed */}
 
       <div className="flex flex-col items-center font-medium px-8 mx-auto md:w-[550px] lg:w-[630px] relative z-10">
         <div className="text-black border-2 w-fit p-0.5 px-3 text-sm rounded-xl border-slate-300/80">
-          Top Instructors
+          Interactive Instructors
         </div>
         <div className="text-3xl md:text-4xl lg:text-5xl py-6 font-bold tracking-tighter text-center bg-gradient-to-b from-black to-[#002499] text-transparent bg-clip-text">
-          Learn from Expert Instructors
+          Explore Our Instructors in 3D
         </div>
         <div className="text-center text-lg mb-8 md:text-xl text-black">
-          Discover world-class instructors who are passionate about sharing their knowledge and expertise
+          Interact with our expert instructors in an immersive 3D experience. 
+          Click and drag to explore, and discover the perfect teacher for your learning journey.
         </div>
       </div>
 
-      {/* Horizontal Carousel Container */}
-      <div className="relative pb-20">
-        {/* Left fade gradient */}
-        <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
-        
-        {/* Right fade gradient */}
-        <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
-
-        {/* Carousel */}
-        <motion.div
-          className="flex gap-8 px-28"
-          style={{ translateX }}
-        >
-          {instructors?.map((instructor, index) => (
-            <motion.div
-              key={instructor.user_id}
-              onClick={() => navigate(`/teachers/${instructor.slug}`)}
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: index * 0.2 }}
-              className="relative bg-white shadow-3xl border-2 border-gray-300 overflow-hidden min-w-[420px] max-w-[420px] cursor-pointer"
-            >
-              {/* Premium Thumbnail Section */}
-              <div className="relative h-72 bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
-                {instructor.profile_image_url ? (
-                  <img
-                    src={instructor.profile_image_url}
-                    alt={instructor.display_name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
-                    <div className="w-24 h-24 bg-gradient-to-br from-gray-700 to-gray-900 rounded-full flex items-center justify-center text-white text-4xl font-bold shadow-xl">
-                      {instructor.display_name?.[0] || 'I'}
-                    </div>
-                  </div>
-                )}
-                
-                {/* Premium overlay with sophisticated gradient */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-black/5 to-transparent" />
-                
-                {/* Premium badge with enhanced styling */}
-                <div className="absolute top-6 left-6 bg-white/95 backdrop-blur-md text-gray-900 px-5 py-3 text-sm font-bold shadow-xl border border-gray-300">
-                  Expert
-                </div>
-              </div>
-
-              {/* Hierarchical Content Section */}
-              <div className="p-10 bg-white">
-                {/* Instructor Name - Primary Hierarchy */}
-                <h3 className="text-3xl font-bold text-gray-900 mb-6 line-clamp-2 leading-tight tracking-tight">
-                  {instructor.display_name}
-                </h3>
-
-                {/* Specialization - Secondary Hierarchy */}
-                <div className="flex items-center gap-4 mb-8">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-800 rounded-full flex items-center justify-center text-white text-base font-bold shadow-xl">
-                    <FaUsers className="text-xl" />
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-xs font-semibold text-gray-500 uppercase tracking-widest">
-                      Specialization
-                    </span>
-                    <span className="text-xl font-bold text-gray-800">
-                      {instructor.specialization || 'General Education'}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Bio - Tertiary Hierarchy */}
-                {instructor.bio && (
-                  <div className="mb-8">
-                    <p className="text-gray-600 text-lg leading-relaxed line-clamp-3">
-                      {instructor.bio}
-                    </p>
-                  </div>
-                )}
-
-                {/* Social Links - Quaternary Hierarchy */}
-                {instructor.social_links && Object.keys(instructor.social_links).length > 0 && (
-                  <div className="flex gap-3">
-                    {Object.entries(instructor.social_links).map(([platform, url]) => (
-                      <a
-                        key={platform}
-                        href={url as string}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-600 hover:text-gray-800 transition-colors"
-                      >
-                        {platform === 'linkedin' && <FaLinkedin className="text-lg" />}
-                        {platform === 'twitter' && <FaTwitter className="text-lg" />}
-                        {platform === 'youtube' && <FaYoutube className="text-lg" />}
-                        {platform === 'instagram' && <AiFillInstagram className="text-lg" />}
-                        {platform === 'website' && <MdOutlineArrowOutward className="text-lg" />}
-                      </a>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
+      {/* Infinite Menu Container - Responsive Height */}
+      <div className="relative w-full h-[600px] md:h-screen">
+        <InfiniteMenu items={menuItems} />
       </div>
 
       {/* View All Instructors CTA */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.2, delay: 0.4 }}
-        className="flex justify-center pb-16 relative z-10"
-      >
+      <div className="flex justify-center pb-16 relative z-10 mt-6">
         <Button 
           className="text-white bg-black py-2 px-4 rounded-sm cursor-pointer"
           onClick={() => navigate('/teachers')}
         >
           View All Instructors
         </Button>
-      </motion.div>
+      </div>
     </div>
   );
 };
+
+
 
 // Footer Component
 const Footer: React.FC = () => {
@@ -1950,8 +1883,8 @@ const LandingPage: React.FC = () => {
 
       <ProductShowcase />
 
+      <InfiniteInstructors />
       <TopCourses />
-      <TopInstructors />
       <ProductCard />
       {/* <IphoneShowcaseSection leftTextTop="Transform" leftTextBottom="Education." /> */}
       <Testimonials />

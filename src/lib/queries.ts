@@ -1047,7 +1047,7 @@ export const fetchStudentDashboardData = async (user, teacher) => {
 export const getFeaturedInstructors = async () => {
   const { data, error } = await supabase
     .from('teachers')
-    .select('user_id, display_name, profile_image_url, specialization, social_links, bio, slug')
+    .select('user_id, display_name, profile_image_url, cover_image_url, specialization, social_links, bio, slug')
     .eq('is_active', true)
     .limit(50);
 
