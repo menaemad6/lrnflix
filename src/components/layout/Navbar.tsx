@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
 import { SidebarLanguageSelector } from '@/components/ui/SidebarLanguageSelector';
-import { Layout, LogOut, Home, Search, Store, Menu, Sidebar, MessageCircleQuestion, Gamepad2, Users, Gift, Bell, PieChart, DollarSign, CircleDollarSign, GraduationCap, BookOpen, X, Sun, Moon, Laptop, ChevronRight, User as UserIcon } from 'lucide-react';
+import { Layout, LogOut, Home, Search, Store, Menu, Sidebar, MessageCircleQuestion, Gamepad2, Users, Gift, Bell, PieChart, DollarSign, CircleDollarSign, GraduationCap, BookOpen, X, Sun, Moon, Laptop, ChevronRight, User as UserIcon, MenuIcon } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import type { RootState } from '@/store/store';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -28,6 +28,7 @@ import WalletCardDesign from '@/components/student/WalletCardDesign'
 import { PLATFORM_NAME } from '@/data/constants';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
+import { FaBars } from 'react-icons/fa';
 
 // Logo component to replace BookOpen icons
 const Logo = ({ className = "" }: { className?: string }) => (
@@ -185,16 +186,15 @@ export const Navbar = ({ extraXSpacing = false }: { extraXSpacing?: boolean }) =
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center space-x-2">
               <Logo className="h-8 w-auto" />
-              <span className="text-2xl font-bold gradient-text">{teacher?.display_name || PLATFORM_NAME}</span>
+              <span className="text-2xl font-bold text-black dark:text-white">{teacher?.display_name || PLATFORM_NAME}</span>
             </Link>
-            {isMobile ? (
-              <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-                <SheetTrigger asChild>
-                                  <Button variant="outline" size="icon" className="relative overflow-hidden bg-gradient-to-r from-primary/10 via-primary/5 to-secondary/10 border border-primary/20 hover:border-primary/40 hover:bg-gradient-to-r hover:from-primary/20 hover:via-primary/10 hover:to-secondary/20 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-primary/25 active:scale-95 group">
-                  <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-transparent to-secondary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  <Sidebar className="h-[1.2rem] w-[1.2rem] relative z-10 text-primary group-hover:text-primary-600 transition-colors duration-300" />
-                </Button>
-                </SheetTrigger>
+                         {isMobile ? (
+               <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+                 <SheetTrigger asChild>
+                   <Button variant="ghost" size="icon" aria-label={t('navbar.openSidebar')}>
+                     <FaBars className="h-7 w-7" />
+                   </Button>
+                 </SheetTrigger>
                                  <SheetContent side="right" className="w-full max-w-sm p-0 bg-background/95 backdrop-blur-xl border-l border-border/40">
                    <div className="flex flex-col h-full">
                      {/* Modernized Header */}
@@ -315,15 +315,14 @@ export const Navbar = ({ extraXSpacing = false }: { extraXSpacing?: boolean }) =
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center space-x-2">
             <Logo className="h-8 w-auto" />
-            <span className="text-2xl font-bold gradient-text">{teacher?.display_name || PLATFORM_NAME}</span>
+            <span className="text-2xl font-bold text-black dark:text-white">{teacher?.display_name || PLATFORM_NAME}</span>
           </Link>
           {/* Sidebar Trigger and Profile Dropdown */}
           {isMobile ? (
             <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
               <SheetTrigger asChild>
-                <Button variant="outline" size="icon" className="relative overflow-hidden bg-gradient-to-r from-primary/10 via-primary/5 to-secondary/10 border border-primary/20 hover:border-primary/40 hover:bg-gradient-to-r hover:from-primary/20 hover:via-primary/10 hover:to-secondary/20 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-primary/25 active:scale-95 group ml-4" aria-label={t('navbar.openSidebar')}>
-                  <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-transparent to-secondary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  <Sidebar className="h-[1.2rem] w-[1.2rem] relative z-10 text-primary group-hover:text-primary-600 transition-colors duration-300" />
+                <Button variant="ghost" size="icon" className="ml-4 px-3" aria-label={t('navbar.openSidebar')}>
+                <FaBars className="h-7 w-7" />
                 </Button>
               </SheetTrigger>
                              <SheetContent side="right" className="w-full max-w-sm p-0 bg-background/95 backdrop-blur-xl border-l border-border/40">
@@ -416,9 +415,9 @@ export const Navbar = ({ extraXSpacing = false }: { extraXSpacing?: boolean }) =
 
               <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
                 <SheetTrigger asChild>
-                                  <Button variant="outline" size="icon" className="glass hover-glow px-3 py-2 hover:bg-primary-500/20 focus:bg-primary/20 active:bg-primary/20 transition-colors group" aria-label={t('navbar.openSidebar')}>
-                  <Sidebar className="h-[1.2rem] w-[1.2rem] transition-colors group-hover:text-primary-500" />
-                </Button>
+                  <Button variant="ghost" size="icon" aria-label={t('navbar.openSidebar')} className='px-3'>
+                  <FaBars className="h-7 w-7" />
+                  </Button>
                 </SheetTrigger>
                                  <SheetContent side="right" className="w-full max-w-sm p-0 bg-background/95 backdrop-blur-xl border-l border-border/40">
                    <NavbarSidebarContent user={user} navLinks={sideNavLinks} handleLogout={handleLogout} setSheetOpen={setSheetOpen} isActive={isActive} />

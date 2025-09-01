@@ -25,6 +25,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { ImageUploader } from '@/components/ui/ImageUploader';
+import { ImageGenerator } from '@/components/ui/ImageGenerator';
 import { IMAGE_UPLOAD_BUCKETS } from '@/data/constants';
 import type { UploadedImage } from '@/hooks/useImageUpload';
 import { useTranslation } from 'react-i18next';
@@ -553,6 +554,31 @@ export const CourseDetails = () => {
                       placeholder={t('teacherCourseDetails.uploadCourseThumbnail')}
                     />
                   </div>
+
+                  {/* AI Image Generator */}
+                  {/* <div className="pt-4 border-t border-white/10">
+                    <ImageGenerator
+                      bucket={IMAGE_UPLOAD_BUCKETS.LECTURES_THUMBNAILS}
+                      folder="courses"
+                      title="AI Course Thumbnail Generator"
+                      description="Generate custom course thumbnails using AI based on your course description"
+                      placeholder="Describe the perfect thumbnail for your course (e.g., 'A modern classroom with students learning programming, clean and professional')"
+                      onImageUploaded={(url) => {
+                        handleImageUploaded({ url, path: '', size: 0, type: 'image/png', name: 'ai-generated-thumbnail.png' });
+                        toast({
+                          title: t('teacherCourseDetails.success'),
+                          description: 'AI-generated thumbnail uploaded successfully!',
+                        });
+                      }}
+                      onError={(error) => {
+                        toast({
+                          title: t('teacherCourseDetails.error'),
+                          description: error,
+                          variant: 'destructive',
+                        });
+                      }}
+                    />
+                  </div> */}
                   
                   <Button onClick={updateCourseDetails} className="w-full btn-primary text-sm sm:text-base py-2 sm:py-3">
                     <Save className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />

@@ -342,7 +342,9 @@
     "purchaseFailed": "Purchase Failed",
     "somethingWentWrong": "Something went wrong",
     "error": "Error",
-    "failedToPurchaseMinutes": "Failed to purchase minutes"
+    "failedToPurchaseMinutes": "Failed to purchase minutes",
+    "creditEquivalent": "Credit Equivalent",
+    "purchaseMinutes": "Purchase Minutes"
   },
   "questionsPage": {
     "title": "Questions & Answers",

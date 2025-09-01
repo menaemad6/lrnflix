@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -23,6 +23,27 @@ import { updateUser } from '@/store/slices/authSlice';
 import { useTranslation } from 'react-i18next';
 import { SEOHead } from '@/components/seo';
 import { PurchaseChoicesModal } from '@/components/courses/PurchaseChoicesModal';
+import { useAiAssistantSettings } from '@/hooks/useAiAssistantSettings';
+
+interface CreditPackage {
+  id: string;
+  name: string;
+  credits: number;
+  price: number;
+  popular: boolean;
+  description: string;
+  bonus?: number;
+}
+
+interface MinutePackage {
+  id: string;
+  name: string;
+  minutes: number;
+  cost: number;
+  price: number;
+  description: string;
+  savings?: number;
+}
 
 const Store = () => {
   const { user } = useSelector((state: RootState) => state.auth);
@@ -31,75 +52,84 @@ const Store = () => {
   const [loading, setLoading] = useState<string | null>(null);
   const [showCreditsModal, setShowCreditsModal] = useState(false);
   const [showMinutesModal, setShowMinutesModal] = useState(false);
-  const [selectedCreditsPackage, setSelectedCreditsPackage] = useState<typeof creditPackages[0] | null>(null);
-  const [selectedMinutesPackage, setSelectedMinutesPackage] = useState<typeof minutePackages[0] | null>(null);
+  const [selectedCreditsPackage, setSelectedCreditsPackage] = useState<CreditPackage | null>(null);
+  const [selectedMinutesPackage, setSelectedMinutesPackage] = useState<MinutePackage | null>(null);
   const bgClass = useRandomBackground();
   const dispatch = useDispatch();
+  const { values: aiSettings, loading: settingsLoading } = useAiAssistantSettings();
 
-  const creditPackages = [
+  const creditPackages: CreditPackage[] = [
     {
       id: 'basic',
       name: t('studentStore.basicPackage'),
       credits: 50,
-      price: 25, // EGP
+      price: 50, // EGP
       popular: false,
       description: t('studentStore.perfectForGettingStarted')
     },
     {
       id: 'popular',
       name: t('studentStore.popularPackage'),
-      credits: 120,
-      price: 50, // EGP
+      credits: 150,
+      price: 140, // EGP
       popular: true,
       description: t('studentStore.mostChosenByStudents'),
-      bonus: 20 // bonus credits
+      bonus: 10 // bonus credits
     },
     {
       id: 'premium',
       name: t('studentStore.premiumPackage'),
       credits: 300,
-      price: 100, // EGP
+      price: 270, // EGP
       popular: false,
       description: t('studentStore.maximumValueForHeavyUsers'),
-      bonus: 50 // bonus credits
+      bonus: 30 // bonus credits
     }
   ];
 
-  const minutePackages = [
-    {
-      id: 'starter',
-      name: t('studentStore.extraMinutes'),
-      minutes: 30,
-      cost: 30, // credits (for display purposes)
-      price: 15, // EGP price for real money purchase
-      description: t('studentStore.perfectForShortSessions')
-    },
-    {
-      id: 'standard',
-      name: t('studentStore.studySession'),
-      minutes: 60,
-      cost: 50, // credits (for display purposes)
-      price: 25, // EGP price for real money purchase
-      description: t('studentStore.greatForFocusedLearning'),
-      savings: 10
-    },
-    {
-      id: 'extended',
-      name: t('studentStore.deepLearning'),
-      minutes: 120,
-      cost: 90, // credits (for display purposes)
-      price: 45, // EGP price for real money purchase
-      description: t('studentStore.forComprehensiveStudy'),
-      savings: 30
-    }
-  ];
+  // Calculate minutes packages dynamically based on database setting
+  const minutePackages = useMemo(() => {
+    const minutesPrice = aiSettings.minutes_price ? parseFloat(aiSettings.minutes_price) : 1; // Default to 1 credit per minute
+    
+    const packages: MinutePackage[] = [
+      {
+        id: 'starter',
+        name: t('studentStore.extraMinutes'),
+        minutes: 5,
+        cost: 5 * minutesPrice, // Calculate cost based on minutes price
+        price: Math.round((5 * minutesPrice)), // EGP price (50% of credit cost)
+        description: t('studentStore.perfectForShortSessions'),
+        // savings: Math.round(2 * minutesPrice) // Calculate savings based on minutes price
+      },
+      {
+        id: 'standard',
+        name: t('studentStore.studySession'),
+        minutes: 10,
+        cost: 10 * minutesPrice, // Calculate cost based on minutes price
+        price: Math.round((8 * minutesPrice) ), // EGP price (50% of credit cost)
+        description: t('studentStore.greatForFocusedLearning'),
+        savings: Math.round(2 * minutesPrice) // Calculate savings based on minutes price
+      },
+      {
+        id: 'extended',
+        name: t('studentStore.deepLearning'),
+        minutes: 30,
+        cost:30 * minutesPrice, // Calculate cost based on minutes price
+        price: Math.round((25 * minutesPrice) ), // EGP price (50% of credit cost)
+        description: t('studentStore.forComprehensiveStudy'),
+        savings: Math.round(5 * minutesPrice) // Calculate savings based on minutes price
+      }
+    ];
+    
+    return packages;
+  }, [aiSettings.minutes_price, t]);
 
-  const handlePurchaseCredits = (pkg: typeof creditPackages[0]) => {
+  const handlePurchaseCredits = (pkg: CreditPackage) => {
     setSelectedCreditsPackage(pkg);
     setShowCreditsModal(true);
   };
 
-  const handlePurchaseMinutes = (pkg: typeof minutePackages[0]) => {
+  const handlePurchaseMinutes = (pkg: MinutePackage) => {
     setSelectedMinutesPackage(pkg);
     setShowMinutesModal(true);
   };
@@ -113,6 +143,7 @@ const Store = () => {
     setShowMinutesModal(false);
     setSelectedMinutesPackage(null);
   };
+
 
   return (
     <>
@@ -135,21 +166,21 @@ const Store = () => {
         {/* Current Balance */}
         <Card className="mb-8 bg-gradient-to-r from-primary/5 to-secondary/5">
           <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+              <div className="flex items-center gap-4 w-full sm:w-auto justify-center sm:justify-start">
+                <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
                   <Wallet className="h-6 w-6 text-primary" />
                 </div>
-                <div>
+                <div className="text-center sm:text-left">
                   <div className="text-sm text-muted-foreground">{t('studentStore.yourBalance')}</div>
-                  <div className="text-2xl font-bold">{user?.wallet || 0} {t('studentStore.credits')}</div>
+                  <div className="text-2xl font-bold">{user?.wallet || 0} {t('studentStore.egp')}</div>
                 </div>
               </div>
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-primary-500/20 rounded-full flex items-center justify-center">
+              <div className="flex items-center gap-4 w-full sm:w-auto justify-center sm:justify-start">
+                <div className="w-12 h-12 bg-primary-500/20 rounded-full flex items-center justify-center flex-shrink-0">
                   <Clock className="h-6 w-6 text-primary-600" />
                 </div>
-                <div>
+                <div className="text-center sm:text-left">
                   <div className="text-sm text-muted-foreground">{t('studentStore.assistantMinutes')}</div>
                   <div className="text-2xl font-bold">{user?.minutes || 0} {t('studentStore.minutes')}</div>
                 </div>
@@ -241,43 +272,57 @@ const Store = () => {
           </Card>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {minutePackages.map((pkg) => (
-              <Card key={pkg.id}>
-                <CardHeader className="text-center pb-4">
-                  <CardTitle className="text-xl">{pkg.name}</CardTitle>
-                  <CardDescription>{pkg.description}</CardDescription>
-                  <div className="mt-4">
-                    <div className="text-3xl font-bold">{pkg.price} {t('studentStore.egp')}</div>
-                    <div className="text-lg text-muted-foreground">
-                      {pkg.minutes} {t('studentStore.minutes')}
+            {settingsLoading ? (
+              // Skeleton loader for minutes packages
+              Array.from({ length: 3 }).map((_, index) => (
+                <Card key={`skeleton-${index}`}>
+                  <CardHeader className="text-center pb-4">
+                    <div className="h-6 bg-muted rounded animate-pulse mb-2"></div>
+                    <div className="h-4 bg-muted rounded animate-pulse mb-4"></div>
+                    <div className="mt-4">
+                      <div className="h-8 bg-muted rounded animate-pulse mb-2"></div>
+                      <div className="h-5 bg-muted rounded animate-pulse"></div>
                     </div>
-                    <div className="text-sm text-muted-foreground">
-                      {t('studentStore.creditEquivalent')}: {pkg.cost} {t('studentStore.credits')}
-                    </div>
-                    {pkg.savings && (
-                      <div className="text-primary-600 text-sm">
-                        {t('studentStore.savings')} {pkg.savings} {t('studentStore.credits')}!
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <div className="h-10 bg-muted rounded animate-pulse"></div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              minutePackages.map((pkg) => (
+                <Card key={pkg.id}>
+                  <CardHeader className="text-center pb-4">
+                    <CardTitle className="text-xl">{pkg.name}</CardTitle>
+                    <CardDescription>{pkg.description}</CardDescription>
+                    <div className="mt-4">
+                      <div className="text-3xl font-bold">{pkg.minutes} {t('studentStore.minutes')}</div>
+                      <div className="text-lg text-muted-foreground">
+                      {pkg.price} {t('studentStore.egp')}
                       </div>
-                    )}
-                  </div>
-                </CardHeader>
-                
-                <CardContent className="pt-0">
-                  <Button 
-                    className="w-full" 
-                    variant="outline"
-                    onClick={() => handlePurchaseMinutes(pkg)}
-                    disabled={loading === pkg.id}
-                  >
-                    {loading === pkg.id ? t('studentStore.processing') : t('studentStore.purchaseMinutes')}
-                  </Button>
+
+                      {pkg.savings && (
+                        <div className="text-primary-600 text-sm">
+                          {t('studentStore.savings')} {pkg.savings} {t('studentStore.egp')}!
+                        </div>
+                      )}
+                    </div>
+                  </CardHeader>
                   
-                  <div className="text-center text-xs text-muted-foreground mt-2">
-                    {t('studentStore.creditEquivalent')}: {pkg.cost} {t('studentStore.credits')}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  <CardContent className="pt-0">
+                    <Button 
+                      className="w-full" 
+                      variant="outline"
+                      onClick={() => handlePurchaseMinutes(pkg)}
+                      disabled={loading === pkg.id}
+                    >
+                      {loading === pkg.id ? t('studentStore.processing') : t('studentStore.purchaseMinutes')}
+                    </Button>
+                    
+                  </CardContent>
+                </Card>
+              ))
+            )}
           </div>
         </div>
 

@@ -54,10 +54,10 @@ const InfiniteInstructors: React.FC = () => {
     // Use the EXACT same image handling as TopInstructors component
     let imageUrl = instructor.profile_image_url;
     
-    // If no profile image, use fallback avatar (same as TopInstructors)
+    // If no profile image, use fallback teacher images
     if (!imageUrl) {
-      const avatarIndex = (index % 9) + 1;
-      imageUrl = `/assests/avatar-${avatarIndex}.png`;
+      const teacherIndex = (index % 3) + 1;
+      imageUrl = `/assests/teacher-${teacherIndex}.${teacherIndex === 1 ? 'jpg' : 'jpeg'}`;
     }
     
     // Ensure the image URL is absolute (fix for InfiniteMenu)
@@ -79,7 +79,7 @@ const InfiniteInstructors: React.FC = () => {
       link: `/teachers/${instructor.slug}`,
       title: instructor.display_name || 'Instructor',
       description: instructor.specialization || 'Expert Educator',
-      fallbackAvatar: `/assests/avatar-${(index % 9) + 1}.png` // Add fallback avatar path
+      fallbackAvatar: `/assests/teacher-${(index % 3) + 1}.${(index % 3) + 1 === 1 ? 'jpg' : 'jpeg'}` // Add fallback teacher image path
     };
   });
 
@@ -91,19 +91,19 @@ const InfiniteInstructors: React.FC = () => {
   if (menuItems.length === 0) {
     const fallbackItems = [
       {
-        image: '/assests/avatar-1.png',
+        image: '/assests/teacher-1.jpg',
         link: '/teachers',
         title: 'Expert Instructors',
         description: 'Discover our amazing teachers'
       },
       {
-        image: '/assests/avatar-2.png',
+        image: '/assests/teacher-2.jpeg',
         link: '/teachers',
         title: 'Professional Educators',
         description: 'Learn from the best in their fields'
       },
       {
-        image: '/assests/avatar-3.png',
+        image: '/assests/teacher-3.jpeg',
         link: '/teachers',
         title: 'Certified Teachers',
         description: 'Quality education guaranteed'
