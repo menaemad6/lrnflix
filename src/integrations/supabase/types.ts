@@ -1634,6 +1634,7 @@ export type Database = {
           experience_years: number | null
           id: string
           is_active: boolean
+          payment_data: Json | null
           profile_image_url: string | null
           slug: string
           social_links: Json | null
@@ -1651,6 +1652,7 @@ export type Database = {
           experience_years?: number | null
           id?: string
           is_active?: boolean
+          payment_data?: Json | null
           profile_image_url?: string | null
           slug: string
           social_links?: Json | null
@@ -1668,6 +1670,7 @@ export type Database = {
           experience_years?: number | null
           id?: string
           is_active?: boolean
+          payment_data?: Json | null
           profile_image_url?: string | null
           slug?: string
           social_links?: Json | null
@@ -1875,6 +1878,7 @@ export type Database = {
         | "credits"
         | "ai_minutes"
       payment_type: "vodafone_cash" | "credit_card" | "bank_transfer" | "wallet"
+      transferred_from?: string
       user_role: "admin" | "teacher" | "student"
     }
     CompositeTypes: {
@@ -2013,6 +2017,7 @@ export const Constants = {
         "ai_minutes",
       ],
       payment_type: ["vodafone_cash", "credit_card", "bank_transfer", "wallet"],
+      transferred_from: "string",
       user_role: ["admin", "teacher", "student"],
     },
   },

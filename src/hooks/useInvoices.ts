@@ -16,6 +16,7 @@ export interface Invoice {
   invoice_number: string;
   payment_reference?: string;
   notes?: string;
+  transferred_from?: string; // Phone number or account number that the student transferred money from
   created_at: string;
   paid_at?: string;
   updated_at: string;
@@ -225,9 +226,13 @@ export const useInvoices = () => {
     if (invoiceData.minutes_amount !== undefined) {
       insertData.minutes_amount = invoiceData.minutes_amount;
     }
+    if (invoiceData.transferred_from) {
+      insertData.transferred_from = invoiceData.transferred_from;
+    }
 
     const { data, error } = await supabase
       .from('invoices')
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .insert(insertData as any)
       .select()
       .single();
@@ -250,6 +255,19 @@ export const useInvoices = () => {
     const { data, error } = await supabase
       .from('invoices')
       .update(updateData)
+      .eq('id', invoiceId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  };
+
+  const updateTransferredFrom = async (invoiceId: string, transferredFrom: string) => {
+    const { data, error } = await supabase
+      .from('invoices')
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .update({ transferred_from: transferredFrom } as any)
       .eq('id', invoiceId)
       .select()
       .single();
@@ -328,11 +346,36 @@ export const useInvoices = () => {
     });
   };
 
+  const useUpdateTransferredFrom = () => {
+    return useMutation({
+      mutationFn: ({ invoiceId, transferredFrom }: { 
+        invoiceId: string; 
+        transferredFrom: string 
+      }) => updateTransferredFrom(invoiceId, transferredFrom),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['invoices'] });
+        queryClient.invalidateQueries({ queryKey: ['invoice'] });
+        toast({
+          title: "Payment Information Updated",
+          description: "Transferred from information has been saved successfully.",
+        });
+      },
+      onError: (error: Error) => {
+        toast({
+          title: "Error",
+          description: error.message || "Failed to update payment information.",
+          variant: "destructive",
+        });
+      },
+    });
+  };
+
   return {
     useInvoicesQuery,
     useInvoiceQuery,
     useInvoiceItemQuery,
     useCreateInvoice,
     useUpdateInvoiceStatus,
+    useUpdateTransferredFrom,
   };
 };

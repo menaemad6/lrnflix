@@ -120,7 +120,7 @@ const Header: React.FC = () => {
                   Learning Groups
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate('/student/transactions')}>
-                  Wallet
+                  Invoices
                 </DropdownMenuItem>
               </>
             )}

@@ -492,7 +492,8 @@
         "downloadShort": "DL",
         "share": "Share",
         "copy": "Copy",
-        "copyNumber": "Copy Number"
+        "copyNumber": "Copy Number",
+        "save": "Save"
       },
       "sections": {
         "invoiceInformation": "Invoice Information",
@@ -511,7 +512,11 @@
         "vodafoneCash": {
           "title": "Vodafone Cash",
           "sendPaymentTo": "Send payment to:",
-          "vodafoneCashNumber": "Vodafone Cash Number"
+          "vodafoneCashNumber": "Vodafone Cash Number",
+          "enterYourNumber": "Enter your phone number",
+          "enterYourNumberDescription": "Please enter the phone number you transferred money from so we can verify your payment",
+          "phoneNumberPlaceholder": "e.g., 01234567890",
+          "savedNumber": "Saved: {{number}}"
         },
         "fawry": {
           "title": "Fawry"

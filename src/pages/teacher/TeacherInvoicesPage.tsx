@@ -7,11 +7,13 @@ import { RootState } from '@/store/store';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
+import { useI18n } from '@/hooks/useI18n';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Plus, Check, X, DollarSign, Calendar, User, FileText } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Plus, Check, X, DollarSign, Calendar, User, FileText, Phone, TrendingUp, Clock, CheckCircle, Search, Filter, X as XIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { enrollStudentFromInvoice } from '@/utils/enrollmentUtils';
 import { TeacherInvoicesSkeleton } from '@/components/ui/skeletons';
@@ -21,16 +23,19 @@ interface Invoice {
   user_id: string;
   instructor_id: string;
   item_id: string;
-  item_type: 'course' | 'chapter' | 'lesson' | 'quiz';
+  item_type: 'course' | 'chapter' | 'lesson' | 'quiz' | 'credits' | 'ai_minutes';
   total_price: number;
   payment_type: 'vodafone_cash' | 'credit_card' | 'bank_transfer' | 'wallet';
   status: 'pending' | 'paid' | 'cancelled' | 'refunded';
   invoice_number: string;
   payment_reference?: string;
   notes?: string;
+  transferred_from?: string; // Phone number or account number that the student transferred money from
   created_at: string;
   paid_at?: string;
   updated_at: string;
+  credits_amount?: number;
+  minutes_amount?: number;
 }
 
 interface InvoiceItem {
@@ -53,8 +58,15 @@ interface UserProfile {
 export const TeacherInvoicesPage = () => {
   const user = useSelector((state: RootState) => state.auth.user);
   const { toast } = useToast();
+  const { t } = useI18n('teacher');
   const queryClient = useQueryClient();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  
+  // Search and filter state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedItemType, setSelectedItemType] = useState<string>('all');
+  const [selectedPaymentType, setSelectedPaymentType] = useState<string>('all');
+  const [showFilters, setShowFilters] = useState(false);
 
   // Fetch invoices for the current teacher
   const { data: invoices = [], isLoading, refetch } = useQuery({
@@ -148,6 +160,15 @@ export const TeacherInvoicesPage = () => {
             .eq('id', itemId)
             .single();
           break;
+        case 'credits':
+        case 'ai_minutes':
+          // For system purchases, return a generic item
+          return {
+            id: itemId,
+            title: itemType === 'credits' ? 'Credits Package' : 'AI Assistant Minutes',
+            description: `System purchase of ${itemType}`,
+            thumbnail: null,
+          };
         default:
           return null;
       }
@@ -187,8 +208,8 @@ export const TeacherInvoicesPage = () => {
 
       if (error) throw error;
 
-      // If status is being changed to 'paid', automatically enroll the student
-      if (status === 'paid') {
+      // If status is being changed to 'paid', automatically enroll the student (only for course items)
+      if (status === 'paid' && ['course', 'chapter', 'lesson', 'quiz'].includes(invoice.item_type)) {
         try {
           console.log('Attempting to enroll student:', {
             studentId: invoice.user_id,
@@ -199,7 +220,7 @@ export const TeacherInvoicesPage = () => {
           const enrollmentResult = await enrollStudentFromInvoice(
             invoice.user_id,
             invoice.item_id,
-            invoice.item_type
+            invoice.item_type as 'course' | 'chapter' | 'lesson' | 'quiz'
           );
 
           console.log('Enrollment result:', enrollmentResult);
@@ -228,6 +249,13 @@ export const TeacherInvoicesPage = () => {
             variant: "destructive",
           });
         }
+      } else if (status === 'paid' && ['credits', 'ai_minutes'].includes(invoice.item_type)) {
+        // For system purchases, just show success message
+        console.log('System purchase confirmed:', {
+          studentId: invoice.user_id,
+          itemType: invoice.item_type,
+          amount: invoice.item_type === 'credits' ? invoice.credits_amount : invoice.minutes_amount
+        });
       }
 
       return data;
@@ -269,8 +297,75 @@ export const TeacherInvoicesPage = () => {
     refetch();
   };
 
+  // Calculate stats
+  const stats = React.useMemo(() => {
+    const totalInvoices = invoices.length;
+    const pendingInvoices = invoices.filter(inv => inv.status === 'pending').length;
+    const paidInvoices = invoices.filter(inv => inv.status === 'paid').length;
+    const totalRevenue = invoices
+      .filter(inv => inv.status === 'paid')
+      .reduce((sum, inv) => sum + inv.total_price, 0);
+    
+    // Calculate this month's revenue
+    const thisMonth = new Date();
+    const thisMonthStart = new Date(thisMonth.getFullYear(), thisMonth.getMonth(), 1);
+    const thisMonthRevenue = invoices
+      .filter(inv => inv.status === 'paid' && new Date(inv.paid_at || inv.created_at) >= thisMonthStart)
+      .reduce((sum, inv) => sum + inv.total_price, 0);
+    
+    // Calculate last month's revenue
+    const lastMonth = new Date(thisMonth.getFullYear(), thisMonth.getMonth() - 1, 1);
+    const lastMonthEnd = new Date(thisMonth.getFullYear(), thisMonth.getMonth(), 0);
+    const lastMonthRevenue = invoices
+      .filter(inv => inv.status === 'paid' && 
+        new Date(inv.paid_at || inv.created_at) >= lastMonth && 
+        new Date(inv.paid_at || inv.created_at) <= lastMonthEnd)
+      .reduce((sum, inv) => sum + inv.total_price, 0);
+    
+    const averageInvoice = paidInvoices > 0 ? totalRevenue / paidInvoices : 0;
+    
+    return {
+      totalInvoices,
+      pendingInvoices,
+      paidInvoices,
+      totalRevenue,
+      thisMonthRevenue,
+      lastMonthRevenue,
+      averageInvoice
+    };
+  }, [invoices]);
+
+  // Filter and search invoices
+  const filteredInvoices = React.useMemo(() => {
+    let filtered = [...invoices];
+
+    // Apply search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      filtered = filtered.filter(invoice => {
+        const userProfile = userProfiles?.[invoice.user_id];
+        const studentName = userProfile?.full_name?.toLowerCase() || userProfile?.email?.toLowerCase() || '';
+        const transferredFrom = invoice.transferred_from?.toLowerCase() || '';
+        
+        return studentName.includes(query) || transferredFrom.includes(query);
+      });
+    }
+
+    // Apply item type filter
+    if (selectedItemType !== 'all') {
+      filtered = filtered.filter(invoice => invoice.item_type === selectedItemType);
+    }
+
+    // Apply payment type filter
+    if (selectedPaymentType !== 'all') {
+      filtered = filtered.filter(invoice => invoice.payment_type === selectedPaymentType);
+    }
+
+    return filtered;
+  }, [invoices, searchQuery, selectedItemType, selectedPaymentType, userProfiles]);
+
   // Sort invoices: pending first, then by creation date
-  const sortedInvoices = [...invoices].sort((a, b) => {
+  const sortedInvoices = filteredInvoices.sort((a, b) => {
     if (a.status === 'pending' && b.status !== 'pending') return -1;
     if (a.status !== 'pending' && b.status === 'pending') return 1;
     return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
@@ -317,29 +412,215 @@ export const TeacherInvoicesPage = () => {
   return (
     <>
       <DashboardLayout>
-        <div className="space-y-4">
+        <div className="space-y-6">
           <TeacherPageHeader
-            title="Invoice Management"
-            subtitle="Manage and track all your course invoices"
-            actionLabel="Create Invoice"
+            title={t('invoices.page.title')}
+            subtitle={t('invoices.page.subtitle')}
+            actionLabel={t('invoices.page.createInvoice')}
             onAction={() => setIsCreateModalOpen(true)}
             actionIcon={<Plus className="h-4 w-4 mr-2" />}
             actionButtonProps={{ className: 'btn-primary' }}
           />
 
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Total Invoices */}
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      {t('invoices.stats.totalInvoices')}
+                    </p>
+                    <p className="text-2xl font-bold">{stats.totalInvoices}</p>
+                  </div>
+                  <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
+                    <FileText className="h-4 w-4 text-blue-600" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Pending Invoices */}
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      {t('invoices.stats.pendingInvoices')}
+                    </p>
+                    <p className="text-2xl font-bold text-amber-600">{stats.pendingInvoices}</p>
+                  </div>
+                  <div className="h-8 w-8 rounded-full bg-amber-100 flex items-center justify-center">
+                    <Clock className="h-4 w-4 text-amber-600" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Paid Invoices */}
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      {t('invoices.stats.paidInvoices')}
+                    </p>
+                    <p className="text-2xl font-bold text-green-600">{stats.paidInvoices}</p>
+                  </div>
+                  <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Total Revenue */}
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      {t('invoices.stats.totalRevenue')}
+                    </p>
+                    <p className="text-2xl font-bold text-emerald-600">
+                      ${stats.totalRevenue.toFixed(2)}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {t('invoices.stats.thisMonth')}: ${stats.thisMonthRevenue.toFixed(2)}
+                    </p>
+                  </div>
+                  <div className="h-8 w-8 rounded-full bg-emerald-100 flex items-center justify-center">
+                    <TrendingUp className="h-4 w-4 text-emerald-600" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Search and Filters */}
+          <Card>
+            <CardContent className="p-4">
+              <div className="space-y-4">
+                {/* Search Bar */}
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                    <Input
+                      placeholder={t('invoices.search.placeholder')}
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowFilters(!showFilters)}
+                    className="flex items-center gap-2"
+                  >
+                    <Filter className="h-4 w-4" />
+                    {t('invoices.filters.title')}
+                  </Button>
+                </div>
+
+                {/* Filters */}
+                {showFilters && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4 bg-muted/30 rounded-lg">
+                    {/* Item Type Filter */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">{t('invoices.filters.itemType')}</label>
+                      <Select value={selectedItemType} onValueChange={setSelectedItemType}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">{t('invoices.filters.allItems')}</SelectItem>
+                          <SelectItem value="course">{t('invoices.filters.courses')}</SelectItem>
+                          <SelectItem value="chapter">{t('invoices.filters.chapters')}</SelectItem>
+                          <SelectItem value="lesson">{t('invoices.filters.lessons')}</SelectItem>
+                          <SelectItem value="quiz">{t('invoices.filters.quizzes')}</SelectItem>
+                          <SelectItem value="credits">{t('invoices.filters.credits')}</SelectItem>
+                          <SelectItem value="ai_minutes">{t('invoices.filters.aiMinutes')}</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Payment Type Filter */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">{t('invoices.filters.paymentType')}</label>
+                      <Select value={selectedPaymentType} onValueChange={setSelectedPaymentType}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">{t('invoices.filters.allPayments')}</SelectItem>
+                          <SelectItem value="vodafone_cash">{t('invoices.filters.vodafoneCash')}</SelectItem>
+                          <SelectItem value="credit_card">{t('invoices.filters.creditCard')}</SelectItem>
+                          <SelectItem value="bank_transfer">{t('invoices.filters.bankTransfer')}</SelectItem>
+                          <SelectItem value="wallet">{t('invoices.filters.wallet')}</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Clear Filters */}
+                    <div className="flex items-end">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setSearchQuery('');
+                          setSelectedItemType('all');
+                          setSelectedPaymentType('all');
+                        }}
+                        className="w-full"
+                      >
+                        <XIcon className="h-4 w-4 mr-2" />
+                        {t('invoices.filters.clearAll')}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Results Summary */}
+                <div className="flex items-center justify-between text-sm text-muted-foreground">
+                  <span>
+                    {sortedInvoices.length === invoices.length 
+                      ? t('invoices.results.showingAll', { count: invoices.length })
+                      : t('invoices.results.showingFiltered', { filtered: sortedInvoices.length, total: invoices.length })
+                    }
+                  </span>
+                  {(searchQuery || selectedItemType !== 'all' || selectedPaymentType !== 'all') && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setSearchQuery('');
+                        setSelectedItemType('all');
+                        setSelectedPaymentType('all');
+                      }}
+                      className="text-xs"
+                    >
+                      {t('invoices.results.clearFilters')}
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           <Card>
             <CardHeader className="p-3 sm:p-6">
               <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
                 <FileText className="h-4 w-4 sm:h-5 sm:w-5" />
-                Invoices ({sortedInvoices.length})
+                {t('invoices.page.invoices')} ({sortedInvoices.length})
               </CardTitle>
             </CardHeader>
             <CardContent className="p-3 sm:p-6">
               {sortedInvoices.length === 0 ? (
                 <div className="text-center py-6 sm:py-8 text-muted-foreground">
                   <FileText className="h-10 w-10 sm:h-12 sm:w-12 mx-auto mb-3 sm:mb-4 opacity-50" />
-                  <p className="text-sm sm:text-base">No invoices found</p>
-                  <p className="text-xs sm:text-sm">Create your first invoice to get started</p>
+                  <p className="text-sm sm:text-base">{t('invoices.page.noInvoicesFound')}</p>
+                  <p className="text-xs sm:text-sm">{t('invoices.page.createFirstInvoice')}</p>
                 </div>
               ) : (
                 <div className="space-y-3 sm:space-y-4">
@@ -353,7 +634,7 @@ export const TeacherInvoicesPage = () => {
                           <div className="flex-1 min-w-0">
                             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
                               <Badge variant="outline" className={`${getStatusColor(invoice.status)} text-xs sm:text-sm`}>
-                                {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
+                                {t(`invoices.status.${invoice.status}`)}
                               </Badge>
                               <span className="text-xs sm:text-sm text-muted-foreground">
                                 #{invoice.invoice_number}
@@ -397,6 +678,16 @@ export const TeacherInvoicesPage = () => {
                               </span>
                             </div>
                             
+                            {invoice.transferred_from && (
+                              <div className="flex items-center gap-2 mt-1">
+                                <Phone className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
+                                <span className="text-xs sm:text-sm text-muted-foreground">From:</span>
+                                <span className="text-sm sm:text-md md:text-lg lg:text-xl font-mono bg-muted/50 px-2 py-1 rounded">
+                                  {invoice.transferred_from}
+                                </span>
+                              </div>
+                            )}
+                            
                             {invoice.notes && (
                               <div className="mt-2">
                                 <span className="text-xs sm:text-sm text-muted-foreground">Notes: </span>
@@ -416,10 +707,10 @@ export const TeacherInvoicesPage = () => {
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="pending">Pending</SelectItem>
-                                <SelectItem value="paid">Paid</SelectItem>
-                                <SelectItem value="cancelled">Cancelled</SelectItem>
-                                <SelectItem value="refunded">Refunded</SelectItem>
+                                <SelectItem value="pending">{t('invoices.status.pending')}</SelectItem>
+                                <SelectItem value="paid">{t('invoices.status.paid')}</SelectItem>
+                                <SelectItem value="cancelled">{t('invoices.status.cancelled')}</SelectItem>
+                                <SelectItem value="refunded">{t('invoices.status.refunded')}</SelectItem>
                               </SelectContent>
                             </Select>
                             
@@ -432,7 +723,7 @@ export const TeacherInvoicesPage = () => {
                                   className="text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2"
                                 >
                                   <Check className="h-3 w-3 mr-1" />
-                                  Confirm
+                                  {t('invoices.actions.confirm')}
                                 </Button>
                                 <Button
                                   size="sm"
@@ -441,7 +732,7 @@ export const TeacherInvoicesPage = () => {
                                   className="text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2"
                                 >
                                   <X className="h-3 w-3 mr-1" />
-                                  Decline
+                                  {t('invoices.actions.decline')}
                                 </Button>
                               </div>
                             )}

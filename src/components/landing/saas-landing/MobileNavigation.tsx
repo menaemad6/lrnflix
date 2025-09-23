@@ -31,7 +31,7 @@ const MobileNavigation: React.FC<{
         { label: 'Chapters', action: () => navigate('/student/chapters') },
         { label: 'Groups', action: () => navigate('/student/groups') },
         { label: 'Browse Courses', action: () => navigate('/courses') },
-        { label: 'Wallet', action: () => navigate('/student/transactions') }
+        { label: 'Invoices', action: () => navigate('/student/transactions') }
       ];
     }
 

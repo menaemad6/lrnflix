@@ -4,9 +4,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { useToast } from '@/hooks/use-toast';
-import { History, Search, TrendingUp, TrendingDown, CreditCard, Gift, ShoppingCart, RotateCcw, Calendar } from 'lucide-react';
+import { History, Search, TrendingUp, TrendingDown, CreditCard, Gift, ShoppingCart, RotateCcw, Calendar, FileText } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
 import DashboardModernHeader from '@/components/ui/DashboardModernHeader';
@@ -16,6 +17,7 @@ import { TransactionCardSkeleton } from '@/components/student/skeletons/Transact
 import { useStudentTransactionsAndWallet } from '@/lib/queries';
 import { useTranslation } from 'react-i18next';
 import { SEOHead } from '@/components/seo';
+import { StudentInvoices } from '@/components/student/StudentInvoices';
 
 interface Transaction {
   id: string;
@@ -147,7 +149,7 @@ export const StudentTransactions = () => {
         title={t('studentTransactions.title')}
         subtitle={t('studentTransactions.subtitle')}
       />
-      <div className="w-full px-2 sm:px-4 py-3 sm:py-6 space-y-3 sm:space-y-6">
+      <div className="w-full  space-y-3 sm:space-y-6">
         {/* Wallet Balance Card - Full Width */}
         <div className="w-full">
           <div className="w-full p-3 sm:p-6 bg-gradient-to-br from-primary-500/30 to-secondary-500/30 rounded-xl sm:rounded-2xl border border-primary-500/40 shadow-lg flex flex-col items-start">
@@ -175,193 +177,213 @@ export const StudentTransactions = () => {
           </div>
         </div>
         
-        {/* Search Bar - Full Width */}
-        <div className="w-full">
-          <div className="w-full">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 sm:w-5 sm:h-5" />
-              <Input
-                placeholder={t('studentTransactions.searchTransactions')}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 sm:pl-12 glass-input border-primary-500/40 focus:border-primary-500/70 w-full h-10 sm:h-12 rounded-lg sm:rounded-xl text-sm sm:text-base"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Filtering & Sorting Controls */}
-        <div className="w-full bg-background/60 glass-card border border-primary/20 rounded-xl sm:rounded-2xl px-2 sm:px-4 py-3 sm:py-4 flex flex-col gap-3 sm:gap-4 mb-3 sm:mb-4 shadow-sm">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 w-full">
-            <div className="flex flex-col gap-1">
-              <Label htmlFor="type-filter" className="text-xs mb-0.5 ml-1">{t('studentTransactions.filterByType')}</Label>
-              <Select value={filterType} onValueChange={setFilterType}>
-                <SelectTrigger className="h-10 sm:h-12 w-full border-primary focus:ring-primary bg-background text-foreground rounded-lg sm:rounded-xl px-3 sm:px-4 text-sm sm:text-base">
-                  <SelectValue placeholder={t('studentTransactions.allTypes')} />
-                </SelectTrigger>
-                <SelectContent className="bg-background text-foreground border-primary">
-                  <SelectItem value="all">{t('studentTransactions.allTypes')}</SelectItem>
-                  <SelectItem value="credit">{t('studentTransactions.credit')}</SelectItem>
-                  <SelectItem value="debit">{t('studentTransactions.debit')}</SelectItem>
-                  <SelectItem value="course_purchase">{t('studentTransactions.coursePurchase')}</SelectItem>
-                  <SelectItem value="chapter_purchase">{t('studentTransactions.chapterPurchase')}</SelectItem>
-                  <SelectItem value="code_redemption">{t('studentTransactions.codeRedemption')}</SelectItem>
-                  <SelectItem value="refund">{t('studentTransactions.refund')}</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex flex-col gap-1">
-              <Label htmlFor="start-date" className="text-xs mb-0.5 ml-1">{t('studentTransactions.startDate')}</Label>
-              <input
-                id="start-date"
-                type="date"
-                value={filterStartDate}
-                onChange={e => setFilterStartDate(e.target.value)}
-                className="h-10 sm:h-12 w-full border border-primary rounded-lg sm:rounded-xl px-3 sm:px-4 text-sm sm:text-base bg-background text-foreground focus:ring-2 focus:ring-primary"
-              />
-            </div>
-            <div className="flex flex-col gap-1">
-              <Label htmlFor="end-date" className="text-xs mb-0.5 ml-1">{t('studentTransactions.endDate')}</Label>
-              <input
-                id="end-date"
-                type="date"
-                value={filterEndDate}
-                onChange={e => setFilterEndDate(e.target.value)}
-                className="h-10 sm:h-12 w-full border border-primary rounded-lg sm:rounded-xl px-3 sm:px-4 text-sm sm:text-base bg-background text-foreground focus:ring-2 focus:ring-primary"
-              />
-            </div>
-            <div className="flex flex-col gap-1">
-              <Label htmlFor="sort-by" className="text-xs mb-0.5 ml-1">{t('studentTransactions.sortBy')}</Label>
-              <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="h-10 sm:h-12 w-full border-primary focus:ring-primary bg-background text-foreground rounded-lg sm:rounded-xl px-3 sm:px-4 text-sm sm:text-base">
-                  <SelectValue placeholder={t('studentTransactions.sortBy')} />
-                </SelectTrigger>
-                <SelectContent className="bg-background text-foreground border-primary">
-                  <SelectItem value="date_desc">{t('studentTransactions.dateDesc')}</SelectItem>
-                  <SelectItem value="date_asc">{t('studentTransactions.dateAsc')}</SelectItem>
-                  <SelectItem value="amount_desc">{t('studentTransactions.amountDesc')}</SelectItem>
-                  <SelectItem value="amount_asc">{t('studentTransactions.amountAsc')}</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </div>
-
-        {/* Transactions List or Skeletons */}
-        {isLoading ? (
-          <div className="space-y-2">
-            {[...Array(8)].map((_, i) => (
-              <TransactionCardSkeleton key={i} />
-            ))}
-          </div>
-        ) : filteredTransactions.length === 0 ? (
-          <Card className="glass-card border-0">
-            <CardContent className="text-center py-8 sm:py-16">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-primary-500/20 to-secondary-500/20 rounded-2xl sm:rounded-3xl flex items-center justify-center mx-auto mb-4 sm:mb-6 animate-glow-pulse">
-                <History className="h-8 w-8 sm:h-10 sm:w-10 text-primary-400" />
-              </div>
-              <h3 className="text-lg sm:text-xl font-semibold mb-2 sm:mb-3 gradient-text">{t('studentTransactions.noTransactionsFound')}</h3>
-              <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6 max-w-md mx-auto px-2">
-                {t('studentTransactions.tryAdjustingFilters')}
-              </p>
-            </CardContent>
-          </Card>
-        ) : (
-          <Card className="glass-card border-0 w-full">
-            <CardHeader className="pb-3 sm:pb-6">
-              <CardTitle className="flex items-center gap-2 sm:gap-3 text-lg sm:text-xl">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-primary-500/20 to-secondary-500/20 rounded-lg sm:rounded-xl flex items-center justify-center">
-                  <History className="h-4 w-4 sm:h-5 sm:w-5 text-primary-400" />
+        {/* Tabbed Content */}
+        <Tabs defaultValue="invoices" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="invoices" className="flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              {t('studentInvoices.title')}
+            </TabsTrigger>
+            <TabsTrigger value="transactions" className="flex items-center gap-2">
+              <History className="h-4 w-4" />
+              {t('studentTransactions.title')}
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="invoices" className="mt-6">
+            <StudentInvoices userId={user?.id || ''} />
+          </TabsContent>
+          
+          <TabsContent value="transactions" className="mt-6">
+            {/* Search and Filter Section */}
+            <Card className="w-full mb-6">
+              <CardContent className="p-4 sm:p-6 space-y-4">
+                {/* Search Bar */}
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                  <Input
+                    placeholder={t('studentTransactions.searchTransactions')}
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
                 </div>
-                {t('studentTransactions.allTransactions')}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="px-2 sm:px-6">
-              <div className="space-y-2 sm:space-y-3 w-full">
-                {filteredTransactions.map((transaction) => {
-                  // Determine color classes
-                  let borderColor = '';
-                  let bgColor = '';
-                  let amountColor = '';
-                  const badgeVariant = transaction.transaction_type === 'chapter_purchase' ? 'secondary' : getTransactionVariant(transaction.transaction_type);
-                  switch (transaction.transaction_type) {
-                    case 'credit':
-                      borderColor = 'border-l-primary-500';
-                      bgColor = 'bg-primary-500/10 hover:bg-primary-500/20';
-                      amountColor = 'text-primary-500';
-                      break;
-                    case 'debit':
-                      borderColor = 'border-l-red-500';
-                      bgColor = 'bg-red-500/10 hover:bg-red-500/20';
-                      amountColor = 'text-red-500';
-                      break;
-                    case 'course_purchase':
-                      borderColor = 'border-l-blue-500';
-                      bgColor = 'bg-blue-500/10 hover:bg-blue-500/20';
-                      amountColor = 'text-blue-500';
-                      break;
-                    case 'chapter_purchase':
-                      borderColor = 'border-l-secondary-500';
-                      bgColor = 'bg-secondary-500/10 hover:bg-secondary-500/20';
-                      amountColor = 'text-secondary-500';
-                      break;
-                    case 'code_redemption':
-                      borderColor = 'border-l-purple-500';
-                      bgColor = 'bg-purple-500/10 hover:bg-purple-500/20';
-                      amountColor = 'text-purple-500';
-                      break;
-                    case 'refund':
-                      borderColor = 'border-l-orange-500';
-                      bgColor = 'bg-orange-500/10 hover:bg-orange-500/20';
-                      amountColor = 'text-orange-500';
-                      break;
-                    default:
-                      borderColor = 'border-l-gray-500';
-                      bgColor = 'bg-gray-500/10 hover:bg-gray-500/20';
-                      amountColor = 'text-gray-500';
-                  }
-                  return (
-                    <div
-                      key={transaction.id}
-                      className={`flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 rounded-lg sm:rounded-xl border-l-4 sm:border-l-8 ${borderColor} ${bgColor} border-white/10 transition-all duration-200 group w-full`}
-                    >
-                      {/* Icon + Title (row on sm+, col on mobile) */}
-                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto flex-1 min-w-0">
-                        <div className="w-10 h-10 sm:w-14 sm:h-14 bg-background rounded-lg sm:rounded-xl flex items-center justify-center shadow-sm flex-shrink-0">
-                          {getTransactionIcon(transaction.transaction_type)}
-                        </div>
-                        <div className="flex flex-col min-w-0 flex-1">
-                          <div className="font-semibold text-sm sm:text-base break-words whitespace-normal mb-1 sm:mb-0" title={transaction.description}>{transaction.description}</div>
-                          <div className="flex items-center gap-2 sm:gap-3 mt-1 flex-wrap">
-                            <Badge variant={badgeVariant} className={`text-xs ${transaction.transaction_type === 'chapter_purchase' ? 'bg-secondary-500 text-white' : ''}`}>
-                              {getTransactionTypeLabel(transaction.transaction_type)}
-                            </Badge>
-                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                              <Calendar className="w-3 h-3" />
-                              <span className="truncate max-w-[100px] sm:max-w-[120px] lg:max-w-none">{new Date(transaction.created_at).toLocaleString()}</span>
+
+                {/* Filter Controls */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="type-filter" className="text-sm font-medium">{t('studentTransactions.filterByType')}</Label>
+                    <Select value={filterType} onValueChange={setFilterType}>
+                      <SelectTrigger>
+                        <SelectValue placeholder={t('studentTransactions.allTypes')} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">{t('studentTransactions.allTypes')}</SelectItem>
+                        <SelectItem value="credit">{t('studentTransactions.credit')}</SelectItem>
+                        <SelectItem value="debit">{t('studentTransactions.debit')}</SelectItem>
+                        <SelectItem value="course_purchase">{t('studentTransactions.coursePurchase')}</SelectItem>
+                        <SelectItem value="chapter_purchase">{t('studentTransactions.chapterPurchase')}</SelectItem>
+                        <SelectItem value="code_redemption">{t('studentTransactions.codeRedemption')}</SelectItem>
+                        <SelectItem value="refund">{t('studentTransactions.refund')}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="start-date" className="text-sm font-medium">{t('studentTransactions.startDate')}</Label>
+                    <Input
+                      id="start-date"
+                      type="date"
+                      value={filterStartDate}
+                      onChange={e => setFilterStartDate(e.target.value)}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="end-date" className="text-sm font-medium">{t('studentTransactions.endDate')}</Label>
+                    <Input
+                      id="end-date"
+                      type="date"
+                      value={filterEndDate}
+                      onChange={e => setFilterEndDate(e.target.value)}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="sort-by" className="text-sm font-medium">{t('studentTransactions.sortBy')}</Label>
+                    <Select value={sortBy} onValueChange={setSortBy}>
+                      <SelectTrigger>
+                        <SelectValue placeholder={t('studentTransactions.sortBy')} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="date_desc">{t('studentTransactions.dateDesc')}</SelectItem>
+                        <SelectItem value="date_asc">{t('studentTransactions.dateAsc')}</SelectItem>
+                        <SelectItem value="amount_desc">{t('studentTransactions.amountDesc')}</SelectItem>
+                        <SelectItem value="amount_asc">{t('studentTransactions.amountAsc')}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Transactions List or Skeletons */}
+            {isLoading ? (
+              <div className="space-y-2">
+                {[...Array(8)].map((_, i) => (
+                  <TransactionCardSkeleton key={i} />
+                ))}
+              </div>
+            ) : filteredTransactions.length === 0 ? (
+              <Card className="glass-card border-0">
+                <CardContent className="text-center py-8 sm:py-16">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-primary-500/20 to-secondary-500/20 rounded-2xl sm:rounded-3xl flex items-center justify-center mx-auto mb-4 sm:mb-6 animate-glow-pulse">
+                    <History className="h-8 w-8 sm:h-10 sm:w-10 text-primary-400" />
+                  </div>
+                  <h3 className="text-lg sm:text-xl font-semibold mb-2 sm:mb-3 gradient-text">{t('studentTransactions.noTransactionsFound')}</h3>
+                  <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6 max-w-md mx-auto px-2">
+                    {t('studentTransactions.tryAdjustingFilters')}
+                  </p>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card className="glass-card border-0 w-full">
+                <CardHeader className="pb-3 sm:pb-6">
+                  <CardTitle className="flex items-center gap-2 sm:gap-3 text-lg sm:text-xl">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-primary-500/20 to-secondary-500/20 rounded-lg sm:rounded-xl flex items-center justify-center">
+                      <History className="h-4 w-4 sm:h-5 sm:w-5 text-primary-400" />
+                    </div>
+                    {t('studentTransactions.allTransactions')}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="px-2 sm:px-6">
+                  <div className="space-y-2 sm:space-y-3 w-full">
+                    {filteredTransactions.map((transaction) => {
+                      // Determine color classes
+                      let borderColor = '';
+                      let bgColor = '';
+                      let amountColor = '';
+                      const badgeVariant = transaction.transaction_type === 'chapter_purchase' ? 'secondary' : getTransactionVariant(transaction.transaction_type);
+                      switch (transaction.transaction_type) {
+                        case 'credit':
+                          borderColor = 'border-l-primary-500';
+                          bgColor = 'bg-primary-500/10 hover:bg-primary-500/20';
+                          amountColor = 'text-primary-500';
+                          break;
+                        case 'debit':
+                          borderColor = 'border-l-red-500';
+                          bgColor = 'bg-red-500/10 hover:bg-red-500/20';
+                          amountColor = 'text-red-500';
+                          break;
+                        case 'course_purchase':
+                          borderColor = 'border-l-blue-500';
+                          bgColor = 'bg-blue-500/10 hover:bg-blue-500/20';
+                          amountColor = 'text-blue-500';
+                          break;
+                        case 'chapter_purchase':
+                          borderColor = 'border-l-secondary-500';
+                          bgColor = 'bg-secondary-500/10 hover:bg-secondary-500/20';
+                          amountColor = 'text-secondary-500';
+                          break;
+                        case 'code_redemption':
+                          borderColor = 'border-l-purple-500';
+                          bgColor = 'bg-purple-500/10 hover:bg-purple-500/20';
+                          amountColor = 'text-purple-500';
+                          break;
+                        case 'refund':
+                          borderColor = 'border-l-orange-500';
+                          bgColor = 'bg-orange-500/10 hover:bg-orange-500/20';
+                          amountColor = 'text-orange-500';
+                          break;
+                        default:
+                          borderColor = 'border-l-gray-500';
+                          bgColor = 'bg-gray-500/10 hover:bg-gray-500/20';
+                          amountColor = 'text-gray-500';
+                      }
+                      return (
+                        <div
+                          key={transaction.id}
+                          className={`flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 rounded-lg sm:rounded-xl border-l-4 sm:border-l-8 ${borderColor} ${bgColor} border-white/10 transition-all duration-200 group w-full`}
+                        >
+                          {/* Icon + Title (row on sm+, col on mobile) */}
+                          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto flex-1 min-w-0">
+                            <div className="w-10 h-10 sm:w-14 sm:h-14 bg-background rounded-lg sm:rounded-xl flex items-center justify-center shadow-sm flex-shrink-0">
+                              {getTransactionIcon(transaction.transaction_type)}
+                            </div>
+                            <div className="flex flex-col min-w-0 flex-1">
+                              <div className="font-semibold text-sm sm:text-base break-words whitespace-normal mb-1 sm:mb-0" title={transaction.description}>{transaction.description}</div>
+                              <div className="flex items-center gap-2 sm:gap-3 mt-1 flex-wrap">
+                                <Badge variant={badgeVariant} className={`text-xs ${transaction.transaction_type === 'chapter_purchase' ? 'bg-secondary-500 text-white' : ''}`}>
+                                  {getTransactionTypeLabel(transaction.transaction_type)}
+                                </Badge>
+                                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                                  <Calendar className="w-3 h-3" />
+                                  <span className="truncate max-w-[100px] sm:max-w-[120px] lg:max-w-none">{new Date(transaction.created_at).toLocaleString()}</span>
+                                </div>
+                              </div>
                             </div>
                           </div>
+                          {/* Amount */}
+                          <div className={`text-xl sm:text-2xl font-extrabold ml-0 sm:ml-4 mt-2 sm:mt-0 ${amountColor} flex-shrink-0`}>
+                            {transaction.amount > 0 ? '+' : ''}{transaction.amount}
+                          </div>
                         </div>
-                      </div>
-                      {/* Amount */}
-                      <div className={`text-xl sm:text-2xl font-extrabold ml-0 sm:ml-4 mt-2 sm:mt-0 ${amountColor} flex-shrink-0`}>
-                        {transaction.amount > 0 ? '+' : ''}{transaction.amount}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
-        )}
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
-        {searchTerm && filteredTransactions.length > 0 && (
-          <div className="text-center">
-            <p className="text-sm sm:text-base text-muted-foreground">
-              {t('studentTransactions.foundTransactions', { count: filteredTransactions.length, searchTerm })}
-            </p>
-          </div>
-        )}
+            {searchTerm && filteredTransactions.length > 0 && (
+              <div className="text-center">
+                <p className="text-sm sm:text-base text-muted-foreground">
+                  {t('studentTransactions.foundTransactions', { count: filteredTransactions.length, searchTerm })}
+                </p>
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
       </div>
       </DashboardLayout>
     </>

@@ -481,6 +481,62 @@
       "viewDetails": "عرض التفاصيل"
     }
   },
+  "invoices": {
+    "page": {
+      "title": "إدارة الفواتير",
+      "subtitle": "إدارة وتتبع جميع فواتير دوراتك",
+      "createInvoice": "إنشاء فاتورة",
+      "invoices": "الفواتير",
+      "noInvoicesFound": "لم يتم العثور على فواتير",
+      "createFirstInvoice": "أنشئ فاتورتك الأولى للبدء"
+    },
+    "stats": {
+      "totalInvoices": "إجمالي الفواتير",
+      "pendingInvoices": "الفواتير المعلقة",
+      "paidInvoices": "الفواتير المدفوعة",
+      "totalRevenue": "إجمالي الإيرادات",
+      "thisMonth": "هذا الشهر",
+      "lastMonth": "الشهر الماضي",
+      "averageInvoice": "متوسط الفاتورة"
+    },
+    "status": {
+      "pending": "معلق",
+      "paid": "مدفوع",
+      "cancelled": "ملغي",
+      "refunded": "مسترد"
+    },
+    "actions": {
+      "confirm": "تأكيد",
+      "decline": "رفض",
+      "viewDetails": "عرض التفاصيل"
+    },
+    "search": {
+      "placeholder": "البحث باسم الطالب أو رقم الهاتف..."
+    },
+    "filters": {
+      "title": "المرشحات",
+      "itemType": "نوع العنصر",
+      "paymentType": "نوع الدفع",
+      "allItems": "جميع العناصر",
+      "allPayments": "جميع أنواع الدفع",
+      "courses": "الدورات",
+      "chapters": "الفصول",
+      "lessons": "الدروس",
+      "quizzes": "الاختبارات",
+      "credits": "الرصيد",
+      "aiMinutes": "دقائق الذكاء الاصطناعي",
+      "vodafoneCash": "فودافون كاش",
+      "creditCard": "بطاقة ائتمان",
+      "bankTransfer": "تحويل بنكي",
+      "wallet": "محفظة",
+      "clearAll": "مسح الكل"
+    },
+    "results": {
+      "showingAll": "عرض جميع الفواتير {{count}}",
+      "showingFiltered": "عرض {{filtered}} من {{total}} فاتورة",
+      "clearFilters": "مسح المرشحات"
+    }
+  },
   "quizEditor": {
     "header": {
       "createQuiz": "إنشاء اختبار",

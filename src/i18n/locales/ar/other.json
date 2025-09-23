@@ -488,7 +488,8 @@
         "downloadShort": "تحم",
         "share": "مشاركة",
         "copy": "نسخ",
-        "copyNumber": "نسخ الرقم"
+        "copyNumber": "نسخ الرقم",
+        "save": "حفظ"
       },
       "sections": {
         "invoiceInformation": "معلومات الفاتورة",
@@ -507,7 +508,11 @@
         "vodafoneCash": {
           "title": "فودافون كاش",
           "sendPaymentTo": "أرسل الدفع إلى:",
-          "vodafoneCashNumber": "رقم فودافون كاش"
+          "vodafoneCashNumber": "رقم فودافون كاش",
+          "enterYourNumber": "أدخل رقم هاتفك",
+          "enterYourNumberDescription": "يرجى إدخال رقم الهاتف الذي أرسلت منه المال حتى نتمكن من التحقق من دفعتك",
+          "phoneNumberPlaceholder": "مثال: 01234567890",
+          "savedNumber": "محفوظ: {{number}}"
         },
         "fawry": {
           "title": "فوري"

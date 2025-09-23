@@ -100,10 +100,10 @@ export const DashboardSidebar = () => {
       description: t('sidebar.collaborateLearn')
     },
     { 
-      title: t('sidebar.transactions'), 
+      title: t('sidebar.invoices'), 
       url: "/student/transactions", 
-      icon: CreditCard,
-      description: t('sidebar.viewWalletHistory')
+      icon: FileText,
+      description: t('sidebar.viewInvoices')
     },
     // { 
     //   title: t('sidebar.aiTutor'), 

@@ -63,7 +63,7 @@ const Footer: React.FC = () => {
       { label: 'My Chapters', path: '/student/chapters' },
       { label: 'Gamified Learning', path: '/multiplayer-quiz' },
       { label: 'Learning Groups', path: '/student/groups' },
-      { label: 'Wallet', path: '/student/transactions' },
+      { label: 'Invoices', path: '/student/transactions' },
     ];
   };
 

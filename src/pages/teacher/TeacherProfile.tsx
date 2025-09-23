@@ -10,11 +10,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
-import { Edit, Calendar, BookOpen, Globe, Save, X } from 'lucide-react';
+import { Edit, Calendar, BookOpen, Globe, Save, X, CreditCard, Phone, Building2, Banknote } from 'lucide-react';
 import { toast } from 'sonner';
 import { PremiumCourseCard } from '@/components/courses/PremiumCourseCard';
 import { useTranslation } from 'react-i18next';
 import { SEOHead } from '@/components/seo';
+import { PaymentData } from '@/types/payment';
 
 interface Teacher {
   id: string;
@@ -30,6 +31,7 @@ interface Teacher {
   social_links: any;
   is_active: boolean;
   course_count?: number;
+  payment_data?: PaymentData;
 }
 
 interface Course {
@@ -54,6 +56,8 @@ export const TeacherProfile = () => {
   const [editData, setEditData] = useState<Partial<Teacher>>({});
   const [courseEnrollmentMap, setCourseEnrollmentMap] = useState<{ [courseId: string]: boolean }>({});
   const [courseCounts, setCourseCounts] = useState<{ [courseId: string]: number }>({});
+  const [isEditingPayment, setIsEditingPayment] = useState(false);
+  const [paymentData, setPaymentData] = useState<PaymentData>({});
 
   const isOwner = user && teacher && user.id === teacher.user_id;
 
@@ -128,6 +132,11 @@ export const TeacherProfile = () => {
 
       setTeacher({ ...teacherData, course_count: coursesData?.length || 0 });
       setCourses(coursesData || []);
+      
+      // Initialize payment data if user is the owner
+      if (user && user.id === teacherData.user_id) {
+        setPaymentData(teacherData.payment_data || {});
+      }
     } catch (error) {
       console.error('Error fetching teacher profile:', error);
       toast.error('Failed to load teacher profile');
@@ -173,6 +182,49 @@ export const TeacherProfile = () => {
   const handleCancel = () => {
     setIsEditing(false);
     setEditData({});
+  };
+
+  const handleEditPayment = () => {
+    setIsEditingPayment(true);
+  };
+
+  const handleSavePayment = async () => {
+    if (!teacher) return;
+
+    try {
+      const { error } = await supabase
+        .from('teachers')
+        .update({ payment_data: paymentData })
+        .eq('id', teacher.id);
+
+      if (error) {
+        toast.error('Failed to update payment data');
+        return;
+      }
+
+      setTeacher({ ...teacher, payment_data: paymentData });
+      setIsEditingPayment(false);
+      toast.success('Payment data updated successfully');
+    } catch (error) {
+      console.error('Error updating payment data:', error);
+      toast.error('Failed to update payment data');
+    }
+  };
+
+  const handleCancelPayment = () => {
+    setIsEditingPayment(false);
+    // Reset payment data to original values
+    setPaymentData(teacher?.payment_data || {});
+  };
+
+  const updatePaymentData = (key: keyof PaymentData, field: string, value: string) => {
+    setPaymentData(prev => ({
+      ...prev,
+      [key]: {
+        ...prev[key],
+        [field]: value
+      }
+    }));
   };
 
   if (loading) {
@@ -425,6 +477,151 @@ export const TeacherProfile = () => {
                         {t('teacherProfile.website')}
                       </a>
                     )
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Payment Data - Only visible to the teacher owner */}
+            {isOwner && (
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-2">
+                      <CreditCard className="w-5 h-5" />
+                      Payment Information
+                    </CardTitle>
+                    {!isEditingPayment && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleEditPayment}
+                        className="flex items-center gap-2"
+                      >
+                        <Edit className="w-4 h-4" />
+                        Edit
+                      </Button>
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {isEditingPayment ? (
+                    <div className="space-y-4">
+                      {/* Vodafone Cash */}
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium flex items-center gap-2">
+                          <Phone className="w-4 h-4" />
+                          Vodafone Cash
+                        </label>
+                        <Input
+                          placeholder="Phone number (e.g., 01234567890)"
+                          value={paymentData.vodafone_cash?.phone_number || ''}
+                          onChange={(e) => updatePaymentData('vodafone_cash', 'phone_number', e.target.value)}
+                        />
+                        <Input
+                          placeholder="Name (optional)"
+                          value={paymentData.vodafone_cash?.name || ''}
+                          onChange={(e) => updatePaymentData('vodafone_cash', 'name', e.target.value)}
+                        />
+                      </div>
+
+                      {/* Bank Transfer */}
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium flex items-center gap-2">
+                          <Banknote className="w-4 h-4" />
+                          Bank Transfer
+                        </label>
+                        <Input
+                          placeholder="Bank name (e.g., CIB)"
+                          value={paymentData.bank_transfer?.bank_name || ''}
+                          onChange={(e) => updatePaymentData('bank_transfer', 'bank_name', e.target.value)}
+                        />
+                        <Input
+                          placeholder="Account number"
+                          value={paymentData.bank_transfer?.account_number || ''}
+                          onChange={(e) => updatePaymentData('bank_transfer', 'account_number', e.target.value)}
+                        />
+                        <Input
+                          placeholder="Account name (optional)"
+                          value={paymentData.bank_transfer?.account_name || ''}
+                          onChange={(e) => updatePaymentData('bank_transfer', 'account_name', e.target.value)}
+                        />
+                      </div>
+
+                      {/* Fawry */}
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium flex items-center gap-2">
+                          <Building2 className="w-4 h-4" />
+                          Fawry
+                        </label>
+                        <Input
+                          placeholder="Merchant code"
+                          value={paymentData.fawry?.merchant_code || ''}
+                          onChange={(e) => updatePaymentData('fawry', 'merchant_code', e.target.value)}
+                        />
+                        <Input
+                          placeholder="Merchant name (optional)"
+                          value={paymentData.fawry?.merchant_name || ''}
+                          onChange={(e) => updatePaymentData('fawry', 'merchant_name', e.target.value)}
+                        />
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="flex gap-2 pt-2">
+                        <Button
+                          onClick={handleSavePayment}
+                          size="sm"
+                          className="flex items-center gap-2"
+                        >
+                          <Save className="w-4 h-4" />
+                          Save
+                        </Button>
+                        <Button
+                          variant="outline"
+                          onClick={handleCancelPayment}
+                          size="sm"
+                          className="flex items-center gap-2"
+                        >
+                          <X className="w-4 h-4" />
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {/* Display current payment data */}
+                      {paymentData.vodafone_cash?.phone_number && (
+                        <div className="flex items-center gap-2 text-sm">
+                          <Phone className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-muted-foreground">Vodafone:</span>
+                          <span className="font-mono">{paymentData.vodafone_cash.phone_number}</span>
+                        </div>
+                      )}
+                      
+                      {paymentData.bank_transfer?.account_number && (
+                        <div className="flex items-center gap-2 text-sm">
+                          <Banknote className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-muted-foreground">Bank:</span>
+                          <span className="font-mono">{paymentData.bank_transfer.bank_name} - {paymentData.bank_transfer.account_number}</span>
+                        </div>
+                      )}
+                      
+                      {paymentData.fawry?.merchant_code && (
+                        <div className="flex items-center gap-2 text-sm">
+                          <Building2 className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-muted-foreground">Fawry:</span>
+                          <span className="font-mono">{paymentData.fawry.merchant_code}</span>
+                        </div>
+                      )}
+                      
+                      {!paymentData.vodafone_cash?.phone_number && 
+                       !paymentData.bank_transfer?.account_number && 
+                       !paymentData.fawry?.merchant_code && (
+                        <p className="text-sm text-muted-foreground">
+                          No payment information configured. Click Edit to add your payment details.
+                        </p>
+                      )}
+                    </div>
                   )}
                 </CardContent>
               </Card>

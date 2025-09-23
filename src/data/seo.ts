@@ -421,16 +421,16 @@ export const BASE_SEO_CONFIG: RouteSEOConfig = {
   // Student transactions
   '/student/transactions': {
     en: {
-      title: `My Transactions | ${PLATFORM_NAME}`,
-      description: 'View your transaction history, wallet balance, and financial activity.',
-      keywords: 'transactions, wallet balance, financial history, student portal, credits',
+      title: `My Invoices & Transactions | ${PLATFORM_NAME}`,
+      description: 'View your purchase invoices, transaction history, wallet balance, and financial activity.',
+      keywords: 'invoices, transactions, wallet balance, financial history, student portal, credits, purchase history',
       ogType: 'website',
       canonical: 'https://lrnflix.com/student/transactions',
     },
     ar: {
-      title: `معاملاتي | ${PLATFORM_NAME}`,
-      description: 'عرض سجل المعاملات الخاصة بك ورصيد المحفظة والنشاط المالي.',
-      keywords: 'المعاملات، رصيد المحفظة، السجل المالي، بوابة الطالب، الرصيد',
+      title: `فواتيري ومعاملاتي | ${PLATFORM_NAME}`,
+      description: 'عرض فواتير الشراء وسجل المعاملات الخاصة بك ورصيد المحفظة والنشاط المالي.',
+      keywords: 'الفواتير، المعاملات، رصيد المحفظة، السجل المالي، بوابة الطالب، الرصيد، سجل المشتريات',
       ogType: 'website',
       canonical: 'https://lrnflix.com/student/transactions',
     },

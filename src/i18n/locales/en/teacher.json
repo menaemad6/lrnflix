@@ -372,6 +372,62 @@
       "viewDetails": "View Details"
     }
   },
+  "invoices": {
+    "page": {
+      "title": "Invoice Management",
+      "subtitle": "Manage and track all your course invoices",
+      "createInvoice": "Create Invoice",
+      "invoices": "Invoices",
+      "noInvoicesFound": "No invoices found",
+      "createFirstInvoice": "Create your first invoice to get started"
+    },
+    "stats": {
+      "totalInvoices": "Total Invoices",
+      "pendingInvoices": "Pending Invoices",
+      "paidInvoices": "Paid Invoices",
+      "totalRevenue": "Total Revenue",
+      "thisMonth": "This Month",
+      "lastMonth": "Last Month",
+      "averageInvoice": "Average Invoice"
+    },
+    "status": {
+      "pending": "Pending",
+      "paid": "Paid",
+      "cancelled": "Cancelled",
+      "refunded": "Refunded"
+    },
+    "actions": {
+      "confirm": "Confirm",
+      "decline": "Decline",
+      "viewDetails": "View Details"
+    },
+    "search": {
+      "placeholder": "Search by student name or phone number..."
+    },
+    "filters": {
+      "title": "Filters",
+      "itemType": "Item Type",
+      "paymentType": "Payment Type",
+      "allItems": "All Items",
+      "allPayments": "All Payment Types",
+      "courses": "Courses",
+      "chapters": "Chapters",
+      "lessons": "Lessons",
+      "quizzes": "Quizzes",
+      "credits": "Credits",
+      "aiMinutes": "AI Minutes",
+      "vodafoneCash": "Vodafone Cash",
+      "creditCard": "Credit Card",
+      "bankTransfer": "Bank Transfer",
+      "wallet": "Wallet",
+      "clearAll": "Clear All"
+    },
+    "results": {
+      "showingAll": "Showing all {{count}} invoices",
+      "showingFiltered": "Showing {{filtered}} of {{total}} invoices",
+      "clearFilters": "Clear filters"
+    }
+  },
   "quizEditor": {
     "header": {
       "createQuiz": "Create Quiz",
