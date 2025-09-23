@@ -72,14 +72,12 @@ export type Database = {
           course_id: string
           created_at: string
           description: string | null
-          device_limit: number | null
           id: string
           order_index: number
           size: number | null
           title: string
           type: string
           updated_at: string
-          view_limit: number | null
         }
         Insert: {
           attachment_url?: string | null
@@ -87,14 +85,12 @@ export type Database = {
           course_id: string
           created_at?: string
           description?: string | null
-          device_limit?: number | null
           id?: string
           order_index?: number
           size?: number | null
           title: string
           type?: string
           updated_at?: string
-          view_limit?: number | null
         }
         Update: {
           attachment_url?: string | null
@@ -102,14 +98,12 @@ export type Database = {
           course_id?: string
           created_at?: string
           description?: string | null
-          device_limit?: number | null
           id?: string
           order_index?: number
           size?: number | null
           title?: string
           type?: string
           updated_at?: string
-          view_limit?: number | null
         }
         Relationships: []
       }
@@ -673,6 +667,7 @@ export type Database = {
           payment_type: Database["public"]["Enums"]["payment_type"]
           status: Database["public"]["Enums"]["invoice_status"]
           total_price: number
+          transferred_from: string | null
           updated_at: string
           user_id: string
         }
@@ -691,6 +686,7 @@ export type Database = {
           payment_type?: Database["public"]["Enums"]["payment_type"]
           status?: Database["public"]["Enums"]["invoice_status"]
           total_price: number
+          transferred_from?: string | null
           updated_at?: string
           user_id: string
         }
@@ -709,6 +705,7 @@ export type Database = {
           payment_type?: Database["public"]["Enums"]["payment_type"]
           status?: Database["public"]["Enums"]["invoice_status"]
           total_price?: number
+          transferred_from?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -1085,7 +1082,7 @@ export type Database = {
           minutes: number
           phone_number: string | null
           role: Database["public"]["Enums"]["user_role"]
-          total_xp: { [key: string]: number }
+          total_xp: Json
           updated_at: string
           wallet: number
         }
@@ -1100,14 +1097,13 @@ export type Database = {
           minutes?: number
           phone_number?: string | null
           role?: Database["public"]["Enums"]["user_role"]
-          total_xp?: { [key: string]: number }
+          total_xp?: Json
           updated_at?: string
           wallet?: number
         }
         Update: {
           avatar_url?: string | null
           created_at?: string
-          daily_free_minutes_reset?: string | null
           daily_free_minutes_used?: number
           email?: string
           full_name?: string | null
@@ -1116,7 +1112,7 @@ export type Database = {
           minutes?: number
           phone_number?: string | null
           role?: Database["public"]["Enums"]["user_role"]
-          total_xp?: { [key: string]: number }
+          total_xp?: Json
           updated_at?: string
           wallet?: number
         }
@@ -1867,6 +1863,10 @@ export type Database = {
         Args: { p_course_id: string; p_lesson_orders: Json }
         Returns: undefined
       }
+      update_profile_total_xp: {
+        Args: { p_user_id: string; p_xp_earned: number }
+        Returns: undefined
+      }
     }
     Enums: {
       invoice_status: "pending" | "paid" | "cancelled" | "refunded"
@@ -1878,7 +1878,6 @@ export type Database = {
         | "credits"
         | "ai_minutes"
       payment_type: "vodafone_cash" | "credit_card" | "bank_transfer" | "wallet"
-      transferred_from?: string
       user_role: "admin" | "teacher" | "student"
     }
     CompositeTypes: {
@@ -2017,7 +2016,6 @@ export const Constants = {
         "ai_minutes",
       ],
       payment_type: ["vodafone_cash", "credit_card", "bank_transfer", "wallet"],
-      transferred_from: "string",
       user_role: ["admin", "teacher", "student"],
     },
   },
