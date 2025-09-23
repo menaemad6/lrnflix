@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Apple, Play, X } from 'lucide-react';
-import AuthForm from './AuthForm';
-import AuthModal from '@/components/ui/AuthModal';
+import { Input } from '@/components/ui/input';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Eye, EyeOff, Mail, Lock, User, UserPlus, LogIn, X, Sparkles, Shield, Zap } from 'lucide-react';
+import { useLoginForm, useSignupForm } from '@/hooks/useAuthForms';
 import { useRandomBackground } from "../../hooks/useRandomBackground";
 import { PremiumCourseCard } from '@/components/courses/PremiumCourseCard';
 import { PLATFORM_NAME } from '@/data/constants';
@@ -12,6 +13,9 @@ import { useTranslation } from 'react-i18next';
 import PoliciesModal from '@/components/landing/PoliciesModal';
 import { useTenant } from '@/contexts/TenantContext';
 import { supabase } from '@/integrations/supabase/client';
+import { getIntendedDestination } from '@/utils/authRedirect';
+import { useSearchParams } from 'react-router-dom';
+import AuthSection from './AuthSection';
 
 // Fallback dummy data when no real courses are available
 const fallbackCards = [
@@ -112,7 +116,8 @@ function useVerticalCarousel(cards: ProcessedCourse[], direction = 'down', speed
 const Auth: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [mode, setMode] = useState<'login' | 'signup'>('login');
+  const [searchParams] = useSearchParams();
+  const [mode, setMode] = useState<'login' | 'signup' | 'buttons'>('buttons');
   const [showLegalModal, setShowLegalModal] = useState(false);
   const [activeTab, setActiveTab] = useState('terms');
   const [courses, setCourses] = useState<ProcessedCourse[]>([]);
@@ -120,6 +125,13 @@ const Auth: React.FC = () => {
   const bgClass = useRandomBackground();
   const { t } = useTranslation('other');
   const { teacher } = useTenant();
+  
+  // Auth form hooks
+  const login = useLoginForm();
+  const signup = useSignupForm();
+  
+  // Get the next parameter from URL
+  const nextParam = searchParams.get('next');
 
   // Fetch courses based on tenant status
   const fetchCourses = useCallback(async () => {
@@ -180,9 +192,22 @@ const Auth: React.FC = () => {
     fetchCourses();
   }, [fetchCourses]);
 
+  // Handle authentication redirects
+  useEffect(() => {
+    if (mode === 'login' && login.isAuthenticated && login.user) {
+      const redirectPath = getIntendedDestination(nextParam, login.user);
+      navigate(redirectPath);
+    }
+    if (mode === 'signup' && signup.isAuthenticated && signup.user) {
+      const redirectPath = getIntendedDestination(nextParam, signup.user);
+      navigate(redirectPath);
+    }
+  }, [mode, login.isAuthenticated, login.user, signup.isAuthenticated, signup.user, navigate, nextParam]);
+
   useEffect(() => {
     if (location.pathname.endsWith('/login')) setMode('login');
     else if (location.pathname.endsWith('/signup')) setMode('signup');
+    else setMode('buttons');
   }, [location.pathname]);
 
   const handleLegalLink = (tab: string) => {
@@ -225,7 +250,7 @@ const Auth: React.FC = () => {
       <div className={bgClass + " h-screen min-h-screen flex flex-col md:flex-row  overflow-hidden"}>
       {/* Left Column */}
       <div className="w-full h-screen md:w-1/2 bg-transparent flex flex-col min-h-0 relative">
-        <div className="flex-1 w-full max-w-lg mx-auto flex flex-col items-start pt-16 px-2 gap-8 min-h-0">
+        <div className="flex-1 w-full max-w-lg mx-auto flex flex-col items-start pt-4 md:pt-16 px-2 gap-8 min-h-0">
           {/* Logo */}
           <Link to="/">
           <div className="flex items-center mb-8">
@@ -233,33 +258,61 @@ const Auth: React.FC = () => {
             <span className="text-4xl font-extrabold tracking-tight text-primary">.</span>
           </div>
           </Link>
+
+
           {/* Heading */}
+          {mode === 'buttons' ? (
           <h1 className="text-5xl md:text-6xl font-black text-foreground mb-8 leading-tight">
-            Your knowledge.<br />Your future.
-          </h1>
+              Your knowledge.<br />Your future.
+            </h1>
+          )
+          : mode === 'login' ? (
+            <>
+            <h1 className="text-5xl md:text-6xl font-black text-foreground leading-tight">
+              Welcome Back
+            </h1>
+            <span className="text-muted-foreground text-base mt-[-20px]">
+              Sign in to your account
+            </span>
+            </>
+          ) : (
+            <>
+            <h1 className="text-5xl md:text-6xl font-black text-foreground leading-tight">
+             Get started
+            </h1>
+            <span className="text-muted-foreground text-base mt-[-20px]">
+              Create a new account
+            </span>
+            </>
+          )}
+
+
+
           {/* Buttons or Forms */}
-          <div className="flex flex-col gap-4 w-full">
-            <Button className="bg-primary hover:bg-primary/80 text-primary-foreground font-bold text-lg py-4 rounded-full w-full shadow-md transition-all" onClick={() => navigate('/auth/signup')}>
-            {t('authModal.createAccount')}
-            </Button>
-            <Button variant="outline" className="border border-border text-foreground font-semibold text-lg py-4 rounded-full w-full bg-background hover:bg-muted hover:text-primary transition-all" onClick={() => navigate('/auth/login')}>
-              {t('authModal.signIn')}
-            </Button>
-          </div>
-          <AuthModal open={location.pathname.includes('/auth/')} onOpenChange={(open) => {
-            if (!open) {
-              navigate('/auth');
-            }
-          }} className={mode === 'signup' ? 'p-0 max-w-xl' : 'p-0 max-w-lg'}>
-            <AuthForm mode={mode} setMode={setMode} onClose={() => {
-              navigate('/auth');
-            }} />
-          </AuthModal>
+          {mode === 'buttons' ? (
+            <div className="flex flex-col gap-4 w-full">
+              <Button className="bg-primary hover:bg-primary/80 text-primary-foreground font-bold text-lg py-4 rounded-full w-full shadow-md transition-all" onClick={() => setMode('signup')}>
+                {t('authModal.createAccount')}
+              </Button>
+              <Button variant="outline" className="border border-border text-foreground font-semibold text-lg py-4 rounded-full w-full bg-background hover:bg-muted hover:text-primary transition-all" onClick={() => setMode('login')}>
+                {t('authModal.signIn')}
+              </Button>
+            </div>
+          ) : (
+            <AuthSection login={login} signup={signup} mode={mode} setMode={setMode} />
+          )}
+
+
           {/* Disclaimer */}
           <p className="text-xs text-muted-foreground mt-6 mb-0 text-center w-full">
             {t('authModal.byContinuing')} <button onClick={() => handleLegalLink('terms')} className="underline hover:text-primary">{t('authModal.terms')}</button> {t('authModal.and')} <button onClick={() => handleLegalLink('privacy')} className="underline hover:text-primary">{t('authModal.privacy')}</button>.
           </p>
+
+
         </div>
+
+
+
         {/* Footer */}
         <footer className="w-full mx-auto text-xs text-muted-foreground border-t border-border pt-6 pb-4 md:static fixed left-0 bottom-0 z-10" style={{background: 'inherit'}}>
           <div className="flex flex-row gap-6 mb-2 justify-center">
