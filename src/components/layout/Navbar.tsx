@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
 import { SidebarLanguageSelector } from '@/components/ui/SidebarLanguageSelector';
-import { Layout, LogOut, Home, Search, Store, Menu, Sidebar, MessageCircleQuestion, Gamepad2, Users, Gift, Bell, PieChart, DollarSign, CircleDollarSign, GraduationCap, BookOpen, X, Sun, Moon, Laptop, ChevronRight, User as UserIcon, MenuIcon } from 'lucide-react';
+import { Layout, LogOut, Home, Search, Store, Menu, Sidebar, MessageCircleQuestion, Gamepad2, Users, Gift, Bell, PieChart, DollarSign, CircleDollarSign, GraduationCap, BookOpen, X, Sun, Moon, Laptop, ChevronRight, User as UserIcon, MenuIcon, FileText, Settings } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import type { RootState } from '@/store/store';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -134,9 +134,14 @@ export const Navbar = ({ extraXSpacing = false }: { extraXSpacing?: boolean }) =
 
         ]
       : []),
-    ...((userRole === 'teacher' || userRole === 'admin')
+    ...(userRole === 'teacher'
       ? [
           { to: '/teacher/dashboard', label: t('navbar.dashboard'), icon: Layout },
+        ]
+      : []),
+    ...(userRole === 'admin'
+      ? [
+          { to: '/admin/dashboard', label: t('navbar.dashboard'), icon: Layout },
         ]
       : []),
   ];
@@ -158,7 +163,7 @@ export const Navbar = ({ extraXSpacing = false }: { extraXSpacing?: boolean }) =
   
           ]
         : []),
-      ...((userRole === 'teacher' || userRole === 'admin')
+      ...(userRole === 'teacher'
         ? [
             { to: '/teacher/dashboard', label: t('navbar.dashboard'), icon: Layout },
             { to: '/teacher/courses', label: t('navbar.myCourses'), icon: BookOpen },
@@ -169,6 +174,15 @@ export const Navbar = ({ extraXSpacing = false }: { extraXSpacing?: boolean }) =
             { to: '/teacher/codes', label: t('navbar.walletCodes'), icon: Gift },
             // { to: '/teacher/notifications', label: t('navbar.notifications'), icon: Bell },
             { to: '/teacher/analytics', label: t('navbar.analytics'), icon: PieChart },
+          ]
+        : []),
+      ...(userRole === 'admin'
+        ? [
+            { to: '/admin/dashboard', label: t('navbar.dashboard'), icon: Layout },
+            { to: '/admin/invoices', label: t('navbar.invoices'), icon: FileText },
+            { to: '/admin/analytics', label: t('navbar.analytics'), icon: PieChart },
+            { to: '/admin/users', label: t('navbar.userManagement'), icon: Users },
+            { to: '/admin/settings', label: t('navbar.settings'), icon: Settings },
           ]
         : []),
     ];

@@ -83,6 +83,11 @@ import InvoiceDetailPage from "./pages/InvoiceDetailPage";
 
 
 import SaasLanding from "./components/landing/SaasLanding";
+import { AdminDashboard } from "./pages/admin/AdminDashboard";
+import { AdminInvoicesPage } from "./pages/admin/AdminInvoicesPage";
+import { AdminAnalyticsPage } from "./pages/admin/AdminAnalyticsPage";
+import { AdminUsersPage } from "./pages/admin/AdminUsersPage";
+import { AdminSettingsPage } from "./pages/admin/AdminSettingsPage";
 
 const queryClient = new QueryClient();
 
@@ -163,8 +168,13 @@ const AppRoutes = () => {
           <Route path="/chapters/:id" element={<ChapterDetailPage />} />
           <Route path="/student/notifications" element={<ProtectedRoute requiredRole={['student']}><StudentNotificationsPage /></ProtectedRoute>} />
           <Route path="/student/store" element={<ProtectedRoute requiredRole={['student']}><Store /></ProtectedRoute>} />
+          {/* Admin Routes  */}
+          <Route path="/admin/dashboard" element={<ProtectedRoute requiredRole={['admin']}><AdminDashboard /></ProtectedRoute>} />
+          <Route path="/admin/invoices" element={<ProtectedRoute requiredRole={['admin']}><AdminInvoicesPage /></ProtectedRoute>} />
+          <Route path="/admin/analytics" element={<ProtectedRoute requiredRole={['admin']}><AdminAnalyticsPage /></ProtectedRoute>} />
+          <Route path="/admin/users" element={<ProtectedRoute requiredRole={['admin']}><AdminUsersPage /></ProtectedRoute>} />
+          <Route path="/admin/settings" element={<ProtectedRoute requiredRole={['admin']}><AdminSettingsPage /></ProtectedRoute>} />
           {/* Shared Routes */}
-
           <Route path="/teachers" element={<TeachersPage />} />
           <Route path="/teachers/:teacherSlug" element={<TeacherProfile />} />
 

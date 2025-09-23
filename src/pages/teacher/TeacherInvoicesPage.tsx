@@ -16,6 +16,7 @@ import { Input } from '@/components/ui/input';
 import { Plus, Check, X, DollarSign, Calendar, User, FileText, Phone, TrendingUp, Clock, CheckCircle, Search, Filter, X as XIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { enrollStudentFromInvoice } from '@/utils/enrollmentUtils';
+import { handleCreditsOrMinutesPurchase } from '@/utils/creditsUtils';
 import { TeacherInvoicesSkeleton } from '@/components/ui/skeletons';
 
 interface Invoice {
@@ -250,12 +251,45 @@ export const TeacherInvoicesPage = () => {
           });
         }
       } else if (status === 'paid' && ['credits', 'ai_minutes'].includes(invoice.item_type)) {
-        // For system purchases, just show success message
-        console.log('System purchase confirmed:', {
-          studentId: invoice.user_id,
-          itemType: invoice.item_type,
-          amount: invoice.item_type === 'credits' ? invoice.credits_amount : invoice.minutes_amount
-        });
+        // Handle credits or AI minutes purchase
+        try {
+          const amount = invoice.item_type === 'credits' ? invoice.credits_amount : invoice.minutes_amount;
+          
+          if (!amount || amount <= 0) {
+            toast({
+              title: "Purchase Warning",
+              description: "Invoice confirmed but no credits/minutes amount specified",
+              variant: "destructive",
+            });
+            return data;
+          }
+
+          const result = await handleCreditsOrMinutesPurchase(
+            invoice.user_id,
+            invoice.item_type as 'credits' | 'ai_minutes',
+            amount
+          );
+
+          if (!result.success) {
+            toast({
+              title: "Credits/Minutes Warning",
+              description: `Invoice confirmed but failed to add ${invoice.item_type}: ${result.message}`,
+              variant: "destructive",
+            });
+          } else {
+            toast({
+              title: "Credits/Minutes Added",
+              description: result.message,
+            });
+          }
+        } catch (error) {
+          console.error('Error during credits/minutes addition:', error);
+          toast({
+            title: "Credits/Minutes Error",
+            description: `Invoice confirmed but failed to add ${invoice.item_type}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            variant: "destructive",
+          });
+        }
       }
 
       return data;

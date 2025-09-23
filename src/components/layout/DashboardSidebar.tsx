@@ -26,7 +26,11 @@ import {
   File,
   Calendar,
   Palette,
-  FileText
+  FileText,
+  Shield,
+  Crown,
+  Database,
+  Activity
 } from 'lucide-react';
 import {
   Sidebar,
@@ -203,7 +207,42 @@ export const DashboardSidebar = () => {
     },
   ];
 
-  const menuItems = userRole === 'student' ? studentMenuItems : teacherMenuItems;
+  const adminMenuItems: MenuItem[] = [
+    {
+      title: t('sidebar.dashboard'), 
+      url: "/admin/dashboard", 
+      icon: Layout,
+      description: t('sidebar.adminOverview')
+    },
+    {
+      title: t('sidebar.invoices'), 
+      url: "/admin/invoices", 
+      icon: FileText,
+      description: t('sidebar.manageAllInvoices')
+    },
+    {
+      title: t('sidebar.systemAnalytics'), 
+      url: "/admin/analytics", 
+      icon: BarChart3,
+      description: t('sidebar.platformAnalytics')
+    },
+    {
+      title: t('sidebar.userManagement'), 
+      url: "/admin/users", 
+      icon: Users,
+      description: t('sidebar.manageUsers')
+    },
+    {
+      title: t('sidebar.systemSettings'), 
+      url: "/admin/settings", 
+      icon: Settings,
+      description: t('sidebar.platformSettings')
+    },
+  ];
+
+  const menuItems = userRole === 'student' ? studentMenuItems : 
+                   userRole === 'admin' ? adminMenuItems : 
+                   teacherMenuItems;
 
   const handleAskAI = () => {
     openChatbot();
@@ -242,7 +281,7 @@ export const DashboardSidebar = () => {
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-primary-400 rounded-full animate-pulse"></div>
                   <span className="text-xs text-muted-foreground capitalize font-medium">
-                    {userRole} Portal
+                    {userRole === 'admin' ? 'Admin Portal' : `${userRole} Portal`}
                   </span>
                 </div>
               </div>

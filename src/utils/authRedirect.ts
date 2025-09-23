@@ -4,8 +4,11 @@ import { User } from '@/store/slices/authSlice';
  * Get the default redirect path based on user role
  */
 export function getDefaultRedirectPath(user: User): string {
-  if (user.role === 'teacher' || user.role === 'admin') {
+  if (user.role === 'teacher') {
     return '/teacher/dashboard';
+  }
+  if (user.role === 'admin') {
+    return '/admin/dashboard';
   }
   return '/student/dashboard';
 }

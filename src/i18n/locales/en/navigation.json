@@ -20,7 +20,9 @@
     "logout": "Logout",
     "themeToggle": "Toggle theme",
     "languageToggle": "Toggle language",
-    "myCourses": "My Courses"
+    "myCourses": "My Courses",
+    "userManagement": "User Management",
+    "settings": "Settings"
   },
   "sidebar": {
     "dashboard": "Dashboard",
@@ -81,7 +83,15 @@
     "noCourseContent": "No course content available",
     "liveLectures": "Live Lectures",
     "noLiveLectures": "No live lectures scheduled",
-    "join": "Join"
+    "join": "Join",
+    "adminOverview": "Admin Overview",
+    "manageAllInvoices": "Manage all invoices",
+    "systemAnalytics": "System Analytics",
+    "platformAnalytics": "Platform analytics",
+    "userManagement": "User Management",
+    "manageUsers": "Manage users",
+    "systemSettings": "System Settings",
+    "platformSettings": "Platform settings"
   },
   "mobile": {
     "menu": "Menu",

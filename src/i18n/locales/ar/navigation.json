@@ -20,7 +20,9 @@
     "logout": "تسجيل الخروج",
     "themeToggle": "تبديل المظهر",
     "languageToggle": "تبديل اللغة",
-    "myCourses": "دوراتي"
+    "myCourses": "دوراتي",
+    "userManagement": "إدارة المستخدمين",
+    "settings": "الإعدادات"
   },
   "sidebar": {
     "dashboard": "لوحة التحكم",
@@ -81,7 +83,15 @@
     "noCourseContent": "لا يوجد محتوى متاح للدورة",
     "liveLectures": "المحاضرات المباشرة",
     "noLiveLectures": "لا توجد محاضرات مباشرة مجدولة",
-    "join": "انضم"
+    "join": "انضم",
+    "adminOverview": "نظرة عامة للإدارة",
+    "manageAllInvoices": "إدارة جميع الفواتير",
+    "systemAnalytics": "تحليلات النظام",
+    "platformAnalytics": "تحليلات المنصة",
+    "userManagement": "إدارة المستخدمين",
+    "manageUsers": "إدارة المستخدمين",
+    "systemSettings": "إعدادات النظام",
+    "platformSettings": "إعدادات المنصة"
   },
   "mobile": {
     "menu": "القائمة",
