@@ -21,6 +21,7 @@ import { LessonManager } from '@/components/lessons/LessonManager';
 import { CourseCodesManager } from '@/components/courses/CourseCodesManager';
 import { StudentManager } from '@/components/students/StudentManager';
 import { DiscussionForum } from '@/components/discussions/DiscussionForum';
+import { CourseAiAssistantTab } from '@/components/teacher/CourseAiAssistantTab';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
@@ -52,7 +53,8 @@ import {
   Cog,
   Trash2,
   AlertTriangle,
-  X
+  X,
+  Bot
 } from 'lucide-react';
 import { useIsLargeScreen } from '@/hooks/use-mobile';
 import { SEOHead } from '@/components/seo';
@@ -343,6 +345,7 @@ export const CourseDetails = () => {
     { id: 'overview', label: t('teacherCourseDetails.overview'), icon: BarChart3, description: t('teacherCourseDetails.overviewDescription') },
     { id: 'manage', label: t('teacherCourseDetails.manageContent'), icon: Cog, description: t('teacherCourseDetails.manageContentDescription'), isLink: true, href: `/teacher/courses/${courseId}/manage` },
     { id: 'students', label: t('teacherCourseDetails.students'), icon: Users, description: t('teacherCourseDetails.studentsDescription') },
+    { id: 'ai-assistant', label: t('teacherCourseDetails.aiAssistant'), icon: Bot, description: t('teacherCourseDetails.aiAssistantDescription') },
     { id: 'codes', label: t('teacherCourseDetails.courseCodes'), icon: Tag, description: t('teacherCourseDetails.courseCodesDescription') },
     { id: 'settings', label: t('teacherCourseDetails.settings'), icon: Settings, description: t('teacherCourseDetails.settingsDescription') },
   ];
@@ -440,6 +443,9 @@ export const CourseDetails = () => {
             </CardContent>
           </Card>
         );
+
+      case 'ai-assistant':
+        return <CourseAiAssistantTab courseId={courseId!} />;
 
       case 'codes':
         return (
@@ -896,6 +902,7 @@ export const CourseDetails = () => {
                   <TabsList className="flex p-1 gap-1 whitespace-nowrap">
                     <TabsTrigger className="shrink-0 text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2" value="overview">{t('teacherCourseDetails.overview')}</TabsTrigger>
                     <TabsTrigger className="shrink-0 text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2" value="students">{t('teacherCourseDetails.students')}</TabsTrigger>
+                    <TabsTrigger className="shrink-0 text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2" value="ai-assistant">{t('teacherCourseDetails.aiAssistant')}</TabsTrigger>
                     <TabsTrigger className="shrink-0 text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2" value="codes">{t('teacherCourseDetails.courseCodes')}</TabsTrigger>
                     <TabsTrigger className="shrink-0 text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2" value="settings">{t('teacherCourseDetails.settings')}</TabsTrigger>
                     

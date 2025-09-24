@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { Brain, MessageSquare, User } from "lucide-react";
+import { MessageSquare, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
@@ -52,14 +52,6 @@ export const DashboardSettingsSidebar: React.FC<DashboardSettingsSidebarProps> =
   return (
     <aside className="w-full lg:w-64 lg:min-w-[220px] h-fit bg-card border border-border rounded-2xl shadow-xl p-4 mt-2 lg:sticky lg:top-24">
       <nav className="flex flex-row lg:flex-col gap-2 overflow-x-auto lg:overflow-x-visible">
-        <Button
-          onClick={() => onTabChange?.("ai-assistant")}
-          variant={activeTab === "ai-assistant" ? "default" : "outline"}
-        >
-          <Brain className="h-4 w-4 lg:h-5 lg:w-5 flex-shrink-0" />
-          <span className="hidden sm:inline">{t('sidebar.aiAssistant')}</span>
-        </Button>
-        
         <Button
           onClick={() => onTabChange?.("announcements")}
           variant={activeTab === "announcements" ? "default" : "outline"}

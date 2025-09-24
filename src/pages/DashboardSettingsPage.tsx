@@ -1,23 +1,20 @@
 import React, { useState } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { DashboardSettingsSidebar } from "@/components/layout/DashboardSettingsSidebar";
-import { AiAssistantSettingsTab } from "@/components/settings/AiAssistantSettingsTab";
 import { AnnouncementsTab } from "@/components/settings/AnnouncementsTab";
 import { useRandomBackground } from "../hooks/useRandomBackground";
 import { SEOHead } from '@/components/seo';
 
 const DashboardSettingsPage = () => {
-  const [activeTab, setActiveTab] = useState<string>("ai-assistant");
+  const [activeTab, setActiveTab] = useState<string>("announcements");
   const bgClass = useRandomBackground();
 
   const renderActiveTab = () => {
     switch (activeTab) {
-      case "ai-assistant":
-        return <AiAssistantSettingsTab />;
       case "announcements":
         return <AnnouncementsTab />;
       default:
-        return <AiAssistantSettingsTab />;
+        return <AnnouncementsTab />;
     }
   };
 

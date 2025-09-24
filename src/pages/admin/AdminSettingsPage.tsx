@@ -10,13 +10,24 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Crown, Settings, Save, Database, Mail, Shield, Globe, Bell, Palette, Server } from 'lucide-react';
+import { Crown, Settings, Save, Database, Mail, Shield, Globe, Bell, Palette, Server, Brain, Loader2 } from 'lucide-react';
 import { useTenant } from '@/contexts/TenantContext';
 import { useToast } from '@/hooks/use-toast';
+import { useAiAssistantSettings } from '@/hooks/useAiAssistantSettings';
 
 export const AdminSettingsPage = () => {
   const { teacher } = useTenant();
   const { toast } = useToast();
+  
+  // AI Assistant settings
+  const {
+    values: aiValues,
+    form: aiForm,
+    loading: aiLoading,
+    saving: aiSaving,
+    error: aiError,
+    success: aiSuccess
+  } = useAiAssistantSettings();
   
   // Settings state
   const [settings, setSettings] = useState({
@@ -160,6 +171,105 @@ export const AdminSettingsPage = () => {
                   </Select>
                 </div>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* AI Assistant Settings */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Brain className="h-5 w-5" />
+                AI Assistant Settings
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form
+                onSubmit={aiForm.handleSubmit}
+                className="space-y-6"
+                autoComplete="off"
+              >
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="daily_minutes_limit">Daily Free Minutes Limit</Label>
+                    <Input
+                      id="daily_minutes_limit"
+                      name="daily_minutes_limit"
+                      type="number"
+                      min={0}
+                      placeholder="E.g. 5"
+                      value={aiForm.values.daily_minutes_limit ?? ""}
+                      onChange={aiForm.handleChange}
+                      disabled={aiSaving}
+                    />
+                    <p className="text-sm text-muted-foreground">
+                      The maximum free AI assistant minutes given to students each day.
+                    </p>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="minutes_price">Minute Price (Credits / min)</Label>
+                    <Input
+                      id="minutes_price"
+                      name="minutes_price"
+                      type="number"
+                      min={0}
+                      placeholder="E.g. 1"
+                      value={aiForm.values.minutes_price ?? ""}
+                      onChange={aiForm.handleChange}
+                      disabled={aiSaving}
+                    />
+                    <p className="text-sm text-muted-foreground">
+                      Number of wallet credits required to purchase 1 AI minute.
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="daily_messages_limit">Daily Messages Limit</Label>
+                  <Input
+                    id="daily_messages_limit"
+                    name="daily_messages_limit"
+                    type="number"
+                    min={1}
+                    placeholder="E.g. 10"
+                    value={aiForm.values.daily_messages_limit ?? ""}
+                    onChange={aiForm.handleChange}
+                    disabled={aiSaving}
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    The maximum number of AI chat messages students can send per day.
+                  </p>
+                </div>
+                
+                {aiError && (
+                  <div className="text-sm text-red-500">
+                    {aiError}
+                  </div>
+                )}
+                {aiSuccess && (
+                  <div className="text-sm text-green-600">
+                    AI Assistant settings saved!
+                  </div>
+                )}
+                
+                <Button 
+                  type="submit" 
+                  className="w-full md:w-auto"
+                  disabled={aiSaving || aiLoading}
+                >
+                  {aiSaving ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                      Saving AI Settings...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-4 h-4 mr-2" />
+                      Save AI Settings
+                    </>
+                  )}
+                </Button>
+              </form>
             </CardContent>
           </Card>
 
