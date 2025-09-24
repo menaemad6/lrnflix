@@ -2,31 +2,32 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { SectionHeader } from '@/components/ui/section-header';
-import { Star } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Star, Play, BookOpen, ArrowRight } from 'lucide-react';
 import { useInView } from 'react-intersection-observer';
 import about_techer from '@/assets/about-teacher.png';
 
 const stats = [
   { number: '98%', label: 'نسبة نجاح الطلاب' },
   { number: '4.9/5', label: 'تقييم الطلاب' },
-  { number: '15+', label: 'سنة في التدريس' },
+  { number: '4+', label: 'سنة في التدريس' },
   { number: '50+', label: 'كورس مُنجز' },
 ];
 
-export const AboutTeacher = () => {
+export const HeroSection = () => {
   const { ref, inView } = useInView({
     triggerOnce: true,
     threshold: 0.1,
   });
 
   return (
-    <section className="py-20 relative overflow-hidden" ref={ref}>
+    <section className="min-h-screen flex items-center relative overflow-hidden" ref={ref}>
       <div className="w-full px-4 lg:px-8 relative z-10">
-        <SectionHeader
+        {/* <SectionHeader
           title="تعرف على المدرس"
           subtitle="خبرة طويلة وشغف حقيقي لتعليم الكيمياء بطريقة مبسطة وممتعة"
           variant="premium"
-        />
+        /> */}
 
         <div className="relative min-h-[600px] flex flex-col lg:flex-row lg:items-center">
           {/* Left Card - Full Height with Primary Background */}
@@ -36,24 +37,59 @@ export const AboutTeacher = () => {
             animate={inView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.8, delay: 0.3 }}
           >
-            {/* Teacher Text Content */}
+            {/* Hero Text Content */}
             <div className="space-y-6 text-white">
-              <h3 className="text-4xl lg:text-5xl font-bold mb-6">
-                د. أحمد محمد حسن
-              </h3>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={inView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.8, delay: 0.4 }}
+              >
+                <h1 className="text-5xl lg:text-6xl font-bold mb-4 leading-tight">
+                  تعلم الكيمياء
+                  <span className="block text-white">بأسلوب ممتع</span>
+                </h1>
+              </motion.div>
               
-              <p className="text-lg lg:text-xl leading-relaxed opacity-90">
-                أستاذ الكيمياء المتخصص في تبسيط المفاهيم المعقدة وجعل تعلم الكيمياء متعة حقيقية. 
-                أؤمن بأن كل طالب قادر على التفوق عندما يجد الطريقة الصحيحة للتعلم.
-              </p>
-              
+              <motion.p 
+                className="text-xl lg:text-2xl leading-relaxed opacity-90 mb-8"
+                initial={{ opacity: 0, y: 20 }}
+                animate={inView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.8, delay: 0.6 }}
+              >
+                انضم إلى آلاف الطلاب الذين حققوا نتائج مذهلة في الكيمياء مع د. أحمد محمد حسن
+              </motion.p>
 
+              {/* CTA Buttons */}
+              <motion.div 
+                className="flex flex-col sm:flex-row gap-4 mb-8"
+                initial={{ opacity: 0, y: 20 }}
+                animate={inView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.8, delay: 0.8 }}
+              >
+                <Button 
+                  size="lg" 
+                  variant="default"
+                  className='border border-white'
+                >
+                  <BookOpen className="w-5 h-5 ml-2" />
+                  ابدأ التعلم الآن
+                  <ArrowRight className="w-5 h-5 mr-2" />
+                </Button>
+                
+                <Button 
+                  variant="secondary" 
+                  size="lg"
+                >
+                  <Play className="w-5 h-5 ml-2" />
+                  شاهد عينة مجانية
+                </Button>
+              </motion.div>
 
             </div>
 
             {/* Stats Section at Bottom */}
             <motion.div
-              className="grid grid-cols-2 lg:grid-cols-4 gap-6 mt-8 pb-8 lg:pb-0"
+              className="hidden lg:grid grid-cols-4 gap-6 mt-8 pb-8 lg:pb-0"
               initial={{ opacity: 0, y: 20 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, delay: 0.6 }}

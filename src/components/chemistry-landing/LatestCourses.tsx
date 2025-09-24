@@ -4,11 +4,12 @@ import { Button } from '@/components/ui/button';
 import { SectionHeader } from '@/components/ui/section-header';
 import { useInView } from 'react-intersection-observer';
 import { CourseCarousel, type Course } from './CourseCarousel';
-import chemistryLab from '@/assets/chemistry-lab.jpg';
-import chemistryMolecules from '@/assets/chemistry-molecules.jpg';
 import { useNavigate } from 'react-router-dom';
+import { useTenant } from '@/contexts/TenantContext';
+import { useTeacherCoursesByTenant } from '@/hooks/useTeacherCoursesByTenant';
 
-const coursesData: Course[] = [
+// Fallback dummy data for when no real courses are available
+const fallbackCoursesData: Course[] = [
   {
     id: '1',
     title: 'أساسيات الكيمياء العضوية',
@@ -19,7 +20,7 @@ const coursesData: Course[] = [
     enrollment_count: 156,
     is_enrolled: false,
     enrollment_code: 'CHEM101',
-    cover_image_url: chemistryLab,
+    cover_image_url: undefined,
     created_at: '2024-01-15T10:00:00Z',
     price: 0,
     instructor_id: 'instructor1',
@@ -35,7 +36,7 @@ const coursesData: Course[] = [
     enrollment_count: 203,
     is_enrolled: false,
     enrollment_code: 'CHEM201',
-    cover_image_url: chemistryMolecules,
+    cover_image_url: undefined,
     created_at: '2024-01-20T10:00:00Z',
     price: 199,
     instructor_id: 'instructor2',
@@ -51,58 +52,10 @@ const coursesData: Course[] = [
     enrollment_count: 89,
     is_enrolled: false,
     enrollment_code: 'CHEM102',
-    cover_image_url: chemistryLab,
+    cover_image_url: undefined,
     created_at: '2024-01-25T10:00:00Z',
     price: 149,
     instructor_id: 'instructor3',
-    avatar_url: undefined,
-  },
-  {
-    id: '4',
-    title: 'الكيمياء التحليلية',
-    description: 'تعلم طرق التحليل الكيميائي المختلفة والتطبيقات العملية',
-    category: 'كيمياء تحليلية',
-    status: 'published',
-    instructor_name: 'د. نور الدين',
-    enrollment_count: 124,
-    is_enrolled: false,
-    enrollment_code: 'CHEM301',
-    cover_image_url: chemistryMolecules,
-    created_at: '2024-02-01T10:00:00Z',
-    price: 179,
-    instructor_id: 'instructor4',
-    avatar_url: undefined,
-  },
-  {
-    id: '5',
-    title: 'الكيمياء الفيزيائية',
-    description: 'دراسة الخصائص الفيزيائية للمواد والتفاعلات الكيميائية',
-    category: 'كيمياء فيزيائية',
-    status: 'published',
-    instructor_name: 'د. سارة أحمد',
-    enrollment_count: 98,
-    is_enrolled: false,
-    enrollment_code: 'CHEM401',
-    cover_image_url: chemistryLab,
-    created_at: '2024-02-05T10:00:00Z',
-    price: 229,
-    instructor_id: 'instructor5',
-    avatar_url: undefined,
-  },
-  {
-    id: '6',
-    title: 'الكيمياء البيئية',
-    description: 'فهم تأثير المواد الكيميائية على البيئة والحلول المستدامة',
-    category: 'كيمياء بيئية',
-    status: 'published',
-    instructor_name: 'د. خالد محمود',
-    enrollment_count: 87,
-    is_enrolled: false,
-    enrollment_code: 'CHEM501',
-    cover_image_url: chemistryMolecules,
-    created_at: '2024-02-10T10:00:00Z',
-    price: 159,
-    instructor_id: 'instructor6',
     avatar_url: undefined,
   },
 ];
@@ -113,10 +66,40 @@ export const LatestCourses = () => {
     threshold: 0.1,
   });
   const navigate = useNavigate();
+  const { teacher } = useTenant();
+
+  // Fetch real courses using the hook
+  const { courses: realCourses, loading: coursesLoading, error: coursesError } = useTeacherCoursesByTenant({
+    instructorId: teacher?.user_id,
+    limit: 6, // Limit to 6 courses for the carousel
+    includeEnrollmentCount: true
+  });
+
+  // Transform real courses to match the Course interface expected by CourseCarousel
+  const transformedCourses: Course[] = realCourses.map(course => ({
+    id: course.id,
+    title: course.title,
+    description: course.description || '',
+    category: course.category || '',
+    status: course.status || 'published',
+    instructor_name: teacher?.display_name || 'Instructor',
+    enrollment_count: course.enrollment_count,
+    is_enrolled: false,
+    enrollment_code: course.enrollment_code || '',
+    cover_image_url: course.cover_image_url || undefined,
+    created_at: course.created_at,
+    price: course.price || 0,
+    instructor_id: course.instructor_id,
+    avatar_url: teacher?.profile_image_url || undefined,
+  }));
+
+  // Use real courses if available, otherwise fallback to dummy data
+  const coursesData = transformedCourses.length > 0 ? transformedCourses : fallbackCoursesData;
 
   const handleCourseClick = (course: Course) => {
     console.log('Course clicked:', course);
-    // Handle course click - could navigate to course details
+    // Navigate to course details
+    navigate(`/courses/${course.id}`);
   };
 
   return (
@@ -134,8 +117,19 @@ export const LatestCourses = () => {
         initial={{ opacity: 0, y: 50 }}
         animate={inView ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.6, delay: 0.2 }}
-        className="mt-12 w-full px-12"
+        className="mt-12 w-full px-3 lg:px-12"
       >
+        {coursesLoading ? (
+          <div className="flex justify-center items-center py-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+          </div>
+        ) : coursesError ? (
+          <div className="text-center text-destructive py-20">
+            <p className="text-lg">Error loading courses: {coursesError}</p>
+            <p className="text-sm text-muted-foreground mt-2">Showing sample courses instead</p>
+          </div>
+        ) : null}
+        
         <CourseCarousel
           courses={coursesData}
           showArrows={true}

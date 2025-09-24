@@ -1,9 +1,10 @@
 import React, { useEffect } from 'react';
 import { ChemistryHero } from '@/components/chemistry-landing/ChemistryHero';
+import { NewHeroSection } from '@/components/chemistry-landing/NewHeroSection';
 import { YearsSection } from '@/components/chemistry-landing/YearsSection';
 import { LatestCourses } from '@/components/chemistry-landing/LatestCourses';
 import { PlatformFeatures } from '@/components/chemistry-landing/PlatformFeatures';
-import { AboutTeacher } from '@/components/chemistry-landing/AboutTeacher';
+import { HeroSection } from '@/components/chemistry-landing/HeroSection';
 import { Testimonials } from '@/components/chemistry-landing/Testimonials';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { Footer } from '@/components/landing/saas-landing';
@@ -47,8 +48,9 @@ export const ChemistryLanding = () => {
           <div className="absolute top-1/2 left-1/2 w-24 h-24 bg-secondary/8 rounded-full blur-xl animate-pulse delay-1500" />
         </div>
 
+        
         {/* Hero Section */}
-        <ChemistryHero />
+        <HeroSection />
         
         {/* Years Categories Section */}
         <YearsSection />
@@ -60,7 +62,6 @@ export const ChemistryLanding = () => {
         <PlatformFeatures />
         
         {/* About Teacher Section */}
-        <AboutTeacher />
         
         {/* Testimonials Section */}
         <Testimonials />

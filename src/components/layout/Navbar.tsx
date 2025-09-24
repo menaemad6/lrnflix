@@ -57,7 +57,7 @@ export const Navbar = ({ extraXSpacing = false }: { extraXSpacing?: boolean }) =
   const isLargeScreen = useIsLargeScreen();
   const [hidden, setHidden] = useState(false);
   const lastScrollY = useRef(0);
-  const { teacher } = useTenant();
+  const { teacher, slug } = useTenant();
   const [sheetOpen, setSheetOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const { theme, setTheme } = useTheme();
@@ -73,7 +73,8 @@ export const Navbar = ({ extraXSpacing = false }: { extraXSpacing?: boolean }) =
         window.requestAnimationFrame(() => {
           const currentScrollY = window.scrollY;
           // Home page with tenant: hide until scrolled past hero, then use scroll direction logic
-          if (location.pathname === '/' && teacher && isLargeScreen) {
+          // Exception: show navbar immediately for 'pola' slug
+          if (location.pathname === '/' && teacher && isLargeScreen && slug !== 'pola') {
             if (currentScrollY < window.innerHeight) {
               setHidden(true);
             } else {
@@ -108,7 +109,7 @@ export const Navbar = ({ extraXSpacing = false }: { extraXSpacing?: boolean }) =
     window.addEventListener('scroll', handleScroll);
     handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [isMobile, isLargeScreen, location.pathname, teacher]);
+  }, [isMobile, isLargeScreen, location.pathname, teacher, slug]);
 
   // Hide navbar completely on home route when there's no tenant
   if (location.pathname === '/' && !teacher) {

@@ -7,9 +7,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Star, BookOpen, Users, Award, ExternalLink, ChevronDown, Sparkles, Zap, Trophy, Play, Clock, TrendingUp, Target, Rocket, Globe, Brain, Heart, CheckCircle, ArrowRight, MousePointer, Code, Palette, Database as LucideDatabase, Shield, MessageSquare, Wand2, Hexagon, Triangle, Square, Circle, Send, Lightbulb } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
 import { PremiumCourseCard } from '@/components/courses/PremiumCourseCard';
-import type { Database } from '@/integrations/supabase/types';
+import { useTeacherCoursesByTenant } from '@/hooks/useTeacherCoursesByTenant';
 
 const TeacherLanding = () => {
   const { teacher, loading } = useTenant();
@@ -21,13 +20,16 @@ const TeacherLanding = () => {
   const geometryRef = useRef<HTMLDivElement>(null);
   const skillsRef = useRef<HTMLDivElement>(null);
   
-  type CourseWithCount = Database['public']['Tables']['courses']['Row'] & { enrollment_count: number };
-  const [courses, setCourses] = useState<CourseWithCount[]>([]);
-  const [coursesLoading, setCoursesLoading] = useState(false);
   const [aiInsight, setAiInsight] = useState<string>('');
   const [aiLoading, setAiLoading] = useState(false);
   const [userPrompt, setUserPrompt] = useState('');
   const navigate = useNavigate();
+
+  // Use the new hook to fetch teacher courses
+  const { courses, loading: coursesLoading, error: coursesError } = useTeacherCoursesByTenant({
+    instructorId: teacher?.user_id,
+    includeEnrollmentCount: true
+  });
 
   // Advanced scroll animations with geometrical transformations
   useEffect(() => {
@@ -153,31 +155,6 @@ const TeacherLanding = () => {
     return () => observer.disconnect();
   }, [teacher]);
 
-  // Fetch courses
-  useEffect(() => {
-    if (!teacher?.user_id) return;
-    setCoursesLoading(true);
-    supabase
-      .from('courses')
-      .select('*')
-      .eq('instructor_id', teacher.user_id)
-      .order('created_at', { ascending: false })
-      .then(async ({ data, error }) => {
-        if (!error && data) {
-          const coursesWithCounts = await Promise.all(
-            data.map(async (course) => {
-              const { count } = await supabase
-                .from('enrollments')
-                .select('*', { count: 'exact', head: true })
-                .eq('course_id', course.id);
-              return { ...course, enrollment_count: count || 0 };
-            })
-          );
-          setCourses(coursesWithCounts);
-        }
-        setCoursesLoading(false);
-      });
-  }, [teacher?.user_id]);
 
   // AI Insight Generator using Gemini
   const generateAiInsight = async () => {
@@ -597,6 +574,10 @@ const TeacherLanding = () => {
           {coursesLoading ? (
             <div className="flex justify-center items-center py-32">
               <div className="animate-spin rounded-full h-20 w-20 border-t-4 border-b-4 border-primary"></div>
+            </div>
+          ) : coursesError ? (
+            <div className="text-center text-destructive py-32 text-2xl">
+              Error loading courses: {coursesError}
             </div>
           ) : courses.length === 0 ? (
             <div className="text-center text-muted-foreground py-32 text-2xl">No courses found for this instructor.</div>
