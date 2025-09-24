@@ -44,9 +44,24 @@ export const useWhatsApp = () => {
         });
         return { success: true, messageId: data.messageId };
       } else {
+        // Handle specific WhatsApp API errors
+        let errorMessage = data?.error || 'Failed to send WhatsApp message';
+        let errorDescription = '';
+        
+        if (data?.details?.error?.code === 131030) {
+          errorMessage = 'Phone number not allowed';
+          errorDescription = 'This phone number is not in the allowed recipient list. Please add it to your WhatsApp Business API allowed recipients in the Meta Developer Console.';
+        } else if (data?.details?.error?.code === 131026) {
+          errorMessage = 'Invalid phone number';
+          errorDescription = 'Please check the phone number format and include the country code (e.g., +1234567890).';
+        } else if (data?.details?.error?.code === 131021) {
+          errorMessage = 'Rate limit exceeded';
+          errorDescription = 'Too many messages sent. Please wait before sending another message.';
+        }
+
         toast({
-          title: 'Error',
-          description: data?.error || 'Failed to send WhatsApp message',
+          title: errorMessage,
+          description: errorDescription || data?.details?.error?.message || 'Failed to send WhatsApp message',
           variant: 'destructive',
         });
         return { success: false, error: data?.error, details: data?.details };

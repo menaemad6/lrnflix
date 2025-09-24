@@ -51,7 +51,7 @@ export const WhatsAppTester = () => {
               required
             />
             <p className="text-xs text-muted-foreground">
-              Include country code (e.g., +1 for US)
+              Include country code (e.g., +1 for US). Note: In development mode, only phone numbers added to your WhatsApp Business API allowed recipients list can receive messages.
             </p>
           </div>
 
