@@ -9,10 +9,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Plus, Trash2, Save, Sparkles, Zap, FileJson, ArrowDown, ArrowUp, Image as ImageIcon } from 'lucide-react';
 import { PdfQuestionExtractor } from './PdfQuestionExtractor';
 import { ImageQuestionExtractor } from './ImageQuestionExtractor';
+import { AiQuestionGenerator } from './AiQuestionGenerator';
 import { ContentManagementSkeleton } from '@/components/ui/skeletons';
 import { answerSingleQuestion, answerAllQuestions } from '@/utils/geminiApi';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -238,8 +240,8 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
 
     setAnsweringQuestion(questionIndex);
     try {
-      const answer = await answerSingleQuestion(question.question_text);
-      updateQuestion(questionIndex, 'correct_answer', answer);
+      const response = await answerSingleQuestion(question);
+      updateQuestion(questionIndex, 'correct_answer', response.answer);
       toast({
         title: 'Success',
         description: 'AI answer generated successfully',
@@ -256,6 +258,11 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
   };
 
   const handleAnswerAllQuestions = async () => {
+    // Prevent multiple simultaneous requests
+    if (answeringAll) {
+      return;
+    }
+    
     if (questions.length === 0) {
       toast({
         title: 'Error',
@@ -265,18 +272,87 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
       return;
     }
 
+    // Filter out questions without text and create mapping
+    const validQuestionsWithIndex = questions
+      .map((q, index) => ({ question: q, originalIndex: index }))
+      .filter(item => item.question.question_text && item.question.question_text.trim());
+    
+    if (validQuestionsWithIndex.length === 0) {
+      toast({
+        title: 'Error',
+        description: 'No questions with text to answer',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (validQuestionsWithIndex.length !== questions.length) {
+      toast({
+        title: 'Warning',
+        description: `Only answering ${validQuestionsWithIndex.length} out of ${questions.length} questions (some have no text)`,
+        variant: 'destructive',
+      });
+    }
+
     setAnsweringAll(true);
     try {
-      const answers = await answerAllQuestions(questions.map(q => q.question_text));
-      questions.forEach((question, index) => {
-        if (answers[index]) {
-          updateQuestion(index, 'correct_answer', answers[index]);
+      const validQuestions = validQuestionsWithIndex.map(item => item.question);
+      const response = await answerAllQuestions(validQuestions);
+      console.log('Answer All Questions Response:', response);
+      console.log('Number of answers received:', response.answers?.length);
+      console.log('Number of questions sent:', validQuestions.length);
+      
+      if (!response.answers || response.answers.length === 0) {
+        throw new Error('No answers received from AI');
+      }
+      
+      let answeredCount = 0;
+      const updatedQuestions = [...questions]; // Create a copy of the questions array
+      const failedUpdates: number[] = [];
+      
+      response.answers.forEach((answerData, index) => {
+        console.log(`Processing answer ${index}:`, answerData);
+        
+        // Validate answer data
+        if (!answerData || typeof answerData.question_index !== 'number' || !answerData.answer) {
+          console.warn(`Invalid answer data at index ${index}:`, answerData);
+          return;
+        }
+        
+        // Map back to original question index using the question_index from Gemini
+        if (answerData.question_index >= 0 && answerData.question_index < validQuestionsWithIndex.length) {
+          const originalIndex = validQuestionsWithIndex[answerData.question_index].originalIndex;
+          updatedQuestions[originalIndex] = {
+            ...updatedQuestions[originalIndex],
+            correct_answer: answerData.answer
+          };
+          answeredCount++;
+          console.log(`Updated question ${originalIndex} with answer: ${answerData.answer}`);
+        } else {
+          console.warn(`Invalid question_index: ${answerData.question_index}. Valid questions length: ${validQuestions.length}`);
+          failedUpdates.push(answerData.question_index);
         }
       });
-      toast({
-        title: 'Success',
-        description: 'AI answers generated for all questions',
-      });
+      
+      // Update all questions at once
+      setQuestions(updatedQuestions);
+      
+      console.log(`Successfully answered ${answeredCount} out of ${validQuestions.length} questions`);
+      
+      // Show appropriate success message
+      if (answeredCount === validQuestions.length) {
+        toast({
+          title: 'Success',
+          description: 'AI answers generated for all questions',
+        });
+      } else if (answeredCount > 0) {
+        toast({
+          title: 'Partial Success',
+          description: `AI answers generated for ${answeredCount} out of ${validQuestions.length} questions`,
+        });
+      } else {
+        throw new Error('No questions were successfully updated');
+      }
     } catch (error: any) {
       toast({
         title: 'Error',
@@ -766,15 +842,6 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <p className="text-muted-foreground text-sm sm:text-base">{t('quizEditor.questions.addQuestionsManually')}</p>
                     <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                      <Button
-                        onClick={handleAnswerAllQuestions}
-                        disabled={answeringAll || questions.length === 0}
-                        variant="outline"
-                        className="bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0 hover:from-purple-600 hover:to-pink-600 w-full sm:w-auto"
-                      >
-                        <Zap className="h-4 w-4 mr-2" />
-                        {answeringAll ? t('quizEditor.questions.answeringAll') : t('quizEditor.questions.answerAllWithAI')}
-                      </Button>
                       <Button onClick={addQuestion} className="w-full sm:w-auto">
                         <Plus className="h-4 w-4 mr-2" />
                         {t('quizEditor.questions.addQuestion')}
@@ -807,6 +874,44 @@ export const QuizEditor = ({ courseId, quizId, onQuizUpdated, onBack }: QuizEdit
                   <ImageQuestionExtractor onQuestionsExtracted={handleExtractedQuestions} />
                 </TabsContent>
               </Tabs>
+            </CardContent>
+          </Card>
+
+          {/* AI Generation Card */}
+          <Card>
+            <CardHeader className="p-3 sm:p-4 md:p-6 pb-0">
+              <CardTitle className="text-lg sm:text-xl flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-purple-600" />
+                {t('quizEditor.questions.ai')}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-3 sm:p-4 md:p-6">
+              <Accordion type="single" collapsible className="w-full">
+                <AccordionItem value="ai-generation">
+                  <AccordionTrigger className="hover:no-underline">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="h-4 w-4 text-purple-600" />
+                      <span className="font-medium">{t('quizEditor.questions.aiGenerationContent.title')}</span>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <AiQuestionGenerator onQuestionsGenerated={handleExtractedQuestions} />
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+
+              {/* Answer All Questions Button */}
+              <div className="flex justify-center mt-4">
+                <Button
+                  onClick={handleAnswerAllQuestions}
+                  disabled={answeringAll || questions.length === 0}
+                  variant="outline"
+                  className="bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0 hover:from-purple-600 hover:to-pink-600"
+                >
+                  <Zap className="h-4 w-4 mr-2" />
+                  {answeringAll ? t('quizEditor.questions.answeringAll') : t('quizEditor.questions.answerAllWithAI')}
+                </Button>
+              </div>
             </CardContent>
           </Card>
 
