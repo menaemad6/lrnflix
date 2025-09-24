@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
+import { SectionHeader } from '@/components/ui/section-header';
 import { Star, Quote } from 'lucide-react';
 import { useInView } from 'react-intersection-observer';
 
@@ -59,6 +60,33 @@ const testimonials = [
     image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=face',
     course: 'مقدمة في الكيمياء',
   },
+  {
+    id: 6,
+    name: 'مريم خالد',
+    role: 'طالبة أول ثانوي',
+    content: 'أحب طريقة التعلم التفاعلية والاختبارات القصيرة بعد كل درس. تساعدني على تذكر المعلومات بشكل أفضل.',
+    rating: 5,
+    image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=face',
+    course: 'مقدمة في الكيمياء',
+  },
+  {
+    id: 6,
+    name: 'مريم خالد',
+    role: 'طالبة أول ثانوي',
+    content: 'أحب طريقة التعلم التفاعلية والاختبارات القصيرة بعد كل درس. تساعدني على تذكر المعلومات بشكل أفضل.',
+    rating: 5,
+    image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=face',
+    course: 'مقدمة في الكيمياء',
+  },
+  {
+    id: 6,
+    name: 'مريم خالد',
+    role: 'طالبة أول ثانوي',
+    content: 'أحب طريقة التعلم التفاعلية والاختبارات القصيرة بعد كل درس. تساعدني على تذكر المعلومات بشكل أفضل.',
+    rating: 5,
+    image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=face',
+    course: 'مقدمة في الكيمياء',
+  },
 ];
 
 export const Testimonials = () => {
@@ -69,33 +97,13 @@ export const Testimonials = () => {
 
   return (
     <section className="py-20 relative overflow-hidden" ref={ref}>
-      {/* Background */}
-      <div className="absolute inset-0 premium-bg-ripple" />
-      
+
       <div className="container-responsive relative z-10">
-        <motion.div
-          className="text-center mb-16"
-          initial={{ opacity: 0, y: 30 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
-        >
-          <motion.h2
-            className="text-4xl md:text-5xl font-bold mb-6"
-            initial={{ opacity: 0, y: 30 }}
-            animate={inView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.1 }}
-          >
-            <span className="gradient-text">آراء الطلاب</span>
-          </motion.h2>
-          <motion.p
-            className="text-xl text-muted-foreground max-w-3xl mx-auto"
-            initial={{ opacity: 0, y: 30 }}
-            animate={inView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            اكتشف ما يقوله طلابنا عن تجربتهم في تعلم الكيمياء معنا
-          </motion.p>
-        </motion.div>
+        <SectionHeader
+          title="آراء الطلاب"
+          subtitle="اكتشف ما يقوله طلابنا عن تجربتهم في تعلم الكيمياء معنا"
+          variant="premium"
+        />
 
         {/* Stats */}
         <motion.div
@@ -121,9 +129,10 @@ export const Testimonials = () => {
             <div className="text-muted-foreground">دعم مستمر</div>
           </div>
         </motion.div>
+      </div>
 
-        {/* Auto-Moving Testimonials */}
-        <div className="space-y-8 overflow-hidden">
+    {/* Auto-Moving Testimonials */}
+        <div className="space-y-8 overflow-hidden py-6">
           {/* First Row - Right to Left */}
           <motion.div
             className="flex gap-6 animate-scroll-right"
@@ -261,30 +270,6 @@ export const Testimonials = () => {
           </motion.div>
         </div>
 
-        {/* Bottom CTA */}
-        <motion.div
-          className="text-center mt-16"
-          initial={{ opacity: 0, y: 30 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, delay: 0.8 }}
-        >
-          <div className="glass-card border-0 p-8 max-w-2xl mx-auto">
-            <h3 className="text-2xl font-bold mb-4 gradient-text">
-              انضم إلى عائلتنا من الطلاب المتفوقين
-            </h3>
-            <p className="text-muted-foreground mb-6">
-              كن جزءاً من قصص النجاح واحصل على نفس النتائج المميزة
-            </p>
-            <motion.button
-              className="btn-primary group"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              ابدأ رحلتك اليوم
-            </motion.button>
-          </div>
-        </motion.div>
-      </div>
     </section>
   );
 };

@@ -5,7 +5,7 @@ import { ArrowRight, Play, Users, BookOpen, Award } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import chemistryTeacher from '@/assets/chemistry-teacher.jpg';
 import chemistryBg from '@/assets/chemistry-bg.jpg';
-
+import heroImage from '@/assets/hero-image.jpeg';
 export const ChemistryHero = () => {
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden">
