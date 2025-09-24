@@ -118,8 +118,8 @@ BEGIN
   WHERE id = auth.uid();
   
   -- Create enrollment
-  INSERT INTO public.enrollments (course_id, student_id) 
-  VALUES (p_course_id, auth.uid());
+  INSERT INTO public.enrollments (course_id, student_id, source) 
+  VALUES (p_course_id, auth.uid(), 'wallet');
   
   -- Record transaction
   INSERT INTO public.wallet_transactions (

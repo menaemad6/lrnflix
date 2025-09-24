@@ -14,6 +14,7 @@ import { useTenant } from '@/contexts/TenantContext';
 import { CourseCardSkeleton } from '@/components/student/skeletons/CourseCardSkeleton';
 import { useTranslation } from 'react-i18next';
 import { SEOHead } from '@/components/seo/SEOHead';
+import { useEnrollment } from '@/hooks/useEnrollment';
 
 interface Course {
   id: string;
@@ -57,6 +58,7 @@ export const Courses = () => {
   const bgClass = useRandomBackground();
   const { teacher } = useTenant();
   const [instructorAvatars, setInstructorAvatars] = useState<Record<string, string | undefined>>({});
+  const { enrollInCourse, isEnrolling } = useEnrollment();
 
   // Dynamic categories from course data
   const courseCategories = Array.from(new Set(courses.map(c => c.category).filter(Boolean)));
@@ -147,43 +149,30 @@ export const Courses = () => {
     } finally {
       setLoading(false);
     }
-  }, [teacher, toast]);
+  }, [teacher, toast, t]);
 
   useEffect(() => {
     fetchCourses();
   }, [fetchCourses]);
 
-  const enrollInCourse = async (courseId: string) => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        navigate('/login');
-        return;
-      }
-
-      const { error } = await supabase
-        .from('enrollments')
-        .insert({
-          student_id: user.id,
-          course_id: courseId
-        });
-
-      if (error) throw error;
-
+  const handleEnrollInCourse = async (courseId: string) => {
+    // Find the course to determine its price
+    const course = courses.find(c => c.id === courseId);
+    if (!course) {
       toast({
-        title: t('courses.success'),
-        description: t('courses.enrolledSuccessfully'),
-      });
-
-      fetchCourses();
-    } catch (error: unknown) {
-      const err = error as Error;
-      console.error('Error enrolling in course:', err);
-      toast({
-        title: t('courses.error'),
-        description: err.message,
+        title: 'Error',
+        description: 'Course not found',
         variant: 'destructive',
       });
+      return;
+    }
+
+    // Determine enrollment source based on course price
+    const source = course.price === 0 ? 'direct' : 'wallet';
+    
+    const success = await enrollInCourse(courseId, { source });
+    if (success) {
+      fetchCourses(); // Refresh the courses list
     }
   };
 
@@ -266,7 +255,7 @@ export const Courses = () => {
                 price={course.price}
                 avatar_url={course.avatar_url}
                 onPreview={() => navigate(`/courses/${course.id}`)}
-                onEnroll={() => enrollInCourse(course.id)}
+                onEnroll={() => handleEnrollInCourse(course.id)}
                 onContinue={() => navigate(`/courses/${course.id}`)}
               />
             ))}

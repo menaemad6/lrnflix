@@ -97,7 +97,7 @@ export const AddCourseToChapterModal = ({ isOpen, onClose, chapterId, onCourseAd
         const { error: enrollError } = await supabase
           .from('enrollments')
           .upsert(
-            toEnroll.map(studentId => ({ course_id: course.id, student_id: studentId })),
+            toEnroll.map(studentId => ({ course_id: course.id, student_id: studentId , source: 'chapter_purchase' })),
             { onConflict: 'course_id,student_id' }
           );
         if (enrollError) throw enrollError;

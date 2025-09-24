@@ -15,6 +15,7 @@ interface Student {
   full_name: string | null;
   email: string;
   enrolled_at: string;
+  source: string;
 }
 
 interface StudentManagerProps {
@@ -45,7 +46,7 @@ export const StudentManager = ({ courseId }: StudentManagerProps) => {
       // First get the enrollments
       const { data: enrollments, error: enrollmentError } = await supabase
         .from('enrollments')
-        .select('student_id, enrolled_at')
+        .select('student_id, enrolled_at, source')
         .eq('course_id', courseId);
 
       if (enrollmentError) throw enrollmentError;
@@ -72,7 +73,8 @@ export const StudentManager = ({ courseId }: StudentManagerProps) => {
           id: profile?.id || enrollment.student_id,
           full_name: profile?.full_name || null,
           email: profile?.email || 'Unknown',
-          enrolled_at: enrollment.enrolled_at
+          enrolled_at: enrollment.enrolled_at,
+          source: enrollment.source || 'unknown'
         };
       });
 
@@ -154,6 +156,7 @@ export const StudentManager = ({ courseId }: StudentManagerProps) => {
                   <TableHead>Student</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Enrolled Date</TableHead>
+                  <TableHead>Source</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -178,6 +181,11 @@ export const StudentManager = ({ courseId }: StudentManagerProps) => {
                         <Calendar className="h-4 w-4 text-muted-foreground" />
                         {new Date(student.enrolled_at).toLocaleDateString()}
                       </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="capitalize">
+                        {student.source.replace('_', ' ')}
+                      </Badge>
                     </TableCell>
                     <TableCell className="text-right">
                       <Button

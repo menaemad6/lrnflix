@@ -436,18 +436,21 @@ export type Database = {
           course_id: string
           enrolled_at: string
           id: string
+          source: string
           student_id: string
         }
         Insert: {
           course_id: string
           enrolled_at?: string
           id?: string
+          source?: string
           student_id: string
         }
         Update: {
           course_id?: string
           enrolled_at?: string
           id?: string
+          source?: string
           student_id?: string
         }
         Relationships: [

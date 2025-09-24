@@ -175,9 +175,7 @@ export const TeacherCourseOverview = ({
               <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-primary-300">
                 {totalContent}
               </div>
-              <p className="text-xs text-muted-foreground mt-1 sm:mt-2">
-                {t('teacherCourseOverview.lessonsAndQuizzes', { lessons: lessons.length, quizzes: quizzes.length })} + {t('attachments.attachmentsCount', { count: attachments.length })}
-              </p>
+
             </CardContent>
           </Card>
 

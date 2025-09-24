@@ -261,7 +261,8 @@ export const AdminInvoicesPage = () => {
           const enrollmentResult = await enrollStudentFromInvoice(
             invoice.user_id,
             invoice.item_id,
-            invoice.item_type as 'course' | 'chapter' | 'lesson' | 'quiz'
+            invoice.item_type as 'course' | 'chapter' | 'lesson' | 'quiz',
+            'invoice'
           );
 
           if (!enrollmentResult.success) {

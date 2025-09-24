@@ -405,7 +405,6 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
                   <Input
                     value={formData.title}
                     onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                    className="bg-background/50 border-primary-500/30 focus:border-primary-500/50 text-primary-100 placeholder:text-primary-300/50 text-sm sm:text-base"
                     placeholder={t('lessonEditor.lessonDetails.titlePlaceholder')}
                   />
                 </div>
@@ -414,8 +413,8 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
                   <Textarea
                     value={formData.description}
                     onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                    className="bg-background/50 border-primary-500/30 focus:border-primary-500/50 text-primary-100 placeholder:text-primary-300/50 min-h-[100px] text-sm sm:text-base"
                     placeholder={t('lessonEditor.lessonDetails.descriptionPlaceholder')}
+                    rows={4}
                   />
                 </div>
                 <div className="space-y-2 sm:space-y-3">
@@ -423,7 +422,6 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
                   <Input
                     value={formData.video_url}
                     onChange={(e) => setFormData(prev => ({ ...prev, video_url: e.target.value }))}
-                    className="bg-background/50 border-primary-500/30 focus:border-primary-500/50 text-primary-100 placeholder:text-primary-300/50 text-sm sm:text-base"
                     placeholder={t('lessonEditor.lessonDetails.videoUrlPlaceholder')}
                   />
                 </div>
@@ -433,7 +431,6 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
                     <Input
                       value={formData.device_limit}
                       onChange={(e) => setFormData(prev => ({ ...prev, device_limit: e.target.value }))}
-                      className="bg-background/50 border-primary-500/30 focus:border-primary-500/50 text-primary-100 placeholder:text-primary-300/50 text-sm sm:text-base"
                       placeholder={t('lessonEditor.lessonDetails.enterDeviceLimit')}
                       type="number"
                       min="0"
@@ -444,7 +441,6 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
                     <Input
                       value={formData.view_limit}
                       onChange={(e) => setFormData(prev => ({ ...prev, view_limit: e.target.value }))}
-                      className="bg-background/50 border-primary-500/30 focus:border-primary-500/50 text-primary-100 placeholder:text-primary-300/50 text-sm sm:text-base"
                       placeholder={t('lessonEditor.lessonDetails.viewLimitPlaceholder')}
                       type="number"
                       min="0"
@@ -455,7 +451,6 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
                     <Input
                       value={formData.duration_minutes}
                       onChange={(e) => setFormData(prev => ({ ...prev, duration_minutes: e.target.value.replace(/[^0-9]/g, '') }))}
-                      className="bg-background/50 border-primary-500/30 focus:border-primary-500/50 text-primary-100 placeholder:text-primary-300/50 text-sm sm:text-base"
                       placeholder={t('lessonEditor.lessonDetails.durationPlaceholder')}
                       type="number"
                       min="1"
@@ -515,8 +510,8 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
                   <Textarea
                     value={contentData.transcription}
                     onChange={(e) => setContentData(prev => ({ ...prev, transcription: e.target.value }))}
-                    className="bg-background/50 border-secondary-500/30 focus:border-secondary-500/50 text-secondary-100 placeholder:text-secondary-300/50 min-h-[200px] text-sm sm:text-base"
                     placeholder={t('lessonEditor.aiContent.transcriptionPlaceholder')}
+                    rows={8}
                   />
                 </div>
                 <div className="space-y-2 sm:space-y-3">
@@ -524,8 +519,8 @@ export const LessonEditor = ({ lessonId, onBack }: LessonEditorProps) => {
                   <Textarea
                     value={contentData.summary}
                     onChange={(e) => setContentData(prev => ({ ...prev, summary: e.target.value }))}
-                    className="bg-background/50 border-secondary-500/30 focus:border-secondary-500/50 text-secondary-100 placeholder:text-secondary-300/50 min-h-[150px] text-sm sm:text-base"
                     placeholder={t('lessonEditor.aiContent.summaryPlaceholder')}
+                    rows={6}
                   />
                 </div>
               </CardContent>

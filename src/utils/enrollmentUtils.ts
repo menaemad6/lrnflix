@@ -1,18 +1,13 @@
 import { supabase } from '@/integrations/supabase/client';
-
-export interface EnrollmentResult {
-  success: boolean;
-  message: string;
-  enrollmentId?: string;
-  error?: string;
-}
+import { EnrollmentResult, EnrollmentSource } from '@/types/enrollment';
 
 /**
  * Automatically enrolls a student in a course when their invoice is confirmed
  */
 export const enrollStudentInCourse = async (
   studentId: string,
-  courseId: string
+  courseId: string,
+  source: EnrollmentSource = 'invoice'
 ): Promise<EnrollmentResult> => {
   try {
     console.log('enrollStudentInCourse called with:', { studentId, courseId });
@@ -55,7 +50,8 @@ export const enrollStudentInCourse = async (
       .insert({
         course_id: courseId,
         student_id: studentId,
-        enrolled_at: new Date().toISOString()
+        enrolled_at: new Date().toISOString(),
+        source: source
       })
       .select()
       .single();
@@ -93,7 +89,8 @@ export const enrollStudentInCourse = async (
  */
 export const enrollStudentInChapter = async (
   studentId: string,
-  chapterId: string
+  chapterId: string,
+  source: EnrollmentSource = 'invoice'
 ): Promise<EnrollmentResult> => {
   try {
     console.log('enrollStudentInChapter called with:', { studentId, chapterId });
@@ -181,7 +178,8 @@ export const enrollStudentInChapter = async (
               .insert({
                 course_id: course.id,
                 student_id: studentId,
-                enrolled_at: new Date().toISOString()
+                enrolled_at: new Date().toISOString(),
+                source: source
               });
 
             if (courseEnrollmentError) {
@@ -245,7 +243,8 @@ export const enrollStudentInChapter = async (
                 .insert({
                   course_id: obj.object_id,
                   student_id: studentId,
-                  enrolled_at: new Date().toISOString()
+                  enrolled_at: new Date().toISOString(),
+                  source: 'chapter_purchase'
                 });
 
               if (courseEnrollmentError) {
@@ -288,7 +287,8 @@ export const enrollStudentInChapter = async (
 export const enrollStudentFromInvoice = async (
   studentId: string,
   itemId: string,
-  itemType: 'course' | 'chapter' | 'lesson' | 'quiz'
+  itemType: 'course' | 'chapter' | 'lesson' | 'quiz',
+  source: EnrollmentSource = 'invoice'
 ): Promise<EnrollmentResult> => {
   try {
     console.log('enrollStudentFromInvoice called with:', { studentId, itemId, itemType });
@@ -296,13 +296,13 @@ export const enrollStudentFromInvoice = async (
     switch (itemType) {
       case 'course':
         console.log('Processing course enrollment...');
-        return await enrollStudentInCourse(studentId, itemId);
+        return await enrollStudentInCourse(studentId, itemId, source);
       
       case 'chapter':
         console.log('Processing chapter enrollment...');
-        return await enrollStudentInChapter(studentId, itemId);
+        return await enrollStudentInChapter(studentId, itemId, source);
       
-      case 'lesson':
+      case 'lesson': {
         console.log('Processing lesson enrollment...');
         // For lessons, we need to get the course ID first
         const { data: lesson, error: lessonError } = await supabase
@@ -322,7 +322,7 @@ export const enrollStudentFromInvoice = async (
 
         if (lesson?.course_id) {
           console.log('Lesson course_id found:', lesson.course_id);
-          return await enrollStudentInCourse(studentId, lesson.course_id);
+          return await enrollStudentInCourse(studentId, lesson.course_id, source);
         } else {
           console.log('No course_id found for lesson');
           return {
@@ -331,8 +331,9 @@ export const enrollStudentFromInvoice = async (
             error: 'No course_id found for lesson'
           };
         }
+      }
       
-      case 'quiz':
+      case 'quiz': {
         console.log('Processing quiz enrollment...');
         // For quizzes, we need to get the course ID first
         const { data: quiz, error: quizError } = await supabase
@@ -352,7 +353,7 @@ export const enrollStudentFromInvoice = async (
 
         if (quiz?.course_id) {
           console.log('Quiz course_id found:', quiz.course_id);
-          return await enrollStudentInCourse(studentId, quiz.course_id);
+          return await enrollStudentInCourse(studentId, quiz.course_id, source);
         } else {
           console.log('No course_id found for quiz');
           return {
@@ -361,6 +362,7 @@ export const enrollStudentFromInvoice = async (
             error: 'No course_id found for quiz'
           };
         }
+      }
       
       default:
         console.log('Unsupported item type:', itemType);
@@ -386,7 +388,8 @@ export const enrollStudentFromInvoice = async (
  */
 export const syncChapterCourseEnrollments = async (
   studentId: string,
-  chapterId: string
+  chapterId: string,
+  source: EnrollmentSource = 'chapter_purchase'
 ): Promise<EnrollmentResult> => {
   try {
     console.log('syncChapterCourseEnrollments called with:', { studentId, chapterId });
@@ -450,7 +453,8 @@ export const syncChapterCourseEnrollments = async (
               .insert({
                 course_id: course.id,
                 student_id: studentId,
-                enrolled_at: new Date().toISOString()
+                enrolled_at: new Date().toISOString(),
+                source: source
               });
 
             if (courseEnrollmentError) {
@@ -515,7 +519,8 @@ export const syncChapterCourseEnrollments = async (
                 .insert({
                   course_id: obj.object_id,
                   student_id: studentId,
-                  enrolled_at: new Date().toISOString()
+                  enrolled_at: new Date().toISOString(),
+                  source: source
                 });
 
               if (courseEnrollmentError) {
@@ -552,4 +557,357 @@ export const syncChapterCourseEnrollments = async (
       error: error instanceof Error ? error.message : 'Unknown error'
     };
   }
+};
+
+/**
+ * Enrolls a student in a course with proper validation and payment handling
+ */
+export const enrollInCourseWithValidation = async (
+  courseId: string,
+  source: EnrollmentSource = 'direct',
+  discountCode?: string
+): Promise<EnrollmentResult> => {
+  try {
+    console.log('enrollInCourseWithValidation called with:', { courseId, source, discountCode });
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return {
+        success: false,
+        message: 'You must be logged in to enroll in courses',
+        error: 'Authentication required'
+      };
+    }
+
+    // Get course details
+    const { data: course, error: courseError } = await supabase
+      .from('courses')
+      .select('id, title, price, status')
+      .eq('id', courseId)
+      .eq('status', 'published')
+      .single();
+
+    if (courseError || !course) {
+      return {
+        success: false,
+        message: 'The course you are trying to enroll in does not exist or is not available',
+        error: courseError?.message || 'Course not found'
+      };
+    }
+
+    // Check if already enrolled
+    const { data: existingEnrollment } = await supabase
+      .from('enrollments')
+      .select('id')
+      .eq('student_id', user.id)
+      .eq('course_id', courseId)
+      .single();
+
+    if (existingEnrollment) {
+      return {
+        success: false,
+        message: 'You are already enrolled in this course',
+        error: 'Already enrolled'
+      };
+    }
+
+    // Handle different enrollment sources
+    switch (source) {
+      case 'wallet':
+        return await enrollWithWalletPayment(courseId, course, user.id, discountCode);
+      
+      case 'enrollment_code':
+        return await enrollWithCode(courseId, course, user.id);
+      
+      case 'direct':
+        // For free courses (price = 0)
+        if (course.price === 0) {
+          return await enrollDirectly(courseId, course, user.id);
+        } else {
+          return {
+            success: false,
+            message: 'This course requires payment. Please use wallet payment or contact the instructor.',
+            error: 'Payment required'
+          };
+        }
+      
+      default:
+        return {
+          success: false,
+          message: 'The selected enrollment method is not supported',
+          error: 'Invalid enrollment method'
+        };
+    }
+  } catch (error) {
+    console.error('Error in enrollInCourseWithValidation:', error);
+    return {
+      success: false,
+      message: 'An unexpected error occurred during enrollment',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    };
+  }
+};
+
+/**
+ * Enrolls a student in a chapter with proper validation and payment handling
+ */
+export const enrollInChapterWithValidation = async (
+  chapterId: string,
+  source: EnrollmentSource = 'direct'
+): Promise<EnrollmentResult> => {
+  try {
+    console.log('enrollInChapterWithValidation called with:', { chapterId, source });
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return {
+        success: false,
+        message: 'You must be logged in to enroll in chapters',
+        error: 'Authentication required'
+      };
+    }
+
+    // Get chapter details
+    const { data: chapter, error: chapterError } = await supabase
+      .from('chapters')
+      .select('id, title, price, status')
+      .eq('id', chapterId)
+      .eq('status', 'published')
+      .single();
+
+    if (chapterError || !chapter) {
+      return {
+        success: false,
+        message: 'The chapter you are trying to enroll in does not exist or is not available',
+        error: chapterError?.message || 'Chapter not found'
+      };
+    }
+
+    // Check if already enrolled
+    const { data: existingEnrollment } = await supabase
+      .from('chapter_enrollments')
+      .select('id')
+      .eq('student_id', user.id)
+      .eq('chapter_id', chapterId)
+      .single();
+
+    if (existingEnrollment) {
+      return {
+        success: false,
+        message: 'You are already enrolled in this chapter',
+        error: 'Already enrolled'
+      };
+    }
+
+    // Handle different enrollment sources
+    switch (source) {
+      case 'wallet':
+        return await enrollChapterWithWalletPayment(chapterId, chapter, user.id);
+      
+      case 'direct':
+        // For free chapters (price = 0)
+        if (chapter.price === 0) {
+          return await enrollChapterDirectly(chapterId, chapter, user.id);
+        } else {
+          return {
+            success: false,
+            message: 'This chapter requires payment. Please use wallet payment or contact the instructor.',
+            error: 'Payment required'
+          };
+        }
+      
+      default:
+        return {
+          success: false,
+          message: 'The selected enrollment method is not supported for chapters',
+          error: 'Invalid enrollment method'
+        };
+    }
+  } catch (error) {
+    console.error('Error in enrollInChapterWithValidation:', error);
+    return {
+      success: false,
+      message: 'An unexpected error occurred during enrollment',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    };
+  }
+};
+
+// Helper functions for different enrollment methods
+const enrollWithWalletPayment = async (courseId: string, course: { id: string; title: string; price: number; status: string }, userId: string, discountCode?: string): Promise<EnrollmentResult> => {
+  const { data, error } = await supabase.rpc('enroll_with_payment', {
+    p_course_id: courseId,
+    p_discount_code: discountCode?.trim() || null
+  });
+
+  if (error) {
+    return {
+      success: false,
+      message: error.message,
+      error: error.message
+    };
+  }
+
+  if (data && typeof data === 'object' && 'success' in data) {
+    const result = data as { success: boolean; message?: string; error?: string };
+    if (result.success) {
+      return {
+        success: true,
+        message: result.message || `Successfully enrolled in ${course.title}`,
+        enrollmentId: courseId
+      };
+    } else {
+      return {
+        success: false,
+        message: result.error || 'Enrollment failed',
+        error: result.error || 'Enrollment failed'
+      };
+    }
+  }
+
+  return {
+    success: false,
+    message: 'Invalid response from enrollment service',
+    error: 'Invalid response'
+  };
+};
+
+const enrollChapterWithWalletPayment = async (chapterId: string, chapter: { id: string; title: string; price: number; status: string }, userId: string): Promise<EnrollmentResult> => {
+  const { data, error } = await supabase.rpc('enroll_chapter_with_payment', {
+    p_chapter_id: chapterId
+  });
+
+  if (error) {
+    return {
+      success: false,
+      message: error.message,
+      error: error.message
+    };
+  }
+
+  if (data && typeof data === 'object' && 'success' in data) {
+    const result = data as { success: boolean; message?: string; error?: string };
+    if (result.success) {
+      return {
+        success: true,
+        message: result.message || `Successfully enrolled in ${chapter.title}`,
+        enrollmentId: chapterId
+      };
+    } else {
+      return {
+        success: false,
+        message: result.error || 'Enrollment failed',
+        error: result.error || 'Enrollment failed'
+      };
+    }
+  }
+
+  return {
+    success: false,
+    message: 'Invalid response from enrollment service',
+    error: 'Invalid response'
+  };
+};
+
+const enrollWithCode = async (courseId: string, course: { id: string; title: string; price: number; status: string }, userId: string): Promise<EnrollmentResult> => {
+  const { error } = await supabase
+    .from('enrollments')
+    .insert({
+      student_id: userId,
+      course_id: courseId,
+      source: 'enrollment_code'
+    });
+
+  if (error) {
+    return {
+      success: false,
+      message: error.message,
+      error: error.message
+    };
+  }
+
+  return {
+    success: true,
+    message: `Successfully enrolled in ${course.title} using enrollment code`,
+    enrollmentId: courseId
+  };
+};
+
+const enrollDirectly = async (courseId: string, course: { id: string; title: string; price: number; status: string }, userId: string): Promise<EnrollmentResult> => {
+  const { error } = await supabase
+    .from('enrollments')
+    .insert({
+      student_id: userId,
+      course_id: courseId,
+      source: 'direct'
+    });
+
+  if (error) {
+    return {
+      success: false,
+      message: error.message,
+      error: error.message
+    };
+  }
+
+  return {
+    success: true,
+    message: `Successfully enrolled in ${course.title}`,
+    enrollmentId: courseId
+  };
+};
+
+const enrollChapterDirectly = async (chapterId: string, chapter: { id: string; title: string; price: number; status: string }, userId: string): Promise<EnrollmentResult> => {
+  // First enroll in the chapter
+  const { error: chapterError } = await supabase
+    .from('chapter_enrollments')
+    .insert({
+      student_id: userId,
+      chapter_id: chapterId
+    });
+
+  if (chapterError) {
+    return {
+      success: false,
+      message: chapterError.message,
+      error: chapterError.message
+    };
+  }
+
+  // Then enroll in all courses within the chapter
+  const { data: courses, error: coursesError } = await supabase
+    .from('courses')
+    .select('id')
+    .eq('chapter_id', chapterId)
+    .eq('status', 'published');
+
+  if (coursesError) {
+    console.error('Error fetching chapter courses:', coursesError);
+    // Don't fail the enrollment, just log the error
+  } else if (courses && courses.length > 0) {
+    // Enroll in all courses within the chapter
+    for (const course of courses) {
+      try {
+        const { error: courseEnrollmentError } = await supabase
+          .from('enrollments')
+          .insert({
+            student_id: userId,
+            course_id: course.id,
+            source: 'direct'
+          });
+
+        if (courseEnrollmentError) {
+          console.error(`Error enrolling in course ${course.id}:`, courseEnrollmentError);
+        }
+      } catch (courseError) {
+        console.error(`Error processing course ${course.id}:`, courseError);
+      }
+    }
+  }
+
+  return {
+    success: true,
+    message: `Successfully enrolled in ${chapter.title}`,
+    enrollmentId: chapterId
+  };
 };

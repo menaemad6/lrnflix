@@ -1,78 +1,4 @@
--- Add instructor_id to chapters table
-ALTER TABLE public.chapters 
-ADD COLUMN instructor_id UUID REFERENCES public.profiles(id);
-
--- Create chapter_objects table (same structure as group_objects)
-CREATE TABLE public.chapter_objects (
-    id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
-    chapter_id UUID NOT NULL REFERENCES public.chapters(id) ON DELETE CASCADE,
-    object_id UUID NULL,
-    object_data JSONB NULL,
-    shared_by UUID NOT NULL REFERENCES public.profiles(id),
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
-    updated_at TIMESTAMP WITH TIME ZONE NULL DEFAULT now(),
-    object_type TEXT NOT NULL,
-    title TEXT NOT NULL,
-    description TEXT NULL
-);
-
--- Enable RLS on chapter_objects
-ALTER TABLE public.chapter_objects ENABLE ROW LEVEL SECURITY;
-
--- Create RLS policies for chapter_objects (similar to group_objects)
-CREATE POLICY "Instructors can share objects" 
-ON public.chapter_objects 
-FOR INSERT 
-WITH CHECK (
-    shared_by = auth.uid() AND 
-    EXISTS (
-        SELECT 1 FROM public.chapters 
-        WHERE chapters.id = chapter_objects.chapter_id 
-        AND chapters.instructor_id = auth.uid()
-    )
-);
-
-CREATE POLICY "Students can view chapter objects for enrolled chapters" 
-ON public.chapter_objects 
-FOR SELECT 
-USING (
-    EXISTS (
-        SELECT 1 FROM public.chapter_enrollments 
-        WHERE chapter_enrollments.chapter_id = chapter_objects.chapter_id 
-        AND chapter_enrollments.student_id = auth.uid()
-    ) OR 
-    EXISTS (
-        SELECT 1 FROM public.chapters 
-        WHERE chapters.id = chapter_objects.chapter_id 
-        AND chapters.instructor_id = auth.uid()
-    )
-);
-
-CREATE POLICY "Instructors can update their chapter objects" 
-ON public.chapter_objects 
-FOR UPDATE 
-USING (
-    shared_by = auth.uid() OR 
-    EXISTS (
-        SELECT 1 FROM public.chapters 
-        WHERE chapters.id = chapter_objects.chapter_id 
-        AND chapters.instructor_id = auth.uid()
-    )
-);
-
-CREATE POLICY "Instructors can delete their chapter objects" 
-ON public.chapter_objects 
-FOR DELETE 
-USING (
-    shared_by = auth.uid() OR 
-    EXISTS (
-        SELECT 1 FROM public.chapters 
-        WHERE chapters.id = chapter_objects.chapter_id 
-        AND chapters.instructor_id = auth.uid()
-    )
-);
-
--- Update the enroll_chapter_with_payment function to handle course auto-enrollment
+-- Fix the enroll_chapter_with_payment function to properly set source = 'chapter_purchase'
 CREATE OR REPLACE FUNCTION public.enroll_chapter_with_payment(p_chapter_id uuid)
  RETURNS json
  LANGUAGE plpgsql
@@ -126,7 +52,7 @@ BEGIN
   INSERT INTO public.chapter_enrollments (chapter_id, student_id) 
   VALUES (p_chapter_id, auth.uid());
   
-  -- Enroll in all courses in the chapter
+  -- Enroll in all courses in the chapter with source = 'chapter_purchase'
   FOR course_record IN 
     SELECT id FROM public.courses 
     WHERE chapter_id = p_chapter_id AND status = 'published'
@@ -138,7 +64,7 @@ BEGIN
     END IF;
   END LOOP;
   
-  -- Enroll in courses from chapter_objects (if object_type is 'course')
+  -- Enroll in courses from chapter_objects (if object_type is 'course') with source = 'chapter_purchase'
   FOR course_object IN 
     SELECT object_id FROM public.chapter_objects 
     WHERE chapter_id = p_chapter_id AND object_type = 'course' AND object_id IS NOT NULL
