@@ -3,6 +3,7 @@ import { ChemistryHero } from '@/components/chemistry-landing/ChemistryHero';
 import { YearsSection } from '@/components/chemistry-landing/YearsSection';
 import { LatestCourses } from '@/components/chemistry-landing/LatestCourses';
 import { PlatformFeatures } from '@/components/chemistry-landing/PlatformFeatures';
+import { AboutTeacher } from '@/components/chemistry-landing/AboutTeacher';
 import { Testimonials } from '@/components/chemistry-landing/Testimonials';
 import { SEOHead } from '@/components/seo/SEOHead';
 
@@ -37,6 +38,9 @@ export const ChemistryLanding = () => {
         
         {/* Platform Features Section */}
         <PlatformFeatures />
+        
+        {/* About Teacher Section */}
+        <AboutTeacher />
         
         {/* Testimonials Section */}
         <Testimonials />

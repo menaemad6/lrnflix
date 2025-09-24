@@ -122,66 +122,143 @@ export const Testimonials = () => {
           </div>
         </motion.div>
 
-        {/* Testimonials Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {testimonials.map((testimonial, index) => (
-            <motion.div
-              key={testimonial.id}
-              initial={{ opacity: 0, y: 50 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.2 + index * 0.1 }}
-            >
-              <Card className="glass-card border-0 hover-glow group cursor-pointer h-full">
-                <CardContent className="p-6">
-                  {/* Quote icon */}
-                  <motion.div
-                    className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors"
-                    whileHover={{ scale: 1.1, rotate: 5 }}
-                  >
-                    <Quote className="w-6 h-6 text-primary" />
-                  </motion.div>
+        {/* Auto-Moving Testimonials */}
+        <div className="space-y-8 overflow-hidden">
+          {/* First Row - Right to Left */}
+          <motion.div
+            className="flex gap-6 animate-scroll-right"
+            initial={{ x: 0 }}
+            animate={{ x: "-100%" }}
+            transition={{
+              duration: 30,
+              repeat: Infinity,
+              ease: "linear"
+            }}
+          >
+            {[...testimonials.slice(0, 3), ...testimonials.slice(0, 3)].map((testimonial, index) => (
+              <div key={`row1-${index}`} className="flex-shrink-0 w-96">
+                <Card className="glass-card border-0 hover-glow group cursor-pointer h-full">
+                  <CardContent className="p-6">
+                    {/* Quote icon */}
+                    <motion.div
+                      className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors"
+                      whileHover={{ scale: 1.1, rotate: 5 }}
+                    >
+                      <Quote className="w-6 h-6 text-primary" />
+                    </motion.div>
 
-                  {/* Content */}
-                  <div className="space-y-4">
-                    <p className="text-muted-foreground leading-relaxed italic">
-                      "{testimonial.content}"
-                    </p>
+                    {/* Content */}
+                    <div className="space-y-4">
+                      <p className="text-muted-foreground leading-relaxed italic line-clamp-3">
+                        "{testimonial.content}"
+                      </p>
 
-                    {/* Rating */}
-                    <div className="flex items-center gap-1">
-                      {[...Array(testimonial.rating)].map((_, i) => (
-                        <Star
-                          key={i}
-                          className="w-4 h-4 text-yellow-500 fill-current"
-                        />
-                      ))}
-                    </div>
+                      {/* Rating */}
+                      <div className="flex items-center gap-1">
+                        {[...Array(testimonial.rating)].map((_, i) => (
+                          <Star
+                            key={i}
+                            className="w-4 h-4 text-yellow-500 fill-current"
+                          />
+                        ))}
+                      </div>
 
-                    {/* Student info */}
-                    <div className="flex items-center gap-4 pt-4 border-t border-white/10">
-                      <motion.img
-                        src={testimonial.image}
-                        alt={testimonial.name}
-                        className="w-12 h-12 rounded-full object-cover"
-                        whileHover={{ scale: 1.1 }}
-                      />
-                      <div>
-                        <h4 className="font-semibold group-hover:text-primary transition-colors">
-                          {testimonial.name}
-                        </h4>
-                        <p className="text-sm text-muted-foreground">
-                          {testimonial.role}
-                        </p>
-                        <p className="text-xs text-primary/80 mt-1">
-                          {testimonial.course}
-                        </p>
+                      {/* Student info */}
+                      <div className="flex items-center gap-4 pt-4 border-t border-white/10">
+                        <motion.div
+                          className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center"
+                          whileHover={{ scale: 1.1 }}
+                        >
+                          <span className="text-lg font-bold text-primary">
+                            {testimonial.name.charAt(0)}
+                          </span>
+                        </motion.div>
+                        <div>
+                          <h4 className="font-semibold group-hover:text-primary transition-colors">
+                            {testimonial.name}
+                          </h4>
+                          <p className="text-sm text-muted-foreground">
+                            {testimonial.role}
+                          </p>
+                          <p className="text-xs text-primary/80 mt-1">
+                            {testimonial.course}
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
+                  </CardContent>
+                </Card>
+              </div>
+            ))}
+          </motion.div>
+
+          {/* Second Row - Left to Right */}
+          <motion.div
+            className="flex gap-6 animate-scroll-left"
+            initial={{ x: "-100%" }}
+            animate={{ x: 0 }}
+            transition={{
+              duration: 25,
+              repeat: Infinity,
+              ease: "linear"
+            }}
+          >
+            {[...testimonials.slice(3), ...testimonials.slice(3)].map((testimonial, index) => (
+              <div key={`row2-${index}`} className="flex-shrink-0 w-96">
+                <Card className="glass-card border-0 hover-glow group cursor-pointer h-full">
+                  <CardContent className="p-6">
+                    {/* Quote icon */}
+                    <motion.div
+                      className="w-12 h-12 bg-secondary/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-secondary/20 transition-colors"
+                      whileHover={{ scale: 1.1, rotate: -5 }}
+                    >
+                      <Quote className="w-6 h-6 text-secondary" />
+                    </motion.div>
+
+                    {/* Content */}
+                    <div className="space-y-4">
+                      <p className="text-muted-foreground leading-relaxed italic line-clamp-3">
+                        "{testimonial.content}"
+                      </p>
+
+                      {/* Rating */}
+                      <div className="flex items-center gap-1">
+                        {[...Array(testimonial.rating)].map((_, i) => (
+                          <Star
+                            key={i}
+                            className="w-4 h-4 text-yellow-500 fill-current"
+                          />
+                        ))}
+                      </div>
+
+                      {/* Student info */}
+                      <div className="flex items-center gap-4 pt-4 border-t border-white/10">
+                        <motion.div
+                          className="w-12 h-12 rounded-full bg-gradient-to-br from-secondary/20 to-primary/20 flex items-center justify-center"
+                          whileHover={{ scale: 1.1 }}
+                        >
+                          <span className="text-lg font-bold text-secondary">
+                            {testimonial.name.charAt(0)}
+                          </span>
+                        </motion.div>
+                        <div>
+                          <h4 className="font-semibold group-hover:text-secondary transition-colors">
+                            {testimonial.name}
+                          </h4>
+                          <p className="text-sm text-muted-foreground">
+                            {testimonial.role}
+                          </p>
+                          <p className="text-xs text-secondary/80 mt-1">
+                            {testimonial.course}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            ))}
+          </motion.div>
         </div>
 
         {/* Bottom CTA */}
