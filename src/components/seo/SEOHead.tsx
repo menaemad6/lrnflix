@@ -160,9 +160,7 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
       <meta name="theme-color" content="#10b981" />
       <meta name="msapplication-TileColor" content="#10b981" />
       
-      {/* Favicon */}
-      <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-      <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+      {/* Favicon - handled by multi-tenant SEO script in index.html */}
       
       {/* Preconnect for Performance */}
       <link rel="preconnect" href="https://fonts.googleapis.com" />

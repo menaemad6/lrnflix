@@ -10,7 +10,7 @@ type LoginForm = ReturnType<typeof useLoginForm>
 type SignupForm = ReturnType<typeof useSignupForm>
 
 
-const AuthSection = ( { login, signup, mode, setMode }: { login: LoginForm, signup: SignupForm, mode: 'login' | 'signup', setMode: (mode: 'login' | 'signup') => void } ) => {
+const AuthSection = ( { login, signup, mode, setMode, hasTenant }: { login: LoginForm, signup: SignupForm, mode: 'login' | 'signup', setMode: (mode: 'login' | 'signup') => void, hasTenant: boolean } ) => {
   const { t } = useTranslation('other')
   return (
     <div className="w-full">
@@ -107,8 +107,8 @@ const AuthSection = ( { login, signup, mode, setMode }: { login: LoginForm, sign
         </Button>
       </form>
 
-      {/* Google login section for login mode */}
-      {mode === 'login' && (
+      {/* Google login section for login mode - only show if no tenant */}
+      {mode === 'login' && !hasTenant && (
         <>
           <div className="relative my-4">
             <div className="absolute inset-0 flex items-center">

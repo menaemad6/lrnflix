@@ -299,7 +299,7 @@ const Auth: React.FC = () => {
               </Button>
             </div>
           ) : (
-            <AuthSection login={login} signup={signup} mode={mode} setMode={setMode} />
+            <AuthSection login={login} signup={signup} mode={mode} setMode={setMode} hasTenant={!!teacher} />
           )}
 
 
