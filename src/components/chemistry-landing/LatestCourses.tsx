@@ -3,70 +3,74 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { SectionHeader } from '@/components/ui/section-header';
 import { useInView } from 'react-intersection-observer';
+import { useTranslation } from 'react-i18next';
 import { CourseCarousel, type Course } from './CourseCarousel';
 import { useNavigate } from 'react-router-dom';
 import { useTenant } from '@/contexts/TenantContext';
 import { useTeacherCoursesByTenant } from '@/hooks/useTeacherCoursesByTenant';
 
-// Fallback dummy data for when no real courses are available
-const fallbackCoursesData: Course[] = [
-  {
-    id: '1',
-    title: 'أساسيات الكيمياء العضوية',
-    description: 'تعلم المركبات العضوية والتفاعلات الأساسية بطريقة سهلة ومبسطة',
-    category: 'كيمياء عضوية',
-    status: 'published',
-    instructor_name: 'د. أحمد محمد',
-    enrollment_count: 156,
-    is_enrolled: false,
-    enrollment_code: 'CHEM101',
-    cover_image_url: undefined,
-    created_at: '2024-01-15T10:00:00Z',
-    price: 0,
-    instructor_id: 'instructor1',
-    avatar_url: undefined,
-  },
-  {
-    id: '2',
-    title: 'التفاعلات الكيميائية المتقدمة',
-    description: 'فهم عميق للتفاعلات الكيميائية المعقدة وآليات التفاعل',
-    category: 'كيمياء تطبيقية',
-    status: 'published',
-    instructor_name: 'د. فاطمة علي',
-    enrollment_count: 203,
-    is_enrolled: false,
-    enrollment_code: 'CHEM201',
-    cover_image_url: undefined,
-    created_at: '2024-01-20T10:00:00Z',
-    price: 199,
-    instructor_id: 'instructor2',
-    avatar_url: undefined,
-  },
-  {
-    id: '3',
-    title: 'الجدول الدوري والروابط',
-    description: 'دراسة شاملة للجدول الدوري وأنواع الروابط الكيميائية',
-    category: 'كيمياء أساسية',
-    status: 'published',
-    instructor_name: 'د. محمد حسن',
-    enrollment_count: 89,
-    is_enrolled: false,
-    enrollment_code: 'CHEM102',
-    cover_image_url: undefined,
-    created_at: '2024-01-25T10:00:00Z',
-    price: 149,
-    instructor_id: 'instructor3',
-    avatar_url: undefined,
-  },
-];
+// Fallback dummy data will be moved inside component to use translations
 
 export const LatestCourses = () => {
+  const { t } = useTranslation('landing');
   const { ref, inView } = useInView({
     triggerOnce: true,
     threshold: 0.1,
   });
   const navigate = useNavigate();
   const { teacher } = useTenant();
+
+  // Fallback dummy data for when no real courses are available
+  const fallbackCoursesData: Course[] = [
+    {
+      id: '1',
+      title: t('courses.organicBasics'),
+      description: t('courses.organicBasicsDesc'),
+      category: 'كيمياء عضوية',
+      status: 'published',
+      instructor_name: 'د. أحمد محمد',
+      enrollment_count: 156,
+      is_enrolled: false,
+      enrollment_code: 'CHEM101',
+      cover_image_url: undefined,
+      created_at: '2024-01-15T10:00:00Z',
+      price: 0,
+      instructor_id: 'instructor1',
+      avatar_url: undefined,
+    },
+    {
+      id: '2',
+      title: t('courses.advancedReactions'),
+      description: t('courses.advancedReactionsDesc'),
+      category: 'كيمياء تطبيقية',
+      status: 'published',
+      instructor_name: 'د. فاطمة علي',
+      enrollment_count: 203,
+      is_enrolled: false,
+      enrollment_code: 'CHEM201',
+      cover_image_url: undefined,
+      created_at: '2024-01-20T10:00:00Z',
+      price: 199,
+      instructor_id: 'instructor2',
+      avatar_url: undefined,
+    },
+    {
+      id: '3',
+      title: t('courses.periodicTable'),
+      description: t('courses.periodicTableDesc'),
+      category: 'كيمياء أساسية',
+      status: 'published',
+      instructor_name: 'د. محمد حسن',
+      enrollment_count: 89,
+      is_enrolled: false,
+      enrollment_code: 'CHEM102',
+      cover_image_url: undefined,
+      created_at: '2024-01-25T10:00:00Z',
+      price: 149,
+      instructor_id: 'instructor3',
+      avatar_url: undefined,
+    },
+  ];
 
   // Fetch real courses using the hook
   const { courses: realCourses, loading: coursesLoading, error: coursesError } = useTeacherCoursesByTenant({
@@ -106,8 +110,8 @@ export const LatestCourses = () => {
     <section className="py-20 relative overflow-hidden" ref={ref}>
       <div className="container-responsive relative z-10">
         <SectionHeader
-          title="أحدث الدورات"
-          subtitle="اكتشف أحدث الدورات التي تم إضافتها مؤخراً، مصممة لتناسب احتياجاتك التعليمية"
+          title={t('courses.title')}
+          subtitle={t('courses.subtitle')}
           variant="premium"
         />
       </div>
@@ -153,7 +157,7 @@ export const LatestCourses = () => {
           animate={inView ? { opacity: 1, y: 0 } : {}}
         >
           <Button size="lg" className="btn-secondary" onClick={() => navigate('/courses')}>
-            عرض جميع الدورات
+            {t('courses.viewAll')}
           </Button>
         </motion.div>
       </div>

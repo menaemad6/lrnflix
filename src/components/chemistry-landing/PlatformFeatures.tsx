@@ -1,42 +1,76 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { SectionHeader } from '@/components/ui/section-header';
 import { useInView } from 'react-intersection-observer';
-import feature_1 from '@/assets/feature-1.png';
-import feature_2 from '@/assets/feature-2.png';
-import feature_3 from '@/assets/feature-3.png';
+import { useTranslation } from 'react-i18next';
 
-const features = [
-  {
-    title: 'مساعد الذكي حسام',
-    description: 'مساعد ذكي متطور يجيب على أسئلتك ويساعدك في فهم المفاهيم المعقدة باللغة العربية على مدار الساعة',
-    image: feature_1 ,
-  },
-  {
-    title: 'تجربة تعليمية مُلعبة',
-    description: 'احصل على نقاط وشارات وكؤوس مع كل درس تكمله. تنافس مع أصدقائك وتسلق قوائم المتصدرين',
-    image: feature_2,
-  },
-  {
-    title: 'محاكيات تفاعلية',
-    description: 'جرب التفاعلات الكيميائية في مختبر افتراضي آمن مع محاكيات ثلاثية الأبعاد واقعية',
-    image: feature_3,
-  },
-];
+// Lazy load images for better performance
+const feature_1 = '/pola/feature-1.png';
+const feature_2 = '/pola/feature-2.png';
+const feature_3 = '/pola/feature-3.png';
+
+// Features will be moved inside component to use translations
+
+// Optimized image component with lazy loading
+const LazyFeatureImage = ({ src, alt, className }: { src: string; alt: string; className: string }) => {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [isInView, setIsInView] = useState(false);
+  const { ref } = useInView({
+    triggerOnce: true,
+    threshold: 0.1,
+    onChange: (inView) => setIsInView(inView)
+  });
+
+  useEffect(() => {
+    if (isInView && !isLoaded) {
+      const img = new Image();
+      img.onload = () => setIsLoaded(true);
+      img.src = src;
+    }
+  }, [isInView, isLoaded, src]);
+
+  return (
+    <div ref={ref} className={className}>
+      {isLoaded && (
+        <img src={src} alt={alt} className="w-full h-full object-contain drop-shadow-2xl" />
+      )}
+    </div>
+  );
+};
 
 export const PlatformFeatures = () => {
+  const { t } = useTranslation('landing');
+  const shouldReduceMotion = useReducedMotion();
   const { ref, inView } = useInView({
     triggerOnce: true,
     threshold: 0.1,
   });
 
+  const features = [
+    {
+      title: t('features.aiAssistant'),
+      description: t('features.aiAssistantDesc'),
+      image: feature_1 ,
+    },
+    {
+      title: t('features.gamifiedExperience'),
+      description: t('features.gamifiedExperienceDesc'),
+      image: feature_2,
+    },
+    {
+      title: t('features.interactiveSimulations'),
+      description: t('features.interactiveSimulationsDesc'),
+      image: feature_3,
+    },
+  ];
+
   return (
     <section className="py-20 relative" ref={ref}>
       <div className="container-responsive relative z-10">
         <SectionHeader
-          title="مميزات المنصة"
-          subtitle="اكتشف جميع المميزات التي تجعل من تعلم الكيمياء تجربة ممتعة وفعالة"
+          title={t('features.title')}
+          subtitle={t('features.subtitle')}
           variant="premium"
         />
 
@@ -44,41 +78,30 @@ export const PlatformFeatures = () => {
           {features.map((feature, index) => (
             <motion.div
               key={index}
-              initial={{ opacity: 0, y: 50 }}
+              initial={shouldReduceMotion ? false : { opacity: 0, y: 50 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.2 + index * 0.1 }}
+              transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.6, delay: 0.2 + index * 0.1 }}
             >
               <div className="relative group">
-                {/* Enhanced 3D Image - Outside the card */}
+                {/* Optimized 3D Image - Outside the card */}
                 <motion.div
                   className="relative mx-auto w-80 h-80 mb-[-70px] -mt-4 z-20"
-                  initial={{ y: 20, opacity: 0 }}
+                  initial={shouldReduceMotion ? false : { y: 20, opacity: 0 }}
                   animate={inView ? { y: 0, opacity: 1 } : {}}
-                  transition={{ duration: 0.8, delay: 0.3 + index * 0.1 }}
-                  whileHover={{ 
-                    scale: 1.2,
+                  transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.8, delay: 0.3 + index * 0.1 }}
+                  whileHover={shouldReduceMotion ? {} : { 
+                    scale: 1.1,
                     transition: { duration: 0.3 }
                   }}
                 >
-                  {/* Enhanced glow effect */}
+                  {/* Optimized glow effect - reduced for mobile */}
                   <div 
-                    className="absolute inset-0 bg-primary/20 rounded-full blur-3xl group-hover:blur-[60px] group-hover:bg-primary/40 transition-all duration-500"
-                    style={{
-                      transform: 'translateZ(-40px)',
-                    }}
+                    className="absolute inset-0 bg-primary/15 rounded-full blur-2xl group-hover:blur-3xl group-hover:bg-primary/25 transition-all duration-300"
                   />
-                  <motion.img
+                  <LazyFeatureImage
                     src={feature.image}
                     alt={feature.title}
-                    className="w-full h-full object-contain drop-shadow-2xl"
-                    style={{
-                      filter: 'drop-shadow(0 25px 50px rgba(0,0,0,0.5))',
-                      transform: 'rotateX(0deg)',
-                    }}
-                    whileHover={{
-                      rotate: 3,
-                      transition: { duration: 0.3 }
-                    }}
+                    className="w-full h-full"
                   />
                 </motion.div>
 
@@ -87,9 +110,9 @@ export const PlatformFeatures = () => {
                     {/* Centered Title */}
                     <motion.h3 
                       className="text-2xl font-bold text-center group-hover:text-primary transition-colors mb-4"
-                      initial={{ opacity: 0, y: 20 }}
+                      initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }}
                       animate={inView ? { opacity: 1, y: 0 } : {}}
-                      transition={{ duration: 0.6, delay: 0.4 + index * 0.1 }}
+                      transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.6, delay: 0.4 + index * 0.1 }}
                     >
                       {feature.title}
                     </motion.h3>
@@ -97,16 +120,16 @@ export const PlatformFeatures = () => {
                     {/* Description */}
                     <motion.p 
                       className="text-muted-foreground text-center leading-relaxed mb-6"
-                      initial={{ opacity: 0, y: 20 }}
+                      initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }}
                       animate={inView ? { opacity: 1, y: 0 } : {}}
-                      transition={{ duration: 0.6, delay: 0.5 + index * 0.1 }}
+                      transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.6, delay: 0.5 + index * 0.1 }}
                     >
                       {feature.description}
                     </motion.p>
 
-                    {/* Floating particles */}
-                    <div className="absolute top-4 right-4 w-16 h-16 bg-gradient-to-br from-primary/10 to-primary/5 rounded-full blur-xl group-hover:scale-150 transition-transform duration-500" />
-                    <div className="absolute bottom-4 left-4 w-12 h-12 bg-gradient-to-br from-secondary/10 to-secondary/5 rounded-full blur-lg group-hover:scale-125 transition-transform duration-500 delay-75" />
+                    {/* Simplified floating particles - reduced for mobile */}
+                    <div className="absolute top-4 right-4 w-12 h-12 bg-gradient-to-br from-primary/8 to-primary/4 rounded-full blur-lg group-hover:scale-125 transition-transform duration-300" />
+                    <div className="absolute bottom-4 left-4 w-8 h-8 bg-gradient-to-br from-secondary/8 to-secondary/4 rounded-full blur-md group-hover:scale-110 transition-transform duration-300 delay-75" />
                   </CardContent>
                 </Card>
               </div>

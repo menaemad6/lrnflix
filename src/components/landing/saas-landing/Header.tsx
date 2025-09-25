@@ -16,11 +16,13 @@ import { PLATFORM_NAME } from '@/data/constants';
 import { FaBars } from 'react-icons/fa';
 import { LogInIcon, LogOut } from 'lucide-react';
 import MobileNavigation from '@/components/landing/saas-landing/MobileNavigation';
+import { useTenant } from '@/contexts/TenantContext';
 
 // Header Component
 const Header: React.FC = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
+  const { teacher, slug } = useTenant();
   const userRole = user?.role || 'student';
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   
@@ -237,10 +239,20 @@ const Header: React.FC = () => {
       }}
     >
       <Link to="/" className="cursor-pointer flex items-center space-x-2">
-        <img src="/assests/logo.png" alt="Logo" className="h-8 w-auto"/>
+        <img 
+          src={teacher && slug ? `/${slug}/logo.png` : "/assests/logo.png"}
+          alt="Logo" 
+          className="h-8 w-auto"
+          onError={(e) => {
+            // Fallback to default logo if tenant logo doesn't exist
+            if (e.currentTarget.src !== "/assests/logo.png") {
+              e.currentTarget.src = "/assests/logo.png";
+            }
+          }}
+        />
         <span className={`font-semibold text-xl transition-colors duration-300 ${
           isScrolled ? 'text-black' : 'text-white'
-        }`}>{PLATFORM_NAME}</span>
+        }`}>{teacher?.display_name || PLATFORM_NAME}</span>
       </Link>
       
       <button 

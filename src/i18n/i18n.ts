@@ -18,6 +18,8 @@ import enNavigation from './locales/en/navigation.json';
 import arNavigation from './locales/ar/navigation.json';
 import enOther from './locales/en/other.json';
 import arOther from './locales/ar/other.json';
+import enLanding from './locales/en/landing.json';
+import arLanding from './locales/ar/landing.json';
 
 const resources = {
   en: {
@@ -28,6 +30,7 @@ const resources = {
     teacher: enTeacher,
     navigation: enNavigation,
     other: enOther,
+    landing: enLanding,
   },
   ar: {
     common: arCommon,
@@ -37,6 +40,7 @@ const resources = {
     teacher: arTeacher,
     navigation: arNavigation,
     other: arOther,
+    landing: arLanding,
   },
 };
 
@@ -73,7 +77,7 @@ i18n
     
     // Namespace handling
     defaultNS: 'common',
-    ns: ['common', 'dashboard', 'auth', 'courses', 'teacher', 'navigation', 'other'],
+    ns: ['common', 'dashboard', 'auth', 'courses', 'teacher', 'navigation', 'other', 'landing'],
     
     // React specific
     react: {

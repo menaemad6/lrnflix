@@ -32,10 +32,12 @@ import { Badge } from '@/components/ui/badge';
 import PoliciesModal from './PoliciesModal';
 
 import { PLATFORM_NAME } from '@/data/constants';
+import { useTenant } from '@/contexts/TenantContext';
 
 const PremiumFooter: React.FC = () => {
   const [showPoliciesModal, setShowPoliciesModal] = useState(false);
   const [activePolicyTab, setActivePolicyTab] = useState('terms');
+  const { teacher, slug } = useTenant();
   
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -227,28 +229,60 @@ const PremiumFooter: React.FC = () => {
           <motion.div variants={itemVariants} className="lg:col-span-2 space-y-6">
             {/* Logo and Brand */}
             <div className="space-y-4">
+              {/* Tenant Logo and Name (if tenant exists) */}
+              {teacher && slug && (
+                <motion.div
+                  className="flex items-center gap-3 mb-4"
+                  whileHover={{ scale: 1.02 }}
+                >
+                  <div className="relative">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-primary via-secondary to-accent p-0.5">
+                      <div className="w-full h-full rounded-xl bg-background flex items-center justify-center">
+                        <img 
+                          src={`/${slug}/logo.png`}
+                          alt={`${teacher.display_name} Logo`} 
+                          className="w-6 h-6 object-contain"
+                          onError={(e) => {
+                            // Hide the image if tenant logo doesn't exist
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-black gradient-text">{teacher.display_name}</h2>
+                  </div>
+                </motion.div>
+              )}
+              
+              {/* Platform Logo and Name (smaller if tenant exists) */}
               <motion.div
-                className="flex items-center gap-3"
+                className={`flex items-center gap-3 ${teacher && slug ? 'opacity-70' : ''}`}
                 whileHover={{ scale: 1.02 }}
               >
                 <div className="relative">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-primary via-secondary to-accent p-0.5">
+                  <div className={`rounded-xl bg-gradient-to-r from-primary via-secondary to-accent p-0.5 ${teacher && slug ? 'w-8 h-8' : 'w-12 h-12'}`}>
                     <div className="w-full h-full rounded-xl bg-background flex items-center justify-center">
-                      <Crown className="w-6 h-6 text-primary" />
+                      <Crown className={`text-primary ${teacher && slug ? 'w-4 h-4' : 'w-6 h-6'}`} />
                     </div>
                   </div>
-                  <div className="absolute -top-1 -right-1">
-                    <Sparkles className="w-4 h-4 text-accent animate-pulse" />
-                  </div>
+                  {!teacher && (
+                    <div className="absolute -top-1 -right-1">
+                      <Sparkles className="w-4 h-4 text-accent animate-pulse" />
+                    </div>
+                  )}
                 </div>
                 <div>
-                                     <h2 className="text-2xl font-black gradient-text">{PLATFORM_NAME}</h2>
-                  <div className="flex items-center gap-1">
-                    <Badge className="text-xs px-2 py-0.5" variant='default'>
-                      <Star className="w-3 h-3 mr-1" />
-                      PREMIUM
-                    </Badge>
-                  </div>
+                  <h2 className={`font-black gradient-text ${teacher && slug ? 'text-lg' : 'text-2xl'}`}>{PLATFORM_NAME}</h2>
+                  {!teacher && (
+                    <div className="flex items-center gap-1">
+                      <Badge className="text-xs px-2 py-0.5" variant='default'>
+                        <Star className="w-3 h-3 mr-1" />
+                        PREMIUM
+                      </Badge>
+                    </div>
+                  )}
                 </div>
               </motion.div>
 

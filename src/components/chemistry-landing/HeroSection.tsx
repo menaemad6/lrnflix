@@ -1,24 +1,177 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { SectionHeader } from '@/components/ui/section-header';
 import { Button } from '@/components/ui/button';
 import { Star, Play, BookOpen, ArrowRight } from 'lucide-react';
 import { useInView } from 'react-intersection-observer';
-import about_techer from '@/assets/about-teacher.png';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { useTenant } from '@/contexts/TenantContext';
+import type { RootState } from '@/store/store';
 
-const stats = [
-  { number: '98%', label: 'نسبة نجاح الطلاب' },
-  { number: '4.9/5', label: 'تقييم الطلاب' },
-  { number: '4+', label: 'سنة في التدريس' },
-  { number: '50+', label: 'كورس مُنجز' },
-];
+// Lazy load the teacher image
+const about_techer = '/pola/about-teacher.png';
+
+// Stats will be moved inside component to use translations
+
+// Optimized image component with lazy loading
+const LazyTeacherImage = ({ src, alt, className }: { src: string; alt: string; className: string }) => {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [isInView, setIsInView] = useState(false);
+  const { ref } = useInView({
+    triggerOnce: true,
+    threshold: 0.1,
+    onChange: (inView) => setIsInView(inView)
+  });
+
+  useEffect(() => {
+    if (isInView && !isLoaded) {
+      const img = new Image();
+      img.onload = () => setIsLoaded(true);
+      img.src = src;
+    }
+  }, [isInView, isLoaded, src]);
+
+  return (
+    <div ref={ref} className={className}>
+      {isLoaded && (
+        <img src={src} alt={alt} className="w-full h-auto object-contain" />
+      )}
+    </div>
+  );
+};
 
 export const HeroSection = () => {
+  const { t } = useTranslation('landing');
+  const navigate = useNavigate();
+  const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
+  const { teacher } = useTenant();
+  const userRole = user?.role || 'student';
+  const shouldReduceMotion = useReducedMotion();
+  
   const { ref, inView } = useInView({
     triggerOnce: true,
     threshold: 0.1,
   });
+
+  const stats = [
+    { number: '98%', label: t('hero.studentSuccessRate') },
+    { number: '4.9/5', label: t('hero.studentRating') },
+    { number: '4+', label: t('hero.teachingExperience') },
+    { number: '50+', label: t('hero.completedCourses') },
+  ];
+
+  // Function to get CTA buttons based on authentication and role
+  const getCTAButtons = () => {
+    if (!isAuthenticated) {
+      return (
+        <>
+          <Button 
+            size="lg" 
+            variant="default"
+            className='border border-white'
+            onClick={() => navigate('/auth/signup')}
+          >
+            <BookOpen className="w-5 h-5 ml-2" />
+            {t('hero.startLearning')}
+            <ArrowRight className="w-5 h-5 mr-2" />
+          </Button>
+          
+          <Button 
+            variant="secondary" 
+            size="lg"
+            onClick={() => navigate('/courses')}
+          >
+            <Play className="w-5 h-5 ml-2" />
+            {t('hero.watchSample')}
+          </Button>
+        </>
+      );
+    }
+
+    if (userRole === 'student') {
+      return (
+        <>
+          <Button 
+            size="lg" 
+            variant="default"
+            className='border border-white'
+            onClick={() => navigate('/student/dashboard')}
+          >
+            <BookOpen className="w-5 h-5 ml-2" />
+            {t('hero.continueLearning')}
+            <ArrowRight className="w-5 h-5 mr-2" />
+          </Button>
+          
+          <Button 
+            variant="secondary" 
+            size="lg"
+            onClick={() => navigate('/courses')}
+          >
+            <Play className="w-5 h-5 ml-2" />
+            {t('hero.browseCourses')}
+          </Button>
+        </>
+      );
+    }
+
+    if (userRole === 'teacher') {
+      return (
+        <>
+          <Button 
+            size="lg" 
+            variant="default"
+            className='border border-white'
+            onClick={() => navigate('/teacher/dashboard')}
+          >
+            <BookOpen className="w-5 h-5 ml-2" />
+            {t('hero.manageDashboard')}
+            <ArrowRight className="w-5 h-5 mr-2" />
+          </Button>
+          
+          <Button 
+            variant="secondary" 
+            size="lg"
+            onClick={() => navigate('/teacher/courses')}
+          >
+            <Play className="w-5 h-5 ml-2" />
+            {t('hero.createCourse')}
+          </Button>
+        </>
+      );
+    }
+
+    // Fallback for other roles
+    return (
+      <>
+        <Button 
+          size="lg" 
+          variant="default"
+          className='border border-white'
+          onClick={() => navigate('/dashboard')}
+        >
+          <BookOpen className="w-5 h-5 ml-2" />
+          {t('hero.goToDashboard')}
+          <ArrowRight className="w-5 h-5 mr-2" />
+        </Button>
+        
+        <Button 
+          variant="secondary" 
+          size="lg"
+          onClick={() => navigate('/courses')}
+        >
+          <Play className="w-5 h-5 ml-2" />
+          {t('hero.explorePlatform')}
+        </Button>
+      </>
+    );
+  };
+
+  // Get teacher name and specialization dynamically
+  const teacherName = teacher?.display_name || 'Dr. Ahmed Mohamed Hassan';
+  const teacherSpecialization = teacher?.specialization || 'Chemistry';
 
   return (
     <section className="min-h-screen flex items-center relative overflow-hidden" ref={ref}>
@@ -33,56 +186,40 @@ export const HeroSection = () => {
           {/* Left Card - Full Height with Primary Background */}
           <motion.div
             className="relative w-full lg:w-2/3 h-[700px] lg:h-[600px] bg-primary rounded-2xl p-12 lg:p-12 flex flex-col justify-between"
-            initial={{ opacity: 0, x: -50 }}
+            initial={shouldReduceMotion ? false : { opacity: 0, x: -50 }}
             animate={inView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.8, delay: 0.3 }}
+            transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.8, delay: 0.3 }}
           >
             {/* Hero Text Content */}
             <div className="space-y-6 text-white">
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
+                initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }}
                 animate={inView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.8, delay: 0.4 }}
+                transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.8, delay: 0.4 }}
               >
-                <h1 className="text-5xl lg:text-6xl font-bold mb-4 leading-tight">
-                  تعلم الكيمياء
-                  <span className="block text-white">بأسلوب ممتع</span>
+                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight">
+                  {t('hero.title', { specialization: teacherSpecialization })}
+                  <span className="block text-white">{t('hero.subtitle')}</span>
                 </h1>
               </motion.div>
               
               <motion.p 
-                className="text-xl lg:text-2xl leading-relaxed opacity-90 mb-8"
-                initial={{ opacity: 0, y: 20 }}
+                className="text-lg sm:text-xl lg:text-2xl leading-relaxed opacity-90 mb-8"
+                initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }}
                 animate={inView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.8, delay: 0.6 }}
+                transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.8, delay: 0.6 }}
               >
-                انضم إلى آلاف الطلاب الذين حققوا نتائج مذهلة في الكيمياء مع د. أحمد محمد حسن
+                {t('hero.joinThousands', { teacherName })}
               </motion.p>
 
               {/* CTA Buttons */}
               <motion.div 
                 className="flex flex-col sm:flex-row gap-4 mb-8"
-                initial={{ opacity: 0, y: 20 }}
+                initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }}
                 animate={inView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.8, delay: 0.8 }}
+                transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.8, delay: 0.8 }}
               >
-                <Button 
-                  size="lg" 
-                  variant="default"
-                  className='border border-white'
-                >
-                  <BookOpen className="w-5 h-5 ml-2" />
-                  ابدأ التعلم الآن
-                  <ArrowRight className="w-5 h-5 mr-2" />
-                </Button>
-                
-                <Button 
-                  variant="secondary" 
-                  size="lg"
-                >
-                  <Play className="w-5 h-5 ml-2" />
-                  شاهد عينة مجانية
-                </Button>
+                {getCTAButtons()}
               </motion.div>
 
             </div>
@@ -90,15 +227,15 @@ export const HeroSection = () => {
             {/* Stats Section at Bottom */}
             <motion.div
               className="hidden lg:grid grid-cols-4 gap-6 mt-8 pb-8 lg:pb-0"
-              initial={{ opacity: 0, y: 20 }}
+              initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8, delay: 0.6 }}
+              transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.8, delay: 0.6 }}
             >
               {stats.map((stat, index) => (
                 <motion.div
                   key={index}
                   className="text-center"
-                  whileHover={{ scale: 1.05 }}
+                  whileHover={shouldReduceMotion ? {} : { scale: 1.05 }}
                 >
                   <div className="text-3xl lg:text-4xl font-bold text-white mb-2">
                     {stat.number}
@@ -113,14 +250,14 @@ export const HeroSection = () => {
             {/* Image inside card on mobile */}
             <motion.div
               className="flex justify-center mt-auto -mx-12 lg:hidden"
-              initial={{ opacity: 0, y: 20 }}
+              initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8, delay: 0.8 }}
+              transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.8, delay: 0.8 }}
             >
-              <img
+              <LazyTeacherImage
                 src={about_techer}
-                alt="أستاذ الكيمياء"
-                className="w-screen h-auto object-contain"
+                alt={teacherName}
+                className="w-screen h-auto"
               />
             </motion.div>
           </motion.div>
@@ -128,15 +265,15 @@ export const HeroSection = () => {
           {/* Image - Hidden on mobile, overlapping on desktop */}
           <motion.div
             className="hidden lg:flex lg:absolute lg:-right-8 lg:top-1/3 lg:-translate-y-1/2 lg:w-[900px] z-20"
-            initial={{ opacity: 0, x: 50 }}
+            initial={shouldReduceMotion ? false : { opacity: 0, x: 50 }}
             animate={inView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.8, delay: 0.5 }}
+            transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.8, delay: 0.5 }}
           >
             {/* Teacher Image */}
-            <img
+            <LazyTeacherImage
               src={about_techer}
-              alt="أستاذ الكيمياء"
-              className="w-full h-auto object-contain"
+              alt={teacherName}
+              className="w-full h-auto"
             />
             
           </motion.div>

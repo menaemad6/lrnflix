@@ -54,10 +54,9 @@ const InfiniteInstructors: React.FC = () => {
     // Use the EXACT same image handling as TopInstructors component
     let imageUrl = instructor.profile_image_url;
     
-    // If no profile image, use fallback teacher images
+    // If no profile image, use fallback teacher images based on slug
     if (!imageUrl) {
-      const teacherIndex = (index % 3) + 1;
-      imageUrl = `/assests/teacher-${teacherIndex}.${teacherIndex === 1 ? 'jpg' : 'jpeg'}`;
+      imageUrl = `/assests/${instructor.slug}.png`;
     }
     
     // Ensure the image URL is absolute (fix for InfiniteMenu)
@@ -68,6 +67,7 @@ const InfiniteInstructors: React.FC = () => {
     // Debug logging
     console.log(`Instructor ${index}:`, {
       name: instructor.display_name,
+      slug: instructor.slug,
       profileImage: instructor.profile_image_url,
       finalImage: imageUrl,
       hasImage: !!instructor.profile_image_url,
@@ -79,7 +79,7 @@ const InfiniteInstructors: React.FC = () => {
       link: `/teachers/${instructor.slug}`,
       title: instructor.display_name || 'Instructor',
       description: instructor.specialization || 'Expert Educator',
-      fallbackAvatar: `/assests/teacher-${(index % 3) + 1}.${(index % 3) + 1 === 1 ? 'jpg' : 'jpeg'}` // Add fallback teacher image path
+      fallbackAvatar: `/assests/${instructor.slug}.png` // Use slug-based fallback image path
     };
   });
 
@@ -91,19 +91,19 @@ const InfiniteInstructors: React.FC = () => {
   if (menuItems.length === 0) {
     const fallbackItems = [
       {
-        image: '/assests/teacher-1.jpg',
+        image: '/assests/expert-instructors.png',
         link: '/teachers',
         title: 'Expert Instructors',
         description: 'Discover our amazing teachers'
       },
       {
-        image: '/assests/teacher-2.jpeg',
+        image: '/assests/professional-educators.png',
         link: '/teachers',
         title: 'Professional Educators',
         description: 'Learn from the best in their fields'
       },
       {
-        image: '/assests/teacher-3.jpeg',
+        image: '/assests/certified-teachers.png',
         link: '/teachers',
         title: 'Certified Teachers',
         description: 'Quality education guaranteed'

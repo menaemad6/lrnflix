@@ -8,6 +8,7 @@ import { Eye, EyeOff, Mail, Lock, User, UserPlus, LogIn, X, Sparkles, Shield, Za
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { getIntendedDestination } from '@/utils/authRedirect';
+import { useTenant } from '@/contexts/TenantContext';
 
 interface AuthFormProps {
   mode: 'login' | 'signup';
@@ -18,6 +19,7 @@ interface AuthFormProps {
 const AuthForm: React.FC<AuthFormProps> = ({ mode, setMode, onClose }) => {
   const login = useLoginForm();
   const signup = useSignupForm();
+  const { teacher, slug } = useTenant();
   const isLogin = mode === 'login';
   const navigate = useNavigate();
   const location = useLocation();
@@ -69,7 +71,17 @@ const AuthForm: React.FC<AuthFormProps> = ({ mode, setMode, onClose }) => {
         {/* Enhanced logo section */}
         <div className="relative mb-6">
           <div className="w-20 h-20 rounded-2xl flex items-center justify-center shadow-2xl animate-glow-pulse bg-gradient-to-br from-primary/20 to-secondary/20 border border-white/20">
-            <img src="/assests/logo.png" alt="LRNFLIX Logo" className="w-12 h-12 object-contain" />
+            <img 
+              src={teacher && slug ? `/${slug}/logo.png` : "/assests/logo.png"}
+              alt="Logo" 
+              className="w-12 h-12 object-contain"
+              onError={(e) => {
+                // Fallback to default logo if tenant logo doesn't exist
+                if (e.currentTarget.src !== "/assests/logo.png") {
+                  e.currentTarget.src = "/assests/logo.png";
+                }
+              }}
+            />
           </div>
           {/* Floating sparkles - hidden on mobile */}
           <Sparkles className="hidden sm:block absolute -top-2 -right-2 w-6 h-6 text-primary animate-pulse" />

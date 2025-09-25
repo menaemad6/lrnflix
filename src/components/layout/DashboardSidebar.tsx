@@ -70,7 +70,7 @@ export const DashboardSidebar = () => {
   const location = useLocation();
   const { user } = useSelector((state: RootState) => state.auth);
   const { openChatbot } = useChatbot();
-  const { teacher } = useTenant();
+  const { teacher, slug } = useTenant();
   const userRole = user?.role || 'student';
   const isCollapsed = state === 'collapsed';
   const isMobile = useIsMobile();
@@ -268,9 +268,15 @@ export const DashboardSidebar = () => {
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-2xl flex items-center justify-center animate-glow-pulse shadow-lg shadow-primary-500/25 overflow-hidden">
               <img 
-                src="/assests/logo.png" 
+                src={teacher && slug ? `/${slug}/logo.png` : "/assests/logo.png"}
                 alt="Logo" 
                 className="h-8 w-8 object-contain"
+                onError={(e) => {
+                  // Fallback to default logo if tenant logo doesn't exist
+                  if (e.currentTarget.src !== "/assests/logo.png") {
+                    e.currentTarget.src = "/assests/logo.png";
+                  }
+                }}
               />
             </div>
             {!isCollapsed && (

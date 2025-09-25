@@ -32,9 +32,9 @@ export const AdminSettingsPage = () => {
   // Settings state
   const [settings, setSettings] = useState({
     // General Settings
-    platformName: 'Learnify',
+    platformName: 'lrnflix',
     platformDescription: 'A comprehensive learning management system',
-    supportEmail: 'support@learnify.com',
+    supportEmail: 'support@lrnflix.com',
     defaultLanguage: 'en',
     timezone: 'UTC',
     
@@ -51,7 +51,7 @@ export const AdminSettingsPage = () => {
     smtpPort: 587,
     smtpUsername: '',
     smtpPassword: '',
-    fromEmail: 'noreply@learnify.com',
+    fromEmail: 'noreply@lrnflix.com',
     
     // Security Settings
     sessionTimeout: 24,

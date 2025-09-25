@@ -31,9 +31,26 @@ import { cn } from '@/lib/utils';
 import { FaBars } from 'react-icons/fa';
 
 // Logo component to replace BookOpen icons
-const Logo = ({ className = "" }: { className?: string }) => (
-  <img src="/assests/logo.png" alt="Logo" className={className} />
-);
+const Logo = ({ className = "" }: { className?: string }) => {
+  const { teacher, slug } = useTenant();
+  
+  // If tenant exists, try to show tenant logo, otherwise show default logo
+  const logoSrc = teacher && slug ? `/${slug}/logo.png` : "/assests/logo.png";
+  
+  return (
+    <img 
+      src={logoSrc} 
+      alt="Logo" 
+      className={className}
+      onError={(e) => {
+        // Fallback to default logo if tenant logo doesn't exist
+        if (logoSrc !== "/assests/logo.png") {
+          e.currentTarget.src = "/assests/logo.png";
+        }
+      }}
+    />
+  );
+};
 
 // NavLink must be above NavbarSidebarContent for scope
 const NavLink = ({ to, children, icon: Icon, onClick, className = "", isActive }: { to: string; children: React.ReactNode; icon: React.ComponentType<{ className?: string }>; onClick?: () => void; className?: string; isActive: (path: string) => boolean }) => (

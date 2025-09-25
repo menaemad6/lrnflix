@@ -4,23 +4,350 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- High-Performance Multi-tenant SEO Configuration -->
+    <script>
+      (function() {
+        'use strict';
+        
+        // Performance optimizations: Cache and async loading
+        const CACHE_KEY = 'tenant_seo_cache';
+        const CACHE_EXPIRY = 5 * 60 * 1000; // 5 minutes
+        let configCache = null;
+        let isProcessing = false;
+        
+        // Fast subdomain detection (optimized)
+        const getSubdomain = (() => {
+          const hostname = location.hostname;
+          const parts = hostname.split('.');
+          return parts.length > 2 ? parts[0] : 
+                 (parts.length === 2 && parts[0] !== 'localhost') ? parts[0] : null;
+        })();
+        
+        // Default configuration (always available)
+        const DEFAULT_CONFIG = {
+          title: "LRNFLIX - AI-Powered Learning Platform",
+          description: "LRNFLIX is a modern, AI-powered educational platform for students and teachers. Create, manage, and experience interactive courses, quizzes, and more.",
+          siteName: "LRNFLIX",
+          canonical: "https://lrnflix.com/",
+          logo: "/assests/logo.png",
+          ogImage: "/assests/logo.png",
+          twitterImage: "/assests/logo.png",
+          favicon: "/favicon.ico"
+        };
+        
+        // Teacher configurations (lazy loaded)
+        const TEACHER_CONFIGS = {
+          pola: {
+            title: "Pola Nessim - Secondary School Chemistry Teacher",
+            description: "Learn chemistry with Pola Nessim, an experienced secondary school chemistry teacher. Interactive lessons, comprehensive courses, and personalized learning for students.",
+            siteName: "Pola Nessim - Chemistry Teacher",
+            canonical: "https://pola.lrnflix.com/",
+            logo: "/pola/logo.png",
+            ogImage: "/pola/logo.png",
+            twitterImage: "/pola/logo.png",
+            favicon: "/pola/logo.ico",
+            schema: {
+              "@type": "Person",
+              "name": "Pola Nessim",
+              "jobTitle": "Secondary School Chemistry Teacher",
+              "description": "Experienced chemistry teacher specializing in secondary school education with interactive teaching methods.",
+              "url": "https://pola.lrnflix.com/",
+              "image": "https://pola.lrnflix.com/pola/logo.png",
+              "sameAs": [],
+              "knowsAbout": ["Chemistry", "Secondary Education", "Interactive Learning", "Student Engagement"],
+              "teaches": "Chemistry",
+              "educationalLevel": "Secondary School"
+            }
+          }
+        };
+        
+        // Cache management
+        const cacheManager = {
+          get: () => {
+            try {
+              const cached = sessionStorage.getItem(CACHE_KEY);
+              if (cached) {
+                const { data, timestamp } = JSON.parse(cached);
+                if (Date.now() - timestamp < CACHE_EXPIRY) {
+                  return data;
+                }
+              }
+            } catch (e) {
+              console.warn('Cache read failed:', e);
+            }
+            return null;
+          },
+          
+          set: (data) => {
+            try {
+              sessionStorage.setItem(CACHE_KEY, JSON.stringify({
+                data,
+                timestamp: Date.now()
+              }));
+            } catch (e) {
+              console.warn('Cache write failed:', e);
+            }
+          }
+        };
+        
+        // Get tenant configuration with caching
+        const getTenantConfig = () => {
+          // Check cache first
+          const cached = cacheManager.get();
+          if (cached && cached.subdomain === getSubdomain) {
+            return cached.config;
+          }
+          
+          // Determine config
+          let config;
+          if (!getSubdomain || getSubdomain === 'platform' || getSubdomain === 'www') {
+            config = DEFAULT_CONFIG;
+          } else if (TEACHER_CONFIGS[getSubdomain]) {
+            config = TEACHER_CONFIGS[getSubdomain];
+          } else {
+            config = DEFAULT_CONFIG;
+          }
+          
+          // Cache the result
+          cacheManager.set({ subdomain: getSubdomain, config });
+          
+          return config;
+        };
+        
+        // Optimized DOM updates with batching
+        const updateDOM = (config) => {
+          // Batch DOM updates using DocumentFragment for better performance
+          const fragment = document.createDocumentFragment();
+          const updates = [];
+          
+          // Update title immediately (highest priority)
+          document.title = config.title;
+          
+          // Prepare meta tag updates
+          const metaUpdates = [
+            ['description', config.description],
+            ['og:title', config.title],
+            ['og:description', config.description],
+            ['og:site_name', config.siteName],
+            ['og:image', config.ogImage],
+            ['og:url', config.canonical],
+            ['twitter:title', config.title],
+            ['twitter:description', config.description],
+            ['twitter:image', config.twitterImage]
+          ];
+          
+          // Batch meta tag updates
+          metaUpdates.forEach(([prop, content]) => {
+            const meta = document.querySelector(`meta[property="${prop}"]`) || 
+                         document.querySelector(`meta[name="${prop}"]`);
+            if (meta) {
+              meta.content = content;
+            } else {
+              const newMeta = document.createElement('meta');
+              if (prop.startsWith('og:') || prop.startsWith('twitter:')) {
+                newMeta.setAttribute('property', prop);
+              } else {
+                newMeta.setAttribute('name', prop);
+              }
+              newMeta.setAttribute('content', content);
+              fragment.appendChild(newMeta);
+            }
+          });
+          
+          // Update canonical link
+          const canonical = document.querySelector('link[rel="canonical"]');
+          if (canonical) {
+            canonical.href = config.canonical;
+          } else {
+            const newCanonical = document.createElement('link');
+            newCanonical.setAttribute('rel', 'canonical');
+            newCanonical.setAttribute('href', config.canonical);
+            fragment.appendChild(newCanonical);
+          }
+          
+          // Update schema.org JSON-LD
+          const schemaScript = document.querySelector('script[type="application/ld+json"]');
+          const schemaData = config.schema ? {
+            "@context": "https://schema.org",
+            ...config.schema
+          } : {
+            "@context": "https://schema.org",
+            "@type": "EducationalOrganization",
+            "name": config.siteName,
+            "url": config.canonical,
+            "logo": config.logo,
+            "description": config.description
+          };
+          
+          if (schemaScript) {
+            schemaScript.textContent = JSON.stringify(schemaData);
+          } else {
+            const newSchema = document.createElement('script');
+            newSchema.setAttribute('type', 'application/ld+json');
+            newSchema.textContent = JSON.stringify(schemaData);
+            fragment.appendChild(newSchema);
+          }
+          
+          // Append all new elements at once
+          if (fragment.hasChildNodes()) {
+            document.head.appendChild(fragment);
+          }
+          
+          // Update favicon with enhanced logic (async to avoid blocking)
+          requestAnimationFrame(() => updateFaviconAsync(config.favicon));
+        };
+        
+        // Enhanced favicon update with async loading and cache busting
+        const updateFaviconAsync = (faviconUrl) => {
+          if (!faviconUrl) return;
+          
+          // Create cache-busted URL
+          const cacheBustedUrl = `${faviconUrl}?v=${Date.now()}`;
+          
+          // Find existing favicon links (including mobile-specific ones)
+          const existingFavicons = document.querySelectorAll('link[rel*="icon"], link[rel*="apple-touch-icon"], meta[name*="msapplication"]');
+          
+          // Create new favicon links for different sizes and devices
+          const faviconSizes = [
+            { rel: 'icon', sizes: '32x32', type: faviconUrl.endsWith('.ico') ? 'image/x-icon' : 'image/png' },
+            { rel: 'icon', sizes: '16x16', type: faviconUrl.endsWith('.ico') ? 'image/x-icon' : 'image/png' },
+            { rel: 'apple-touch-icon', sizes: '180x180' },
+            { rel: 'apple-touch-icon', sizes: '152x152' },
+            { rel: 'apple-touch-icon', sizes: '144x144' },
+            { rel: 'apple-touch-icon', sizes: '120x120' },
+            { rel: 'apple-touch-icon', sizes: '114x114' },
+            { rel: 'apple-touch-icon', sizes: '76x76' },
+            { rel: 'apple-touch-icon', sizes: '72x72' },
+            { rel: 'apple-touch-icon', sizes: '60x60' },
+            { rel: 'apple-touch-icon', sizes: '57x57' }
+          ];
+          
+          // Add new favicon links
+          faviconSizes.forEach(size => {
+            const newFavicon = document.createElement('link');
+            newFavicon.rel = size.rel;
+            newFavicon.href = cacheBustedUrl;
+            if (size.sizes) newFavicon.sizes = size.sizes;
+            if (size.type) newFavicon.type = size.type;
+            document.head.appendChild(newFavicon);
+          });
+          
+          // Update Microsoft tile
+          const msTileImage = document.querySelector('meta[name="msapplication-TileImage"]');
+          if (msTileImage) {
+            msTileImage.content = cacheBustedUrl;
+          }
+          
+          // Preload favicon for better performance
+          const preloadLink = document.createElement('link');
+          preloadLink.rel = 'preload';
+          preloadLink.as = 'image';
+          preloadLink.href = cacheBustedUrl;
+          document.head.appendChild(preloadLink);
+          
+          // Remove old favicons after new one loads
+          const removeOldFavicons = () => {
+            existingFavicons.forEach(favicon => {
+              if (favicon.parentNode) {
+                favicon.parentNode.removeChild(favicon);
+              }
+            });
+            // Remove preload link after favicon loads
+            if (preloadLink.parentNode) {
+              preloadLink.parentNode.removeChild(preloadLink);
+            }
+          };
+          
+          // Use image load event for better timing
+          const img = new Image();
+          img.onload = removeOldFavicons;
+          img.onerror = removeOldFavicons; // Remove old favicons even if new one fails
+          img.src = cacheBustedUrl;
+          
+          // Fallback timeout
+          setTimeout(removeOldFavicons, 1000);
+        };
+        
+        // Main initialization function
+        const initializeTenantSEO = async () => {
+          if (isProcessing) return;
+          isProcessing = true;
+          
+          try {
+            // Get configuration (with caching)
+            const config = getTenantConfig();
+            
+            // Update DOM immediately
+            updateDOM(config);
+            
+            // Log for debugging (only in development)
+            if (location.hostname === 'localhost' || location.hostname.includes('dev')) {
+              console.log('🏷️ Tenant SEO applied:', {
+                subdomain: getSubdomain,
+                title: config.title,
+                favicon: config.favicon
+              });
+            }
+            
+          } catch (error) {
+            console.error('Tenant SEO initialization failed:', error);
+            // Fallback to default config
+            updateDOM(DEFAULT_CONFIG);
+          } finally {
+            isProcessing = false;
+          }
+        };
+        
+        // Initialize based on document state
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', initializeTenantSEO, { once: true });
+        } else {
+          // Use requestIdleCallback for better performance if available
+          if (window.requestIdleCallback) {
+            requestIdleCallback(initializeTenantSEO);
+          } else {
+            setTimeout(initializeTenantSEO, 0);
+          }
+        }
+        
+        // Expose for debugging (development only)
+        if (location.hostname === 'localhost' || location.hostname.includes('dev')) {
+          window.tenantSEO = {
+            getSubdomain: () => getSubdomain,
+            getConfig: getTenantConfig,
+            clearCache: () => {
+              sessionStorage.removeItem(CACHE_KEY);
+              console.log('Cache cleared');
+            },
+            reinitialize: initializeTenantSEO
+          };
+        }
+        
+      })();
+    </script>
+
+    <!-- Default meta tags (will be updated by script above) -->
     <title>LRNFLIX - AI-Powered Learning Platform</title>
     <meta name="description" content="LRNFLIX is a modern, AI-powered educational platform for students and teachers. Create, manage, and experience interactive courses, quizzes, and more." />
     <link rel="canonical" href="https://lrnflix.com/" />
     <meta name="robots" content="index, follow" />
+    
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:title" content="LRNFLIX - AI-Powered Learning Platform" />
     <meta property="og:description" content="LRNFLIX is a modern, AI-powered educational platform for students and teachers. Create, manage, and experience interactive courses, quizzes, and more." />
-    <meta property="og:url" content="https://lrnflix.com/assests/logo.png" />
+    <meta property="og:url" content="https://lrnflix.com/" />
     <meta property="og:site_name" content="LRNFLIX" />
     <meta property="og:image" content="https://lrnflix.com/assests/logo.png" />
+    
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="LRNFLIX - AI-Powered Learning Platform" />
     <meta name="twitter:description" content="LRNFLIX is a modern, AI-powered educational platform for students and teachers. Create, manage, and experience interactive courses, quizzes, and more." />
     <meta name="twitter:image" content="https://lrnflix.com/assests/logo.png" />
-    <!-- Schema.org Organization -->
+    
+    <!-- Schema.org Organization (will be updated by script above) -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -31,7 +358,24 @@
         "description": "LRNFLIX is a modern, AI-powered educational platform for students and teachers. Create, manage, and experience interactive courses, quizzes, and more."
       }
     </script>
-    <link rel="icon" type="image/svg+xml" href="/assests/logo.png" />
+    
+    <!-- Default favicon (will be updated by script above) -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/x-icon" sizes="32x32" href="/favicon.ico" />
+    <link rel="icon" type="image/x-icon" sizes="16x16" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/assests/logo.ico" />
+    <link rel="apple-touch-icon" sizes="152x152" href="/assests/logo.ico" />
+    <link rel="apple-touch-icon" sizes="144x144" href="/assests/logo.ico" />
+    <link rel="apple-touch-icon" sizes="120x120" href="/assests/logo.ico" />
+    <link rel="apple-touch-icon" sizes="114x114" href="/assests/logo.ico" />
+    <link rel="apple-touch-icon" sizes="76x76" href="/assests/logo.ico" />
+    <link rel="apple-touch-icon" sizes="72x72" href="/assests/logo.ico" />
+    <link rel="apple-touch-icon" sizes="60x60" href="/assests/logo.ico" />
+    <link rel="apple-touch-icon" sizes="57x57" href="/assests/logo.ico" />
+    <meta name="msapplication-TileImage" content="/assests/logo.ico" />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">

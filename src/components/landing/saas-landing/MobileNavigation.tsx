@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { LogInIcon, LogOut } from 'lucide-react';
 import { PLATFORM_NAME } from '@/data/constants';
 import type { RootState } from '@/store/store';
+import { useTenant } from '@/contexts/TenantContext';
 
 // Mobile Navigation Component
 const MobileNavigation: React.FC<{
@@ -14,6 +15,7 @@ const MobileNavigation: React.FC<{
   onLogout: () => void;
 }> = ({ isOpen, onClose, isAuthenticated, userRole, user, onLogout }) => {
   const navigate = useNavigate();
+  const { teacher, slug } = useTenant();
 
   const getMobileNavLinks = () => {
     if (!isAuthenticated) {
@@ -68,8 +70,18 @@ const MobileNavigation: React.FC<{
         {/* Header */}
         <div className="flex justify-between items-center p-6 flex-shrink-0">
           <Link to="/" onClick={onClose} className="cursor-pointer flex items-center space-x-2">
-            <img src="/assests/logo.png" alt="Logo" className="h-8 w-auto"/>
-            <span className="text-white font-semibold text-xl">{PLATFORM_NAME}</span>
+            <img 
+              src={teacher && slug ? `/${slug}/logo.png` : "/assests/logo.png"}
+              alt="Logo" 
+              className="h-8 w-auto"
+              onError={(e) => {
+                // Fallback to default logo if tenant logo doesn't exist
+                if (e.currentTarget.src !== "/assests/logo.png") {
+                  e.currentTarget.src = "/assests/logo.png";
+                }
+              }}
+            />
+            <span className="text-white font-semibold text-xl">{teacher?.display_name || PLATFORM_NAME}</span>
           </Link>
           
           <button
